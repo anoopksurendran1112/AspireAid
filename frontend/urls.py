@@ -3,5 +3,5 @@ from .import views
 
 urlpatterns = [
     path('',views.index),
-    path('',views.about),
+    path('about/',views.about),
 ]
