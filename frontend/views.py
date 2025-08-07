@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.db import IntegrityError
 from django.shortcuts import render, redirect
-
 from userModule.models import CustomUser
 
 
@@ -30,10 +29,10 @@ def sign_in(request):
             login(request, user)
             if user.is_staff or user.is_superuser:
                 messages.success(request, 'Welcome to the Admin Dashboard!')
-                return redirect('/admin/')
+                return redirect('/administrator/admin-dash/')
             else:
                 messages.success(request, f'Welcome, {user.first_name}!')
-                return redirect('/')
+                return redirect('/user/user-dash/')
         else:
             messages.error(request, 'Invalid email or password.')
             return render(request, "sign-in.html")

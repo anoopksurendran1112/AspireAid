@@ -11,11 +11,11 @@
 	<meta name="keywords" content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
 
 	<link rel="preconnect" href="https://fonts.gstatic.com">
-	<link rel="shortcut icon" href="{% static 'Dashboard/img/icons/icon-48x48.png' %}" />
+	<link rel="shortcut icon" href="{% static 'frontend/img/AspireAid_logo.png' %}" />
 
 	<link rel="canonical" href="https://demo-basic.adminkit.io/" />
 
-	<title>Admin</title>
+	<title>User</title>
 
 	<link href="{% static 'Dashboard/css/app.css' %}" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -25,9 +25,10 @@
 	<div class="wrapper">
 		<nav id="sidebar" class="sidebar js-sidebar">
 			<div class="sidebar-content js-simplebar">
-				<a class="sidebar-brand" href="index.html">
-          <span class="align-middle">Logo</span>
-        </a>
+				<a class="sidebar-brand" href="/user/user-dash/">
+                    <img src="{% static 'frontend/img/AspireAid_logo.png' %}" alt="Logo"  style="width:50px;">
+                    <span class="align-middle">AspireAid</span>
+                </a>
 
 				<ul class="sidebar-nav">
 					<li class="sidebar-header">
@@ -294,7 +295,7 @@
 			<main class="content">
 				<div class="container-fluid p-0">
 
-					<h1 class="h3 mb-3"><strong>User</strong></h1>
+					<h1 class="h3 mb-3"><strong>User</strong> Dashboard</h1>
 
 					<div class="row">
 						<div class="col-xl-6 col-xxl-5 d-flex">
