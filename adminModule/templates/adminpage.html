@@ -11,7 +11,7 @@
 	<meta name="keywords" content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
 
 	<link rel="preconnect" href="https://fonts.gstatic.com">
-	<link rel="shortcut icon" href="{% static 'Dashboard/img/icons/icon-48x48.png' %}" />
+	<link rel="shortcut icon" href="{% static 'frontend/img/AspireAid_logo.png' %}" />
 
 	<link rel="canonical" href="https://demo-basic.adminkit.io/" />
 
@@ -25,9 +25,10 @@
 	<div class="wrapper">
 		<nav id="sidebar" class="sidebar js-sidebar">
 			<div class="sidebar-content js-simplebar">
-				<a class="sidebar-brand" href="index.html">
-          <span class="align-middle">Logo</span>
-        </a>
+				<a class="sidebar-brand" href="/user/user-dash/">
+                    <img src="{% static 'frontend/img/AspireAid_logo.png' %}" alt="Logo"  style="width:50px;">
+                    <span class="align-middle">AspireAid</span>
+                </a>
 
 				<ul class="sidebar-nav">
 					<li class="sidebar-header">
