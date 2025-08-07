@@ -37,8 +37,9 @@
 
 					<li class="sidebar-item active">
 						<a class="sidebar-link" href="index.html">
-              <i class="align-middle" data-feather="sliders"></i> <span class="align-middle">Dashboard</span>
-            </a>
+                            <i class="align-middle" data-feather="home"></i>
+                            <span class="align-middle">Dashboard</span>
+                        </a>
 					</li>
 
 					<li class="sidebar-item">
@@ -133,8 +134,8 @@
 		<div class="main">
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
 				<a class="sidebar-toggle js-sidebar-toggle">
-          <i class="hamburger align-self-center"></i>
-        </a>
+                    <i class="hamburger align-self-center"></i>
+                </a>
 
 				<div class="navbar-collapse collapse">
 					<ul class="navbar-nav navbar-align">
@@ -294,7 +295,7 @@
 
 			<main class="content">
 				<div class="container-fluid p-0">
-
+                    {% block content %}
 					<h1 class="h3 mb-3"><strong>Admin</strong> Dashboard</h1>
 
 					<div class="row">
@@ -559,9 +560,10 @@
 							</div>
 						</div>
 					</div>
-
+                    {% endblock %}
 				</div>
 			</main>
+
 
 			<footer class="footer">
 				<div class="container-fluid">
@@ -593,7 +595,7 @@
 		</div>
 	</div>
 
-	<script src="{% static 'js/app.js' %}"></script>
+	<script src="{% static 'Dashboard/js/app.js' %}"></script>
 
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
