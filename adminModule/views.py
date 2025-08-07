@@ -2,5 +2,9 @@ from django.shortcuts import render
 
 # Create your views here.
 
-def adminpage(request):
-    return render(request, "adminpage.html")
+def adminDashboard(request):
+    return render(request, "admin-dashboard.html")
+
+
+def adminAddProject(request):
+    return render(request, "admin-add-project.html")
