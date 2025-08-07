@@ -4,3 +4,4 @@ __pycache__/
 
 # IDE files (e.g., PyCharm, IntelliJ)
 .idea/
+db.sqlite3
