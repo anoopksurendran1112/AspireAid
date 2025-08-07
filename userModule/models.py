@@ -20,3 +20,6 @@ class CustomUser(AbstractUser):
         help_text="Optional. User's profile picture."
     )
     table_status = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"User: {self.email}"
