@@ -17,7 +17,8 @@
 
 	<title>Admin</title>
 
-	<link href="{% static 'Dashboard/css/app.css' %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link href="{% static 'Dashboard/css/app.css' %}" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 
@@ -25,25 +26,30 @@
 	<div class="wrapper">
 		<nav id="sidebar" class="sidebar js-sidebar">
 			<div class="sidebar-content js-simplebar">
-				<a class="sidebar-brand" href="/user/user-dash/">
+				<a class="sidebar-brand" href="/administrator/admin-dash/">
                     <img src="{% static 'frontend/img/AspireAid_logo.png' %}" alt="Logo"  style="width:50px;">
                     <span class="align-middle">AspireAid</span>
                 </a>
 
 <!---------------------- Start Main Side-bar Menu -------------------->
 				<ul class="sidebar-nav">
-					<li class="sidebar-header">
-						Pages
-					</li>
 					<li class="sidebar-item active">
-						<a class="sidebar-link" href="index.html">
+						<a class="sidebar-link" href="/administrator/admin-dash/">
                             <i class="align-middle" data-feather="home"></i>
                             <span class="align-middle">Dashboard</span>
                         </a>
 					</li>
+					<li class="sidebar-header">
+						Project
+					</li>
 					<li class="sidebar-item">
-						<a class="sidebar-link" href="pages-profile.html">
-                          <i class="align-middle" data-feather="user"></i> <span class="align-middle">Profile</span>
+						<a class="sidebar-link" href="/administrator/add-project/">
+                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">All Projects</span>
+                        </a>
+					</li>
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/administrator/all-bank/">
+                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">All Bank Details</span>
                         </a>
 					</li>
 					<li class="sidebar-item">
@@ -584,7 +590,8 @@
 		</div>
 	</div>
 
-	<script src="{% static 'Dashboard/js/app.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <script src="{% static 'Dashboard/js/app.js' %}"></script>
 
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
