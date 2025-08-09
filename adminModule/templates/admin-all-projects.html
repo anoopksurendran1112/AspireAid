@@ -1,0 +1,261 @@
+{% extends 'admin-dashboard.html' %}
+{% block content %}
+    <h1 class="h3 mb-3"><strong>All Project Details</strong></h1>
+
+
+<!---------------------- Modal for Updating Default Bank Details -------------------->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Add New Project</strong></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+
+                        <div class="row">
+                            <div class="col-lg-6 px-4">
+                                <h3 class="card-title my-2 text-black">Project Details</h3>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="projectTitle" placeholder="Enter the project title.. " name="title">
+                                            <label for="projectTitle">Project Title</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="fundingGoal" placeholder="Enter the funding goal.. " name="goal">
+                                            <label for="fundingGoal">Funding Goal</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="tileValue" placeholder="Enter tile value " name="tvalue">
+                                            <label for="tileValue">Single Tile Value</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                        <input type="date" class="form-control" id="closingDate" placeholder="Enter Closing Date " name="clsdate">
+                                        <label for="closingDate">Closing Date</label>
+                                    </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <textarea class="form-control" id="projectDesc" rows="4" placeholder="Enter the description..." name="desc"></textarea>
+                                            <label for="projectDesc">Project Description</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h3 class="card-title my-2 text-black">Beneficiary Details</h3>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="fname" placeholder="Enter Firstname" name="fname">
+                                            <label for="fname">First Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="lname" placeholder="Enter Lastname" name="lname">
+                                            <label for="lname">Last Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="tel" class="form-control" id="telPhn"  placeholder="Enter Phone Number.. " name="phn">
+                                            <label for="telPhn">Phone Number</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="number" class="form-control" id="age"  placeholder="Enter Age " name="age">
+                                            <label for="age">Enter Age</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <textarea class="form-control" id="address" placeholder="Enter your Address.." name="addr"></textarea>
+                                            <label for="address">Address</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6  px-4">
+                                <h3 class="card-title my-2 text-black">Bank Details</h3>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <select id="myDropdown" name="acc_type" class="form-control form-select">
+                                                <option value="default" selected>Default Bank Account</option>
+                                                <option value="custom" >Custom Bank Account</option>
+                                            </select>
+                                            <label for="myDropdown">Bank Typre</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control bank-field" id="acHolderFirstName" name="account_holder_first_name" placeholder="Enter First Name..">
+                                            <label for="acHolderFirstName">A/c holder's Firstname</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control bank-field" id="acHolderLastName" name="account_holder_last_name" placeholder="Enter Last Name..">
+                                            <label for="acHolderLastName">A/c holder's Lastname</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <input type="tel" class="form-control bank-field" id="account_holder_phn_no" name="account_holder_phn_no" placeholder="Enter Phn..">
+                                            <label for="account_holder_phn_no">A/c holder's Phn no</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <textarea class="form-control bank-field" rows="4" id="account_holder_address" name="account_holder_address" placeholder="Enter the Address..">{{bank.account_holder_address}}</textarea>
+                                            <label for="account_holder_address">A/c holder's Address</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control bank-field" id="bank_name" name="bank_name" placeholder="Enter Bank Name">
+                                            <label for="bank_name">Bank Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control bank-field" id="branch_name" name="branch_name" placeholder="Enter Branch Name">
+                                            <label for="branch_name">Branch Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control bank-field" id="ifsc" name="ifsc" placeholder="Enter IFSC code">
+                                            <label for="ifsc">IFSC code</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <input type="number" class="form-control bank-field" id="accno" name="accno" placeholder="Enter Account number">
+                                            <label for="accno">A/c number</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control bank-field" id="upi" name="upi" placeholder="Enter UPI id">
+                                            <label for="upi">UPI id</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
+                        <button type="submit" class="btn btn-success">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+<!---------------------- All Bank Details Table -------------------->
+    <div class="row">
+        <div class="col-12 col-lg-12 col-xxl-12 d-flex">
+            <div class="card flex-fill">
+                <div class="card-header d-flex justify-content-end">
+                    <button class="btn btn-primary" data-bs-target="#exampleModal" data-bs-toggle="modal">
+                        Add New Project +
+                    </button>
+                </div>
+                <table class="table table-hover my-0">
+                    <thead>
+                        <tr>
+                            <th class="d-none d-xl-table-cell">Project Title</th>
+                            <th class="d-none d-xl-table-cell">Beneficiary</th>
+                            <th class="d-none d-md-table-cell">Target</th>
+                            <th class="d-none d-md-table-cell">Tile Value</th>
+                            <th class="d-none d-md-table-cell">A/c holder</th>
+                            <th class="d-none d-md-table-cell">Start date</th>
+                            <th class="d-none d-md-table-cell">End date</th>
+                            <th class="d-none d-md-table-cell">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for p in prj %}
+                        <tr>
+                            <td class="">{{p.title}}</td>
+                            <td class="d-none d-xl-table-cell">{{p.beneficiary.first_name}} {{p.beneficiary.last_name}}</td>
+                            <td class="d-none d-xl-table-cell">{{p.funding_goal}}</td>
+                            <td class="d-none d-xl-table-cell">{{p.tile_value}}</td>
+                            <td class="d-none d-xl-table-cell">
+                                {{p.bank_details.account_holder_first_name}} {{p.bank_details.account_holder_last_name}}</td>
+                            <td class="d-none d-xl-table-cell">{{p.created_at}}</td>
+                            <td class="d-none d-xl-table-cell">{{p.closing_date}}</td>
+                            <td class="d-none d-xl-table-cell">
+                                <a class="" href="/administrator/">
+                                  <i class="align-middle" data-feather="eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const dropdown = document.getElementById('myDropdown');
+            const bankFields = document.querySelectorAll('.bank-field');
+            const bankLabels = document.querySelectorAll('.bank-label');
+
+            function toggleFields() {
+                const isDefault = dropdown.value === 'default';
+                bankFields.forEach(field => {
+                    field.readOnly  = isDefault;
+                    if (isDefault) {
+                        if (field.name === 'account_holder_first_name') {
+                            field.value = '{{bank.account_holder_first_name}}';
+                        } else if (field.name === 'account_holder_last_name') {
+                            field.value = '{{bank.account_holder_last_name}}';
+                        } else if (field.name === 'account_holder_phn_no') {
+                            field.value = '{{bank.account_holder_phn_no}}';
+                        } else if (field.name === 'account_holder_address') {
+                            field.value = '{{bank.account_holder_address}}';
+                        } else if (field.name === 'bank_name') {
+                            field.value = '{{bank.bank_name}}';
+                        } else if (field.name === 'branch_name') {
+                            field.value = '{{bank.branch_name}}';
+                        } else if (field.name === 'ifsc') {
+                            field.value = '{{bank.ifsc_code}}';
+                        } else if (field.name === 'accno') {
+                            field.value = '{{bank.account_no}}';
+                        } else if (field.name === 'upi') {
+                            field.value = '{{bank.upi_id}}';
+                        }
+                    } else {
+                        field.value = '';
+                    }
+                });
+                bankLabels.forEach(label => {
+                    label.classList.toggle('disabled-label', isDefault);
+                });
+            }
+            toggleFields();
+            dropdown.addEventListener('change', toggleFields);
+
+        });
+    </script>
+{% endblock %}
