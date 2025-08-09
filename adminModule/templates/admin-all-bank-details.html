@@ -1,6 +1,6 @@
 {% extends 'admin-dashboard.html' %}
 {% block content %}
-    <h1 class="h3 mb-3"><strong>Admin</strong> Dashboard</h1>
+    <h1 class="h3 mb-3"><strong>All Bank Details</strong></h1>
 
 
 <!---------------------- Modal for Updating Default Bank Details -------------------->
@@ -8,7 +8,7 @@
         <div class="modal-dialog ">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Update Default Bank Details</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Update Default Bank Details</strong></h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
@@ -58,9 +58,9 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">Save changes</button>
+                    <div class="modal-footer d-flex justify-content-between">
                         <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
+                        <button type="submit" class="btn btn-success">Save changes</button>
                     </div>
                 </form>
             </div>
@@ -70,8 +70,7 @@
     <div class="row">
         <div class="col-12 col-lg-12 col-xxl-12 d-flex">
             <div class="card flex-fill">
-                <div class="card-header d-flex justify-content-between">
-                    <h5 class="card-title mb-0">All Bank Details</h5>
+                <div class="card-header d-flex justify-content-end">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                         Edit Default Bank Details
                     </button>
@@ -86,11 +85,12 @@
                             <th class="d-none d-md-table-cell">IFSC code</th>
                             <th class="d-none d-md-table-cell">A/c number</th>
                             <th class="d-none d-md-table-cell">UPI id</th>
+                            <th class="d-none d-md-table-cell">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                     {% for b in banks %}
-                        <tr {% if b.account_type == 'default' %}class="table-active"{% endif %}>
+                        <tr {% if b.account_type == 'default' %}class="table-active"{% endif %} >
                             <td class="">{{b.account_holder_first_name}} {{b.account_holder_last_name}}</td>
                             <td class="d-none d-xl-table-cell">+91-{{b.account_holder_phn_no}}</td>
                             <td class="d-none d-xl-table-cell">{{b.bank_name}}</td>
@@ -98,6 +98,11 @@
                             <td class="d-none d-xl-table-cell">{{b.ifsc_code}}</td>
                             <td class="d-none d-xl-table-cell">{{b.account_no}}</td>
                             <td class="d-none d-xl-table-cell">{{b.upi_id}}</td>
+                            <td class="d-none d-xl-table-cell">
+                                <a class="" href="/administrator/">
+                                  <i class="align-middle" data-feather="eye"></i>
+                                </a>
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>
