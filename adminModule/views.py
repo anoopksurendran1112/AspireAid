@@ -1,14 +1,22 @@
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
-
 from adminModule.models import BankDetails, Beneficial, Project
+from userModule.models import CustomUser
 
 
 # Create your views here.
 def adminDashboard(request):
-    return render(request, "admin-dashboard.html")
+    if request.user.is_authenticated:
+        logged_user_id = request.session.get('logged_user_id')
+        logged_user = CustomUser.objects.get(id=logged_user_id)
+        return render(request, "admin-dashboard.html",{'admin':logged_user})
+    else:
+        return redirect('/sign-in/')
 
 
 def adminAllProject(request):
+    logged_user_id = request.session.get('logged_user_id')
+    logged_user = CustomUser.objects.get(id=logged_user_id)
     prj = Project.objects.all()
     default_bank = BankDetails.objects.get(account_type = "default")
     if request.method == "POST":
@@ -49,11 +57,19 @@ def adminAllProject(request):
             title=title, description=desc, beneficiary=beneficiar, funding_goal=goal,
             tile_value=tval, closing_date=clsdate, bank_details=bank_details)
         new_project.save()
-        return redirect('/administrator/all-project/')
-    return render(request, "admin-all-projects.html",{'prj':prj, 'bank':default_bank})
+        return redirect('/administrator/all-project/', {'admin':logged_user})
+    return render(request, "admin-all-projects.html",{'prj':prj, 'bank':default_bank, 'admin':logged_user})
+
+
+def adminSingleProject(request):
+    logged_user_id = request.session.get('logged_user_id')
+    logged_user = CustomUser.objects.get(id=logged_user_id)
+    return render(request,"admin-single-projects.html", { 'admin':logged_user})
 
 
 def adminAllBankDetails(request):
+    logged_user_id = request.session.get('logged_user_id')
+    logged_user = CustomUser.objects.get(id=logged_user_id)
     banks = BankDetails.objects.all()
     if request.method == "POST":
         fname = request.POST.get('account_holder_first_name')
@@ -67,4 +83,4 @@ def adminAllBankDetails(request):
         upi = request.POST.get('upi_id')
         BankDetails.objects.filter(account_type='default').update(account_holder_first_name=fname, account_holder_last_name=lname,account_holder_address=addr, account_holder_phn_no=phn, account_type="default",bank_name=bname,branch_name=brname,ifsc_code=ifcs,account_no=accno,upi_id=upi)
         return redirect('/administrator/all-bank/')
-    return render(request, "admin-all-bank-details.html",{'banks':banks})
+    return render(request, "admin-all-bank-details.html",{'banks':banks,  'admin':logged_user})
