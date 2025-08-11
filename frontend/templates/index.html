@@ -45,10 +45,10 @@
 							<div class="main-menubar d-flex align-items-center">
 								<nav>
 									<a href="/">Home</a>
-									<a href="#project">Projects</a>
-									<a href="about/">About</a>
-									<a href="contactus/">Contact Us</a>
-									<a href="sign-in/">Log In</a>
+									<a href="/avail-projects/">Projects</a>
+									<a href="/about/">About</a>
+									<a href="/contact-us/">Contact Us</a>
+									<a href="/sign-in/">Sign In</a>
 								</nav>
 								<div class="menu-bar"><span class="lnr lnr-menu"></span></div>
 							</div>
@@ -57,6 +57,8 @@
 				</div>
 			</header>
 			<!-- End Header Area -->
+
+            {% block content %}
 
 			<!-- start banner Area -->
 			<section class="banner-area relative" id="home">
@@ -335,16 +337,18 @@
 			</section>
 			<!-- End donate Area -->
 
+            {% endblock %}
 
 			<!-- start footer Area -->
 			<footer class="footer-area section-gap">
 				<div class="container">
 					<div class="row d-flex flex-column justify-content-center">
 						<ul class="footer-menu">
-							<li><a href="#home">Home</a></li>
-							<li><a href="#project">Projects</a></li>
-							<li><a href="#about">About</a></li>
-							<li><a href="#donate">Contact us</a></li>
+							<li><a href="/">Home</a></li>
+							<li><a href="/avail-projects/">Projects</a></li>
+							<li><a href="/about/">About</a></li>
+							<li><a href="/contact-us/">Contact us</a></li>
+							<li><a href="/sign-in/">Sign In</a></li>
 						</ul>
 						<div class="footer-social">
 							<a href="#"><i class="fa fa-facebook"></i></a>
