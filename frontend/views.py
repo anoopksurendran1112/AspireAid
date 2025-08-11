@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.db import IntegrityError
 from django.shortcuts import render, redirect
 from userModule.models import CustomUser
+from adminModule.models import Project
 
 
 # Create your views here.
@@ -61,3 +62,8 @@ def sign_up(request):
             messages.error(request, 'A user with that username or email already exists.')
             return render(request, "sign-up.html")
     return render(request, "sign-up.html")
+
+
+def available_projects(request):
+    project=Project.objects.all()
+    return  render(request,"available-projects.html",{'projects':project})
