@@ -15,7 +15,7 @@ def about(request):
 
   
 def contactus(request):
-    return render(request,"contactus.html")
+    return render(request,"contact-us.html")
 
 
 def sign_in(request):
@@ -24,14 +24,15 @@ def sign_in(request):
         password = request.POST.get('password')
 
         user = authenticate(request, username=username, password=password)
-        request.session['logged_user_id'] = user.id
 
         if user is not None:
+            request.session['logged_user_id'] = user.id
             login(request, user)
             if user.is_staff or user.is_superuser:
                 messages.success(request, 'Welcome to the Admin Dashboard!')
                 return redirect('/administrator/admin-dash/')
             else:
+                print({user.first_name})
                 messages.success(request, f'Welcome, {user.first_name}!')
                 return redirect('/user/user-dash/')
         else:

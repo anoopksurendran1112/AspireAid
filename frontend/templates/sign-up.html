@@ -1,169 +1,79 @@
-<!DOCTYPE html>
+{% extends 'index.html' %}
 {% load static %}
-	<html lang="zxx" class="no-js">
-	<head>
-		<!-- Mobile Specific Meta -->
-		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<!-- Favicon-->
-		<link rel="shortcut icon" href="{% static 'frontend/img/fav.png' %}">
-		<!-- Author Meta -->
-		<meta name="author" content="Colorlib">
-		<!-- Meta Description -->
-		<meta name="description" content="">
-		<!-- Meta Keyword -->
-		<meta name="keywords" content="">
-		<!-- meta character set -->
-		<meta charset="UTF-8">
-		<!-- Site Title -->
-		<title>AspireAid</title>
+{% block content %}
 
-		<link href="https://fonts.googleapis.com/css?family=Poppins:100,200,400,300,500,600,700" rel="stylesheet">
-			<!--
-			CSS
-			============================================= -->
-			<link rel="stylesheet" href="{% static 'frontend/css/linearicons.css' %}">=
-			<link rel="stylesheet" href="{% static 'frontend/css/font-awesome.min.css' %}">
-			<link rel="stylesheet" href="{% static 'frontend/css/magnific-popup.css' %}">
-			<link rel="stylesheet" href="{% static 'frontend/css/nice-select.css' %}">
-			<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-			<link rel="stylesheet" href="{% static 'frontend/css/bootstrap.css' %}">
-			<link rel="stylesheet" href="{% static 'frontend/css/main.css' %}">
-		</head>
-		<body>
-
-			<!-- Start Header Area -->
-			<header class="default-header">
-				<div class="container">
-					<div class="header-wrap">
-						<div class="header-top d-flex justify-content-between align-items-center">
-							<div class="logo d-flex justify-content-between align-items-center">
-								<a href="#home"><img src="{% static 'frontend/img/AspireAid_logo.png' %}" alt="Logo"  style="width:50px;"></a>
-								<h4>AspireAid</h4>
-							</div>
-							<div class="main-menubar d-flex align-items-center">
-								<nav>
-									<a href="/">Home</a>
-									<a href="#project">Projects</a>
-									<a href="#about">About</a>
-									<a href="#donate">Contact Us</a>
-									<a href="sign-in/">Sign In</a>
-								</nav>
-								<div class="menu-bar"><span class="lnr lnr-menu"></span></div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</header>
-			<!-- End Header Area -->
-
-			<!-- Start Sign In Area -->
-			<section class="donate-area relative section-gap" id="donate">
-				<div class="overlay overlay-bg"></div>
-				<div class="container">
-					<div class="row d-flex justify-content-center">
-						<div class="col-lg-12 col-sm-12 pb-50 header-text text-center">
-							<h1>Sign-Up</h1>
-						</div>
-						<div class="col-lg-6 contact-right">
-							<form class="booking-form" id="myForm" method="post">
-                                {% csrf_token %}
+    <!-- Start Sign In Area -->
+    <section class="donate-area relative section-gap" id="donate">
+        <div class="overlay overlay-bg"></div>
+        <div class="container">
+            <div class="row d-flex justify-content-center">
+                <div class="col-lg-12 col-sm-12 pb-50 header-text text-center">
+                    <h1>Sign-Up</h1>
+                </div>
+                <div class="col-lg-6 contact-right">
+                    <form class="booking-form" id="myForm" method="post">
+                        {% csrf_token %}
 
 <!--                            Error or Success message-->
-                                {% if messages %}
-                                    {% for message in messages %}
-                                        <p  class="text-white">{{ message }}</p>
-                                    {% endfor %}
-                                {% endif %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <p  class="text-white">{{ message }}</p>
+                            {% endfor %}
+                        {% endif %}
 
-                                <div class="row">
-										<div class="col-lg-6 d-flex flex-column pb-10">
-											<input name="fname" placeholder="Enter your first name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your first name'" class="form-control mt-20" required="" type="text">
-										</div>
-										<div class="col-lg-6 d-flex flex-column pb-10">
-											<input name="lname" placeholder="Enter your last name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your last name'" class="form-control mt-20" required="" type="text">
-										</div>
+                        <div class="row">
+                            <div class="col-lg-6 d-flex flex-column pb-10">
+                                <input name="fname" placeholder="Enter your first name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your first name'" class="form-control mt-20" required="" type="text">
+                            </div>
+                            <div class="col-lg-6 d-flex flex-column pb-10">
+                                <input name="lname" placeholder="Enter your last name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your last name'" class="form-control mt-20" required="" type="text">
+                            </div>
 
-										<div class="col-lg-6 d-flex flex-column pb-10">
-											<input name="email" placeholder="Enter your email address" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,63}$" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'" class="form-control mt-20" required type="email">
-										</div>
-										<div class="col-lg-6 d-flex flex-column pb-10">
-											<input name="phn" placeholder="Enter your phone number" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your phone number'" class="form-control mt-20" required="" type="tel">
-										</div>
-                                    <div class="col-lg-6 d-flex flex-column pb-10">
-    <input name="password" id="password" placeholder="Enter password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter password'" class="form-control mt-20" required type="password">
-</div>
-<div class="col-lg-6 d-flex flex-column pb-10">
-    <input name="cpwd" id="cpwd" placeholder="Confirm password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Confirm password'" class="form-control mt-20" required type="password">
-</div>
-<div class="col-lg-12 d-flex pb-30 send-btn justify-content-center">
-    <button type="submit" id="registerButton" class="submit-btn primary-btn mt-20 text-uppercase" disabled>Register</button>
-</div>
+                            <div class="col-lg-6 d-flex flex-column pb-10">
+                                <input name="email" placeholder="Enter your email address" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,63}$" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'" class="form-control mt-20" required type="email">
+                            </div>
+                            <div class="col-lg-6 d-flex flex-column pb-10">
+                                <input name="phn" placeholder="Enter your phone number" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your phone number'" class="form-control mt-20" required="" type="tel">
+                            </div>
+                            <div class="col-lg-6 d-flex flex-column pb-10">
+                                <input name="password" id="password" placeholder="Enter password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter password'" class="form-control mt-20" required type="password">
+                            </div>
+                            <div class="col-lg-6 d-flex flex-column pb-10">
+                                <input name="cpwd" id="cpwd" placeholder="Confirm password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Confirm password'" class="form-control mt-20" required type="password">
+                            </div>
+                            <div class="col-lg-12 d-flex pb-30 send-btn justify-content-center">
+                                <button type="submit" id="registerButton" class="submit-btn primary-btn mt-20 text-uppercase" disabled>Register</button>
+                            </div>
 
-										<div class="alert-msg"></div>
+                            <div class="alert-msg"></div>
 
-										<div class="col-lg-12 text-white text-center">
-                                            Already has an Account...<a href="/sign-in/" class="text-white"> Sign In.</a> <br>
-										</div>
+                            <div class="col-lg-12 text-white text-center">
+                                Already has an Account...<a href="/sign-in/" class="text-white"> Sign In.</a> <br>
+                            </div>
 
-									</div>
-					  		</form>
-						</div>
-					</div>
-				</div>
-			</section>
-			<!-- End Sign In Area -->
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End Sign In Area -->
 
-			<!-- start footer Area -->
-			<footer class="footer-area section-gap">
-				<div class="container">
-					<div class="row d-flex flex-column justify-content-center">
-						<ul class="footer-menu">
-							<li><a href="#home">Home</a></li>
-							<li><a href="#project">Projects</a></li>
-							<li><a href="#about">About</a></li>
-							<li><a href="#donate">Contact us</a></li>
-						</ul>
-						<div class="footer-social">
-							<a href="#"><i class="fa fa-facebook"></i></a>
-							<a href="#"><i class="fa fa-twitter"></i></a>
-							<a href="#"><i class="fa fa-dribbble"></i></a>
-							<a href="#"><i class="fa fa-behance"></i></a>
-						</div>
-						<p class="footer-text m-0">
-							<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-							Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | <a href="https://kochi.digital/" target="_blank">Kochi Digital</a>
-							<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-						</p>
-					</div>
-				</div>
-			</footer>
-			<!-- End footer Area -->
-
-			<script src="{% static 'frontend/js/vendor/jquery-2.2.4.min.js' %}"></script>
-			<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
-			<script src="{% static 'frontend/s/vendor/bootstrap.min.js' %}"></script>
-			<script src="{% static 'frontend/js/jquery.ajaxchimp.min.js' %}"></script>
-			<script src="{% static 'frontend/js/jquery.nice-select.min.js' %}"></script>
-			<script src="{% static 'frontend/js/jquery.sticky.js' %}"></script>
-			<script src="{% static 'frontend/js/parallax.min.js' %}"></script>
-			<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-			<script src="{% static 'frontend/js/jquery.magnific-popup.min.js' %}"></script>
-			<script src="{% static 'frontend/js/main.js' %}"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const password = document.getElementById('password');
-        const confirmPassword = document.getElementById('cpwd');
-        const registerButton = document.getElementById('registerButton');
-        function validatePasswords() {
-            if (password.value === '' || confirmPassword.value === '' || password.value !== confirmPassword.value) {
-                registerButton.disabled = true;
-            } else {
-                registerButton.disabled = false;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('cpwd');
+            const registerButton = document.getElementById('registerButton');
+            function validatePasswords() {
+                if (password.value === '' || confirmPassword.value === '' || password.value !== confirmPassword.value) {
+                    registerButton.disabled = true;
+                } else {
+                    registerButton.disabled = false;
+                }
             }
-        }
-        password.addEventListener('input', validatePasswords);
-        confirmPassword.addEventListener('input', validatePasswords);
-    });
-</script>
-		</body>
-	</html>
+            password.addEventListener('input', validatePasswords);
+            confirmPassword.addEventListener('input', validatePasswords);
+        });
+    </script>
+
+{% endblock %}
