@@ -26,14 +26,11 @@ def sign_in(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            request.session['logged_user_id'] = user.id
             login(request, user)
+
             if user.is_staff or user.is_superuser:
-                messages.success(request, 'Welcome to the Admin Dashboard!')
                 return redirect('/administrator/admin-dash/')
             else:
-                print({user.first_name})
-                messages.success(request, f'Welcome, {user.first_name}!')
                 return redirect('/user/user-dash/')
         else:
             messages.error(request, 'Invalid email or password.')
