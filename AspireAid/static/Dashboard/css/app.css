@@ -24,3 +24,43 @@
   object-fit: cover;
   object-position: center;
 }
+
+.tile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+}
+.booking-tile {
+    height: 30px;
+    width: 55px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .5rem
+    transition: all 0.2s ease-in-out;
+}
+.booking-tile.available {
+    background-color: #6abbec54;
+    border-color: #58afe4;
+    cursor: pointer;
+}
+.booking-tile.available:hover {
+    background-color: #6abbec54;
+    transform: scale(1.05);
+    box-shadow: 0 0 5px rgb(88, 175, 228);
+}
+.booking-tile.sold {
+    background-color: #d7d7d7;
+    border-color:#606060;
+    color: #606060;
+    cursor: not-allowed;
+}
+.booking-tile.selected {
+    background-color: #58afe4;
+    border-color: #6abbec54;
+    color: black;
+    border: 1px solid black;
+    box-shadow: 0 0 10px rgba(33, 150, 243, 0.8);
+    transform: scale(1.1);
+}
