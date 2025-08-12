@@ -8,23 +8,24 @@ from userModule.models import CustomUser
 # Create your views here.
 @login_required(login_url='/sign-in/')
 def userDashboard(request):
-    if request.user.is_superuser == False and request.user.is_staff == False:
+    if request.user and (request.user.is_superuser == False and request.user.is_staff == False):
         return render(request, "user-dashboard.html", {'user':request.user})
     else:
         return redirect('/sign-in/')
 
 
 def userAvailbleProjects(request):
-    if request.user.is_superuser == False and request.user.is_staff == False:
+    if request.user and (request.user.is_superuser == False and request.user.is_staff == False):
         avail_prj = Project.objects.filter(closing_date__gte=date.today())
         return render(request,'user-available-project.html', {'user':request.user, 'projects':avail_prj})
     else:
         return redirect('/sign-in/')
 
 
-def userSingleProject(request):
-    if request.user.is_superuser == False and request.user.is_staff == False:
-        avail_prj = Project.objects.filter(closing_date__gte=date.today())
-        return render(request, 'user-single-project.html', {'user': request.user, 'projects': avail_prj})
+def userSingleProject(request,prj_id):
+    if  request.user and (request.user.is_superuser == False and request.user.is_staff == False):
+        prj = Project.objects.get(id=prj_id)
+        tile_range = range(1, int(prj.funding_goal // prj.tile_value) + 1)
+        return render(request, 'user-single-project.html', {'user': request.user, 'project': prj,'t_range': tile_range})
     else:
         return redirect('/sign-in/')
