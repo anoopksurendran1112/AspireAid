@@ -15,7 +15,7 @@
 
 	<link rel="canonical" href="https://demo-basic.adminkit.io/" />
 
-	<title>Admin</title>
+	<title>AsperAid - User: {{user.username}}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <link href="{% static 'Dashboard/css/app.css' %}" rel="stylesheet">
@@ -26,7 +26,7 @@
 	<div class="wrapper">
 		<nav id="sidebar" class="sidebar js-sidebar">
 			<div class="sidebar-content js-simplebar">
-				<a class="sidebar-brand" href="/administrator/admin-dash/">
+				<a class="sidebar-brand" href="/user/user-dash/">
                     <img src="{% static 'frontend/img/AspireAid_logo.png' %}" alt="Logo"  style="width:50px;">
                     <span class="align-middle">AspireAid</span>
                 </a>
@@ -34,39 +34,14 @@
 <!---------------------- Start Main Side-bar Menu -------------------->
 				<ul class="sidebar-nav py-4">
 					<li class="sidebar-item active">
-						<a class="sidebar-link" href="/administrator/admin-dash/">
+						<a class="sidebar-link" href="/user/user-dash/">
                             <i class="align-middle" data-feather="home"></i>
                             <span class="align-middle">Dashboard</span>
                         </a>
 					</li>
 					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/all-project/">
-                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">Projects</span>
-                        </a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/">
-                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">Users</span>
-                        </a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/all-bank/">
-                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">Bank Details</span>
-                        </a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/">
-                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">Transaction Details</span>
-                        </a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/">
-                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">Receipts</span>
-                        </a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/">
-                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">Reports</span>
+						<a class="sidebar-link" href="/user/user-avail-project/">
+                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">Available Projects</span>
                         </a>
 					</li>
 				</ul>
@@ -241,7 +216,7 @@
 			<main class="content">
 				<div class="container-fluid p-0">
                     {% block content %}
-					<h1 class="h3 mb-3"><strong>Admin</strong> Dashboard</h1>
+					<h1 class="h3 mb-3"><strong>User</strong> Dashboard</h1>
 
 					<div class="row">
 						<div class="col-xl-6 col-xxl-5 d-flex">

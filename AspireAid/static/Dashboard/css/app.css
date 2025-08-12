@@ -8,3 +8,19 @@
 .form-label{
     width:125px;
 }
+.data-card{
+        box-shadow: 0 0 .875rem 0 rgba(33, 37, 41, .175);
+}
+
+.carousel-image-wrapper {
+  height: 150px;
+  overflow: hidden;
+  position: relative; /* Needed for object-fit to work correctly */
+}
+
+.carousel-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
