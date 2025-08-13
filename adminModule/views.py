@@ -86,3 +86,11 @@ def adminAllBankDetails(request):
         return render(request, "admin-all-bank-details.html",{'banks':banks, 'admin': request.user})
     else:
         return redirect('/sign-in/')
+
+
+def adminAllInstitution(request):
+    return render(request,"admin-all-institution.html")
+
+
+def adminAllInstiAdmin(request):
+    return render(request,"admin-all-insti-admin.html")
