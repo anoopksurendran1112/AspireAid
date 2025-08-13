@@ -3,62 +3,35 @@
 
     <div class="row">
         <div class="col-lg-12">
-            <div class="card border data-card">
-                <div class="card-body">
-                    <h1 class="mb-5"><strong>Available Projects</strong></h1>
-                    <div class="row">
-                        {% for ap in projects %}
-                        <div class="col-lg-4 col-md-6 mb-2">
-                            <div class="card border data-card">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-12 mb-3">
-                                            <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
-                                                <div class="carousel-inner">
-                                                    <div class="carousel-item active">
-                                                        <img src="https://cloudinary-marketing-res.cloudinary.com/images/w_1000,c_scale/v1679921049/Image_URL_header/Image_URL_header-png?_i=AA" class="d-block w-100" alt="...">
-                                                    </div>
-                                                    <div class="carousel-item">
-                                                        <img src="https://cloudinary-marketing-res.cloudinary.com/images/w_1000,c_scale/v1679921049/Image_URL_header/Image_URL_header-png?_i=AA" class="d-block w-100" alt="...">
-                                                    </div>
-                                                    <div class="carousel-item">
-                                                        <img src="https://cloudinary-marketing-res.cloudinary.com/images/w_1000,c_scale/v1679921049/Image_URL_header/Image_URL_header-png?_i=AA" class="d-block w-100" alt="...">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="row">
-                                                <div class="col-lg-7 col-md-12 mb-3">
-                                                    <h2 class="mt-1">{{ap.title}}</h2>
-                                                </div>
-                                                <div class="col-lg-5 col-md-12 mb-3 text-lg-end">
-                                                    <a href="/user/user-single-project/{{ap.id}}/" class="btn btn-primary">View Project</a>
-                                                </div>
-                                                <div class="col-6 text-start">
-                                                    <h5 class="text-success">1000000 <span>Rs.</span></h5>
-                                                </div>
-                                                <div class="col-6 text-end">
-                                                    <h5 class="text-primary">{{ap.funding_goal}} <span>Rs.</span></h5>
-                                                </div>
-                                                <div class="col-12">
-                                                    <div class="progress bg-primary" role="progressbar" aria-label="Animated striped example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="height:5px;">
-                                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 75%"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-4 text-end">
-
-                                        </div>
+            <h1 class="mb-4"><strong>Available Projects</strong></h1>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for ap in projects %}
+                <div class="col">
+                    <div class="card h-100 data-card">
+                        <img src="https://cloudinary-marketing-res.cloudinary.com/images/w_1000,c_scale/v1679921049/Image_URL_header/Image_URL_header-png?_i=AA" class="card-img-top" alt="...">
+                        <div class="card-body pb-0">
+                            <h5 class="card-title">{{ap.title}}</h5>
+                            <p class="card-text">{{ap.description}}</p>
+                            <div class="row mb-3">
+                                <div class="col-6 text-start">
+                                    <h5 class="text-success">1000000 <span>Rs.</span></h5>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <h5 class="text-primary">1000<span>Rs.</span></h5>
+                                </div>
+                                <div class="col-12">
+                                    <div class="progress bg-primary" role="progressbar" aria-label="Animated striped example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="height:5px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 75%"></div>
                                     </div>
-
                                 </div>
                             </div>
+                            <div class="text-end">
+                                <a href="/user/user-single-project/{{ap.id}}/" class="btn btn-primary">View Project</a>
+                            </div>
                         </div>
-                        {% endfor %}
                     </div>
                 </div>
+                {% endfor %}
             </div>
         </div>
     </div>
