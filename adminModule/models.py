@@ -6,6 +6,17 @@ ACCOUNT_TYPES = [
 ]
 
 
+class Institution(models.Model):
+    institution_name = models.CharField(max_length=255,)
+    address = models.TextField()
+    phn = models.CharField(max_length=20)
+    email = models.EmailField(unique=True)
+    institution_img = models.ImageField(upload_to='institution_img/', blank=True, null=True)
+    table_status = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.institution_name
+
 class Beneficial(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)

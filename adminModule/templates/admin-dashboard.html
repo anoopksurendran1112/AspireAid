@@ -15,7 +15,7 @@
 
 	<link rel="canonical" href="https://demo-basic.adminkit.io/" />
 
-	<title>Admin</title>
+	<title>Admin : {{admin.email}}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <link href="{% static 'Dashboard/css/app.css' %}" rel="stylesheet">
@@ -39,29 +39,43 @@
                             <span class="align-middle">Dashboard</span>
                         </a>
 					</li>
+                    {% if admin.is_superuser %}
+                    <li class="sidebar-header">Super User</li>
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/administrator/all-institution/">
+                          <i class="align-middle" data-feather="globe"></i> <span class="align-middle">Institutions</span>
+                        </a>
+					</li>
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/administrator/all-insti-admin/">
+                          <i class="align-middle" data-feather="user"></i> <span class="align-middle">Admins</span>
+                        </a>
+					</li>
+                    {% endif %}
+                    <li class="sidebar-header">Administrator</li>
 					<li class="sidebar-item">
 						<a class="sidebar-link" href="/administrator/all-project/">
-                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">Projects</span>
+                          <i class="align-middle" data-feather="folder"></i> <span class="align-middle">Projects</span>
                         </a>
 					</li>
 					<li class="sidebar-item">
 						<a class="sidebar-link" href="/administrator/">
-                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">Users</span>
+                          <i class="align-middle" data-feather="users"></i> <span class="align-middle">Users</span>
                         </a>
 					</li>
 					<li class="sidebar-item">
 						<a class="sidebar-link" href="/administrator/all-bank/">
-                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">Bank Details</span>
+                          <i class="align-middle" data-feather="server"></i> <span class="align-middle">Bank Details</span>
                         </a>
 					</li>
 					<li class="sidebar-item">
 						<a class="sidebar-link" href="/administrator/">
-                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">Transaction Details</span>
+                          <i class="align-middle" data-feather="credit-card"></i> <span class="align-middle">Transaction Details</span>
                         </a>
 					</li>
 					<li class="sidebar-item">
 						<a class="sidebar-link" href="/administrator/">
-                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">Receipts</span>
+                          <i class="align-middle" data-feather="file"></i> <span class="align-middle">Receipts</span>
                         </a>
 					</li>
 					<li class="sidebar-item">
