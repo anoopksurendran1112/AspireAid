@@ -6,4 +6,6 @@ urlpatterns = [
     path('all-project/',views.adminAllProject),
     path('single-project/',views.adminSingleProject),
     path('all-bank/',views.adminAllBankDetails),
+    path('all-institution/',views.adminAllInstitution),
+    path('all-insti-admin/',views.adminAllInstiAdmin),
 ]
