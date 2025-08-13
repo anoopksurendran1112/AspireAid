@@ -1,9 +1,7 @@
 {% extends 'admin-dashboard.html' %}
 {% block content %}
-    <h1 class="h3 mb-3"><strong>All Bank Details</strong></h1>
 
-
-<!---------------------- Modal for Updating Default Bank Details -------------------->
+<!---------------------- Modal for Adding new Institution -------------------->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog ">
             <div class="modal-content">
@@ -16,46 +14,42 @@
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="row p-2">
-                            {% for def in banks %}
-                            {% if def.account_type == "default" %}
                             <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="acHolderFirstName" placeholder="Enter Firstname" value="{{def.account_holder_first_name}}" name="account_holder_first_name">
+                                <input type="text" class="form-control" id="acHolderFirstName" placeholder="Enter Firstname" value="{{admin.default_bank.account_holder_first_name}}" name="account_holder_first_name">
                                 <label for="acHolderFirstName">A/c holder's Firstname</label>
                             </div>
                             <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="acHolderLastName" placeholder="Enter Lastname" value="{{def.account_holder_last_name}}" name="account_holder_last_name">
+                                <input type="text" class="form-control" id="acHolderLastName" placeholder="Enter Lastname" value="{{admin.default_bank.account_holder_last_name}}" name="account_holder_last_name">
                                 <label for="acHolderLastName">A/c holder's Lastname</label>
                             </div>
                             <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="number" class="form-control" id="acHolderPhn" placeholder="Enter Phone number" value="{{def.account_holder_phn_no}}" name="account_holder_phn_no">
+                                <input type="number" class="form-control" id="acHolderPhn" placeholder="Enter Phone number" value="{{admin.default_bank.account_holder_phn_no}}" name="account_holder_phn_no">
                                 <label for="acHolderPhn">A/c holder's Phone number</label>
                             </div>
                             <div class="col-lg-12 form-floating mb-1 p-1">
-                                <textarea class="form-control" placeholder="Enter Address" id="acHolderAddress"  name="account_holder_address">{{def.account_holder_address}}</textarea>
+                                <textarea class="form-control" placeholder="Enter Address" id="acHolderAddress"  name="account_holder_address">{{admin.default_bank.account_holder_address}}</textarea>
                                 <label for="acHolderAddress">Enter Address</label>
                             </div>
                             <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="bankName" placeholder="Enter Bank Name" value="{{def.bank_name}}" name="bank_name">
+                                <input type="text" class="form-control" id="bankName" placeholder="Enter Bank Name" value="{{admin.default_bank.bank_name}}" name="bank_name">
                                 <label for="bankName">Bank name</label>
                             </div>
                             <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="branchName" placeholder="Enter Branch Name" value="{{def.branch_name}}" name="branch_name">
+                                <input type="text" class="form-control" id="branchName" placeholder="Enter Branch Name" value="{{admin.default_bank.branch_name}}" name="branch_name">
                                 <label for="branchName">Branch name</label>
                             </div>
                             <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="ifscCode" placeholder="Enter IFSC code" value="{{def.ifsc_code}}" name="ifsc_code">
+                                <input type="text" class="form-control" id="ifscCode" placeholder="Enter IFSC code" value="{{admin.default_bank.ifsc_code}}" name="ifsc_code">
                                 <label for="ifscCode">IFSC code</label>
                             </div>
                             <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="number" class="form-control" id="acNumber" placeholder="Enter A/c number" value="{{def.account_no}}" name="account_no">
+                                <input type="number" class="form-control" id="acNumber" placeholder="Enter A/c number" value="{{admin.default_bank.account_no}}" name="account_no">
                                 <label for="acNumber">A/c number</label>
                             </div>
                             <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="upiId" placeholder="Enter UPI id" value="{{def.upi_id}}" name="upi_id">
+                                <input type="text" class="form-control" id="upiId" placeholder="Enter UPI id" value="{{admin.default_bank.upi_id}}" name="upi_id">
                                 <label for="upiId">UPI id</label>
                             </div>
-                            {% endif %}
-                            {% endfor %}
                         </div>
                     </div>
                     <div class="modal-footer d-flex justify-content-between">
@@ -66,48 +60,67 @@
             </div>
         </div>
     </div>
-<!---------------------- All Bank Details Table -------------------->
-    <div class="row">
-        <div class="col-12 col-lg-12 col-xxl-12 d-flex">
-            <div class="card flex-fill">
-                <div class="card-header d-flex justify-content-end">
+
+<!---------------------- All Institution Table Details -------------------->
+   <div class="row">
+        <div class="col-12 ">
+            <h1 class="mb-4"><strong>All Bank Details</strong></h1>
+            <div class="card h-100 data-card">
+                <div class="card-header text-end">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                        Edit Default Bank Details
+                        {% if admin.default_bank == Null %}
+                         Add Default Bank Account +
+                        {% else %}
+                         Edit Default Bank Details
+                        {% endif %}
                     </button>
                 </div>
-                <table class="table table-hover my-0">
-                    <thead>
+                <div class="card-body table-responsive pb-0">
+                    <table class="table table-hover my-0">
+                        <thead class="table-dark">
                         <tr>
                             <th>A/c holder name</th>
-                            <th class="d-none d-xl-table-cell">Phone number</th>
-                            <th class="d-none d-xl-table-cell">Bank name</th>
-                            <th class="d-none d-md-table-cell">Branch name</th>
-                            <th class="d-none d-md-table-cell">IFSC code</th>
-                            <th class="d-none d-md-table-cell">A/c number</th>
-                            <th class="d-none d-md-table-cell">UPI id</th>
-                            <th class="d-none d-md-table-cell">Action</th>
+                            <th>Phone number</th>
+                            <th>Bank name</th>
+                            <th>Branch name</th>
+                            <th>IFSC code</th>
+                            <th>A/c number</th>
+                            <th>UPI id</th>
+                            <th></th>
                         </tr>
-                    </thead>
-                    <tbody>
-                    {% for b in banks %}
-                        <tr {% if b.account_type == 'default' %}class="table-active"{% endif %} >
-                            <td class="">{{b.account_holder_first_name}} {{b.account_holder_last_name}}</td>
-                            <td class="d-none d-xl-table-cell">+91-{{b.account_holder_phn_no}}</td>
-                            <td class="d-none d-xl-table-cell">{{b.bank_name}}</td>
-                            <td class="d-none d-xl-table-cell">{{b.branch_name}}</td>
-                            <td class="d-none d-xl-table-cell">{{b.ifsc_code}}</td>
-                            <td class="d-none d-xl-table-cell">{{b.account_no}}</td>
-                            <td class="d-none d-xl-table-cell">{{b.upi_id}}</td>
-                            <td class="d-none d-xl-table-cell">
+                        </thead>
+                        <tbody>
+                        <tr class="table-active">
+                            <td>{{admin.default_bank.account_holder_first_name}} {{admin.default_bank.account_holder_last_name}}</td>
+                            <td>{{admin.default_bank.account_holder_phn_no}}</td>
+                            <td>{{admin.default_bank.bank_name}}</td>
+                            <td>{{admin.default_bank.branch_name}}</td>
+                            <td>{{admin.default_bank.ifsc_code}}</td>
+                            <td>{{admin.default_bank.account_no}}</td>
+                            <td>{{admin.default_bank.upi_id}}</td>
+                            <td></td>
+                        </tr>
+                        {% for b in banks %}
+                        <tr>
+                            <td>{{b.account_holder_first_name}} {{b.account_holder_last_name}}</td>
+                            <td>+91-{{b.account_holder_phn_no}}</td>
+                            <td>{{b.bank_name}}</td>
+                            <td>{{b.branch_name}}</td>
+                            <td>{{b.ifsc_code}}</td>
+                            <td>{{b.account_no}}</td>
+                            <td>{{b.upi_id}}</td>
+                            <td>
                                 <a class="" href="/administrator/">
                                   <i class="align-middle" data-feather="eye"></i>
                                 </a>
                             </td>
                         </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
+
 {% endblock %}

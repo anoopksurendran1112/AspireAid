@@ -48,28 +48,28 @@
             <div class="card h-100 data-card">
                 <div class="card-header text-end">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                        Add Institution +
+                        Add a new Institution +
                     </button>
                 </div>
-                <div class="card-body pb-0">
-                    <table class="table table-striped table-hover my-0">
+                <div class="card-body table-responsive pb-0">
+                    <table class="table table-hover my-0">
                         <thead class="table-dark">
                         <tr>
                             <th>Institution Name</th>
-                            <th class="d-none d-md-table-cell">Email Address</th>
-                            <th class="d-none d-xl-table-cell">Contact Number</th>
-                            <th class="d-none d-xl-table-cell">Institution Address</th>
-                            <th class="d-none d-xl-table-cell"></th>
+                            <th>Email Address</th>
+                            <th>Contact Number</th>
+                            <th>Institution Address</th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for i in institutions %}
                         <tr>
-                            <td class="d-none d-xl-table-cell">{{i.institution_name}}</td>
-                            <td class="d-none d-xl-table-cell">{{i.email}}</td>
-                            <td class="d-none d-xl-table-cell">{{i.phn}}</td>
-                            <td class="d-none d-xl-table-cell">{{i.address}}</td>
-                            <td class="d-none d-xl-table-cell">
+                            <td>{{i.institution_name}}</td>
+                            <td>{{i.email}}</td>
+                            <td>{{i.phn}}</td>
+                            <td>{{i.address}}</td>
+                            <td>
                                 <a class="" href="/administrator/">
                                     <i class="align-middle" data-feather="eye"></i>
                                 </a>
