@@ -1,10 +1,7 @@
+from django.conf import settings
 from django.db import models
 
 # Create your models here.
-ACCOUNT_TYPES = [
-    ('default', 'Default'), ('custom', 'Custom'),
-]
-
 
 class Institution(models.Model):
     institution_name = models.CharField(max_length=255,)
@@ -35,7 +32,6 @@ class BankDetails(models.Model):
     account_holder_last_name = models.CharField(max_length=100,null=True)
     account_holder_address = models.CharField(max_length=255)
     account_holder_phn_no = models.CharField(max_length=15, blank=True, null=True)
-    account_type = models.CharField(max_length=10, choices=ACCOUNT_TYPES, default='custom', null=True)
     bank_name = models.CharField(max_length=100)
     branch_name = models.CharField(max_length=100, blank=True, null=True)
     ifsc_code = models.CharField(max_length=20, blank=True, null=True)
@@ -50,10 +46,11 @@ class BankDetails(models.Model):
 class Project(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
-    beneficiary = models.ForeignKey(Beneficial, on_delete=models.CASCADE, related_name='projects')
+    beneficiary = models.ForeignKey(Beneficial, on_delete=models.CASCADE)
     funding_goal = models.DecimalField(max_digits=10, decimal_places=2)
     tile_value = models.DecimalField(max_digits=10, decimal_places=2)
-    bank_details = models.ForeignKey(BankDetails, on_delete=models.SET_NULL, null=True, blank=True,related_name='projects')
+    bank_details = models.ForeignKey(BankDetails, on_delete=models.SET_NULL, null=True, blank=True)
+    created_by =  models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     closing_date = models.DateTimeField()
     table_status = models.BooleanField(default=True)

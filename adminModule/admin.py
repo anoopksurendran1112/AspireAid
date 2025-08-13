@@ -7,11 +7,11 @@ class InstitutionAdmin(admin.ModelAdmin):
 
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('title','description','beneficiary','funding_goal','tile_value','bank_details','created_at','closing_date','table_status')
+    list_display = ('title','description','beneficiary','funding_goal','tile_value','bank_details', 'created_by','created_at','closing_date','table_status')
 
 
 class BankDetailsAdmin(admin.ModelAdmin):
-    list_display = ('account_holder_first_name','account_holder_last_name','account_holder_address','account_holder_phn_no','account_type','bank_name','branch_name','ifsc_code','account_no','upi_id','table_status')
+    list_display = ('account_holder_first_name','account_holder_last_name','account_holder_address','account_holder_phn_no','bank_name','branch_name','ifsc_code','account_no','upi_id','table_status')
 
 
 class BeneficialAdmin(admin.ModelAdmin):
