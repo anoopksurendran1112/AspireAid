@@ -1,7 +1,11 @@
 from django.contrib import admin
-from .models import Project, BankDetails, Beneficial, ProjectImage
+from .models import Project, BankDetails, Beneficial, ProjectImage, Institution
 
 # Register your models here.
+class InstitutionAdmin(admin.ModelAdmin):
+    list_display = ('institution_name','address','phn', 'email', 'institution_img', 'table_status')
+
+
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('title','description','beneficiary','funding_goal','tile_value','bank_details','created_at','closing_date','table_status')
 
@@ -17,6 +21,7 @@ class BeneficialAdmin(admin.ModelAdmin):
 class ProjectImageAdmin(admin.ModelAdmin):
     list_display = ('project','project_img','table_status')
 
+admin.site.register(Institution, InstitutionAdmin)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(BankDetails, BankDetailsAdmin)
 admin.site.register(Beneficial, BeneficialAdmin)
