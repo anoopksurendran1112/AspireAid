@@ -21,6 +21,7 @@ class BeneficialAdmin(admin.ModelAdmin):
 class ProjectImageAdmin(admin.ModelAdmin):
     list_display = ('project','project_img','table_status')
 
+
 admin.site.register(Institution, InstitutionAdmin)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(BankDetails, BankDetailsAdmin)

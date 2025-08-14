@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.db import IntegrityError
 from django.shortcuts import render, redirect
+
+from adminModule.models import Institution
 from userModule.models import CustomUser
 
 
@@ -39,24 +41,20 @@ def sign_in(request):
 
 
 def sign_up(request):
+    inst = Institution.objects.all()
     if request.method == 'POST':
         firstname = request.POST.get('fname')
         lastname = request.POST.get('lname')
         em = request.POST.get('email')
+        ins = request.POST.get('inst')
         phn = request.POST.get('phn')
         pwd = request.POST.get('password')
+        inst = Institution.objects.get(id=ins)
         try:
-            CustomUser.objects.create_user(
-                first_name = firstname,
-                last_name = lastname,
-                email = em,
-                username = em,
-                phn_no = phn,
-                password = pwd
-            )
+            CustomUser.objects.create_user(first_name = firstname,last_name = lastname,email = em, institution= inst,username = em,phn_no = phn,password = pwd)
             messages.success(request, 'Registration successful! You can now sign in.')
             return redirect('/sign-in/')
         except IntegrityError:
             messages.error(request, 'A user with that username or email already exists.')
             return render(request, "sign-up.html")
-    return render(request, "sign-up.html")
+    return render(request, "sign-up.html", {'inst':inst})

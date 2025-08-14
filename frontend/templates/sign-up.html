@@ -22,23 +22,31 @@
                         {% endif %}
 
                         <div class="row">
-                            <div class="col-lg-6 d-flex flex-column pb-10">
+                            <div class="col-lg-6 d-flex flex-column">
                                 <input name="fname" placeholder="Enter your first name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your first name'" class="form-control mt-20" required="" type="text">
                             </div>
-                            <div class="col-lg-6 d-flex flex-column pb-10">
+                            <div class="col-lg-6 d-flex flex-column">
                                 <input name="lname" placeholder="Enter your last name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your last name'" class="form-control mt-20" required="" type="text">
                             </div>
 
-                            <div class="col-lg-6 d-flex flex-column pb-10">
+                            <div class="col-lg-6 d-flex flex-column">
                                 <input name="email" placeholder="Enter your email address" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,63}$" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'" class="form-control mt-20" required type="email">
                             </div>
-                            <div class="col-lg-6 d-flex flex-column pb-10">
+                            <div class="col-lg-6 d-flex flex-column">
                                 <input name="phn" placeholder="Enter your phone number" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your phone number'" class="form-control mt-20" required="" type="tel">
                             </div>
-                            <div class="col-lg-6 d-flex flex-column pb-10">
+                            <div class="col-lg-12 d-flex flex-column">
+                                <select name="inst" class="form-control mt-20" required>
+                                    <option selected disabled>Select your institution</option>
+                                    {% for i in inst %}
+                                    <option value="{{i.id}}">{{i.institution_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-lg-6 d-flex flex-column">
                                 <input name="password" id="password" placeholder="Enter password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter password'" class="form-control mt-20" required type="password">
                             </div>
-                            <div class="col-lg-6 d-flex flex-column pb-10">
+                            <div class="col-lg-6 d-flex flex-column">
                                 <input name="cpwd" id="cpwd" placeholder="Confirm password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Confirm password'" class="form-control mt-20" required type="password">
                             </div>
                             <div class="col-lg-12 d-flex pb-30 send-btn justify-content-center">

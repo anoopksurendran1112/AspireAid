@@ -16,7 +16,8 @@ def userDashboard(request):
 
 def userAvailbleProjects(request):
     if request.user and (request.user.is_superuser == False and request.user.is_staff == False):
-        avail_prj = Project.objects.filter(closing_date__gte=date.today())
+        admin = CustomUser.objects.filter(is_staff = True, institution=request.user.institution)
+        avail_prj = Project.objects.filter(closing_date__gte=date.today(), created_by__in=admin)
         return render(request,'user-available-project.html', {'user':request.user, 'projects':avail_prj})
     else:
         return redirect('/sign-in/')

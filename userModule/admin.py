@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, SelectedTile
+from .models import CustomUser, SelectedTile, Transaction, Screenshot, Receipt
 
 
 # Register your models here.
@@ -14,5 +14,21 @@ class CustomUserAdmin(UserAdmin):
 class SelectedTileAdmin(admin.ModelAdmin):
     list_display = ('project', 'user', 'tiles', 'funded_at', 'table_status')
 
+
+class TransactionAdmin(admin.ModelAdmin):
+    list_display = ('transaction_id', 'user', 'project', 'amount', 'status', 'transaction_time', 'table_status')
+
+
+class ScreenShotAdmin(admin.ModelAdmin):
+    list_display = ('transaction', 'screen_shot', 'table_status')
+
+
+class ReceiptAdmin(admin.ModelAdmin):
+    list_display = ('transaction', 'receipt_pdf', 'table_status')
+
+
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(SelectedTile, SelectedTileAdmin)
+admin.site.register(Transaction, TransactionAdmin)
+admin.site.register(Screenshot, ScreenShotAdmin)
+admin.site.register(Receipt, ReceiptAdmin)
