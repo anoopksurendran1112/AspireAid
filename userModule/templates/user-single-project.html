@@ -4,62 +4,45 @@
 
 <!---------------------- Modal for Updating Default Bank Details -------------------->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Update Default Bank Details</strong></h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Proceed Checkout</strong></h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <form method="post">
                     {% csrf_token %}
                     <div class="modal-body">
-                        <div class="row p-2">
-                            {% for def in banks %}
-                            {% if def.account_type == "default" %}
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="acHolderFirstName" placeholder="Enter Firstname" value="{{def.account_holder_first_name}}" name="account_holder_first_name">
-                                <label for="acHolderFirstName">A/c holder's Firstname</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="acHolderLastName" placeholder="Enter Lastname" value="{{def.account_holder_last_name}}" name="account_holder_last_name">
-                                <label for="acHolderLastName">A/c holder's Lastname</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="number" class="form-control" id="acHolderPhn" placeholder="Enter Phone number" value="{{def.account_holder_phn_no}}" name="account_holder_phn_no">
-                                <label for="acHolderPhn">A/c holder's Phone number</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <textarea class="form-control" placeholder="Enter Address" id="acHolderAddress"  name="account_holder_address">{{def.account_holder_address}}</textarea>
-                                <label for="acHolderAddress">Enter Address</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="bankName" placeholder="Enter Bank Name" value="{{def.bank_name}}" name="bank_name">
-                                <label for="bankName">Bank name</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="branchName" placeholder="Enter Branch Name" value="{{def.branch_name}}" name="branch_name">
-                                <label for="branchName">Branch name</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="ifscCode" placeholder="Enter IFSC code" value="{{def.ifsc_code}}" name="ifsc_code">
-                                <label for="ifscCode">IFSC code</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="number" class="form-control" id="acNumber" placeholder="Enter A/c number" value="{{def.account_no}}" name="account_no">
-                                <label for="acNumber">A/c number</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="upiId" placeholder="Enter UPI id" value="{{def.upi_id}}" name="upi_id">
-                                <label for="upiId">UPI id</label>
-                            </div>
-                            {% endif %}
-                            {% endfor %}
-                        </div>
+                        <table class="table">
+                            <tbody data-tile-value="{{ project.tile_value }}">
+                                <tr class="table-dark">
+                                    <th colspan="2">{{project.title}}</th>
+                                </tr>
+                                <tr>
+                                    <th>Tile value:</th>
+                                    <td>{{project.tile_value}}</td>
+                                </tr>
+                                <tr>
+                                    <th>No of tiles selected:</th>
+                                    <td>
+                                        <span class="js-selected-count"></span>
+                                        [ <span class="js-selected-tiles"></span> ]
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Total:</th>
+                                    <td>
+                                        <span class="js-selected-total">0.00</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     <div class="modal-footer d-flex justify-content-between">
-                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
-                        <button type="submit" class="btn btn-success">Save changes</button>
+                        <input type="hidden" id="selected-tiles-input" name="selected_tiles_input">
+                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">Checkout</button>
                     </div>
                 </form>
             </div>
@@ -146,7 +129,10 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <p class="mb-1">Selected Tiles: <span id="selected-count">0</span> [<span id="selected-tiles"></span>]</p>
+                        <p class="mb-1">Selected Tiles:
+                            <span class="js-selected-count">0</span>
+                            [<span class="js-selected-tiles"></span>]
+                        </p>
                         <button type="submit" id="book-button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" disabled>Proceed to Checkout</button>
                     </div>
                     <div class="container-fluid bg-light border py-1 overflow-auto" style="height:250px;">
@@ -163,47 +149,57 @@
         </div>
     </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const tileGrid = document.querySelector('.tile-grid');
-        const bookButton = document.getElementById('book-button');
-        const selectedCountSpan = document.getElementById('selected-count');
-        const selectedTilesSpan = document.getElementById('selected-tiles'); // New constant for your span
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tileGrid = document.querySelector('.tile-grid');
+            const bookButton = document.getElementById('book-button');
+            const selectedCountSpans = document.querySelectorAll('.js-selected-count');
+            const selectedTilesSpans = document.querySelectorAll('.js-selected-tiles');
+            const selectedTotalSpans = document.querySelectorAll('.js-selected-total');
+            const selectedTilesInput = document.getElementById('selected-tiles-input');
+            const tileValue = parseFloat(document.querySelector('tbody').dataset.tileValue);
+            let selectedTiles = new Set();
 
-        let selectedTiles = new Set();
+            tileGrid.addEventListener('click', (event) => {
+                const clickedTile = event.target.closest('.booking-tile');
 
-        tileGrid.addEventListener('click', (event) => {
-            const clickedTile = event.target.closest('.booking-tile');
+                if (clickedTile && clickedTile.classList.contains('available')) {
+                    const tileId = clickedTile.id;
 
-            if (clickedTile && clickedTile.classList.contains('available')) {
-                const tileId = clickedTile.id;
-
-                if (clickedTile.classList.contains('selected')) {
-                    clickedTile.classList.remove('selected');
-                    selectedTiles.delete(tileId);
-                } else {
-                    clickedTile.classList.add('selected');
-                    selectedTiles.add(tileId);
+                    if (clickedTile.classList.contains('selected')) {
+                        clickedTile.classList.remove('selected');
+                        selectedTiles.delete(tileId);
+                    } else {
+                        clickedTile.classList.add('selected');
+                        selectedTiles.add(tileId);
+                    }
+                    updateSummary();
                 }
-                updateSummary();
+            });
+
+            function updateSummary() {
+                const selectedTilesString = Array.from(selectedTiles).join('-'); // Join with a hyphen
+                const totalValue = selectedTiles.size * tileValue;
+
+                selectedCountSpans.forEach(span => {
+                    span.textContent = selectedTiles.size;
+                });
+                selectedTilesSpans.forEach(span => {
+                    span.textContent = selectedTilesString;
+                });
+                selectedTotalSpans.forEach(span => {
+                    span.textContent = totalValue.toFixed(2);
+                });
+
+                selectedTilesInput.value = selectedTilesString;
+
+                if (selectedTiles.size > 0) {
+                    bookButton.disabled = false;
+                } else {
+                    bookButton.disabled = true;
+                }
             }
         });
-
-        function updateSummary() {
-            // Update the tile count
-            selectedCountSpan.textContent = selectedTiles.size;
-
-            // New line: Update the span with the list of tile IDs
-            // Array.from() converts the Set to an array, and .join() creates the comma-separated string.
-            selectedTilesSpan.textContent = Array.from(selectedTiles).join(', ');
-
-            if (selectedTiles.size > 0) {
-                bookButton.disabled = false;
-            } else {
-                bookButton.disabled = true;
-            }
-        }
-    });
-</script>
+    </script>
 
 {% endblock %}
