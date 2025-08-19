@@ -35,8 +35,8 @@ class BankDetails(models.Model):
     bank_name = models.CharField(max_length=100)
     branch_name = models.CharField(max_length=100, blank=True, null=True)
     ifsc_code = models.CharField(max_length=20, blank=True, null=True)
-    account_no = models.CharField(max_length=50, unique=True)
-    upi_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    account_no = models.CharField(max_length=50)
+    upi_id = models.CharField(max_length=100, blank=True, null=True)
     table_status = models.BooleanField(default=True)
 
     def __str__(self):
