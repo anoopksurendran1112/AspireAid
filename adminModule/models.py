@@ -53,6 +53,7 @@ class Project(models.Model):
     created_by =  models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     closing_date = models.DateTimeField()
+    qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
     table_status = models.BooleanField(default=True)
 
     def __str__(self):
