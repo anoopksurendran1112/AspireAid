@@ -2,53 +2,6 @@
 {% load static %}
 {% block content %}
 
-<!---------------------- Modal for Updating Default Bank Details -------------------->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Proceed Checkout</strong></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <table class="table">
-                            <tbody data-tile-value="{{ project.tile_value }}">
-                                <tr class="table-dark">
-                                    <th colspan="2">{{project.title}}</th>
-                                </tr>
-                                <tr>
-                                    <th>Tile value:</th>
-                                    <td>{{project.tile_value}}</td>
-                                </tr>
-                                <tr>
-                                    <th>No of tiles selected:</th>
-                                    <td>
-                                        <span class="js-selected-count"></span>
-                                        [ <span class="js-selected-tiles"></span> ]
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Total:</th>
-                                    <td>
-                                        <span class="js-selected-total">0.00</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="modal-footer d-flex justify-content-between">
-                        <input type="hidden" id="selected-tiles-input" name="selected_tiles_input">
-                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">Checkout</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <div class="row g-4 mb-4">
         <div class="col-xl-8 col-lg-12 ">
             <div class="card h-100 data-card">
@@ -87,6 +40,17 @@
               <div class="card-body pb-0">
                   <p class="card-text">{{project.description}}</p>
                   <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
+                  <div class="text-end">
+
+                      <button class="btn btn-success">
+                          <i class="align-middle" data-feather="edit"></i>
+                          <span class="align-middle">Edit</span>
+                      </button>
+                      <button class="btn btn-primary" id="share-button">
+                          <i class="align-middle" data-feather="share"></i>
+                          <span class="align-middle">Share</span>
+                      </button>
+                  </div>
               </div>
             </div>
         </div>
@@ -150,5 +114,25 @@
         </div>
     </div>
 
+<script>
+    const shareButton = document.getElementById('share-button');
 
+    shareButton.addEventListener('click', async () => {
+        const customUrl = `${window.location.protocol}//${window.location.host}/user/single-project/{{project.id}}/`;
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Check out this awesome project!',
+                    text: 'This is a description of the content I want to share.',
+                    url: customUrl
+                });
+            } catch (error) {
+                console.error('Sharing failed:', error);
+                alert('Sharing failed. Please try again.');
+            }
+        } else {
+            alert('Web Share API is not supported in this browser.');
+        }
+    });
+</script>
 {% endblock %}
