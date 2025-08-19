@@ -9,20 +9,18 @@ from io import BytesIO
 
 # Create your views here.
 def userSingleProject(request,prj_id):
-    if  request.user and (request.user.is_superuser == False and request.user.is_staff == False):
-        prj = Project.objects.get(id=prj_id)
-        tile_range = range(1, int(prj.funding_goal // prj.tile_value) + 1)
+    prj = Project.objects.get(id=prj_id)
+    tile_range = range(1, int(prj.funding_goal // prj.tile_value) + 1)
 
-        if request.method == "POST":
-            selected_tiles = request.POST.get("selected_tiles_input")
-            query_string = urllib.parse.urlencode({
-                'project_id': prj.id,
-                'selected_tiles': selected_tiles
-            })
-            return redirect(reverse('user_checkout') + '?' + query_string)
-        return render(request, 'user-single-project.html', {'user': request.user, 'project': prj,'t_range': tile_range})
-    else:
-        return redirect('/sign-in/')
+    if request.method == "POST":
+        selected_tiles = request.POST.get("selected_tiles_input")
+        query_string = urllib.parse.urlencode({
+            'project_id': prj.id,
+            'selected_tiles': selected_tiles
+        })
+        return redirect(reverse('user_checkout') + '?' + query_string)
+    return render(request, 'user-single-project.html', {'user': request.user, 'project': prj,'t_range': tile_range})
+
 
 
 def userCheckoutView(request,):
@@ -43,11 +41,8 @@ def userCheckoutView(request,):
         # Save to model field
         file_name = f"project_{project.id}_qr.png"
         project.qr_code.save(file_name, ContentFile(buffer.getvalue()), save=True)
-
         selected_tile_count = len(selected_tiles.split('-'))
 
     elif  request.method == "POST":
         return redirect('/user/user-dash/')
     return render(request, 'user-checkout.html', {'user': request.user, 'project': project, 'selected_tiles': selected_tiles, 'count':selected_tile_count})
-
-
