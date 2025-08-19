@@ -7,3 +7,9 @@ __pycache__/
 
 # Database file
 db.sqlite3
+
+# Ignore all files inside the media directory
+media/*
+
+# But don't ignore the .gitkeep file
+!media/.gitkeep
