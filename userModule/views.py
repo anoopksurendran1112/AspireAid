@@ -2,6 +2,9 @@ import urllib.parse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from adminModule.models import Project
+import qrcode
+from django.core.files.base import ContentFile
+from io import BytesIO
 
 
 # Create your views here.
@@ -23,16 +26,28 @@ def userSingleProject(request,prj_id):
 
 
 def userCheckoutView(request,):
-    if request.user and (request.user.is_superuser == False and request.user.is_staff == False):
-        if request.method == "GET":
-            project_id = request.GET.get("project_id")
-            selected_tiles = request.GET.get("selected_tiles")
+    if request.method == "GET":
+        project_id = request.GET.get("project_id")
+        selected_tiles = request.GET.get("selected_tiles")
 
-            project = Project.objects.get(id=project_id)
-            selected_tile_count = len(selected_tiles.split('-'))
+        project = Project.objects.get(id=project_id)
+        upi = project.bank_details.upi_id
 
-        elif  request.method == "POST":
-            return redirect('/user/user-dash/')
-        return render(request, 'user-checkout.html', {'user': request.user, 'project': project, 'selected_tiles': selected_tiles, 'count':selected_tile_count})
-    else:
-        return redirect('/sign-in/')
+        google_pay_url = f'upi://pay?pa={upi}&pn=Recipient%20Name&mc=1234'
+
+        # Generate QR code in memory
+        qr_img = qrcode.make(google_pay_url)
+        buffer = BytesIO()
+        qr_img.save(buffer, format='PNG')
+
+        # Save to model field
+        file_name = f"project_{project.id}_qr.png"
+        project.qr_code.save(file_name, ContentFile(buffer.getvalue()), save=True)
+
+        selected_tile_count = len(selected_tiles.split('-'))
+
+    elif  request.method == "POST":
+        return redirect('/user/user-dash/')
+    return render(request, 'user-checkout.html', {'user': request.user, 'project': project, 'selected_tiles': selected_tiles, 'count':selected_tile_count})
+
+
