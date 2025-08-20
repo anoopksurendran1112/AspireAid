@@ -1,11 +1,5 @@
-from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from django.db import IntegrityError
 from django.shortcuts import render, redirect
-
-from adminModule.models import Institution
-from userModule.models import CustomUser
-
 
 # Create your views here.
 def index(request):

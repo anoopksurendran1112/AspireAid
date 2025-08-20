@@ -1,153 +1,213 @@
-{% extends 'admin-dashboard.html' %}
+<!DOCTYPE html>
 {% load static %}
-{% block content %}
+<html lang="en">
 
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="Responsive Admin &amp; Dashboard Template based on Bootstrap 5">
+	<meta name="author" content="AdminKit">
+	<meta name="keywords" content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link rel="shortcut icon" href="{% static 'frontend/img/AspireAid_logo.png' %}" />
+
+	<link rel="canonical" href="https://demo-basic.adminkit.io/" />
+
+	<title>Admin : {{admin.email}}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link href="{% static 'Dashboard/css/app.css' %}" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+	<div class="wrapper">
+        <div class="main">
+            <main class="content">
+                <div class="container">
 <!---------------------- Modal for Updating Default Bank Details -------------------->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Proceed Checkout</strong></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Proceed Checkout</strong></h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
 
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <table class="table">
-                            <tbody data-tile-value="{{ project.tile_value }}">
-                                <tr class="table-dark">
-                                    <th colspan="2">{{project.title}}</th>
-                                </tr>
-                                <tr>
-                                    <th>Tile value:</th>
-                                    <td>{{project.tile_value}}</td>
-                                </tr>
-                                <tr>
-                                    <th>No of tiles selected:</th>
-                                    <td>
-                                        <span class="js-selected-count"></span>
-                                        [ <span class="js-selected-tiles"></span> ]
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Total:</th>
-                                    <td>
-                                        <span class="js-selected-total">0.00</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="modal-footer d-flex justify-content-between">
-                        <input type="hidden" id="selected-tiles-input" name="selected_tiles_input">
-                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">Checkout</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4 mb-4">
-        <div class="col-xl-8 col-lg-12 ">
-            <div class="card h-100 data-card">
-                <div class="row">
-                    <div class="col-xl-8">
-                        <img src="https://cloudinary-marketing-res.cloudinary.com/images/w_1000,c_scale/v1679921049/Image_URL_header/Image_URL_header-png?_i=AA" class="card-img-top" alt="...">
-                    </div>
-                    <div class="col-xl-4 col-lg-12 ">
-                        <div class="row h-100 m-0">
-                            <div class="col-12 card-header">
-                                <h3><strong>{{project.title}}</strong></h3>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <table class="table">
+                                            <tbody data-tile-value="{{ project.tile_value }}">
+                                                <tr class="table-dark">
+                                                    <th colspan="2">{{project.title}}</th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Tile value:</th>
+                                                    <td>{{project.tile_value}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>No of tiles selected:</th>
+                                                    <td>
+                                                        <span class="js-selected-count"></span>
+                                                        [ <span class="js-selected-tiles"></span> ]
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total:</th>
+                                                    <td>
+                                                        <span class="js-selected-total">0.00</span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="modal-footer d-flex justify-content-between">
+                                        <input type="hidden" id="selected-tiles-input" name="selected_tiles_input">
+                                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-success">Checkout</button>
+                                    </div>
+                                </form>
                             </div>
-                            <div class="col-12 align-self-end">
-                                <table class="table m-0">
-                                    <tr>
-                                        <th class="p-1">Goal</th>
-                                        <td class="p-1">{{project.funding_goal}} Rs</td>
-                                    </tr>
-                                    <tr>
-                                        <th class="p-1">Current</th>
-                                        <td class="p-1">{{project.funding_goal}} Rs</td>
-                                    </tr>
-                                    <tr>
-                                        <th class="p-1">Tile value</th>
-                                        <td class="p-1">{{project.tile_value}} Rs</td>
-                                    </tr>
-                                    <tr>
-                                        <th class="p-1">Available tiles</th>
-                                        <td class="p-1">{{project.funding_goal}} Rs</td>
-                                    </tr>
-                                </table>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-xl-8 col-lg-12 ">
+                            <div class="card h-100 data-card">
+                                <div class="row">
+                                    <div class="col-xl-8">
+                                        <img src="https://cloudinary-marketing-res.cloudinary.com/images/w_1000,c_scale/v1679921049/Image_URL_header/Image_URL_header-png?_i=AA" class="card-img-top" alt="...">
+                                    </div>
+                                    <div class="col-xl-4 col-lg-12 ">
+                                        <div class="row h-100 m-0">
+                                            <div class="col-12 card-header">
+                                                <h3><strong>{{project.title}}</strong></h3>
+                                            </div>
+                                            <div class="col-12 align-self-end">
+                                                <table class="table m-0">
+                                                    <tr>
+                                                        <th class="p-1">Goal</th>
+                                                        <td class="p-1">{{project.funding_goal}} Rs</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="p-1">Current</th>
+                                                        <td class="p-1">{{project.funding_goal}} Rs</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="p-1">Tile value</th>
+                                                        <td class="p-1">{{project.tile_value}} Rs</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="p-1">Available tiles</th>
+                                                        <td class="p-1">{{project.funding_goal}} Rs</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                              <div class="card-body pb-0">
+                                  <p class="card-text">{{project.description}}</p>
+                                  <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
+                              </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-4 col-lg-12">
+                            <div class="card h-100 data-card">
+                                <div class="card-header">
+                                    <h3><strong>Beneficiary Details</strong></h3>
+                                </div>
+                                <div class="card-body row">
+                                    <div class="col-sm-6 col-xl-12">
+                                        <img src="{% static 'Dashboard/img/avatars/avatar-4.jpg' %}" alt="Christina Mason" class="img-fluid mb-2" width="128" height="128" />
+                                    </div>
+                                    <div class="col-sm-6 col-xl-12">
+                                        <h5 class="mb-3"><strong>{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</strong></h5>
+                                        <table class="table">
+                                            <tr>
+                                                <th class="py-1 px-0">Age</th>
+                                                <td class="py-1 px-0">{{project.beneficiary.age}}-years old</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="py-1 px-0">Phone number</th>
+                                                <td class="py-1 px-0">+91-{{project.beneficiary.phone_number}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="py-1 px-0">Address</th>
+                                                <td class="py-1 px-0">{{project.beneficiary.address}}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="card h-100 data-card">
+                                <div class="card-header pb-0">
+                                    <h2 ><strong>Book Your Tiles</strong></h2>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <p class="mb-1">Selected Tiles:
+                                            <span class="js-selected-count">0</span>
+                                            [<span class="js-selected-tiles"></span>]
+                                        </p>
+                                        <button type="submit" id="book-button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" disabled>Proceed to Checkout</button>
+                                    </div>
+                                    <div class="container-fluid bg-light border py-1 overflow-auto" style="height:250px;">
+                                        <div class="tile-grid">
+                                            {% for t in t_range %}
+                                            <div id="T{{t}}" class="booking-tile available m-1">
+                                                <span class="tile-number">{{t}}</span>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                              </div>
                             </div>
                         </div>
                     </div>
                 </div>
-              <div class="card-body pb-0">
-                  <p class="card-text">{{project.description}}</p>
-                  <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
-              </div>
-            </div>
-        </div>
+			</main>
 
-        <div class="col-xl-4 col-lg-12">
-            <div class="card h-100 data-card">
-                <div class="card-header">
-                    <h3><strong>Beneficiary Details</strong></h3>
-                </div>
-                <div class="card-body row">
-                    <div class="col-sm-6 col-xl-12">
-                        <img src="{% static 'Dashboard/img/avatars/avatar-4.jpg' %}" alt="Christina Mason" class="img-fluid mb-2" width="128" height="128" />
-                    </div>
-                    <div class="col-sm-6 col-xl-12">
-                        <h5 class="mb-3"><strong>{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</strong></h5>
-                        <table class="table">
-                            <tr>
-                                <th class="py-1 px-0">Age</th>
-                                <td class="py-1 px-0">{{project.beneficiary.age}}-years old</td>
-                            </tr>
-                            <tr>
-                                <th class="py-1 px-0">Phone number</th>
-                                <td class="py-1 px-0">+91-{{project.beneficiary.phone_number}}</td>
-                            </tr>
-                            <tr>
-                                <th class="py-1 px-0">Address</th>
-                                <td class="py-1 px-0">{{project.beneficiary.address}}</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row g-4">
-        <div class="col-12">
-            <div class="card h-100 data-card">
-                <div class="card-header pb-0">
-                    <h2 ><strong>Book Your Tiles</strong></h2>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <p class="mb-1">Selected Tiles:
-                            <span class="js-selected-count">0</span>
-                            [<span class="js-selected-tiles"></span>]
-                        </p>
-                        <button type="submit" id="book-button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" disabled>Proceed to Checkout</button>
-                    </div>
-                    <div class="container-fluid bg-light border py-1 overflow-auto" style="height:250px;">
-                        <div class="tile-grid">
-                            {% for t in t_range %}
-                            <div id="T{{t}}" class="booking-tile available m-1">
-                                <span class="tile-number">{{t}}</span>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-              </div>
-            </div>
-        </div>
-    </div>
+			<footer class="footer">
+				<div class="container-fluid">
+					<div class="row text-muted">
+						<div class="col-6 text-start">
+							<p class="mb-0">
+								<a class="text-muted" href="https://adminkit.io/" target="_blank"><strong>AdminKit</strong></a> &copy;
+							</p>
+						</div>
+						<div class="col-6 text-end">
+							<ul class="list-inline">
+								<li class="list-inline-item">
+									<a class="text-muted" href="https://adminkit.io/" target="_blank">Support</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="https://adminkit.io/" target="_blank">Help Center</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="https://adminkit.io/" target="_blank">Privacy</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="https://adminkit.io/" target="_blank">Terms</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</footer>
+		</div>
+	</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <script src="{% static 'Dashboard/js/app.js' %}"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -202,4 +262,25 @@
         });
     </script>
 
-{% endblock %}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get the tbody element to access its data attributes
+            const tbody = document.querySelector('tbody');
+
+            // Get the values from the data attributes and parse them to numbers
+            const tileValue = parseFloat(tbody.dataset.tileValue);
+            const count = parseInt(tbody.dataset.count);
+
+            // Get the span element where the total will be displayed
+            const totalSpan = document.getElementById('calculated-total');
+
+            // Calculate the total value
+            const total = tileValue * count;
+
+            // Display the calculated total with 2 decimal places and a currency symbol
+            totalSpan.textContent = `₹ ${total.toFixed(2)}`;
+        });
+    </script>
+
+</body>
+</html>

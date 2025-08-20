@@ -2,9 +2,6 @@ import urllib.parse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from adminModule.models import Project
-import qrcode
-from django.core.files.base import ContentFile
-from io import BytesIO
 
 
 # Create your views here.
@@ -27,14 +24,8 @@ def userCheckoutView(request,):
     if request.method == "GET":
         project_id = request.GET.get("project_id")
         selected_tiles = request.GET.get("selected_tiles")
+
         project = Project.objects.get(id=project_id)
-        upi = project.bank_details.upi_id
-        google_pay_url = f'upi://pay?pa={upi}&pn=Recipient%20Name&mc=1234'
-        qr_img = qrcode.make(google_pay_url)
-        buffer = BytesIO()
-        qr_img.save(buffer, format='PNG')
-        file_name = f"project_{project.id}_qr.png"
-        project.qr_code.save(file_name, ContentFile(buffer.getvalue()), save=True)
         selected_tile_count = len(selected_tiles.split('-'))
 
     elif  request.method == "POST":
