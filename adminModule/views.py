@@ -1,18 +1,37 @@
+from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
-from django.shortcuts import render, redirect
-from adminModule.models import BankDetails, Beneficial, Project, Institution
+from django.core.files.base import ContentFile
 from userModule.models import CustomUser
+from django.contrib.auth import logout
 from django.db import IntegrityError
+from django.utils import timezone
+from django.db.models import Q
+from io import BytesIO
+import qrcode
+import urllib
 
 
 # Create your views here.
-@login_required(login_url='/sign-in/')
+@login_required(login_url='/')
 def adminDashboard(request):
     if request.user.is_superuser or request.user.is_staff:
-        return render(request, "admin-dashboard.html", {'admin':request.user})
+        all_prj = Project.objects.filter(created_by=request.user).count()
+        cls_prj = Project.objects.filter(created_by=request.user, closing_date__lte=timezone.now()).count()
+        latest_projects = Project.objects.filter(created_by=request.user).order_by('-created_at')[:5]
+        context = {
+            'all_prj': all_prj,
+            'cls_prj': cls_prj,
+            'lst_prj': latest_projects,
+        }
+        return render(request, "admin-dashboard.html", {'admin':request.user, 'context': context})
     else:
-        return redirect('/sign-in/')
+        return redirect('/')
+
+
+def adminLogOut(request):
+    logout(request)
+    return redirect('/')
 
 
 def adminAllInstitution(request):
@@ -28,7 +47,7 @@ def adminAllInstitution(request):
             return redirect('/administrator/all-institution/')
         return render(request,"admin-all-institution.html", {'admin': request.user, 'institutions': inst})
     else:
-        return redirect('/sign-in/')
+        return redirect('/')
 
 
 def adminAllInstiAdmin(request):
@@ -51,7 +70,7 @@ def adminAllInstiAdmin(request):
                 return redirect('/administrator/all-insti-admin/')
         return render(request,"admin-all-insti-admin.html", {'admin': request.user, 'inst':inst, 'administrators':administrators})
     else:
-        return redirect('/sign-in/')
+        return redirect('/')
 
 
 def adminAllProject(request):
@@ -70,49 +89,74 @@ def adminAllProject(request):
             ben_age = request.POST.get("age")
             ben_addr = request.POST.get("addr")
 
-            acc_type = request.POST.get("acc_type")
-            acc_fname = request.POST.get("account_holder_first_name")
-            acc_lname = request.POST.get("account_holder_last_name")
-            acc_phn= request.POST.get("account_holder_phn_no")
-            acc_addr= request.POST.get("account_holder_address")
-            b_name= request.POST.get("bank_name")
-            br_name= request.POST.get("branch_name")
-            ifsc_code = request.POST.get("ifsc")
-            acc_no = request.POST.get("accno")
-            upi= request.POST.get("upi")
-
             beneficiar, created = Beneficial.objects.get_or_create(first_name=ben_fname, last_name=ben_lname, phone_number=ben_phn,
                 defaults={'address': ben_addr, 'age': ben_age,})
-            if acc_type == "custom":
-                bank_details, created = BankDetails.objects.get_or_create(
-                    account_no=acc_no, ifsc_code= ifsc_code,
-                    defaults={
-                        'account_holder_first_name': acc_fname,
-                        'account_holder_last_name': acc_lname,
-                        'account_holder_address': acc_addr,
-                        'account_holder_phn_no': acc_phn,
-                        'bank_name': b_name,
-                        'branch_name': br_name,
-                        'upi_id': upi,
-                    }
-                )
-            else:
-                bank_details = request.user.default_bank
+            bank_details = request.user.default_bank
+
             new_project = Project(title=title, description=desc, beneficiary=beneficiar, created_by=request.user, funding_goal=goal, tile_value=tval, closing_date=clsdate, bank_details=bank_details)
             new_project.save()
+
+            upi = bank_details.upi_id if bank_details else None
+            if upi:
+                payee_name = f"{new_project.bank_details.account_holder_first_name} {new_project.bank_details.account_holder_first_name}"
+                encoded_payee_name = urllib.parse.quote(payee_name)
+
+                google_pay_url = f'upi://pay?pa={upi}&pn={encoded_payee_name}'
+
+                qr_img = qrcode.make(google_pay_url)
+                buffer = BytesIO()
+                qr_img.save(buffer, format='PNG')
+                file_name = f"project_{new_project.id}_qr.png"
+                new_project.qr_code.save(file_name, ContentFile(buffer.getvalue()), save=True)
+
             return redirect('/administrator/all-project/')
         return render(request, "admin-all-projects.html",{'prj':prj, 'admin': request.user})
     else:
-        return redirect('/sign-in/')
+        return redirect('/')
 
 
 def adminSingleProject(request, pid):
     if request.user.is_superuser or request.user.is_staff:
-        project = Project.objects.get(id = pid)
+        project = get_object_or_404(Project, id=pid)
         tile_range = range(1, int(project.funding_goal // project.tile_value) + 1)
+
+        if request.method == "POST":
+            project.title = request.POST.get("title")
+            project.funding_goal = request.POST.get("goal")
+            project.tile_value = request.POST.get("tvalue")
+            project.description = request.POST.get("desc")
+            project.closing_date = request.POST.get("clsdate")
+
+            beneficiary_instance = project.beneficiary
+            beneficiary_instance.first_name = request.POST.get("fname")
+            beneficiary_instance.last_name = request.POST.get("lname")
+            beneficiary_instance.phone_number = request.POST.get("phn")
+            beneficiary_instance.age = request.POST.get("age")
+            beneficiary_instance.address = request.POST.get("addr")
+
+            beneficiary_instance.save()
+            project.save()
+
+            return redirect(f'/administrator/single-project/{pid}/')
         return render(request,"admin-single-projects.html", { 'admin':request.user, 'project': project, 't_range': tile_range})
     else:
-        return redirect('/sign-in/')
+        return redirect('/')
+
+
+def upload_project_image(request, project_id):
+    if request.user.is_superuser or request.user.is_staff:
+        if request.method == 'POST':
+            project_instance = get_object_or_404(Project, id=project_id)
+            if 'img' in request.FILES:
+                uploaded_file = request.FILES['img']
+                new_image = ProjectImage(
+                    project=project_instance,
+                    project_img=uploaded_file
+                )
+                new_image.save()
+        return redirect(f'/administrator/single-project/{project_id}/')
+    else:
+        return redirect('/')
 
 
 def adminAllBankDetails(request):
@@ -151,4 +195,5 @@ def adminAllBankDetails(request):
             return redirect('/administrator/all-bank/')
         return render(request, "admin-all-bank-details.html",{'admin': request.user})
     else:
-        return redirect('/sign-in/')
+        return redirect('/')
+
