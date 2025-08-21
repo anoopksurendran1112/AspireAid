@@ -1,165 +1,291 @@
-{% extends 'admin-dashboard.html' %}
+<!DOCTYPE html>
 {% load static %}
-{% block content %}
+<html lang="en">
 
-    <div class="row g-4">
-        <div class="col-12">
-            <h2 ><strong>Checkout</strong></h2>
-            <div class="card data-card">
-                <div class="card-body">
-                    <div class="invoice-title">
-                        <div class="mb-4">
-                           <h2 class="mb-1 text-muted">{{project.title}}</h2>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 col-sm-12">
-                                <div class="text-muted">
-                                    <p class="mb-1">{{project.description}}</p>
-                                    <p class="mb-1">Target: {{project.funding_goal}}</p>
-                                    <p class="mb-1">Created by: {{project.created_by.email}}</p>
-                                    <p class="mb-1">Created on: {{project.created_at}}</p>
-                                    <p class="mb-1">Closing by: {{project.closing_date}}</p>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="Responsive Admin &amp; Dashboard Template based on Bootstrap 5">
+	<meta name="author" content="AdminKit">
+	<meta name="keywords" content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link rel="shortcut icon" href="{% static 'frontend/img/AspireAid_logo.png' %}" />
+
+	<link rel="canonical" href="https://demo-basic.adminkit.io/" />
+
+	<title>Crowd Funding</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link href="{% static 'Dashboard/css/app.css' %}" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+	<div class="wrapper">
+        <div class="main">
+<!---------------------- Starts Main horizontal Menu-bar -------------------->
+			<nav class="navbar bg-body-tertiary">
+                <div class="container">
+                    <a class="navbar-brand" href="#">
+                        <img src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
+                        Bootstrap
+                    </a>
+                </div>
+            </nav>
+<!---------------------- Ends Main horizontal Menu-bar -------------------->
+
+            <main class="content">
+                <div class="container">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="card data-card">
+                                <div class="card-header">
+                                    <h1 class="text-center my-2"><strong>Checkout</strong></h1>
                                 </div>
-                            </div>
-                            <div class="col-md-6 col-sm-12 text-sm-end">
-                                 <div class="text-muted">
-                                    <p class="mb-1">Beneficiary Details</p>
-                                    <p class="mb-1">{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</p>
-                                    <p class="mb-1">{{project.beneficiary.age}} years old</p>
-                                    <p class="mb-1">{{project.beneficiary.phone_number}}</p>
-                                    <p class="mb-1">{{project.beneficiary.address}}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div class="table-responsive mb-4">
-                        <table class="table align-middle table-nowrap table-centered mb-0">
-                            <thead>
-                                <tr class="table-dark">
-                                    <th>Tiles</th>
-                                    <th>Tile Value</th>
-                                    <th>Quantity</th>
-                                    <th class="text-end" style="width: 120px;">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody data-tile-value="{{ project.tile_value }}" data-count="{{ count }}">
-                                <tr>
-                                    <td>
-                                        <div>
-                                            <h5 class="text-truncate font-size-14 mb-1">{{selected_tiles}}</h5>
+                                <div class="card-body">
+                                    <div class="invoice-title">
+                                        <div class="my-4">
+                                           <h2 class="text-muted">{{project.title}}</h2>
                                         </div>
-                                    </td>
-                                    <td>{{project.tile_value}} Rs</td>
-                                    <td>{{count}}</td>
-                                    <td class="text-end" style="width: 120px;">
-                                        <span id="calculated-total"></span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="row">
-                            <div class="col-6 my-2">
-                                <div class="text-muted form-floating">
-                                    <h5 class="font-size-16 mb-2">Select Your payment method:</h5>
-                                    <select name="payment_method" id="payment-method-select" class="form-select py-0">
-                                        <option selected disabled>Choose an option</option>
-                                        <option value="Offline">Offline Banking</option>
-                                        <option value="Online">Online Banking</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="col-12 payment-method-div" id="offline-banking-div">
-                                <div class="invoice-title">
-                                    <div class="my-4">
-                                       <h2 class="mb-1 text-muted">Bank Details</h2>
+                                        <div class="row">
+                                            <div class="col-md-6 col-sm-12">
+                                                <div class="text-muted">
+                                                    <p class="mb-1">{{project.description}}</p>
+                                                    <p class="mb-1">Target: {{project.funding_goal}}</p>
+                                                    <p class="mb-1">Created by: {{project.created_by.email}}</p>
+                                                    <p class="mb-1">Created on: {{project.created_at}}</p>
+                                                    <p class="mb-1">Closing by: {{project.closing_date}}</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 text-sm-end">
+                                                 <div class="text-muted">
+                                                    <p class="mb-1">Beneficiary Details</p>
+                                                    <p class="mb-1">{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</p>
+                                                    <p class="mb-1">{{project.beneficiary.age}} years old</p>
+                                                    <p class="mb-1">{{project.beneficiary.phone_number}}</p>
+                                                    <p class="mb-1">{{project.beneficiary.address}}</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="table-responsive mb-4">
-                                                <table class="table table-stripped align-middle table-nowrap table-centered mb-0">
-                                                    <tbody>
-                                                        <tr>
-                                                            <th>A/c Holder Name</th>
-                                                            <td>{{project.bank_details.account_holder_first_name}} {{project.bank_details.account_holder_last_name}}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>A/c Holder Phone number</th>
-                                                            <td>{{project.bank_details.account_holder_phn_no}}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>A/c Holder Address</th>
-                                                            <td>{{project.bank_details.account_holder_address}}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Bank Name</th>
-                                                            <td>{{project.bank_details.bank_name}}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Branch Name</th>
-                                                            <td>{{project.bank_details.branch_name}}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>IFSC code</th>
-                                                            <td>{{project.bank_details.ifsc_code}}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>A/c number</th>
-                                                            <td>{{project.bank_details.account_no}}</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
+
+                                    <hr class="my-4">
+
+                                    <div class="container table-responsive mb-4">
+                                        <table class="table align-middle table-nowrap table-centered mb-0">
+                                            <thead>
+                                                <tr class="table-dark">
+                                                    <th>Tiles</th>
+                                                    <th>Tile Value</th>
+                                                    <th>Quantity</th>
+                                                    <th class="text-end" style="width: 120px;">Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody data-tile-value="{{ project.tile_value }}" data-count="{{ count }}">
+                                                <tr>
+                                                    <td>
+                                                        <div>
+                                                            <h5 class="text-truncate font-size-14 mb-1">{{selected_tiles}}</h5>
+                                                        </div>
+                                                    </td>
+                                                    <td>{{project.tile_value}} Rs</td>
+                                                    <td>{{count}}</td>
+                                                    <td class="text-end" style="width: 120px;">
+                                                        <span id="calculated-total"></span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <hr class="my-4">
+
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <div class="row">
+                                            <div class="col-6 my-2">
+                                                <div class="text-muted form-floating">
+                                                    <h5 class="font-size-16 mb-2">Select Your payment method:</h5>
+                                                    <select name="payment_method" id="payment-method-select" class="form-select py-0">
+                                                        <option selected disabled>Choose an option</option>
+                                                        <option value="Offline">Offline Banking</option>
+                                                        <option value="Online">Online Banking</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12 payment-method-div" id="offline-banking-div">
+                                                <div class="invoice-title">
+                                                    <div class="my-4">
+                                                       <h2 class="mb-1 text-muted">Bank Details</h2>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <div class="table-responsive mb-4">
+                                                                <table class="table table-stripped align-middle table-nowrap table-centered mb-0">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <th>A/c Holder Name</th>
+                                                                            <td>{{project.bank_details.account_holder_first_name}} {{project.bank_details.account_holder_last_name}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th>A/c Holder Phone number</th>
+                                                                            <td>{{project.bank_details.account_holder_phn_no}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th>A/c Holder Address</th>
+                                                                            <td>{{project.bank_details.account_holder_address}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th>Bank Name</th>
+                                                                            <td>{{project.bank_details.bank_name}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th>Branch Name</th>
+                                                                            <td>{{project.bank_details.branch_name}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th>IFSC code</th>
+                                                                            <td>{{project.bank_details.ifsc_code}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th>A/c number</th>
+                                                                            <td>{{project.bank_details.account_no}}</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12 payment-method-div" id="online-banking-div">
+
+                                                  <div class="row g-4 my-2">
+                                                      <div class="col-xl-8 col-lg-12">
+                                                        <div class="card h-100 data-card">
+                                                            <div class="card-header">
+                                                                <h2 class="text-muted">Personal Details</h2>
+                                                            </div>
+
+                                                            <div class="card-body">
+                                                                <form method="post">
+                                                                    {% csrf_token %}
+                                                                    <div class="row g-3">
+                                                                        <!-- Full Name & Place -->
+                                                                        <div class="col-md-6">
+                                                                            <input type="text" class="form-control rounded-2" placeholder="Full Name *" name="full_name" required>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <input type="text" class="form-control rounded-2" placeholder="Place *" name="place" required>
+                                                                        </div>
+
+                                                                        <!-- Email & Phone -->
+                                                                        <div class="col-md-6">
+                                                                            <input type="email" class="form-control rounded-2" placeholder="Email" name="email">
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <input type="text" class="form-control rounded-2" placeholder="Phone *" name="phone" required>
+                                                                        </div>
+
+                                                                        <!-- Address -->
+                                                                        <div class="col-12">
+                                                                            <textarea class="form-control rounded-2" rows="4"placeholder="Address" name="address"></textarea>
+                                                                        </div>
+
+                                                                        <!-- Message -->
+                                                                        <div class="col-12">
+                                                                            <textarea class="form-control rounded-2" rows="4" placeholder="Your message" name="message"></textarea>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="col-xl-4 col-lg-12">
+                                                        <div class="card h-100 data-card">
+                                                            <div class="card-body justify-content-center">
+                                                                <img src="{{ project.qr_code.url }}" alt="Christina Mason" class="img-fluid" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                  </div>
+
                                             </div>
                                         </div>
 
-                                    </div>
-                                </div>
-                            </div>
+                                        <div class="my-4 float-end">
+                                            <div class="float-end">
+                                                <button type="button" id="book-button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Confirm</button>
+                                            </div>
+                                        </div>
 
-                            <div class="col-12 payment-method-div" id="online-banking-div">
-                                <h1>Online Banking</h1>
-                            </div>
-                        </div>
+                                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Confirm Checkout</strong></h1>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>once you confirm You will be redirected to your Dashboard</p>
+                                                    </div>
+                                                    <div class="modal-footer d-flex justify-content-between">
+                                                        <button type="submit" class="btn btn-success">Confirm</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                        <div class="my-4 float-end">
-                            <div class="float-end">
-                                <button type="button" id="book-button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Confirm</button>
-                            </div>
-                        </div>
+                                    </form>
 
-                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Confirm Checkout</strong></h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>once you confirm You will be redirected to your Dashboard</p>
-                                    </div>
-                                    <div class="modal-footer d-flex justify-content-between">
-                                        <button type="submit" class="btn btn-success">Confirm</button>
-                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+				</div>
+			</main>
 
-                    </form>
 
-                </div>
-            </div>
-        </div>
-    </div>
+			<footer class="footer">
+				<div class="container-fluid">
+					<div class="row text-muted">
+						<div class="col-6 text-start">
+							<p class="mb-0">
+								<a class="text-muted" href="https://adminkit.io/" target="_blank"><strong>AdminKit</strong></a> &copy;
+							</p>
+						</div>
+						<div class="col-6 text-end">
+							<ul class="list-inline">
+								<li class="list-inline-item">
+									<a class="text-muted" href="https://adminkit.io/" target="_blank">Support</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="https://adminkit.io/" target="_blank">Help Center</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="https://adminkit.io/" target="_blank">Privacy</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="https://adminkit.io/" target="_blank">Terms</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</footer>
+		</div>
+	</div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <script src="{% static 'Dashboard/js/app.js' %}"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -209,4 +335,5 @@
         });
     </script>
 
-{% endblock %}
+</body>
+</html>
