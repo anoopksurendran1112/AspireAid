@@ -15,7 +15,7 @@
 
 	<link rel="canonical" href="https://demo-basic.adminkit.io/" />
 
-	<title>Admin : {{admin.email}}</title>
+	<title>Crowd Funding</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <link href="{% static 'Dashboard/css/app.css' %}" rel="stylesheet">
@@ -25,12 +25,25 @@
 <body>
 	<div class="wrapper">
         <div class="main">
+<!---------------------- Starts Main horizontal Menu-bar -------------------->
+			<nav class="navbar bg-body-tertiary">
+                <div class="container">
+                    <a class="navbar-brand" href="#">
+                        <img src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
+                        Bootstrap
+                    </a>
+                </div>
+            </nav>
+<!---------------------- Ends Main horizontal Menu-bar -------------------->
+
             <main class="content">
                 <div class="container">
                     <div class="row g-4">
                         <div class="col-12">
-                            <h1 class="text-center mb-4"><strong>Checkout</strong></h1>
                             <div class="card data-card">
+                                <div class="card-header">
+                                    <h1 class="text-center my-2"><strong>Checkout</strong></h1>
+                                </div>
                                 <div class="card-body">
                                     <div class="invoice-title">
                                         <div class="my-4">
@@ -155,8 +168,10 @@
                                                   <div class="row g-4 my-2">
                                                     <div class="col-xl-8 col-lg-12 ">
                                                         <div class="card h-100 data-card">
+                                                            <div class="card-header">
+                                                              <h2 class="text-muted">Personal Details</h2>
+                                                            </div>
                                                           <div class="card-body pb-0">
-                                                              <p class="card-text">{{project.description}}</p>
                                                               <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
                                                           </div>
                                                         </div>
@@ -164,9 +179,8 @@
 
                                                     <div class="col-xl-4 col-lg-12">
                                                         <div class="card h-100 data-card">
-
                                                             <div class="card-body justify-content-center">
-                                                                    <img src="{{ project.qr_code.url }}" alt="Christina Mason" class="img-fluid mb-2" />
+                                                                <img src="{{ project.qr_code.url }}" alt="Christina Mason" class="img-fluid" />
                                                             </div>
                                                         </div>
                                                     </div>
