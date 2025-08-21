@@ -1,7 +1,16 @@
 from django.contrib import admin
-from .models import Project, BankDetails, Beneficial, ProjectImage, Institution
+from django.contrib.auth.admin import UserAdmin
+from .models import Project, BankDetails, Beneficial, ProjectImage, Institution, CustomUser
+
 
 # Register your models here.
+class CustomUserAdmin(UserAdmin):
+    list_display = UserAdmin.list_display + ('phn_no', 'institution', 'default_bank', 'profile_pic', 'table_status')
+    fieldsets = UserAdmin.fieldsets + (('Custom Fields', {'fields': ('default_bank','phn_no', 'profile_pic', 'table_status', 'institution',)}),)
+    add_fieldsets = UserAdmin.add_fieldsets + (('Custom Fields', {'fields': ('default_bank','phn_no', 'profile_pic', 'table_status', 'institution',)}),)
+    list_filter = UserAdmin.list_filter + ('institution',)
+
+
 class InstitutionAdmin(admin.ModelAdmin):
     list_display = ('institution_name','address','phn', 'email', 'institution_img', 'table_status')
 
@@ -22,6 +31,7 @@ class ProjectImageAdmin(admin.ModelAdmin):
     list_display = ('project','project_img','table_status')
 
 
+admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Institution, InstitutionAdmin)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(BankDetails, BankDetailsAdmin)

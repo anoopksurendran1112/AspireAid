@@ -104,7 +104,8 @@
             <h1 class="mb-4"><strong>All Project Details</strong></h1>
             <div class="card h-100 data-card">
                 <div class="card-header text-end">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                            {% if not admin.default_bank %} disabled {% endif %} >
                          Add new Project +
                     </button>
                 </div>

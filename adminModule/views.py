@@ -1,8 +1,7 @@
-from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage
+from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
-from userModule.models import CustomUser
 from django.contrib.auth import logout
 from django.db import IntegrityError
 from django.utils import timezone
