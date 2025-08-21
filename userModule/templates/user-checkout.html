@@ -15,7 +15,9 @@
 
 	<link rel="canonical" href="https://demo-basic.adminkit.io/" />
 
+
 	<title>Crowd Funding</title>
+
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <link href="{% static 'Dashboard/css/app.css' %}" rel="stylesheet">
@@ -166,16 +168,50 @@
                                             <div class="col-12 payment-method-div" id="online-banking-div">
 
                                                   <div class="row g-4 my-2">
-                                                    <div class="col-xl-8 col-lg-12 ">
+
+                                                      <div class="col-xl-8 col-lg-12">
                                                         <div class="card h-100 data-card">
                                                             <div class="card-header">
-                                                              <h2 class="text-muted">Personal Details</h2>
+                                                                <h2 class="text-muted">Personal Details</h2>
                                                             </div>
-                                                          <div class="card-body pb-0">
-                                                              <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
-                                                          </div>
+
+                                                            <div class="card-body">
+                                                                <form method="post">
+                                                                    {% csrf_token %}
+                                                                    <div class="row g-3">
+                                                                        <!-- Full Name & Place -->
+                                                                        <div class="col-md-6">
+                                                                            <input type="text" class="form-control rounded-2" placeholder="Full Name *" name="full_name" required>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <input type="text" class="form-control rounded-2" placeholder="Place *" name="place" required>
+                                                                        </div>
+
+                                                                        <!-- Email & Phone -->
+                                                                        <div class="col-md-6">
+                                                                            <input type="email" class="form-control rounded-2" placeholder="Email" name="email">
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <input type="text" class="form-control rounded-2" placeholder="Phone *" name="phone" required>
+                                                                        </div>
+
+                                                                        <!-- Address -->
+                                                                        <div class="col-12">
+                                                                            <textarea class="form-control rounded-2" rows="4"placeholder="Address" name="address"></textarea>
+                                                                        </div>
+
+                                                                        <!-- Message -->
+                                                                        <div class="col-12">
+                                                                            <textarea class="form-control rounded-2" rows="4" placeholder="Your message" name="message"></textarea>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </form>
+                                                            </div>
                                                         </div>
                                                     </div>
+
+
 
                                                     <div class="col-xl-4 col-lg-12">
                                                         <div class="card h-100 data-card">
