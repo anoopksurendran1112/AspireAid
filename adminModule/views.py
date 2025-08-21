@@ -84,8 +84,18 @@ def adminAllProject(request):
             beneficiar, created = Beneficial.objects.get_or_create(first_name=ben_fname, last_name=ben_lname, phone_number=ben_phn,
                 defaults={'address': ben_addr, 'age': ben_age,})
             if acc_type == "custom":
-                bank_details = BankDetails.objects.create(account_holder_first_name=acc_fname, account_holder_last_name=acc_lname, account_holder_address=acc_addr,
-                    account_holder_phn_no=acc_phn, bank_name=b_name, branch_name=br_name, ifsc_code=ifsc_code, account_no=acc_no, upi_id=upi, )
+                bank_details, created = BankDetails.objects.get_or_create(
+                    account_no=acc_no, ifsc_code= ifsc_code,
+                    defaults={
+                        'account_holder_first_name': acc_fname,
+                        'account_holder_last_name': acc_lname,
+                        'account_holder_address': acc_addr,
+                        'account_holder_phn_no': acc_phn,
+                        'bank_name': b_name,
+                        'branch_name': br_name,
+                        'upi_id': upi,
+                    }
+                )
             else:
                 bank_details = request.user.default_bank
             new_project = Project(title=title, description=desc, beneficiary=beneficiar, created_by=request.user, funding_goal=goal, tile_value=tval, closing_date=clsdate, bank_details=bank_details)
@@ -96,9 +106,11 @@ def adminAllProject(request):
         return redirect('/sign-in/')
 
 
-def adminSingleProject(request):
+def adminSingleProject(request, pid):
     if request.user.is_superuser or request.user.is_staff:
-        return render(request,"admin-single-projects.html", { 'admin':request.user})
+        project = Project.objects.get(id = pid)
+        tile_range = range(1, int(project.funding_goal // project.tile_value) + 1)
+        return render(request,"admin-single-projects.html", { 'admin':request.user, 'project': project, 't_range': tile_range})
     else:
         return redirect('/sign-in/')
 
