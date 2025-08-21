@@ -42,17 +42,17 @@
                 <div class="container">
                     <div class="row g-4">
                         <div class="col-12">
-                            <div class="card data-card">
+                            <div class="card data-card container">
                                 <div class="card-header">
                                     <h1 class="text-center my-2"><strong>Checkout</strong></h1>
                                 </div>
-                                <div class="card-body">
+                                <div class="card-body my-2">
                                     <div class="invoice-title">
                                         <div class="my-4">
                                            <h2 class="text-muted">{{project.title}}</h2>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-6 col-sm-12">
+                                            <div class="col-md-6 col-sm-12 mb-2">
                                                 <div class="text-muted">
                                                     <p class="mb-1">Target: {{project.funding_goal}}</p>
                                                     <p class="mb-1">Created by: {{project.created_by.email}}</p>
@@ -60,7 +60,7 @@
                                                     <p class="mb-1">Closing by: {{project.closing_date}}</p>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6 col-sm-12 text-sm-end">
+                                            <div class="col-md-6 col-sm-12 text-sm-end mb-2" >
                                                  <div class="text-muted">
                                                     <p class="mb-1">Beneficiary Details</p>
                                                     <p class="mb-1">{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</p>
@@ -106,7 +106,7 @@
                                     <form method="post">
                                         {% csrf_token %}
                                         <div class="row">
-                                            <div class="col-6 my-2">
+                                            <div class="col-lg-6 my-2">
                                                 <div class="text-muted form-floating">
                                                     <h5 class="font-size-16 mb-2">Select Your payment method:</h5>
                                                     <select name="payment_method" id="payment-method-select" class="form-select py-0">
@@ -159,74 +159,69 @@
                                                                 </table>
                                                             </div>
                                                         </div>
-
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div class="col-12 payment-method-div" id="online-banking-div">
-
-                                                  <div class="row g-4 my-2">
-
-                                                      <div class="col-xl-8 col-lg-12">
-                                                        <div class="card h-100 data-card">
-                                                            <div class="card-header">
-                                                                <h2 class="text-muted">Personal Details</h2>
+                                            <div class="col-12 payment-method-div my-4" id="online-banking-div">
+                                                <h2 class="text-muted my-4">Personal Details</h2>
+                                                <div class="row g-4">
+                                                    <div class="col-xl-8 col-lg-12">
+                                                        <div class="row g-3">
+                                                            <!-- First Name -->
+                                                            <div class="col-md-6">
+                                                                <div class="form-floating mb-2">
+                                                                    <input type="text" class="form-control" id="firstName" placeholder="Enter First name" name="fname" required>
+                                                                    <label for="firstName">First name</label>
+                                                                </div>
                                                             </div>
-
-                                                            <div class="card-body">
-                                                                <form method="post">
-                                                                    {% csrf_token %}
-                                                                    <div class="row g-3">
-                                                                        <!-- Full Name & Place -->
-                                                                        <div class="col-md-6">
-                                                                            <input type="text" class="form-control rounded-2" placeholder="Full Name *" name="full_name" required>
-                                                                        </div>
-                                                                        <div class="col-md-6">
-                                                                            <input type="text" class="form-control rounded-2" placeholder="Place *" name="place" required>
-                                                                        </div>
-
-                                                                        <!-- Email & Phone -->
-                                                                        <div class="col-md-6">
-                                                                            <input type="email" class="form-control rounded-2" placeholder="Email" name="email">
-                                                                        </div>
-                                                                        <div class="col-md-6">
-                                                                            <input type="text" class="form-control rounded-2" placeholder="Phone *" name="phone" required>
-                                                                        </div>
-
-                                                                        <!-- Address -->
-                                                                        <div class="col-12">
-                                                                            <textarea class="form-control rounded-2" rows="4"placeholder="Address" name="address"></textarea>
-                                                                        </div>
-
-                                                                        <!-- Message -->
-                                                                        <div class="col-12">
-                                                                            <textarea class="form-control rounded-2" rows="4" placeholder="Your message" name="message"></textarea>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </form>
+                                                            <!-- Last Name -->
+                                                            <div class="col-md-6">
+                                                                <div class="form-floating mb-2">
+                                                                    <input type="text" class="form-control" id="lastName" placeholder="Enter Last name" name="lname" required>
+                                                                    <label for="lastName">Last name</label>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Email -->
+                                                            <div class="col-md-6">
+                                                                <div class="form-floating mb-2">
+                                                                    <input type="email" class="form-control" id="email" placeholder="Enter email" name="email">
+                                                                    <label for="email">Email</label>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Phone number -->
+                                                            <div class="col-md-6">
+                                                                <div class="form-floating mb-2">
+                                                                    <input type="tel" class="form-control" id="phn" placeholder="Enter phn" name="phn">
+                                                                    <label for="phn">Phone number</label>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Address -->
+                                                            <div class="col-md-12">
+                                                                <div class="form-floating mb-2">
+                                                                    <textarea class="form-control" id="address" style="resize:none; height:75px;" placeholder="Enter address" name="addr"></textarea>
+                                                                    <label for="address">Address</label>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Message -->
+                                                            <div class="col-md-12">
+                                                                <div class="form-floating mb-2">
+                                                                    <textarea class="form-control" id="message" style="resize:none; height:75px;" placeholder="Enter message" name="message"></textarea>
+                                                                    <label for="message">Message</label>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-
-
 
                                                     <div class="col-xl-4 col-lg-12">
-                                                        <div class="card h-100 data-card">
-                                                            <div class="card-body justify-content-center">
-                                                                <img src="{{ project.qr_code.url }}" alt="Christina Mason" class="img-fluid" />
-                                                            </div>
-                                                        </div>
+                                                        <img src="{{ project.qr_code.url }}" class="img-fluid" />
                                                     </div>
-                                                  </div>
 
-                                            </div>
-                                        </div>
+                                                    <div class="col-12 my-1">
+                                                        <button type="button" id="book-button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Confirm</button>
+                                                    </div>
+                                                </div>
 
-                                        <div class="my-4 float-end">
-                                            <div class="float-end">
-                                                <button type="button" id="book-button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Confirm</button>
                                             </div>
                                         </div>
 
@@ -248,7 +243,6 @@
                                         </div>
 
                                     </form>
-
                                 </div>
                             </div>
                         </div>
