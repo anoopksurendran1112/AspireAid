@@ -197,3 +197,12 @@ def adminAllBankDetails(request):
     else:
         return redirect('/')
 
+
+def delete_project_image(request, img_id):
+    if request.user.is_superuser or request.user.is_staff:
+        img = ProjectImage.objects.get(id=img_id)
+        prj_id = img.project.id
+        img.delete()
+        return redirect(f'/administrator/single-project/{prj_id}/')
+    else:
+        return redirect('/')

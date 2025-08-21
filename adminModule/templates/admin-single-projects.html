@@ -109,6 +109,20 @@
                 <form method="post" action="{% url 'upload_project_image' project_id=project.id %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="modal-body">
+                        <table class="table">
+                          <tbody>
+                          {% for image in project.images.all %}
+                            <tr>
+                                <th>
+                                    <a href="/{{image.project_img}}/">{{image.project_img}}</a>
+                                </th>
+                                <td class="text-end">
+                                    <a class="" href="/administrator/del_prj_img/{{image.id}}/">Delete</a>
+                                </td>
+                            </tr>
+                          {% endfor %}
+                          </tbody>
+                        </table>
                         <div class="my-2">
                             <input type="file" class="form-control" id="img" placeholder="Upload an image.. " name="img">
                         </div>
@@ -178,8 +192,8 @@
                   <div class="text-end">
 
                       <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#imgModal">
-                          <i class="align-middle" data-feather="edit"></i>
-                          <span class="align-middle">Add images</span>
+                          <i class="align-middle" data-feather="image"></i>
+                          <span class="align-middle">Images</span>
                       </button>
                       <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
                           <i class="align-middle" data-feather="edit"></i>
@@ -217,7 +231,6 @@
                                     class="border rounded-circle">
                             </label>
                         </form>
-<!--                        <img src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}" alt="Christina Mason" class="img-fluid my-0 border" width="128" height="128" />-->
                     </div>
                     <div class="col-sm-6 col-xl-12">
                         <h5 class="mb-3"><strong>{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</strong></h5>
