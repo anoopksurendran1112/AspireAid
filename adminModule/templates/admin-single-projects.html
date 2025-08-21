@@ -215,9 +215,9 @@
                 </div>
                 <div class="card-body row">
                     <div class="col-sm-6 col-xl-12">
-                        <form id="uploadForm" method="post" enctype="multipart/form-data">
+                        <form id="uploadForm" method="post" action="/administrator/bene_img/{{project.id}}/" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <input type="file" id="imgUpload" name="img" style="display: none;">
+                            <input type="file" id="imgUpload" name="bene_img" style="display: none;">
 
                             <label for="imgUpload">
                                 <img
@@ -295,7 +295,6 @@
 </script>
 <script>
     const fileInput = document.getElementById('imgUpload');
-
     fileInput.addEventListener('change', function() {
         if (this.files && this.files.length > 0) {
             this.form.submit();
