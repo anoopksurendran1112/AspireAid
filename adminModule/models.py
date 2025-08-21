@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 
 # Create your models here.
@@ -13,18 +14,6 @@ class Institution(models.Model):
 
     def __str__(self):
         return self.institution_name
-
-class Beneficial(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    phone_number = models.CharField(max_length=15, blank=True, null=True)
-    address = models.TextField()
-    age = models.IntegerField()
-    profile_pic = models.ImageField(upload_to='beneficiar_pics/', blank=True, null=True)
-    table_status = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f"{self.first_name} {self.last_name}"
 
 
 class BankDetails(models.Model):
@@ -41,6 +30,31 @@ class BankDetails(models.Model):
 
     def __str__(self):
         return f"Bank details for {self.account_holder_first_name}  {self.account_holder_last_name}"
+
+
+class CustomUser(AbstractUser):
+    email = models.EmailField(null=False, blank=False)
+    institution = models.ForeignKey(Institution, on_delete=models.SET_NULL, null=True)
+    phn_no = models.CharField(max_length=15, blank=True, null=True)
+    default_bank = models.ForeignKey(BankDetails, on_delete=models.SET_NULL, null=True, blank=True,)
+    profile_pic = models.ImageField(upload_to='user_profile_pics/', blank=True, null=True)
+    table_status = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"User: {self.email}"
+
+
+class Beneficial(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    address = models.TextField()
+    age = models.IntegerField()
+    profile_pic = models.ImageField(upload_to='beneficiar_pics/', blank=True, null=True)
+    table_status = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
 
 
 class Project(models.Model):

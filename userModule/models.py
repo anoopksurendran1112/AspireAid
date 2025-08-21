@@ -1,26 +1,26 @@
-from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-from adminModule.models import Project, Institution, BankDetails
+from adminModule.models import Project
 
 STATUS_CHOICES = (('PENDING', 'Pending'), ('SUCCESS', 'Success'),('FAILED', 'Failed'),)
 
 # Create your models here.
-class CustomUser(AbstractUser):
-    email = models.EmailField(null=False, blank=False)
-    institution = models.ForeignKey(Institution, on_delete=models.SET_NULL, null=True)
-    phn_no = models.CharField(max_length=15, blank=True, null=True)
-    default_bank = models.ForeignKey(BankDetails, on_delete=models.SET_NULL, null=True, blank=True,)
-    profile_pic = models.ImageField(upload_to='user_profile_pics/', blank=True, null=True)
-    table_status = models.BooleanField(default=True)
+
+
+
+class PersonalDetails(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField(unique=True, null=True)
+    phone = models.CharField(max_length=20)
+    address = models.TextField()
 
     def __str__(self):
-        return f"User: {self.email}"
+        return f"{self.first_name} {self.last_name}"
 
 
 class SelectedTile(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='projects')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    sender = models.ForeignKey(PersonalDetails,on_delete=models.CASCADE, null=True)
     tiles = models.CharField(max_length=255)
     funded_at = models.DateTimeField(auto_now_add=True)
     table_status = models.BooleanField(default=True)
@@ -31,7 +31,7 @@ class SelectedTile(models.Model):
 
 class Transaction(models.Model):
     tiles_bought = models.ForeignKey(SelectedTile, on_delete=models.SET_NULL, null=True, blank=True,)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,)
+    sender = models.ForeignKey(PersonalDetails, on_delete=models.CASCADE, null=True)
     project = models.ForeignKey(Project,on_delete=models.CASCADE,)
     upi_id = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=10, decimal_places=2)

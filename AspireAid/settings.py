@@ -84,7 +84,7 @@ DATABASES = {
 }
 
 
-AUTH_USER_MODEL = 'userModule.CustomUser'
+AUTH_USER_MODEL = 'adminModule.CustomUser'
 
 
 # Password validation
