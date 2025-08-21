@@ -3,7 +3,7 @@
 
 <!---------------------- Modal for Adding new Institution -------------------->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog ">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Add a new Project</strong></h1>
@@ -15,7 +15,7 @@
                     <div class="modal-body">
 
                         <div class="row">
-                            <div class="col-lg-6 px-4">
+                            <div class="col-lg-6 px-3">
                                 <h3 class="card-title my-2 text-black">Project Details</h3>
                                 <div class="row">
                                     <div class="col-lg-12">
@@ -49,7 +49,8 @@
                                         </div>
                                     </div>
                                 </div>
-
+                            </div>
+                            <div class="col-lg-6 px-3">
                                 <h3 class="card-title my-2 text-black">Beneficiary Details</h3>
                                 <div class="row">
                                     <div class="col-lg-6">
@@ -64,16 +65,16 @@
                                             <label for="lname">Last Name</label>
                                         </div>
                                     </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-floating mb-2">
-                                            <input type="tel" class="form-control" id="telPhn"  placeholder="Enter Phone Number.. " name="phn">
-                                            <label for="telPhn">Phone Number</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
+                                    <div class="col-lg-12">
                                         <div class="form-floating mb-2">
                                             <input type="number" class="form-control" id="age"  placeholder="Enter Age " name="age">
                                             <label for="age">Enter Age</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <input type="tel" class="form-control" id="telPhn"  placeholder="Enter Phone Number.. " name="phn">
+                                            <label for="telPhn">Phone Number</label>
                                         </div>
                                     </div>
                                     <div class="col-lg-12">
@@ -85,74 +86,6 @@
                                 </div>
                             </div>
 
-                            <div class="col-lg-6  px-4">
-                                <h3 class="card-title my-2 text-black">Bank Details</h3>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <select id="myDropdown" name="acc_type" class="form-control form-select">
-                                                <option value="default" selected>Default Bank Account</option>
-                                                <option value="custom" >Custom Bank Account</option>
-                                            </select>
-                                            <label for="myDropdown">Bank Typre</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control bank-field" id="acHolderFirstName" name="account_holder_first_name" placeholder="Enter First Name..">
-                                            <label for="acHolderFirstName">A/c holder's Firstname</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control bank-field" id="acHolderLastName" name="account_holder_last_name" placeholder="Enter Last Name..">
-                                            <label for="acHolderLastName">A/c holder's Lastname</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <input type="tel" class="form-control bank-field" id="account_holder_phn_no" name="account_holder_phn_no" placeholder="Enter Phn..">
-                                            <label for="account_holder_phn_no">A/c holder's Phn no</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <textarea class="form-control bank-field" rows="4" id="account_holder_address" name="account_holder_address" placeholder="Enter the Address..">{{bank.account_holder_address}}</textarea>
-                                            <label for="account_holder_address">A/c holder's Address</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control bank-field" id="bank_name" name="bank_name" placeholder="Enter Bank Name">
-                                            <label for="bank_name">Bank Name</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control bank-field" id="branch_name" name="branch_name" placeholder="Enter Branch Name">
-                                            <label for="branch_name">Branch Name</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control bank-field" id="ifsc" name="ifsc" placeholder="Enter IFSC code">
-                                            <label for="ifsc">IFSC code</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <input type="number" class="form-control bank-field" id="accno" name="accno" placeholder="Enter Account number">
-                                            <label for="accno">A/c number</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control bank-field" id="upi" name="upi" placeholder="Enter UPI id">
-                                            <label for="upi">UPI id</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -213,70 +146,4 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const dropdown = document.getElementById('myDropdown');
-            const bankFields = document.querySelectorAll('.bank-field');
-            const bankLabels = document.querySelectorAll('.bank-label');
-
-            function toggleFields() {
-                const isDefault = dropdown.value === 'default';
-                bankFields.forEach(field => {
-                    field.readOnly  = isDefault;
-                    if (isDefault) {
-                        if (field.name === 'account_holder_first_name') {
-                            field.value = '{{admin.default_bank.account_holder_first_name}}';
-                        } else if (field.name === 'account_holder_last_name') {
-                            field.value = '{{admin.default_bank.account_holder_last_name}}';
-                        } else if (field.name === 'account_holder_phn_no') {
-                            field.value = '{{admin.default_bank.account_holder_phn_no}}';
-                        } else if (field.name === 'account_holder_address') {
-                            field.value = '{{admin.default_bank.account_holder_address}}';
-                        } else if (field.name === 'bank_name') {
-                            field.value = '{{admin.default_bank.bank_name}}';
-                        } else if (field.name === 'branch_name') {
-                            field.value = '{{admin.default_bank.branch_name}}';
-                        } else if (field.name === 'ifsc') {
-                            field.value = '{{admin.default_bank.ifsc_code}}';
-                        } else if (field.name === 'accno') {
-                            field.value = '{{admin.default_bank.account_no}}';
-                        } else if (field.name === 'upi') {
-                            field.value = '{{admin.default_bank.upi_id}}';
-                        }
-                    } else {
-                        field.value = '';
-                    }
-                });
-                bankLabels.forEach(label => {
-                    label.classList.toggle('disabled-label', isDefault);
-                });
-            }
-            toggleFields();
-            dropdown.addEventListener('change', toggleFields);
-
-        });
-    </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const modalDialog = document.querySelector('.modal-dialog');
-            const modal = document.getElementById('exampleModal');
-
-            if (modalDialog && modal) {
-                function toggleFullscreenClass() {
-                    // Check if the screen width is greater than or equal to 992px (Bootstrap's 'lg' breakpoint)
-                    if (window.innerWidth >= 992) {
-                        modalDialog.classList.add('modal-fullscreen');
-                    } else {
-                        modalDialog.classList.remove('modal-fullscreen');
-                    }
-                }
-
-                // Run on page load
-                toggleFullscreenClass();
-
-                // Run whenever the window is resized
-                window.addEventListener('resize', toggleFullscreenClass);
-            }
-        });
-    </script>
 {% endblock %}

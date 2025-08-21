@@ -68,3 +68,13 @@
 .payment-method-div {
     display: none;
 }
+
+.carousel-image {
+  height: 250px; /* Set a fixed height for all images */
+  object-fit: cover; /* This is the key property */
+}
+
+/* Optional: You can make the image fill the carousel item */
+.carousel-item {
+  height: 250px; /* Match the image height to prevent jumping */
+}

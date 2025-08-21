@@ -2,59 +2,161 @@
 {% load static %}
 {% block content %}
 
-<!---------------------- Modal for Updating Default Bank Details -------------------->
+<!-------------------Modal for updating project details--------------------->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Proceed Checkout</strong></h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Add a new Project</strong></h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <form method="post">
                     {% csrf_token %}
                     <div class="modal-body">
-                        <table class="table">
-                            <tbody data-tile-value="{{ project.tile_value }}">
-                                <tr class="table-dark">
-                                    <th colspan="2">{{project.title}}</th>
-                                </tr>
-                                <tr>
-                                    <th>Tile value:</th>
-                                    <td>{{project.tile_value}}</td>
-                                </tr>
-                                <tr>
-                                    <th>No of tiles selected:</th>
-                                    <td>
-                                        <span class="js-selected-count"></span>
-                                        [ <span class="js-selected-tiles"></span> ]
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Total:</th>
-                                    <td>
-                                        <span class="js-selected-total">0.00</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+
+                        <div class="row">
+                            <div class="col-lg-6 px-3">
+                                <h3 class="card-title my-2 text-black">Project Details</h3>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="projectTitle" placeholder="Enter the project title.. " name="title" value="{{project.title}}">
+                                            <label for="projectTitle">Project Title</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="fundingGoal" placeholder="Enter the funding goal.. " name="goal" value="{{project.funding_goal}}">
+                                            <label for="fundingGoal">Funding Goal</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="tileValue" placeholder="Enter tile value " name="tvalue" value="{{project.tile_value}}">
+                                            <label for="tileValue">Single Tile Value</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <input type="date" class="form-control" id="closingDate" placeholder="Enter Closing Date " name="clsdate" value="{{ project.closing_date|date:'Y-m-d' }}">                                        <label for="closingDate">Closing Date</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <textarea class="form-control" id="projectDesc" style="resize:none; height:75px;" placeholder="Enter the description..." name="desc">{{project.description}}</textarea>
+                                            <label for="projectDesc">Project Description</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 px-3">
+                                <h3 class="card-title my-2 text-black">Beneficiary Details</h3>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="fname" placeholder="Enter Firstname" name="fname" value="{{project.beneficiary.first_name}}">
+                                            <label for="fname">First Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="lname" placeholder="Enter Lastname" name="lname" value="{{project.beneficiary.last_name}}">
+                                            <label for="lname">Last Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <input type="number" class="form-control" id="age"  placeholder="Enter Age " name="age" value="{{project.beneficiary.age}}">
+                                            <label for="age">Enter Age</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <input type="tel" class="form-control" id="telPhn"  placeholder="Enter Phone Number.. " name="phn" value="{{project.beneficiary.phone_number}}">
+                                            <label for="telPhn">Phone Number</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <textarea class="form-control" style="resize:none; height:75px;" id="address" placeholder="Enter your Address.." name="addr">{{project.beneficiary.address}}</textarea>
+                                            <label for="address">Address</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
+
                     <div class="modal-footer d-flex justify-content-between">
-                        <input type="hidden" id="selected-tiles-input" name="selected_tiles_input">
-                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">Checkout</button>
+                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
+                        <button type="submit" class="btn btn-success">Save changes</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
+<!-------------------Modal for uploading images--------------------->
+    <div class="modal fade" id="imgModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="imgModalLabel"><strong>Upload Image</strong></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="{% url 'upload_project_image' project_id=project.id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <table class="table">
+                          <tbody>
+                          {% for image in project.images.all %}
+                            <tr>
+                                <th>
+                                    <a href="/{{image.project_img}}/">{{image.project_img}}</a>
+                                </th>
+                                <td class="text-end">
+                                    <a class="" href="/administrator/del_prj_img/{{image.id}}/">Delete</a>
+                                </td>
+                            </tr>
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                        <div class="my-2">
+                            <input type="file" class="form-control" id="img" placeholder="Upload an image.. " name="img">
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
     <div class="row g-4 mb-4">
         <div class="col-xl-8 col-lg-12 ">
             <div class="card h-100 data-card">
                 <div class="row">
                     <div class="col-xl-8">
-                        <img src="https://cloudinary-marketing-res.cloudinary.com/images/w_1000,c_scale/v1679921049/Image_URL_header/Image_URL_header-png?_i=AA" class="card-img-top" alt="...">
+                        <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                            {% if project.images.all %}
+                                {% for image in project.images.all %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                  <img src="{{ image.project_img.url }}" class="d-block w-100 carousel-image border" alt="Project Image {{ forloop.counter }}">
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="carousel-item active">
+                                    <img src="{% static 'Dashboard/img/photos/default-baner.png' %}" class="d-block w-100 carousel-image border" alt="No image available">
+                                </div>
+                            {% endif %}
+                            </div>
+                        </div>
                     </div>
                     <div class="col-xl-4 col-lg-12 ">
                         <div class="row h-100 m-0">
@@ -87,6 +189,21 @@
               <div class="card-body pb-0">
                   <p class="card-text">{{project.description}}</p>
                   <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
+                  <div class="text-end">
+
+                      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#imgModal">
+                          <i class="align-middle" data-feather="image"></i>
+                          <span class="align-middle">Images</span>
+                      </button>
+                      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                          <i class="align-middle" data-feather="edit"></i>
+                          <span class="align-middle">Edit</span>
+                      </button>
+                      <button class="btn btn-primary" id="share-button">
+                          <i class="align-middle" data-feather="share"></i>
+                          <span class="align-middle">Share</span>
+                      </button>
+                  </div>
               </div>
             </div>
         </div>
@@ -98,7 +215,22 @@
                 </div>
                 <div class="card-body row">
                     <div class="col-sm-6 col-xl-12">
-                        <img src="{% static 'Dashboard/img/avatars/avatar-4.jpg' %}" alt="Christina Mason" class="img-fluid mb-2" width="128" height="128" />
+                        <form id="uploadForm" method="post" action="/administrator/bene_img/{{project.id}}/" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="file" id="imgUpload" name="bene_img" style="display: none;">
+
+                            <label for="imgUpload">
+                                <img
+                                    {% if project.beneficiary.profile_pic %}
+                                        src="{{ project.beneficiary.profile_pic.url }}"
+                                    {% else %}
+                                        src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
+                                    {% endif %}
+                                    alt="Click to upload an image"
+                                    style="cursor: pointer; width: 128px; height: 128px; display: block;"
+                                    class="border rounded-circle">
+                            </label>
+                        </form>
                     </div>
                     <div class="col-sm-6 col-xl-12">
                         <h5 class="mb-3"><strong>{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</strong></h5>
@@ -125,17 +257,7 @@
     <div class="row g-4">
         <div class="col-12">
             <div class="card h-100 data-card">
-<!--                <div class="card-header pb-0">-->
-<!--                    <h2 ><strong>Book Your Tiles</strong></h2>-->
-<!--                </div>-->
                 <div class="card-body">
-<!--                    <div class="mb-3">-->
-<!--                        <p class="mb-1">Selected Tiles:-->
-<!--                            <span class="js-selected-count">0</span>-->
-<!--                            [<span class="js-selected-tiles"></span>]-->
-<!--                        </p>-->
-<!--                        <button type="submit" id="book-button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" disabled>Proceed to Checkout</button>-->
-<!--                    </div>-->
                     <div class="container-fluid bg-light border py-1 overflow-auto" style="height:250px;">
                         <div class="tile-grid">
                             {% for t in t_range %}
@@ -150,5 +272,34 @@
         </div>
     </div>
 
+<script>
+    const shareButton = document.getElementById('share-button');
+
+    shareButton.addEventListener('click', async () => {
+        const customUrl = `${window.location.protocol}//${window.location.host}/user/single-project/{{project.id}}/`;
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Check out this awesome project!',
+                    text: 'This is a description of the content I want to share.',
+                    url: customUrl
+                });
+            } catch (error) {
+                console.error('Sharing failed:', error);
+                alert('Sharing failed. Please try again.');
+            }
+        } else {
+            alert('Web Share API is not supported in this browser.');
+        }
+    });
+</script>
+<script>
+    const fileInput = document.getElementById('imgUpload');
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files.length > 0) {
+            this.form.submit();
+        }
+    });
+</script>
 
 {% endblock %}
