@@ -206,3 +206,16 @@ def delete_project_image(request, img_id):
         return redirect(f'/administrator/single-project/{prj_id}/')
     else:
         return redirect('/')
+
+
+def upload_beneficiary_image(request, prj_id):
+    if request.user.is_superuser or request.user.is_staff:
+        if request.method == 'POST':
+            project_instance = get_object_or_404(Project, id=prj_id)
+            if 'bene_img' in request.FILES:
+                uploaded_img = request.FILES['bene_img']
+                project_instance.beneficiary.profile_pic = uploaded_img
+                project_instance.beneficiary.save()
+        return redirect(f'/administrator/single-project/{prj_id}/')
+    else:
+        return redirect('/')
