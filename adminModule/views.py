@@ -5,7 +5,6 @@ from django.core.files.base import ContentFile
 from django.contrib.auth import logout
 from django.db import IntegrityError
 from django.utils import timezone
-from django.db.models import Q
 from io import BytesIO
 import qrcode
 import urllib
@@ -33,6 +32,13 @@ def adminDashboard(request):
 def adminLogOut(request):
     logout(request)
     return redirect('/')
+
+
+def adminProfile(request):
+    if request.user.is_superuser or request.user.is_staff:
+        return render(request, 'admin-profile.html',{'admin': request.user})
+    else:
+        return redirect('/')
 
 
 def adminAllInstitution(request):
@@ -190,7 +196,7 @@ def upload_project_image(request, project_id):
         return redirect('/')
 
 
-def adminAllBankDetails(request):
+def adminUpdateBankDetails(request):
     if request.user.is_superuser or request.user.is_staff:
         if request.method == "POST":
             fname = request.POST.get('account_holder_first_name')
@@ -202,29 +208,23 @@ def adminAllBankDetails(request):
             ifcs = request.POST.get('ifsc_code')
             accno = request.POST.get('account_no')
             upi = request.POST.get('upi_id')
-            try:
-                existing_bank_details = BankDetails.objects.filter(Q(ifsc_code=ifcs, account_no=accno) | Q(upi_id=upi)).first()
-                if existing_bank_details:
-                    bank_details = existing_bank_details
-                    bank_details.account_holder_first_name = fname
-                    bank_details.account_holder_last_name = lname
-                    bank_details.account_holder_address = addr
-                    bank_details.account_holder_phn_no = phn
-                    bank_details.bank_name = bname
-                    bank_details.branch_name = brname
-                    bank_details.ifsc_code = ifcs
-                    bank_details.account_no = accno
-                    bank_details.upi_id = upi
-                    bank_details.save()
-                else:
-                    bank_details = BankDetails.objects.create(account_holder_first_name=fname, account_holder_last_name=lname, account_holder_address=addr,
-                        account_holder_phn_no=phn, bank_name=bname, branch_name=brname, ifsc_code=ifcs, account_no=accno, upi_id=upi,)
+            if request.user.default_bank:
+                request.user.default_bank.account_holder_first_name = fname
+                request.user.default_bank.account_holder_last_name = lname
+                request.user.default_bank.account_holder_address = addr
+                request.user.default_bank.account_holder_phn_no = phn
+                request.user.default_bank.bank_name = bname
+                request.user.default_bank.branch_name = brname
+                request.user.default_bank.ifsc_code = ifcs
+                request.user.default_bank.account_no = accno
+                request.user.default_bank.upi_id = upi
+                request.user.default_bank.save()
+            else:
+                bank_details = BankDetails.objects.create(account_holder_first_name=fname, account_holder_last_name=lname, account_holder_address=addr,
+                    account_holder_phn_no=phn, bank_name=bname, branch_name=brname, ifsc_code=ifcs, account_no=accno, upi_id=upi,)
                 request.user.default_bank = bank_details
                 request.user.save()
-            except Exception as e:
-               print(f'An error occurred: {e}')
-            return redirect('/administrator/all-bank/')
-        return render(request, "admin-all-bank-details.html",{'admin': request.user})
+            return redirect(request.META.get('HTTP_REFERER', '/'))
     else:
         return redirect('/')
 

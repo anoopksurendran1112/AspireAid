@@ -5,6 +5,9 @@ urlpatterns = [
     path('admin-dash/',views.adminDashboard),
     path('admin-log-out/',views.adminLogOut),
 
+    path('update-bank/',views.adminUpdateBankDetails, name='update_bank'),
+    path('profile/',views.adminProfile),
+
     path('all-project/',views.adminAllProject),
     path('single-project/<int:pid>/',views.adminSingleProject),
     path('upload_project_image/<int:project_id>/', views.upload_project_image, name='upload_project_image'),
@@ -15,8 +18,6 @@ urlpatterns = [
     path('verify-transaction/<int:tid>/',views.adminVerifyTransaction),
     path('approve-transaction/<int:tid>/',views.adminApproveTransaction),
     path('reject-transaction/<int:tid>/',views.adminRejectTransaction),
-
-    path('all-bank/',views.adminAllBankDetails),
     path('all-institution/',views.adminAllInstitution),
     path('all-insti-admin/',views.adminAllInstiAdmin),
 ]
