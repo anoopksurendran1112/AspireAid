@@ -16,7 +16,7 @@ class InstitutionAdmin(admin.ModelAdmin):
 
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('title','description','beneficiary','funding_goal','tile_value','bank_details', 'created_by','created_at','closing_date','table_status')
+    list_display = ('title','description','beneficiary','funding_goal', 'current_amount','tile_value','bank_details', 'created_by','created_at','closing_date','table_status')
 
 
 class BankDetailsAdmin(admin.ModelAdmin):

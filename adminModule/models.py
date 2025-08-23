@@ -62,6 +62,7 @@ class Project(models.Model):
     description = models.TextField()
     beneficiary = models.ForeignKey(Beneficial, on_delete=models.CASCADE)
     funding_goal = models.DecimalField(max_digits=10, decimal_places=2)
+    current_amount = models.DecimalField(max_digits=10, decimal_places=2,default=0, null=True)
     tile_value = models.DecimalField(max_digits=10, decimal_places=2)
     bank_details = models.ForeignKey(BankDetails, on_delete=models.SET_NULL, null=True, blank=True)
     created_by =  models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)

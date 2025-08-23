@@ -1,0 +1,62 @@
+{% extends 'admin-dashboard.html' %}
+{% block content %}
+
+<!---------------------- All Institution Table Details -------------------->
+    <div class="row">
+        <div class="col-12 ">
+            <h1 class="mb-4"><strong>All Transactions</strong></h1>
+            <div class="card h-100 data-card">
+                <div class="card-header text-end">
+
+                </div>
+                <div class="card-body table-responsive pb-0">
+                    <table class="table table-hover my-0 text-start">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>Project Title</th>
+                            <th>Sender</th>
+                            <th>No of Tiles</th>
+                            <th>Amount</th>
+                            <th>Time</th>
+                            <th>status</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for t in transaction %}
+                        <tr>
+                            <td>{{t.project.title}}</td>
+                            <td>{{t.sender.first_name}} {{t.sender.last_name}}</td>
+                            <td>{{ t.num_tiles }}</td>
+                            <td>{{t.amount}}</td>
+                            <td>{{t.transaction_time}}</td>
+                            <td class="{% if t.status == 'Verified'%}
+                                        text-success
+                                    {% elif t.status == 'Rejected' %}
+                                        text-danger
+                                    {% elif t.status == 'Unverified' %}
+                                        text-dark-subtle
+                                    {% endif %}">
+                                <strong>{{t.status}}</strong>
+                            </td>
+                            <td>
+                                {% if t.status == 'Verified' or t.status == 'Rejected' %}
+                                    <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-secondary" >
+                                        View
+                                    </a>
+                                {% else %}
+                                <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-primary" >
+                                    Verify
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

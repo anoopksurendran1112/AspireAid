@@ -11,6 +11,11 @@ urlpatterns = [
     path('bene_img/<int:prj_id>/', views.upload_beneficiary_image, name='upload_beneficiary_image'),
     path('del_prj_img/<int:img_id>/', views.delete_project_image, name='upload_project_image'),
 
+    path('all-transactions/',views.adminAllTransactions),
+    path('verify-transaction/<int:tid>/',views.adminVerifyTransaction),
+    path('approve-transaction/<int:tid>/',views.adminApproveTransaction),
+    path('reject-transaction/<int:tid>/',views.adminRejectTransaction),
+
     path('all-bank/',views.adminAllBankDetails),
     path('all-institution/',views.adminAllInstitution),
     path('all-insti-admin/',views.adminAllInstiAdmin),
