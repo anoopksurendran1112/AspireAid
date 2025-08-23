@@ -23,6 +23,67 @@
 </head>
 
 <body>
+
+<!---------------------- Modal for Adding or Updating Bank Details -------------------->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Update Default Bank Details</strong></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form method="post" action="{% url 'update_bank' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="row p-2">
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="acHolderFirstName" placeholder="Enter Firstname" value="{{admin.default_bank.account_holder_first_name}}" name="account_holder_first_name">
+                                <label for="acHolderFirstName">A/c holder's Firstname</label>
+                            </div>
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="acHolderLastName" placeholder="Enter Lastname" value="{{admin.default_bank.account_holder_last_name}}" name="account_holder_last_name">
+                                <label for="acHolderLastName">A/c holder's Lastname</label>
+                            </div>
+                            <div class="col-lg-12 form-floating mb-1 p-1">
+                                <input type="number" class="form-control" id="acHolderPhn" placeholder="Enter Phone number" value="{{admin.default_bank.account_holder_phn_no}}" name="account_holder_phn_no">
+                                <label for="acHolderPhn">A/c holder's Phone number</label>
+                            </div>
+                            <div class="col-lg-12 form-floating mb-1 p-1">
+                                <textarea class="form-control" placeholder="Enter Address" id="acHolderAddress"  name="account_holder_address">{{admin.default_bank.account_holder_address}}</textarea>
+                                <label for="acHolderAddress">Enter Address</label>
+                            </div>
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="bankName" placeholder="Enter Bank Name" value="{{admin.default_bank.bank_name}}" name="bank_name">
+                                <label for="bankName">Bank name</label>
+                            </div>
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="branchName" placeholder="Enter Branch Name" value="{{admin.default_bank.branch_name}}" name="branch_name">
+                                <label for="branchName">Branch name</label>
+                            </div>
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="ifscCode" placeholder="Enter IFSC code" value="{{admin.default_bank.ifsc_code}}" name="ifsc_code">
+                                <label for="ifscCode">IFSC code</label>
+                            </div>
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="number" class="form-control" id="acNumber" placeholder="Enter A/c number" value="{{admin.default_bank.account_no}}" name="account_no">
+                                <label for="acNumber">A/c number</label>
+                            </div>
+                            <div class="col-lg-12 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="upiId" placeholder="Enter UPI id" value="{{admin.default_bank.upi_id}}" name="upi_id">
+                                <label for="upiId">UPI id</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
+                        <button type="submit" class="btn btn-success">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 	<div class="wrapper">
 		<nav id="sidebar" class="sidebar js-sidebar">
 			<div class="sidebar-content js-simplebar">
@@ -44,12 +105,14 @@
                     <li class="sidebar-header">Super User</li>
 					<li class="sidebar-item">
 						<a class="sidebar-link" href="/administrator/all-institution/">
-                          <i class="align-middle" data-feather="globe"></i> <span class="align-middle">Institutions</span>
+                            <i class="align-middle" data-feather="globe"></i>
+                            <span class="align-middle">Institutions</span>
                         </a>
 					</li>
 					<li class="sidebar-item">
 						<a class="sidebar-link" href="/administrator/all-insti-admin/">
-                          <i class="align-middle" data-feather="user"></i> <span class="align-middle">Admins</span>
+                            <i class="align-middle" data-feather="user"></i>
+                            <span class="align-middle">Admins</span>
                         </a>
 					</li>
                     {% endif %}
@@ -57,22 +120,26 @@
                     <li class="sidebar-header">Administrator</li>
 					<li class="sidebar-item">
 						<a class="sidebar-link" href="/administrator/all-project/">
-                          <i class="align-middle" data-feather="folder"></i> <span class="align-middle">Projects</span>
-                        </a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/all-bank/">
-                          <i class="align-middle" data-feather="server"></i> <span class="align-middle">Bank Details</span>
+                            <i class="align-middle" data-feather="folder"></i>
+                            <span class="align-middle">Projects</span>
                         </a>
 					</li>
 					<li class="sidebar-item">
 						<a class="sidebar-link" href="/administrator/all-transactions/">
-                          <i class="align-middle" data-feather="credit-card"></i> <span class="align-middle">Transaction Details</span>
+                            <i class="align-middle" data-feather="credit-card"></i>
+                            <span class="align-middle">Transaction Details</span>
                         </a>
 					</li>
 					<li class="sidebar-item">
 						<a class="sidebar-link" href="/administrator/">
-                          <i class="align-middle" data-feather="book"></i> <span class="align-middle">Reports</span>
+                            <i class="align-middle" data-feather="book"></i>
+                            <span class="align-middle">Reports</span>
+                        </a>
+					</li>
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/administrator/profile/">
+                            <i class="align-middle" data-feather="user"></i>
+                            <span class="align-middle">Profile</span>
                         </a>
 					</li>
 				</ul>
@@ -90,6 +157,12 @@
                 </a>
 				<div class="navbar-collapse collapse">
 					<ul class="navbar-nav navbar-align">
+                        <li class="nav-item">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                <i class="align-middle" data-feather="globe"></i>
+                                Bank
+                            </button>
+                        </li>
 						<li class="nav-item">
 							<a class="nav-icon" href="/administrator/admin-log-out/">
 							    <i class="align-middle" data-feather="log-out"></i>
