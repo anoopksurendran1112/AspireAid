@@ -1,0 +1,126 @@
+{% extends 'admin-dashboard.html' %}
+{% block content %}
+
+<!---------------------- All Institution Table Details -------------------->
+    <div class="row">
+        <div class="col-12 ">
+            <h1 class="mb-4">
+                <strong>
+                    Transaction : {{transaction.transaction_id}}
+                </strong>
+            </h1>
+            <div class="card data-card">
+                <div class="card-header text-end">
+
+                </div>
+                <div class="card-body table-responsive">
+                    <div class="row mb-2">
+                            <h1 class="mb-5">{{transaction.project.title}}</h1>
+                        <div class="col-6 mb-3">
+                            <h3 class="text-muted"><strong>Project Details</strong></h3>
+                            <table class="table text-start">
+                                <tr>
+                                    <td>Target</td>
+                                    <td>{{transaction.project.funding_goal}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Tile Value</td>
+                                    <td>{{transaction.project.tile_value}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Closing date</td>
+                                    <td>{{transaction.project.closing_date}}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h3 class="text-muted"><strong>Beneficiary Details</strong></h3>
+                            <table class="table text-start">
+                                <tr>
+                                    <td>Full Name</td>
+                                    <td>{{transaction.project.beneficiary.first_name}} {{transaction.project.beneficiary.last_name}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Phone Number</td>
+                                    <td>{{transaction.project.beneficiary.phone_number}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Age</td>
+                                    <td>{{transaction.project.beneficiary.age}} years old</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <h3 class="text-muted"><strong>Buyer Details</strong></h3>
+                            <table class="table text-start mb-4">
+                                <tr>
+                                    <td>Full Name</td>
+                                    <td>{{transaction.sender.first_name}} {{transaction.sender..last_name}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Email</td>
+                                    <td>{{transaction.sender.email}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Phone</td>
+                                    <td>{{transaction.sender.phone}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Address</td>
+                                    <td>{{transaction.sender.address}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Transaction ID</td>
+                                    <td>{{transaction.transaction_id}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Transaction Time</td>
+                                    <td>{{transaction.transaction_time}}</td>
+                                </tr>
+                            </table>
+
+                            <table class="table container mb-4">
+                                <thead>
+                                    <tr class="table-dark">
+                                        <th>Tiles</th>
+                                        <th>Tile Value</th>
+                                        <th>Quantity</th>
+                                        <th class="text-end" style="width: 120px;">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <h5>Tiles: {{transaction.tiles_bought.tiles}}</h5>
+                                        </td>
+                                        <td>{{transaction.project.tile_value}} Rs.</td>
+                                        <td>{{transaction.num_tiles}}</td>
+                                        <td class="text-end" style="width: 120px;">{{transaction.amount}} Rs.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h3 class="text-muted"><strong>Proof</strong></h3>
+                            <object data="" type="" class="border"></object>
+                        </div>
+                    </div>
+                        {% if transaction.status == 'Unverified' %}
+                        <div class="text-end">
+                            <a class="btn btn-danger" href="/administrator/reject-transaction/{{transaction.id}}/">Reject</a>
+                            <a class="btn btn-success" href="/administrator/approve-transaction/{{transaction.id}}/">Approve</a>
+                        </div>
+                        {% else %}
+                        <div class="text-center p-1
+                                    {% if transaction.status == 'Verified' %}
+                                        bg-success
+                                    {% elif transaction.status == 'Rejected' %}
+                                        bg-danger
+                                    {% endif %}">
+                            <h1 class="text-white"><strong>{{transaction.status}}</strong></h1>
+                        </div>
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

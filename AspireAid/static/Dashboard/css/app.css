@@ -45,15 +45,19 @@
     border-color: #58afe4;
     cursor: pointer;
 }
+.booking-tile.processing {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+    cursor: not-allowed;
+}
 .booking-tile.available:hover {
     background-color: #6abbec54;
     transform: scale(1.05);
     box-shadow: 0 0 5px rgb(88, 175, 228);
 }
 .booking-tile.sold {
-    background-color: #d7d7d7;
+    background-color: white;
     border-color:#606060;
-    color: #606060;
     cursor: not-allowed;
 }
 .booking-tile.selected {

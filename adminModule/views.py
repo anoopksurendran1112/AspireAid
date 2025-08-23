@@ -10,6 +10,8 @@ from io import BytesIO
 import qrcode
 import urllib
 
+from userModule.models import SelectedTile, Transaction
+
 
 # Create your views here.
 @login_required(login_url='/')
@@ -119,6 +121,35 @@ def adminSingleProject(request, pid):
         project = get_object_or_404(Project, id=pid)
         tile_range = range(1, int(project.funding_goal // project.tile_value) + 1)
 
+        # Separating bought tiles based on the transaction status for displaying with color
+        verified_transactions = Transaction.objects.filter(project=project, status='Verified',
+                                                           tiles_bought__table_status=True)
+        processing_transactions = Transaction.objects.filter(project=project, status='Unverified',
+                                                             tiles_bought__table_status=True)
+        sold_tiles_list = []
+        processing_tiles_list = []
+
+        sold_tiles_list_of_strings = verified_transactions.values_list('tiles_bought__tiles', flat=True)
+        processing_tiles_list_of_strings = processing_transactions.values_list('tiles_bought__tiles', flat=True)
+
+        for tiles_str in sold_tiles_list_of_strings:
+            if tiles_str:
+                sold_tiles_list.extend([int(t) for t in tiles_str.split('-') if t.isdigit()])
+
+        for tiles_str in processing_tiles_list_of_strings:
+            if tiles_str:
+                processing_tiles_list.extend([int(t) for t in tiles_str.split('-') if t.isdigit()])
+
+        processing_tiles_set = set(processing_tiles_list)
+        sold_tiles_set = set(sold_tiles_list)
+
+        transaction_filtered = Transaction.objects.filter(project=project)
+        for t in transaction_filtered:
+            if t.tiles_bought:
+                t.num_tiles = len(t.tiles_bought.tiles.split('-'))
+            else:
+                t.num_tiles = 0
+
         if request.method == "POST":
             project.title = request.POST.get("title")
             project.funding_goal = request.POST.get("goal")
@@ -137,7 +168,8 @@ def adminSingleProject(request, pid):
             project.save()
 
             return redirect(f'/administrator/single-project/{pid}/')
-        return render(request,"admin-single-projects.html", { 'admin':request.user, 'project': project, 't_range': tile_range})
+        return render(request,"admin-single-projects.html", { 'admin':request.user, 'project': project, 't_range': tile_range,
+                                                              'processing_tiles_set': processing_tiles_set, 'sold_tiles_set': sold_tiles_set, 'transaction':transaction_filtered})
     else:
         return redirect('/')
 
@@ -216,5 +248,55 @@ def upload_beneficiary_image(request, prj_id):
                 project_instance.beneficiary.profile_pic = uploaded_img
                 project_instance.beneficiary.save()
         return redirect(f'/administrator/single-project/{prj_id}/')
+    else:
+        return redirect('/')
+
+
+def adminAllTransactions(request):
+    if request.user.is_superuser or request.user.is_staff:
+        prj = Project.objects.filter(created_by = request.user)
+        transaction_filtered = Transaction.objects.filter(project__in=prj).order_by('-transaction_time')
+        for t in transaction_filtered:
+            if t.tiles_bought:
+                t.num_tiles = len(t.tiles_bought.tiles.split('-'))
+            else:
+                t.num_tiles = 0
+        return render(request, 'admin-all-transactions.html', {'transaction':transaction_filtered})
+    else:
+        return redirect('/')
+
+
+def adminVerifyTransaction(request, tid):
+    if request.user.is_superuser or request.user.is_staff:
+        transaction = Transaction.objects.get(id=tid)
+        if transaction.tiles_bought:
+            transaction.num_tiles = len(transaction.tiles_bought.tiles.split('-'))
+        else:
+            transaction.num_tiles = 0
+        return render(request, "admin-verify-transaction.html", {'admin': request.user, 'transaction': transaction})
+    else:
+        return redirect('/')
+
+
+def adminApproveTransaction(request, tid):
+    if request.user.is_superuser or request.user.is_staff:
+        transaction = Transaction.objects.get(id=tid)
+        if transaction.status == "Unverified":
+            transaction.status = "Verified"
+            transaction.project.current_amount += transaction.amount
+            transaction.save()
+            transaction.project.save()
+        return redirect('/administrator/all-transactions/')
+    else:
+        return redirect('/')
+
+
+def adminRejectTransaction(request, tid):
+    if request.user.is_superuser or request.user.is_staff:
+        transaction = Transaction.objects.get(id=tid)
+        if transaction.status == "Unverified":
+            transaction.status = "Rejected"
+            transaction.save()
+        return redirect('/administrator/all-transactions/')
     else:
         return redirect('/')

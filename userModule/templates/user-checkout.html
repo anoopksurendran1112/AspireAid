@@ -234,6 +234,8 @@
                                                     </div>
                                                     <div class="modal-body">
                                                         <p>once you confirm You will be redirected to your Dashboard</p>
+                                                        <input type="hidden" name="project_id" value="{{ project.id }}">
+                                                        <input type="hidden" name="selected_tiles" value="{{ selected_tiles }}">
                                                     </div>
                                                     <div class="modal-footer d-flex justify-content-between">
                                                         <button type="submit" class="btn btn-success">Confirm</button>
@@ -314,20 +316,11 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Get the tbody element to access its data attributes
             const tbody = document.querySelector('tbody');
-
-            // Get the values from the data attributes and parse them to numbers
             const tileValue = parseFloat(tbody.dataset.tileValue);
             const count = parseInt(tbody.dataset.count);
-
-            // Get the span element where the total will be displayed
             const totalSpan = document.getElementById('calculated-total');
-
-            // Calculate the total value
             const total = tileValue * count;
-
-            // Display the calculated total with 2 decimal places and a currency symbol
             totalSpan.textContent = `₹ ${total.toFixed(2)}`;
         });
     </script>

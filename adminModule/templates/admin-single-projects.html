@@ -167,19 +167,19 @@
                                 <table class="table m-0">
                                     <tr>
                                         <th class="p-1">Goal</th>
-                                        <td class="p-1">{{project.funding_goal}} Rs</td>
+                                        <td class="p-1 text-end">{{project.funding_goal}} Rs</td>
                                     </tr>
                                     <tr>
                                         <th class="p-1">Current</th>
-                                        <td class="p-1">{{project.funding_goal}} Rs</td>
+                                        <td class="p-1 text-end">{{project.current_amount}} Rs</td>
                                     </tr>
                                     <tr>
                                         <th class="p-1">Tile value</th>
-                                        <td class="p-1">{{project.tile_value}} Rs</td>
+                                        <td class="p-1 text-end">{{project.tile_value}} Rs</td>
                                     </tr>
                                     <tr>
                                         <th class="p-1">Available tiles</th>
-                                        <td class="p-1">{{project.funding_goal}} Rs</td>
+                                        <td class="p-1 text-end">{{project.funding_goal}} Rs</td>
                                     </tr>
                                 </table>
                             </div>
@@ -191,7 +191,7 @@
                   <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
                   <div class="text-end">
 
-                      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#imgModal">
+                      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#imgModal" >
                           <i class="align-middle" data-feather="image"></i>
                           <span class="align-middle">Images</span>
                       </button>
@@ -237,15 +237,15 @@
                         <table class="table">
                             <tr>
                                 <th class="py-1 px-0">Age</th>
-                                <td class="py-1 px-0">{{project.beneficiary.age}}-years old</td>
+                                <td class="py-1 px-0 text-end">{{project.beneficiary.age}}-years old</td>
                             </tr>
                             <tr>
                                 <th class="py-1 px-0">Phone number</th>
-                                <td class="py-1 px-0">+91-{{project.beneficiary.phone_number}}</td>
+                                <td class="py-1 px-0 text-end">+91-{{project.beneficiary.phone_number}}</td>
                             </tr>
                             <tr>
                                 <th class="py-1 px-0">Address</th>
-                                <td class="py-1 px-0">{{project.beneficiary.address}}</td>
+                                <td class="py-1 px-0 text-end">{{project.beneficiary.address}}</td>
                             </tr>
                         </table>
                     </div>
@@ -256,20 +256,96 @@
 
     <div class="row g-4">
         <div class="col-12">
-            <div class="card h-100 data-card">
+            <div class="card data-card">
                 <div class="card-body">
+                    <div class="pb-3 d-flex justify-content-start gap-3">
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="booking-tile available">
+                                <span class="tile-number"></span>
+                            </div>
+                            <span>Available Tile</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="booking-tile processing">
+                                <span class="tile-number"></span>
+                            </div>
+                            <span>Processing Tile</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="booking-tile sold">
+                                <span class="tile-number"></span>
+                            </div>
+                            <span>Sold Tile</span>
+                        </div>
+                    </div>
                     <div class="container-fluid bg-light border py-1 overflow-auto" style="height:250px;">
                         <div class="tile-grid">
                             {% for t in t_range %}
-                            <div id="T{{t}}" class="booking-tile available m-1">
+                            <div id="T{{t}}" class="booking-tile m-1
+                                {% if t in sold_tiles_set %}
+                                    sold
+                                {% elif t in processing_tiles_set %}
+                                    processing
+                                {% else %}
+                                    available
+                                {% endif %}">
                                 <span class="tile-number">{{t}}</span>
                             </div>
                             {% endfor %}
                         </div>
                     </div>
-              </div>
+                </div>
             </div>
         </div>
+
+        <div class="col-12">
+            <div class="card h-100 data-card">
+                <div class="card-header">
+                    <h2><strong>Transactions</strong></h2>
+                </div>
+                <div class="card-body table-responsive pb-0">
+                    <table class="table table-hover my-0">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>Project Title</th>
+                            <th>Sender</th>
+                            <th>No of Tiles</th>
+                            <th>Amount</th>
+                            <th>Time</th>
+                            <th>status</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for t in transaction %}
+                        <tr>
+                            <td>{{t.project.title}}</td>
+                            <td>{{t.sender.first_name}} {{t.sender.last_name}}</td>
+                            <td>{{ t.num_tiles }} [{{t.tiles_bought.tiles}}]</td>
+                            <td>{{t.amount}}</td>
+                            <td>{{t.transaction_time}}</td>
+                            <td class="{% if t.status == 'Verified'%}
+                                        text-success
+                                    {% elif t.status == 'Rejected' %}
+                                        text-danger
+                                    {% elif t.status == 'Unverified' %}
+                                        text-dark-subtle
+                                    {% endif %}">
+                                <strong>{{t.status}}</strong>
+                            </td>
+                            <td>
+                                <a class="" href="/administrator/verify-transaction/{{t.id}}/">
+                                  <i class="align-middle" data-feather="eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 <script>

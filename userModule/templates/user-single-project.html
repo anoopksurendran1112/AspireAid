@@ -179,6 +179,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="row g-4 mb-4">
                         <div class="col-12">
                             <div class="card h-100 data-card container">
@@ -196,7 +197,14 @@
                                     <div class="container-fluid bg-light border py-1 overflow-auto" style="height:250px;">
                                         <div class="tile-grid">
                                             {% for t in t_range %}
-                                            <div id="T{{t}}" class="booking-tile available m-1">
+                                            <div id="{{t}}" class="booking-tile m-1
+                                                {% if t in sold_tiles_set %}
+                                                    sold
+                                                {% elif t in processing_tiles_set %}
+                                                    processing
+                                                {% else %}
+                                                    available
+                                                {% endif %}">
                                                 <span class="tile-number">{{t}}</span>
                                             </div>
                                             {% endfor %}
