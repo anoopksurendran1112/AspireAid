@@ -182,18 +182,42 @@
 
                     <div class="row g-4 mb-4">
                         <div class="col-12">
-                            <div class="card h-100 data-card container">
-                                <div class="card-header pb-0">
+                            <div class="card data-card container">
+                                <div class="card-header pt-4 pb-0">
                                     <h2 ><strong>Book Your Tiles</strong></h2>
                                 </div>
                                 <div class="card-body">
-                                    <div class="mb-3">
-                                        <p class="mb-1">Selected Tiles:
-                                            <span class="js-selected-count">0</span>
-                                            [<span class="js-selected-tiles"></span>]
-                                        </p>
-                                        <button type="submit" id="book-button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" disabled>Proceed to Checkout</button>
+                                    <div class="d-flex justify-content-between">
+                                        <div class=" mb-3">
+                                            <p class="mb-1"><strong>Selected Tiles:</strong>
+                                                <span class="js-selected-tiles"></span>
+                                            </p>
+                                            <p class="mb-1"><strong>Total:</strong>
+                                                <span class="js-selected-count">0</span>x<span>{{project.tile_value}}</span> = <span class="js-selected-total">0</span>
+                                            </p>
+                                        </div>
+                                        <div class="pb-3 d-flex justify-content-start gap-3">
+                                            <div class="d-flex align-items-center gap-1">
+                                                <div class="booking-tile available">
+                                                    <span class="tile-number"></span>
+                                                </div>
+                                                <span>Available Tile</span>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <div class="booking-tile processing">
+                                                    <span class="tile-number"></span>
+                                                </div>
+                                                <span>Processing Tile</span>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <div class="booking-tile sold">
+                                                    <span class="tile-number"></span>
+                                                </div>
+                                                <span>Sold Tile</span>
+                                            </div>
+                                        </div>
                                     </div>
+
                                     <div class="container-fluid bg-light border py-1 overflow-auto" style="height:250px;">
                                         <div class="tile-grid">
                                             {% for t in t_range %}
@@ -210,7 +234,10 @@
                                             {% endfor %}
                                         </div>
                                     </div>
-                              </div>
+                                    <div class="py-4 text-end">
+                                        <button type="submit" id="book-button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" disabled>Proceed to Checkout</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

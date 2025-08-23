@@ -18,6 +18,8 @@ urlpatterns = [
     path('verify-transaction/<int:tid>/',views.adminVerifyTransaction),
     path('approve-transaction/<int:tid>/',views.adminApproveTransaction),
     path('reject-transaction/<int:tid>/',views.adminRejectTransaction),
+    path('unverify-transaction/<int:tid>/',views.adminUnverifyTransaction),
+
     path('all-institution/',views.adminAllInstitution),
     path('all-insti-admin/',views.adminAllInstiAdmin),
 ]

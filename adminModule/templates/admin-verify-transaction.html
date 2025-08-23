@@ -11,7 +11,16 @@
             </h1>
             <div class="card data-card">
                 <div class="card-header text-end">
-
+                    {% if transaction.status != 'Unverified' %}
+                    <div class="text-center p-1
+                            {% if transaction.status == 'Verified' %}
+                                bg-success
+                            {% elif transaction.status == 'Rejected' %}
+                                bg-danger
+                            {% endif %}">
+                        <h1 class="text-white"><strong>{{transaction.status}}</strong></h1>
+                    </div>
+                    {% endif %}
                 </div>
                 <div class="card-body table-responsive">
                     <div class="row mb-2">
@@ -103,21 +112,22 @@
                             <object data="" type="" class="border"></object>
                         </div>
                     </div>
-                        {% if transaction.status == 'Unverified' %}
-                        <div class="text-end">
-                            <a class="btn btn-danger" href="/administrator/reject-transaction/{{transaction.id}}/">Reject</a>
-                            <a class="btn btn-success" href="/administrator/approve-transaction/{{transaction.id}}/">Approve</a>
-                        </div>
-                        {% else %}
-                        <div class="text-center p-1
-                                    {% if transaction.status == 'Verified' %}
-                                        bg-success
-                                    {% elif transaction.status == 'Rejected' %}
-                                        bg-danger
-                                    {% endif %}">
-                            <h1 class="text-white"><strong>{{transaction.status}}</strong></h1>
-                        </div>
-                        {% endif %}
+                    {% if transaction.status == 'Unverified' %}
+                    <div class="text-end">
+                        <a class="btn btn-danger" href="/administrator/reject-transaction/{{transaction.id}}/">Reject</a>
+                        <a class="btn btn-success" href="/administrator/approve-transaction/{{transaction.id}}/">Approve</a>
+                    </div>
+                    {% elif transaction.status == 'Verified' %}
+                    <div class="text-end">
+                        <a class="btn btn-secondary" href="/administrator/unverify-transaction/{{transaction.id}}/">Unverify</a>
+                        <a class="btn btn-danger" href="/administrator/reject-transaction/{{transaction.id}}/">Reject</a>
+                    </div>
+                    {% else %}
+                    <div class="text-end">
+                        <a class="btn btn-secondary" href="/administrator/unverify-transaction/{{transaction.id}}/">Unverify</a>
+                        <a class="btn btn-success" href="/administrator/approve-transaction/{{transaction.id}}/">Approve</a>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

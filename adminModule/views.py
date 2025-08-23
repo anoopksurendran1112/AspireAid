@@ -281,11 +281,11 @@ def adminVerifyTransaction(request, tid):
 def adminApproveTransaction(request, tid):
     if request.user.is_superuser or request.user.is_staff:
         transaction = Transaction.objects.get(id=tid)
-        if transaction.status == "Unverified":
+        if transaction.status != "Verified":
             transaction.status = "Verified"
-            transaction.project.current_amount += transaction.amount
+            transaction.table_status = True
+            transaction.tiles_bought.table_status = True
             transaction.save()
-            transaction.project.save()
         return redirect('/administrator/all-transactions/')
     else:
         return redirect('/')
@@ -294,8 +294,23 @@ def adminApproveTransaction(request, tid):
 def adminRejectTransaction(request, tid):
     if request.user.is_superuser or request.user.is_staff:
         transaction = Transaction.objects.get(id=tid)
-        if transaction.status == "Unverified":
+        if transaction.status != "Rejected":
             transaction.status = "Rejected"
+            transaction.table_status = False
+            transaction.tiles_bought.table_status = False
+            transaction.save()
+        return redirect('/administrator/all-transactions/')
+    else:
+        return redirect('/')
+
+
+def adminUnverifyTransaction(request, tid):
+    if request.user.is_superuser or request.user.is_staff:
+        transaction = Transaction.objects.get(id=tid)
+        if transaction.status != "Unverified":
+            transaction.status = "Unverified"
+            transaction.table_status = True
+            transaction.tiles_bought.table_status = True
             transaction.save()
         return redirect('/administrator/all-transactions/')
     else:
