@@ -186,25 +186,24 @@
                         </div>
                     </div>
                 </div>
-              <div class="card-body pb-0">
-                  <p class="card-text">{{project.description}}</p>
-                  <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
-                  <div class="text-end">
-
-                      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#imgModal" >
-                          <i class="align-middle" data-feather="image"></i>
-                          <span class="align-middle">Images</span>
-                      </button>
-                      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                          <i class="align-middle" data-feather="edit"></i>
-                          <span class="align-middle">Edit</span>
-                      </button>
-                      <button class="btn btn-primary" id="share-button">
-                          <i class="align-middle" data-feather="share"></i>
-                          <span class="align-middle">Share</span>
-                      </button>
+                  <div class="card-body pb-0">
+                      <p class="card-text">{{project.description}}</p>
+                      <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
+                      <div class="text-end">
+                          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#imgModal" >
+                              <i class="align-middle" data-feather="image"></i>
+                              <span class="align-middle">Images</span>
+                          </button>
+                          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                              <i class="align-middle" data-feather="edit"></i>
+                              <span class="align-middle">Edit</span>
+                          </button>
+                          <button type="button" class="btn btn-primary" id="share-button">
+                              <i class="align-middle" data-feather="share"></i>
+                              <span class="align-middle">Share</span>
+                          </button>
+                      </div>
                   </div>
-              </div>
             </div>
         </div>
 
