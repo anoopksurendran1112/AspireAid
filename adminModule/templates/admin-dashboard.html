@@ -157,13 +157,19 @@
                 </a>
 				<div class="navbar-collapse collapse">
 					<ul class="navbar-nav navbar-align">
-                        <li class="nav-item">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        <li class="nav-item mx-1">
+                            <button type="button" class=" btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                 <i class="align-middle" data-feather="globe"></i>
                                 Bank
                             </button>
                         </li>
-						<li class="nav-item">
+                        <li class="nav-item mx-1">
+                            <button type="button" class=" btn btn-success" id="share-button">
+                                <i class="align-middle" data-feather="share"></i>
+                                Share
+                            </button>
+                        </li>
+						<li class="nav-item mx-1">
 							<a class="nav-icon" href="/administrator/admin-log-out/">
 							    <i class="align-middle" data-feather="log-out"></i>
                                 <span class="align-middle text-lg">Log out</span>
@@ -417,6 +423,27 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
     <script src="{% static 'Dashboard/js/app.js' %}"></script>
 
-</body>
+    <script>
+        const shareButton = document.getElementById('share-button');
 
+        shareButton.addEventListener('click', async () => {
+            const customUrl = `${window.location.protocol}//${window.location.host}/user/index/{{admin.institution.id}}/`;
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Welcome, Please support the available projects...',
+                        text: 'This is a description of the content I want to share.',
+                        url: customUrl
+                    });
+                } catch (error) {
+                    console.error('Sharing failed:', error);
+                    alert('Sharing failed. Please try again.');
+                }
+            } else {
+                alert('Web Share API is not supported in this browser.');
+            }
+        });
+    </script>
+
+</body>
 </html>

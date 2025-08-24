@@ -2,7 +2,7 @@ from adminModule.models import BankDetails, Beneficial, Project, Institution, Pr
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
-from django.contrib.auth import logout
+from django.contrib.auth import logout, authenticate, login
 from django.db import IntegrityError
 from django.utils import timezone
 from io import BytesIO
@@ -13,7 +13,25 @@ from userModule.models import SelectedTile, Transaction
 
 
 # Create your views here.
-@login_required(login_url='/')
+def adminLogin(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            if user.is_staff or user.is_superuser:
+                return redirect('/administrator/admin-dash/')
+            else:
+                return redirect('/administrator/')
+        else:
+            return redirect('/administrator/')
+    return render(request, "admin-login.html")
+
+
+@login_required(login_url='/administrator/')
 def adminDashboard(request):
     if request.user.is_superuser or request.user.is_staff:
         all_prj = Project.objects.filter(created_by=request.user).count()

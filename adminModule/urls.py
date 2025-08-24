@@ -2,6 +2,7 @@ from django.urls import path
 from .import views
 
 urlpatterns = [
+    path('',views.adminLogin),
     path('admin-dash/',views.adminDashboard),
     path('admin-log-out/',views.adminLogOut),
 

@@ -3,11 +3,21 @@ import uuid
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from adminModule.models import Project
+from adminModule.models import Project, Institution
 from userModule.models import PersonalDetails, SelectedTile, Transaction
 
 
 # Create your views here.
+def userIndex(request, ins_id):
+    ins = Institution.objects.get(id=ins_id)
+    projects = Project.objects.filter(
+        created_by__institution=ins,
+        created_by__is_staff=True,
+        table_status=True
+    ).order_by('-created_at')[:3]
+    return render(request, 'index.html',{'ins':ins, 'prj':projects})
+
+
 def userSingleProject(request,prj_id):
     prj = Project.objects.get(id=prj_id)
     tile_range = range(1, int(prj.funding_goal // prj.tile_value) + 1)
