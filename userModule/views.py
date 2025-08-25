@@ -9,13 +9,35 @@ from userModule.models import PersonalDetails, SelectedTile, Transaction
 
 # Create your views here.
 def userIndex(request, ins_id):
-    ins = Institution.objects.get(id=ins_id)
-    projects = Project.objects.filter(
-        created_by__institution=ins,
-        created_by__is_staff=True,
-        table_status=True
-    ).order_by('-created_at')[:3]
-    return render(request, 'index.html',{'ins':ins, 'prj':projects})
+    if ins_id:
+        request.session['ins_id'] = ins_id
+        ins = Institution.objects.get(id=ins_id)
+        projects = Project.objects.filter(
+            created_by__institution=ins,
+            created_by__is_staff=True,
+            table_status=True
+        ).order_by('-created_at')[:3]
+        return render(request, 'index.html',{'ins':ins, 'prj':projects})
+      
+      
+def contact_us(request):
+    return render(request,'contact-us.html')
+
+
+def about(request):
+    return render(request,'about.html')
+
+
+def userAllProject(request):
+    if ins_id:
+        ins_id = request.session.get('ins_id')
+        ins = Institution.objects.get(id=ins_id)
+        projects = Project.objects.filter(
+            created_by__institution=ins,
+            created_by__is_staff=True,
+            table_status=True
+        ).order_by('-created_at')
+        return render(request, 'user-projects.html',{'ins':ins, 'prj':projects})
 
 
 def userSingleProject(request,prj_id):
@@ -51,7 +73,6 @@ def userSingleProject(request,prj_id):
                                                         'processing_tiles_set': processing_tiles_set, 'sold_tiles_set': sold_tiles_set,})
 
 
-
 def userCheckoutView(request,):
     if request.method == "GET":
         project_id = request.GET.get("project_id")
@@ -79,20 +100,4 @@ def userCheckoutView(request,):
         return redirect(f'/user/single-project/{project_id}/')
     return render(request, 'user-checkout.html', {'project': project, 'selected_tiles': selected_tiles, 'count':selected_tile_count})
 
-
-def userAllProject(request, ins_id):
-    ins = Institution.objects.get(id=ins_id)
-    projects = Project.objects.filter(
-        created_by__institution=ins,
-        created_by__is_staff=True,
-        table_status=True
-    ).order_by('-created_at')
-    return render(request, 'user-projects.html',{'ins':ins, 'prj':projects})
-
-
-def contact_us(request):
-    return render(request,'contact-us.html')
-
-
-def about(request):
-    return render(request,'about.html')
+  

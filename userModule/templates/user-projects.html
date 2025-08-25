@@ -1,12 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-{% for p in prj %}
-<p>{{p.title}}</p>
-{% endfor %}
-</body>
-</html>
+{% extends 'index.html' %}
+{% load static %}
+{% block content %}
+
+    <!-- Start project Area -->
+    <section class="project-area section-gap" id="project">
+        <div class="container">
+            <div class="row d-flex justify-content-center">
+                <div class="col-md-8 pb-80 header-text">
+                    <h1>Waiting for Help</h1>
+                    <p>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut <br> labore  et dolore magna aliqua.
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                {% for p in prj %}
+                <div class="col-lg-4 col-md-4 project-wrap">
+                    <div class="single-project">
+                        <div class="content">
+                            <a href="#" target="_blank">
+                              <div class="content-overlay"></div>
+                                 <img class="content-image img-fluid d-block mx-auto" src="{% static 'frontend/img/p1.jpg' %}" alt="">
+                                <div class="content-details fadeIn-bottom">
+                                    <a href="/user/single-project/{{p.id}}" class="head-btn btn text-uppercase">Donate Now</a>
+                                </div>
+                            </a>
+                         </div>
+                    </div>
+                    <div class="details">
+                        <a href="#"><h2>{{p.title}}</h2></a>
+                        <p>{{p.description}}</p>
+                        <a class="text-uppercase" href="/user/single-project/{{p.id}}/">view more</a>
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    <!-- End project Area -->
+
+{% endblock %}
