@@ -29,8 +29,8 @@ def about(request):
 
 
 def userAllProject(request):
+    ins_id = request.session.get('ins_id')
     if ins_id:
-        ins_id = request.session.get('ins_id')
         ins = Institution.objects.get(id=ins_id)
         projects = Project.objects.filter(
             created_by__institution=ins,
