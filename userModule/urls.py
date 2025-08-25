@@ -3,7 +3,7 @@ from .import views
 
 urlpatterns = [
     path('index/<int:ins_id>/',views.userIndex),
-    path('all-project/<int:ins_id>/',views.userAllProject),
+    path('all-project/',views.userAllProject),
     path('single-project/<int:prj_id>/',views.userSingleProject),
     path('checkout/', views.userCheckoutView, name='user_checkout'),
 ]

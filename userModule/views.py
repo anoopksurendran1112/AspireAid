@@ -9,13 +9,27 @@ from userModule.models import PersonalDetails, SelectedTile, Transaction
 
 # Create your views here.
 def userIndex(request, ins_id):
-    ins = Institution.objects.get(id=ins_id)
-    projects = Project.objects.filter(
-        created_by__institution=ins,
-        created_by__is_staff=True,
-        table_status=True
-    ).order_by('-created_at')[:3]
-    return render(request, 'index.html',{'ins':ins, 'prj':projects})
+    if ins_id:
+        request.session['ins_id'] = ins_id
+        ins = Institution.objects.get(id=ins_id)
+        projects = Project.objects.filter(
+            created_by__institution=ins,
+            created_by__is_staff=True,
+            table_status=True
+        ).order_by('-created_at')[:3]
+        return render(request, 'index.html',{'ins':ins, 'prj':projects})
+
+
+def userAllProject(request):
+    ins_id = request.session.get('ins_id')
+    if ins_id:
+        ins = Institution.objects.get(id=ins_id)
+        projects = Project.objects.filter(
+            created_by__institution=ins,
+            created_by__is_staff=True,
+            table_status=True
+        ).order_by('-created_at')
+        return render(request, 'user-projects.html',{'ins':ins, 'prj':projects})
 
 
 def userSingleProject(request,prj_id):
@@ -78,13 +92,3 @@ def userCheckoutView(request,):
                                                  currency="INR", status="Unverified", transaction_id=str(uuid.uuid4()), message=message_text)
         return redirect(f'/user/single-project/{project_id}/')
     return render(request, 'user-checkout.html', {'project': project, 'selected_tiles': selected_tiles, 'count':selected_tile_count})
-
-
-def userAllProject(request, ins_id):
-    ins = Institution.objects.get(id=ins_id)
-    projects = Project.objects.filter(
-        created_by__institution=ins,
-        created_by__is_staff=True,
-        table_status=True
-    ).order_by('-created_at')
-    return render(request, 'user-projects.html',{'ins':ins, 'prj':projects})

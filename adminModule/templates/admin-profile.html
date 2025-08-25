@@ -1,7 +1,68 @@
 {% extends 'admin-dashboard.html' %}
+{% load static %}
 {% block content %}
 
-<!---------------------- All Institution Table Details -------------------->
+<!---------------------- Modal for Adding or Updating Bank Details -------------------->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Update Default Bank Details</strong></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form method="post" action="{% url 'update_bank' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="row p-2">
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="acHolderFirstName" placeholder="Enter Firstname" value="{{admin.default_bank.account_holder_first_name}}" name="account_holder_first_name">
+                                <label for="acHolderFirstName">A/c holder's Firstname</label>
+                            </div>
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="acHolderLastName" placeholder="Enter Lastname" value="{{admin.default_bank.account_holder_last_name}}" name="account_holder_last_name">
+                                <label for="acHolderLastName">A/c holder's Lastname</label>
+                            </div>
+                            <div class="col-lg-12 form-floating mb-1 p-1">
+                                <input type="number" class="form-control" id="acHolderPhn" placeholder="Enter Phone number" value="{{admin.default_bank.account_holder_phn_no}}" name="account_holder_phn_no">
+                                <label for="acHolderPhn">A/c holder's Phone number</label>
+                            </div>
+                            <div class="col-lg-12 form-floating mb-1 p-1">
+                                <textarea class="form-control" placeholder="Enter Address" id="acHolderAddress"  name="account_holder_address">{{admin.default_bank.account_holder_address}}</textarea>
+                                <label for="acHolderAddress">Enter Address</label>
+                            </div>
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="bankName" placeholder="Enter Bank Name" value="{{admin.default_bank.bank_name}}" name="bank_name">
+                                <label for="bankName">Bank name</label>
+                            </div>
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="branchName" placeholder="Enter Branch Name" value="{{admin.default_bank.branch_name}}" name="branch_name">
+                                <label for="branchName">Branch name</label>
+                            </div>
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="ifscCode" placeholder="Enter IFSC code" value="{{admin.default_bank.ifsc_code}}" name="ifsc_code">
+                                <label for="ifscCode">IFSC code</label>
+                            </div>
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="number" class="form-control" id="acNumber" placeholder="Enter A/c number" value="{{admin.default_bank.account_no}}" name="account_no">
+                                <label for="acNumber">A/c number</label>
+                            </div>
+                            <div class="col-lg-12 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="upiId" placeholder="Enter UPI id" value="{{admin.default_bank.upi_id}}" name="upi_id">
+                                <label for="upiId">UPI id</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
+                        <button type="submit" class="btn btn-success">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<!---------------------- Admin Profile Details -------------------->
     <div class="row">
         <div class="col-12 ">
             <h1 class="mb-4"><strong>{{admin.username}}</strong></h1>
@@ -10,60 +71,63 @@
                     <h1 class="mb-3">{{admin.first_name}} {{admin.last_name}}</h1>
                 </div>
                 <div class="card-body table-responsive pb-0">
-
+                    <h3 class="text-muted"><strong>User Details</strong></h3>
                     <div class="row mb-2">
                         <div class="col-6 mb-3">
-                            <h3 class="text-muted"><strong>User Details</strong></h3>
                             <table class="table text-start">
                                 <tr>
                                     <td>Email Address</td>
-                                    <td>{{Customuser.email}}</td>
+                                    <td>{{admin.email}}</td>
                                 </tr>
                                 <tr>
                                     <td>Contact No</td>
-                                    <td>{{Customuser.phn_no}}</td>
+                                    <td>{{admin.phn_no}}</td>
                                 </tr>
                                 <tr>
                                     <td>Instution Name</td>
-                                    <td>{{Customuser.institution}}</td>
+                                    <td>{{admin.institution}}</td>
                                 </tr>
                                 <tr>
                                     <td>Default Bank</td>
-                                    <td>{{Customuser.default_bank}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Profile Picture</td>
-                                    <td>{{Customuser.profile_pic}}</td>
+                                    <td>{{admin.default_bank}}</td>
                                 </tr>
                             </table>
+                        </div>
+                        <div class="col-6 d-flex justify-content-center align-items-center">
+                            <img height="200px" src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}" alt="">
                         </div>
                     </div>
                     <div class="row mb-2">
+                        <h3 class="text-muted"><strong>Institution Details</strong></h3>
                         <div class="col-6 mb-3">
-                            <h3 class="text-muted"><strong>Institution Details</strong></h3>
                             <table class="table text-start mb-4">
                                 <tr>
                                     <td>Institution Name</td>
-                                    <td>{{Institution.institution_name}}</td>
+                                    <td>{{admin.institution.institution_name}}</td>
                                 </tr>
                                 <tr>
                                     <td>Institution Address</td>
-                                    <td>{{Institution.address}}</td>
+                                    <td>{{admin.institution.address}}</td>
                                 </tr>
                                 <tr>
                                     <td>Phone No</td>
-                                    <td>{{Institution.phn}}</td>
+                                    <td>{{admin.institution.phn}}</td>
                                 </tr>
                                 <tr>
                                     <td>Email Address</td>
-                                    <td>{{Institution.email}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Institution Image</td>
-                                    <td>{{Institution.institution_img}}</td>
+                                    <td>{{admin.institution.email}}</td>
                                 </tr>
                             </table>
                         </div>
+                        <div class="col-6 d-flex justify-content-center align-items-center">
+                            <img height="200px" src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}" alt="">
+                        </div>
+                    </div>
+                    <div class="m-3">
+                        <button type="button" class=" btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            <i class="align-middle" data-feather="edit"></i>
+                            Edit
+                        </button>
                     </div>
                 </div>
             </div>
