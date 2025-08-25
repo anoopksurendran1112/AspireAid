@@ -77,5 +77,14 @@ def userCheckoutView(request,):
         transaction = Transaction.objects.create(tiles_bought=selected_tile_instance, sender=sender, project=project,amount=total_amount,
                                                  currency="INR", status="Unverified", transaction_id=str(uuid.uuid4()), message=message_text)
         return redirect(f'/user/single-project/{project_id}/')
-    return render(request, 'user-checkout.html', {'user': request.user, 'project': project, 'selected_tiles': selected_tiles, 'count':selected_tile_count})
+    return render(request, 'user-checkout.html', {'project': project, 'selected_tiles': selected_tiles, 'count':selected_tile_count})
 
+
+def userAllProject(request, ins_id):
+    ins = Institution.objects.get(id=ins_id)
+    projects = Project.objects.filter(
+        created_by__institution=ins,
+        created_by__is_staff=True,
+        table_status=True
+    ).order_by('-created_at')
+    return render(request, 'user-projects.html',{'ins':ins, 'prj':projects})
