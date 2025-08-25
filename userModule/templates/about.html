@@ -1,0 +1,25 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block content %}
+
+    <!-- Start About Area -->
+    <section class="about-area section-gap" id="about">
+        <div class="container">
+            <div class="row d-flex justify-content-end align-items-center">
+                <div class="col-lg-6 col-md-12 about-left no-padding">
+                    <img class="img-fluid" src="{% static 'frontend/img/about-img.jpg' %}" alt="">
+                </div>
+                <div class="col-lg-6 col-md-12 about-right">
+                    <h1>A very Lovely Welcome <br>
+                    to our Company</h1>
+                    <p>
+                        inappropriate behavior is often laughed off as “boys will be boys,” women face higher conduct standards especially in the workplace. That’s why it’s crucial that, as women, our behavior on the job is beyond reproach. inappropriate behavior is often laughed.
+                    </p>
+                    <button class="primary-btn mt-20 text-uppercase ">learn more<span class="lnr lnr-arrow-right"></span></button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End About Area -->
+
+{% endblock %}
