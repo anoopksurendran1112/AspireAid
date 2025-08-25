@@ -88,3 +88,11 @@ def userAllProject(request, ins_id):
         table_status=True
     ).order_by('-created_at')
     return render(request, 'user-projects.html',{'ins':ins, 'prj':projects})
+
+
+def contact_us(request):
+    return render(request,'contact-us.html')
+
+
+def about(request):
+    return render(request,'about.html')
