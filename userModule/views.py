@@ -18,11 +18,19 @@ def userIndex(request, ins_id):
             table_status=True
         ).order_by('-created_at')[:3]
         return render(request, 'index.html',{'ins':ins, 'prj':projects})
+      
+      
+def contact_us(request):
+    return render(request,'contact-us.html')
+
+
+def about(request):
+    return render(request,'about.html')
 
 
 def userAllProject(request):
-    ins_id = request.session.get('ins_id')
     if ins_id:
+        ins_id = request.session.get('ins_id')
         ins = Institution.objects.get(id=ins_id)
         projects = Project.objects.filter(
             created_by__institution=ins,
@@ -65,7 +73,6 @@ def userSingleProject(request,prj_id):
                                                         'processing_tiles_set': processing_tiles_set, 'sold_tiles_set': sold_tiles_set,})
 
 
-
 def userCheckoutView(request,):
     if request.method == "GET":
         project_id = request.GET.get("project_id")
@@ -92,3 +99,5 @@ def userCheckoutView(request,):
                                                  currency="INR", status="Unverified", transaction_id=str(uuid.uuid4()), message=message_text)
         return redirect(f'/user/single-project/{project_id}/')
     return render(request, 'user-checkout.html', {'project': project, 'selected_tiles': selected_tiles, 'count':selected_tile_count})
+
+  
