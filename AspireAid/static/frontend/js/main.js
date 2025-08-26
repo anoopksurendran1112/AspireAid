@@ -30,7 +30,16 @@ $(".menu-bar").on('click', function(e){
 });
 
 
-  $('.nav-item a:first').tab('show');
+document.addEventListener('DOMContentLoaded', function() {
+    // Select the first tab link using a modern selector
+    var firstTab = document.querySelector('.nav-item a:first-child');
+
+    if (firstTab) {
+        // Use the new Bootstrap 5 Tab object to show the tab
+        var bsTab = new bootstrap.Tab(firstTab);
+        bsTab.show();
+    }
+});
 
 
 
