@@ -22,7 +22,7 @@
                               <div class="content-overlay"></div>
                                  <img class="content-image img-fluid d-block mx-auto" src="{% static 'frontend/img/p1.jpg' %}" alt="">
                                 <div class="content-details fadeIn-bottom">
-                                    <a href="/user/single-project/{{p.id}}" class="head-btn btn text-uppercase">Donate Now</a>
+                                    <a href="/user/{{ins.id}}/single-project/{{p.id}}/" class="head-btn btn text-uppercase">Donate Now</a>
                                 </div>
                             </a>
                          </div>
@@ -30,7 +30,7 @@
                     <div class="details">
                         <a href="#"><h2>{{p.title}}</h2></a>
                         <p>{{p.description}}</p>
-                        <a class="text-uppercase" href="/user/single-project/{{p.id}}/">view more</a>
+                        <a class="text-uppercase" href="/user/{{ins.id}}/single-project/{{p.id}}/">view more</a>
                     </div>
 
                 </div>
