@@ -170,7 +170,7 @@
                             </button>
                         </li>
                         <li class="nav-item mx-1">
-                            <button type="button" class=" btn btn-success" id="share-button">
+                            <button type="button" class=" btn btn-success" id="ins_share">
                                 <i class="align-middle" data-feather="share"></i>
                                 Share
                             </button>
@@ -430,10 +430,10 @@
     <script src="{% static 'Dashboard/js/app.js' %}"></script>
 
     <script>
-        const shareButton = document.getElementById('share-button');
+        const shareInsButton = document.getElementById('ins_share');
 
-        shareButton.addEventListener('click', async () => {
-            const customUrl = `${window.location.protocol}//${window.location.host}/user/index/{{admin.institution.id}}/`;
+        shareInsButton.addEventListener('click', async () => {
+            const customUrl = `${window.location.protocol}//${window.location.host}/user/{{admin.institution.id}}/`;
             if (navigator.share) {
                 try {
                     await navigator.share({

@@ -360,10 +360,10 @@
     </div>
 
 <script>
-    const shareButton = document.getElementById('share-project');
+    const shareProjectButton = document.getElementById('share-project');
 
-    shareButton.addEventListener('click', async () => {
-        const customUrl = `${window.location.protocol}//${window.location.host}/user/single-project/{{project.id}}/`;
+    shareProjectButton.addEventListener('click', async () => {
+        const customUrl = `${window.location.protocol}//${window.location.host}/user/{{admin.institution.id}}/single-project/{{project.id}}/`;
         if (navigator.share) {
             try {
                 await navigator.share({
