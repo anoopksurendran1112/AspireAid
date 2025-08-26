@@ -9,6 +9,9 @@ urlpatterns = [
     path('update-bank/',views.adminUpdateBankDetails, name='update_bank'),
     path('profile/',views.adminProfile),
 
+    path('generate-receipt/<int:t_id>/', views.adminGenerateReceipts),
+    path('all-receipts/',views.adminAllReceipts),
+
     path('all-project/',views.adminAllProject),
     path('single-project/<int:pid>/',views.adminSingleProject),
     path('upload_project_image/<int:project_id>/', views.upload_project_image, name='upload_project_image'),

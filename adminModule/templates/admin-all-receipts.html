@@ -1,0 +1,151 @@
+{% extends 'admin-dashboard.html' %}
+{% block content %}
+
+<!---------------------- Modal for Adding new Institution -------------------->
+    <div class="modal fade" id="ModalAddProject" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Add a new Project</strong></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+
+                        <div class="row">
+                            <div class="col-lg-6 px-3">
+                                <h3 class="card-title my-2 text-black">Project Details</h3>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="projectTitle" placeholder="Enter the project title.. " name="title">
+                                            <label for="projectTitle">Project Title</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="fundingGoal" placeholder="Enter the funding goal.. " name="goal">
+                                            <label for="fundingGoal">Funding Goal</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="tileValue" placeholder="Enter tile value " name="tvalue">
+                                            <label for="tileValue">Single Tile Value</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                        <input type="date" class="form-control" id="closingDate" placeholder="Enter Closing Date " name="clsdate">
+                                        <label for="closingDate">Closing Date</label>
+                                    </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <textarea class="form-control" id="projectDesc" style="resize:none; height:75px;" placeholder="Enter the description..." name="desc"></textarea>
+                                            <label for="projectDesc">Project Description</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 px-3">
+                                <h3 class="card-title my-2 text-black">Beneficiary Details</h3>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="fname" placeholder="Enter Firstname" name="fname">
+                                            <label for="fname">First Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" id="lname" placeholder="Enter Lastname" name="lname">
+                                            <label for="lname">Last Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <input type="number" class="form-control" id="age"  placeholder="Enter Age " name="age">
+                                            <label for="age">Enter Age</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <input type="tel" class="form-control" id="telPhn"  placeholder="Enter Phone Number.. " name="phn">
+                                            <label for="telPhn">Phone Number</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-floating mb-2">
+                                            <textarea class="form-control" style="resize:none; height:75px;" id="address" placeholder="Enter your Address.." name="addr"></textarea>
+                                            <label for="address">Address</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
+                        <button type="submit" class="btn btn-success">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<!---------------------- All Institution Table Details -------------------->
+    <div class="row">
+        <div class="col-12 ">
+            <h1 class="mb-4"><strong>All Receipts</strong></h1>
+            <div class="card h-100 data-card">
+                <div class="card-header text-end">
+
+                </div>
+                <div class="card-body table-responsive pb-0">
+                    <table class="table table-hover my-0">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>Sl no</th>
+                            <th>Project</th>
+                            <th>Sender</th>
+                            <th>Selected tiles</th>
+                            <th>Quantity</th>
+                            <th>Amount</th>
+                            <th>Receipts</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for r in rec %}
+                        <tr>
+                            <td>{{r.id}}</td>
+                            <td>{{r.transaction.project.title}}</td>
+                            <td>{{r.transaction.sender.first_name}} {{r.transaction.sender.last_name}}</td>
+                            <td>{{r.transaction.tiles_bought.tiles}}</td>
+                            <td>{{p.c}}</td>
+                            <td>{{r.transaction.amount}}</td>
+                            <td>
+                                <a href="{{ r.receipt_pdf.url }}" target="_blank" rel="noopener noreferrer">
+                                    Visit
+                                </a>
+                            </td>
+                            <td>
+                                <a href="" class="btn btn-primary btn-sm">
+                                    Send
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
