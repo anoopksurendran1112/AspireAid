@@ -41,13 +41,18 @@
                             </td>
                             <td>
                                 {% if t.status == 'Verified' or t.status == 'Rejected' %}
-                                    <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-secondary" >
+                                    {% if t.status == 'Verified' %}
+                                        <a href="/administrator/generate-receipt/{{t.id}}/" class="btn btn-success btn-sm my-1" >
+                                            Receipt
+                                        </a>
+                                    {% endif %}
+                                    <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-secondary btn-sm" style="width: 60px;">
                                         View
                                     </a>
                                 {% else %}
-                                <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-primary" >
-                                    Verify
-                                </a>
+                                    <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-primary btn-sm" style="width: 60px;">
+                                        Verify
+                                    </a>
                                 {% endif %}
                             </td>
                         </tr>
