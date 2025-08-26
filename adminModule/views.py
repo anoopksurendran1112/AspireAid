@@ -1,3 +1,5 @@
+import datetime
+
 from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -101,6 +103,9 @@ def adminAllInstiAdmin(request):
 def adminAllProject(request):
     if request.user.is_superuser or request.user.is_staff:
         prj = Project.objects.filter(created_by = request.user)
+        for p in prj:
+            if p.closing_date < timezone.now():
+                p.validity = False
         if request.method == "POST":
             title = request.POST.get("title")
             goal = request.POST.get("goal")
@@ -143,6 +148,8 @@ def adminAllProject(request):
 def adminSingleProject(request, pid):
     if request.user.is_superuser or request.user.is_staff:
         project = get_object_or_404(Project, id=pid)
+        if project.closing_date < timezone.now():
+            project.validity = False
         tile_range = range(1, int(project.funding_goal // project.tile_value) + 1)
 
         # Separating bought tiles based on the transaction status for displaying with color
@@ -303,6 +310,10 @@ def adminApproveTransaction(request, tid):
             transaction.status = "Verified"
             transaction.table_status = True
             transaction.tiles_bought.table_status = True
+            transaction.project.current_amount += transaction.amount
+            if transaction.project.funding_goal == transaction.project.current_amount:
+                transaction.project.table_status = False
+            transaction.project.save()
             transaction.save()
         return redirect('/administrator/all-transactions/')
     else:
@@ -313,9 +324,13 @@ def adminRejectTransaction(request, tid):
     if request.user.is_superuser or request.user.is_staff:
         transaction = Transaction.objects.get(id=tid)
         if transaction.status != "Rejected":
+            if transaction.status == "Verified":
+                transaction.project.current_amount -= transaction.amount
             transaction.status = "Rejected"
             transaction.table_status = False
             transaction.tiles_bought.table_status = False
+            transaction.project.table_status = True
+            transaction.project.save()
             transaction.save()
         return redirect('/administrator/all-transactions/')
     else:
@@ -326,9 +341,13 @@ def adminUnverifyTransaction(request, tid):
     if request.user.is_superuser or request.user.is_staff:
         transaction = Transaction.objects.get(id=tid)
         if transaction.status != "Unverified":
+            if transaction.status == "Verified":
+                transaction.project.current_amount -= transaction.amount
             transaction.status = "Unverified"
             transaction.table_status = True
             transaction.tiles_bought.table_status = True
+            transaction.project.table_status = True
+            transaction.project.save()
             transaction.save()
         return redirect('/administrator/all-transactions/')
     else:

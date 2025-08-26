@@ -2,7 +2,7 @@
 {% block content %}
 
 <!---------------------- Modal for Adding new Institution -------------------->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="ModalAddProject" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -104,7 +104,7 @@
             <h1 class="mb-4"><strong>All Project Details</strong></h1>
             <div class="card h-100 data-card">
                 <div class="card-header text-end">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ModalAddProject"
                             {% if not admin.default_bank %} disabled {% endif %} >
                          Add new Project +
                     </button>
@@ -114,12 +114,12 @@
                         <thead class="table-dark">
                         <tr>
                             <th>Project Title</th>
-                            <th>Beneficiary</th>
                             <th>Target</th>
                             <th>Value</th>
                             <th>Current</th>
                             <th>Start date</th>
                             <th>End date</th>
+                            <th>Status</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -127,12 +127,20 @@
                         {% for p in prj %}
                         <tr>
                             <td>{{p.title}}</td>
-                            <td>{{p.beneficiary.first_name}} {{p.beneficiary.last_name}}</td>
                             <td>{{p.funding_goal}}</td>
                             <td>{{p.tile_value}}</td>
                             <td>{{p.current_amount}}</td>
                             <td>{{p.created_at}}</td>
                             <td>{{p.closing_date}}</td>
+                            <td>
+                                {% if p.validity == False %}
+                                <span class="badge bg-danger">Failed</span>
+                                {% elif p.table_status == True %}
+                                <span class="badge bg-success">Open</span>
+                                {% else %}
+                                <span class="badge bg-warning text-black">Closed</span>
+                                {% endif %}
+                            </td>
                             <td>
                                 <a class="" href="/administrator/single-project/{{p.id}}/">
                                   <i class="align-middle" data-feather="eye"></i>

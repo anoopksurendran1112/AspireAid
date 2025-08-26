@@ -1,10 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'index.html' %}
+{% load static %}
+{% block content %}
 
-</body>
-</html>
+    <!-- Start About Area -->
+    <section class=" section-gap" id="about">
+        <div class="container">
+            <h1 class="mb-5 text-center">Track your status...</h1>
+            <div class="py-5">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row justify-content-center align-items-center g-3">
+                        <div class="col-md-3">
+                            <input type="tel" class="form-control" placeholder="Enter your phone number" name="phn">
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary" type="submit">Track Status</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            {% if tra %}
+            <div class="table-responsive pt-5">
+                <table class="table table-hover my-0">
+                    <thead class="bg-dark text-white">
+                    <tr>
+                        <th>Sl no</th>
+                        <th>Project</th>
+                        <th>Tile Value</th>
+                        <th>Date</th>
+                        <th>Selected Tiles</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for t in tra %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{t.project.title}}</td>
+                        <td>{{t.project.tile_value}}</td>
+                        <td>{{t.transaction_time}}</td>
+                        <td>{{t.tiles_bought.tiles}}</td>
+                        <td>{{t.num_tiles}}</td>
+                        <td>{{t.amount}}</td>
+                        <td>
+                            {% if t.status == 'Unverified' %}
+                                <span class="badge bg-secondary">{{t.status}}</span>
+                            {% elif t.status == 'Verified' %}
+                                <span class="badge bg-success">{{t.status}}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{t.status}}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+            <div class="py-5">
+                {% if request.method == 'POST' %}
+                    <h1 class="mb-5 text-center text-muted">No transactions found for this number...</h1>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    <!-- End About Area -->
+
+{% endblock %}

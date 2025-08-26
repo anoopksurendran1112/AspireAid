@@ -181,6 +181,18 @@
                                         <th class="p-1">Available tiles</th>
                                         <td class="p-1 text-end">{{project.funding_goal}} Rs</td>
                                     </tr>
+                                    <tr>
+                                        <th class="p-1">Status</th>
+                                        <td class="p-1 text-end">
+                                            {% if project.validity == False %}
+                                            <span class="badge bg-danger">Failed</span>
+                                            {% elif project.table_status == True %}
+                                            <span class="badge bg-success">Open</span>
+                                            {% else %}
+                                            <span class="badge bg-warning text-black">Closed</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
                                 </table>
                             </div>
                         </div>
@@ -190,7 +202,7 @@
                       <p class="card-text">{{project.description}}</p>
                       <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
                       <div class="text-end">
-                          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#imgModal" >
+                          <button type="button" class="btn btn-warning text-black" data-bs-toggle="modal" data-bs-target="#imgModal" >
                               <i class="align-middle" data-feather="image"></i>
                               <span class="align-middle">Images</span>
                           </button>
@@ -198,7 +210,7 @@
                               <i class="align-middle" data-feather="edit"></i>
                               <span class="align-middle">Edit</span>
                           </button>
-                          <button type="button" class="btn btn-primary" id="share-button">
+                          <button type="button" class="btn btn-primary" id="share-project">
                               <i class="align-middle" data-feather="share"></i>
                               <span class="align-middle">Share</span>
                           </button>
@@ -348,7 +360,7 @@
     </div>
 
 <script>
-    const shareButton = document.getElementById('share-button');
+    const shareButton = document.getElementById('share-project');
 
     shareButton.addEventListener('click', async () => {
         const customUrl = `${window.location.protocol}//${window.location.host}/user/single-project/{{project.id}}/`;
