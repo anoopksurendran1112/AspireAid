@@ -68,7 +68,15 @@
                                         <table class="table mb-4">
                                             <tr>
                                                 <th class="p-1">Status</th>
-                                                <td class="p-1">{{project.funding_goal}} Rs</td>
+                                                <td class="p-1">
+                                                    {% if project.current_amount >= project.funding_goal %}
+                                                        No tiles available
+                                                    {% elif project.closing_date < now %}
+                                                        Booking closed
+                                                    {% else %}
+                                                        Available
+                                                    {% endif %}
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <th class="p-1">Goal</th>
@@ -104,67 +112,73 @@
 
                 <div class="col-12">
                     <div class="card data-card ">
-                        <div class="card-header">
-                            <h3 ><strong>Book Your Tiles</strong></h3>
+                        {% if project.closing_date < now %}
+                        <div class="card-header text-center p-4">
+                            <h2 ><strong>Booking Closed</strong></h2>
                         </div>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div class=" mb-3" id="summary-section">
-                                    <p class="mb-1"><strong>Selected Tiles:</strong>
-                                        <span class="js-selected-tiles"></span>
-                                    </p>
-                                    <p class="mb-1">
-                                        <strong>
-                                            Total: <span class="js-selected-count">0</span> x <span data-tile-value="{{project.tile_value}}">{{project.tile_value}}</span> = <span class="js-selected-total">0</span>
-                                        </strong>
-                                    </p>
-                                </div>
-                                <div class="pb-3 d-flex justify-content-start">
-                                    <div class="d-flex align-items-center px-1">
-                                        <div class="booking-tile available">
-                                            <span class="tile-number"></span>
-                                        </div>
-                                        <span class="px-1">Available Tile</span>
-                                    </div>
-                                    <div class="d-flex align-items-center px-1">
-                                        <div class="booking-tile processing">
-                                            <span class="tile-number"></span>
-                                        </div>
-                                        <span class="px-1">Processing Tile</span>
-                                    </div>
-                                    <div class="d-flex align-items-center px-1">
-                                        <div class="booking-tile sold">
-                                            <span class="tile-number"></span>
-                                        </div>
-                                        <span class="px-1">Sold Tile</span>
-                                    </div>
-                                </div>
+                        {% else %}
+                            <div class="card-header">
+                                <h3 ><strong>Book Your Tiles</strong></h3>
                             </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div class=" mb-3" id="summary-section">
+                                        <p class="mb-1"><strong>Selected Tiles:</strong>
+                                            <span class="js-selected-tiles"></span>
+                                        </p>
+                                        <p class="mb-1">
+                                            <strong>
+                                                Total: <span class="js-selected-count">0</span> x <span data-tile-value="{{project.tile_value}}">{{project.tile_value}}</span> = <span class="js-selected-total">0</span>
+                                            </strong>
+                                        </p>
+                                    </div>
+                                    <div class="pb-3 d-flex justify-content-start">
+                                        <div class="d-flex align-items-center px-1">
+                                            <div class="booking-tile available">
+                                                <span class="tile-number"></span>
+                                            </div>
+                                            <span class="px-1">Available Tile</span>
+                                        </div>
+                                        <div class="d-flex align-items-center px-1">
+                                            <div class="booking-tile processing">
+                                                <span class="tile-number"></span>
+                                            </div>
+                                            <span class="px-1">Processing Tile</span>
+                                        </div>
+                                        <div class="d-flex align-items-center px-1">
+                                            <div class="booking-tile sold">
+                                                <span class="tile-number"></span>
+                                            </div>
+                                            <span class="px-1">Sold Tile</span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <div id="tile-container" class="container-fluid bg-light border py-1 overflow-auto">
-                                <div class="tile-grid">
-                                    {% for t in t_range %}
-                                    <div id="{{t}}" class="booking-tile
-                                        {% if t in sold_tiles_set %}
-                                            sold
-                                        {% elif t in processing_tiles_set %}
-                                            processing
-                                        {% else %}
-                                            available
-                                        {% endif %}">
-                                        <span class="tile-number">{{t}}</span>
+                                <div id="tile-container" class="container-fluid bg-light border py-1 overflow-auto">
+                                    <div class="tile-grid">
+                                        {% for t in t_range %}
+                                        <div id="{{t}}" class="booking-tile
+                                            {% if t in sold_tiles_set %}
+                                                sold
+                                            {% elif t in processing_tiles_set %}
+                                                processing
+                                            {% else %}
+                                                available
+                                            {% endif %}">
+                                            <span class="tile-number">{{t}}</span>
+                                        </div>
+                                        {% endfor %}
                                     </div>
-                                    {% endfor %}
+                                </div>
+                                <div class="py-4 text-end">
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" id="selected-tiles-input" name="selected_tiles_input">
+                                        <button type="submit" id="book-button" class="btn btn-primary" disabled >Proceed to Checkout</button>
+                                    </form>
                                 </div>
                             </div>
-                            <div class="py-4 text-end">
-                                <form method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" id="selected-tiles-input" name="selected_tiles_input">
-                                    <button type="submit" id="book-button" class="btn btn-primary" disabled >Proceed to Checkout</button>
-                                </form>
-                            </div>
-                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
