@@ -114,7 +114,7 @@
                           {% for image in project.images.all %}
                             <tr>
                                 <th>
-                                    <a href="/{{image.project_img}}/">{{image.project_img}}</a>
+                                    <a href="{{image.project_img.url}}" target="_blank" rel="noopener noreferrer">{{image.project_img}}</a>
                                 </th>
                                 <td class="text-end">
                                     <a class="" href="/administrator/del_prj_img/{{image.id}}/">Delete</a>
@@ -184,12 +184,12 @@
                                     <tr>
                                         <th class="p-1">Status</th>
                                         <td class="p-1 text-end">
-                                            {% if project.validity == False %}
+                                            {% if project.current_amount == project.funding_goal %}
+                                            <span class="badge bg-success">Success</span>
+                                            {% elif project.validity == False %}
                                             <span class="badge bg-danger">Failed</span>
                                             {% elif project.table_status == True %}
-                                            <span class="badge bg-success">Open</span>
-                                            {% else %}
-                                            <span class="badge bg-warning text-black">Closed</span>
+                                            <span class="badge bg-warning text-black">Open</span>
                                             {% endif %}
                                         </td>
                                     </tr>

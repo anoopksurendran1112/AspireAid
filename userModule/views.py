@@ -3,6 +3,8 @@ import uuid
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from django.utils import timezone
+
 from adminModule.models import Project, Institution
 from userModule.models import PersonalDetails, SelectedTile, Transaction
 
@@ -13,6 +15,7 @@ def userIndex(request, ins_id):
     projects = Project.objects.filter(
         created_by__institution=ins,
         created_by__is_staff=True,
+        closing_date__gte=timezone.now(),
         table_status=True
     ).order_by('-created_at')[:3]
     return render(request, 'index.html',{'ins':ins, 'prj':projects})
@@ -33,6 +36,7 @@ def userAllProject(request,ins_id):
     projects = Project.objects.filter(
         created_by__institution=ins,
         created_by__is_staff=True,
+        closing_date__gte=timezone.now(),
         table_status=True
     ).order_by('-created_at')
     return render(request, 'user-projects.html',{'ins':ins, 'prj':projects})
@@ -41,6 +45,9 @@ def userAllProject(request,ins_id):
 def userSingleProject(request,prj_id, ins_id):
     ins = Institution.objects.get(id=ins_id)
     prj = Project.objects.get(id=prj_id)
+
+    if prj.closing_date < timezone.now():
+        prj.status = 'expired'
     tile_range = range(1, int(prj.funding_goal // prj.tile_value) + 1)
 
     # Separating bought tiles based on the transaction status for displaying with color
@@ -73,7 +80,7 @@ def userSingleProject(request,prj_id, ins_id):
         })
         return redirect(f"{checkout_url}?{query_string}")
     return render(request, 'user-single-project.html', {'ins':ins, 'project': prj,'t_range': tile_range,
-                                                            'processing_tiles_set': processing_tiles_set, 'sold_tiles_set': sold_tiles_set,})
+                                                            'processing_tiles_set': processing_tiles_set, 'sold_tiles_set': sold_tiles_set, 'now': timezone.now()})
 
 
 def userCheckoutView(request,ins_id):

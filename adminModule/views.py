@@ -1,25 +1,24 @@
-import io
+from django.db.models import F
 
 from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from django.shortcuts import render, redirect, get_object_or_404
-from userModule.models import SelectedTile, Transaction, Receipt
-from django.contrib.auth.decorators import login_required
-from django.core.files.base import ContentFile
+from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER
 from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth.decorators import login_required
+from reportlab.platypus.flowables import HRFlowable
+from userModule.models import Transaction, Receipt
+from django.core.files.base import ContentFile
+from reportlab.lib.pagesizes import A4
 from django.db import IntegrityError
+from reportlab.lib.units import inch
 from django.utils import timezone
+from reportlab.lib import colors
 from io import BytesIO
 import qrcode
 import urllib
-
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER
-from reportlab.platypus.flowables import HRFlowable
-import datetime
+import io
 
 
 # Create your views here.
@@ -45,12 +44,28 @@ def adminLogin(request):
 def adminDashboard(request):
     if request.user.is_superuser or request.user.is_staff:
         all_prj = Project.objects.filter(created_by=request.user).count()
-        cls_prj = Project.objects.filter(created_by=request.user, closing_date__lte=timezone.now()).count()
-        latest_projects = Project.objects.filter(created_by=request.user).order_by('-created_at')[:5]
+        closed_prj = Project.objects.filter(created_by=request.user, closing_date__lte=timezone.now()).count()
+        completed_prj = Project.objects.filter(created_by=request.user, current_amount__gte=F('funding_goal')).count()
+        failed_prj = Project.objects.filter(created_by=request.user, closing_date__lte=timezone.now(), current_amount__lt=F('funding_goal')).count()
+        all_tra = Transaction.objects.filter(project__created_by=request.user).count()
+        ver_tra = Transaction.objects.filter(project__created_by=request.user, status='Verified').count()
+        unver_tra = Transaction.objects.filter(project__created_by=request.user, status='Unverified').count()
+        rej_tra = Transaction.objects.filter(project__created_by=request.user, status='Rejected').count()
+
+        latest_projects = Project.objects.filter(created_by=request.user, closing_date__gte=timezone.now(), current_amount__lt=F('funding_goal')).order_by('-created_at')[:5]
+        for p in latest_projects:
+            if p.closing_date < timezone.now():
+                p.validity = False
         context = {
             'all_prj': all_prj,
-            'cls_prj': cls_prj,
+            'cls_prj': closed_prj,
             'lst_prj': latest_projects,
+            'cmp_prj': completed_prj,
+            'fail_prj': failed_prj,
+            'all_tra': all_tra,
+            'ver_tra': ver_tra,
+            'unver_tra': unver_tra,
+            'rej_tra': rej_tra,
         }
         return render(request, "admin-dashboard.html", {'admin':request.user, 'context': context})
     else:
@@ -538,6 +553,8 @@ def adminGenerateReceipts(request, t_id):
 def adminAllReceipts(request):
     if request.user.is_superuser or request.user.is_staff:
         receipts = Receipt.objects.all()
+        for r in receipts:
+            r.tile_count = len(r.transaction.tiles_bought.tiles.split('-'))
         return render(request, 'admin-all-receipts.html',{'rec':receipts})
     else:
         return redirect('/administrator/')

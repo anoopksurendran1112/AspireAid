@@ -191,201 +191,197 @@
                     {% block content %}
 					<h1 class="h3 mb-3"><strong>Admin</strong> Dashboard</h1>
 
-					<div class="row">
+					<div class="row g-4">
 						<div class="col-xl-12 d-flex">
 							<div class="w-100">
 								<div class="row">
 									<div class="col-md-3 col-sm-6">
-										<div class="card data-card">
+										<div class="card data-card  border border-primary">
 											<div class="card-body">
-												<div class="row">
-													<div class="col mt-0">
-														<h5 class="card-title">Total Projects</h5>
-													</div>
-
-													<div class="col-auto">
-														<div class="stat text-primary">
-                                                            <a href="/administrator/all-project/">
-                                                                <i class="align-middle" data-feather="eye"></i>
-                                                            </a>
-
-														</div>
-													</div>
-												</div>
-												<h1 class="mt-1 mb-3">{{context.all_prj}} Projects</h1>
+                                                <div class="col mb-3">
+                                                    <h5 class="card-title text-primary">Total Projects</h5>
+                                                </div>
+                                                <div class="row align-items-center mt-4 mb-0">
+                                                    <div class="col-auto">
+                                                        <h1><strong class="text-primary">{{context.all_prj}}</strong></h1>
+                                                    </div>
+                                                    <div class="col-auto ps-0">
+                                                        <h2><strong>Projects</strong></h2>
+                                                    </div>
+                                                </div>
 											</div>
 										</div>
 									</div>
 									<div class="col-md-3 col-sm-6">
-										<div class="card data-card">
+										<div class="card data-card  border border-success">
 											<div class="card-body">
-												<div class="row">
-													<div class="col mt-0">
-														<h5 class="card-title">Closed Projects</h5>
-													</div>
-
-													<div class="col-auto">
-														<div class="stat text-primary">
-															<i class="align-middle" data-feather="users"></i>
-														</div>
-													</div>
-												</div>
-												<h1 class="mt-1 mb-3">{{context.cls_prj}} Projects</h1>
+                                                <div class="col mb-3">
+                                                    <h5 class="card-title text-success">Successful Projects</h5>
+                                                </div>
+                                                <div class="row align-items-center mt-4 mb-0">
+                                                    <div class="col-auto">
+                                                        <h1><strong class="text-success">{{context.cmp_prj}}</strong></h1>
+                                                    </div>
+                                                    <div class="col-auto ps-0">
+                                                        <h2><strong>Projects</strong></h2>
+                                                    </div>
+                                                </div>
 											</div>
 										</div>
 									</div>
 									<div class="col-md-3 col-sm-6">
-										<div class="card data-card">
+										<div class="card data-card  border border-warning">
 											<div class="card-body">
-												<div class="row">
-													<div class="col mt-0">
-														<h5 class="card-title">Completed Projects</h5>
-													</div>
-
-													<div class="col-auto">
-														<div class="stat text-primary">
-															<i class="align-middle" data-feather="users"></i>
-														</div>
-													</div>
-												</div>
-												<h1 class="mt-1 mb-3">count</h1>
+                                                <div class="col mb-3">
+                                                    <h5 class="card-title text-warning">Closed Projects</h5>
+                                                </div>
+                                                <div class="row align-items-center mt-4 mb-0">
+                                                    <div class="col-auto">
+                                                        <h1><strong class="text-warning">{{context.cls_prj}}</strong></h1>
+                                                    </div>
+                                                    <div class="col-auto ps-0">
+                                                        <h2><strong>Projects</strong></h2>
+                                                    </div>
+                                                </div>
 											</div>
 										</div>
 									</div>
 									<div class="col-md-3 col-sm-6">
-										<div class="card data-card">
+										<div class="card data-card  border border-danger">
 											<div class="card-body">
-												<div class="row">
-													<div class="col mt-0">
-														<h5 class="card-title">Failed Projects</h5>
-													</div>
-
-													<div class="col-auto">
-														<div class="stat text-primary">
-															<i class="align-middle" data-feather="users"></i>
-														</div>
-													</div>
-												</div>
-												<h1 class="mt-1 mb-3">count</h1>
+                                                <div class="col mb-3">
+                                                    <h5 class="card-title text-danger">Failed Projects</h5>
+                                                </div>
+                                                <div class="row align-items-center mt-4 mb-0">
+                                                    <div class="col-auto">
+                                                        <h1><strong class="text-danger">{{context.fail_prj}}</strong></h1>
+                                                    </div>
+                                                    <div class="col-auto ps-0">
+                                                        <h2><strong>Projects</strong></h2>
+                                                    </div>
+                                                </div>
 											</div>
 										</div>
 									</div>
 									<div class="col-md-3 col-sm-6">
-										<div class="card data-card">
+										<div class="card data-card  border border-primary">
 											<div class="card-body">
-												<div class="row">
-													<div class="col mt-0">
-														<h5 class="card-title">Total Projects</h5>
-													</div>
-
-													<div class="col-auto">
-														<div class="stat text-primary">
-															<i class="align-middle" data-feather="users"></i>
-														</div>
-													</div>
-												</div>
-												<h1 class="mt-1 mb-3">count</h1>
+                                                <div class="col mb-3">
+                                                    <h5 class="card-title text-primary">Total Transactions</h5>
+                                                </div>
+                                                <div class="row align-items-center mt-4 mb-0">
+                                                    <div class="col-auto">
+                                                        <h1><strong class="text-primary">{{context.all_tra}}</strong></h1>
+                                                    </div>
+                                                    <div class="col-auto ps-0">
+                                                        <h2><strong>Projects</strong></h2>
+                                                    </div>
+                                                </div>
 											</div>
 										</div>
 									</div>
 									<div class="col-md-3 col-sm-6">
-										<div class="card data-card">
+										<div class="card data-card  border border-success">
 											<div class="card-body">
-												<div class="row">
-													<div class="col mt-0">
-														<h5 class="card-title">Total Projects</h5>
-													</div>
-
-													<div class="col-auto">
-														<div class="stat text-primary">
-															<i class="align-middle" data-feather="users"></i>
-														</div>
-													</div>
-												</div>
-												<h1 class="mt-1 mb-3">count</h1>
+                                                <div class="col mb-3">
+                                                    <h5 class="card-title text-success">Verified Transactions</h5>
+                                                </div>
+                                                <div class="row align-items-center mt-4 mb-0">
+                                                    <div class="col-auto">
+                                                        <h1><strong class="text-success">{{context.ver_tra}}</strong></h1>
+                                                    </div>
+                                                    <div class="col-auto ps-0">
+                                                        <h2><strong>Projects</strong></h2>
+                                                    </div>
+                                                </div>
 											</div>
 										</div>
 									</div>
 									<div class="col-md-3 col-sm-6">
-										<div class="card data-card">
+										<div class="card data-card  border border-warning">
 											<div class="card-body">
-												<div class="row">
-													<div class="col mt-0">
-														<h5 class="card-title">Total Projects</h5>
-													</div>
-
-													<div class="col-auto">
-														<div class="stat text-primary">
-															<i class="align-middle" data-feather="users"></i>
-														</div>
-													</div>
-												</div>
-												<h1 class="mt-1 mb-3">count</h1>
+                                                <div class="col mb-3">
+                                                    <h5 class="card-title text-warning">Unverified Transactions</h5>
+                                                </div>
+                                                <div class="row align-items-center mt-4 mb-0">
+                                                    <div class="col-auto">
+                                                        <h1><strong class="text-warning">{{context.unver_tra}}</strong></h1>
+                                                    </div>
+                                                    <div class="col-auto ps-0">
+                                                        <h2><strong>Projects</strong></h2>
+                                                    </div>
+                                                </div>
 											</div>
 										</div>
 									</div>
 									<div class="col-md-3 col-sm-6">
-										<div class="card data-card">
+										<div class="card data-card  border border-danger">
 											<div class="card-body">
-												<div class="row">
-													<div class="col mt-0">
-														<h5 class="card-title">Total Projects</h5>
-													</div>
-
-													<div class="col-auto">
-														<div class="stat text-primary">
-															<i class="align-middle" data-feather="users"></i>
-														</div>
-													</div>
-												</div>
-												<h1 class="mt-1 mb-3">count</h1>
+                                                <div class="col mb-3">
+                                                    <h5 class="card-title text-danger">Rejected Transactions</h5>
+                                                </div>
+                                                <div class="row align-items-center mt-4 mb-0">
+                                                    <div class="col-auto">
+                                                        <h1><strong class="text-danger">{{context.rej_tra}}</strong></h1>
+                                                    </div>
+                                                    <div class="col-auto ps-0">
+                                                        <h2><strong>Projects</strong></h2>
+                                                    </div>
+                                                </div>
 											</div>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-					</div>
 
-					<div class="row">
 						<div class="col-12">
 							<div class="card flex-fill">
 								<div class="card-header">
-
-									<h5 class="card-title mb-0">Latest Projects</h5>
+									<h4><strong>Latest Projects</strong></h4>
 								</div>
-								<table class="table table-hover my-0">
-									<thead>
-										<tr>
-											<th>Project</th>
-											<th>Beneficiary</th>
-											<th class="d-none d-xl-table-cell">Start Date</th>
-											<th class="d-none d-xl-table-cell">End Date</th>
-											<th class="d-none d-xl-table-cell">Target</th>
-											<th class="d-none d-xl-table-cell">Current</th>
-											<th>Status</th>
-											<th></th>
-										</tr>
-									</thead>
-									<tbody>
-                                        {% for prj  in context.lst_prj %}
-										<tr>
-											<td>{{prj.title}}</td>
-											<td>{{prj.beneficiary.first_name}} {{prj.beneficiary.last_name}}</td>
-											<td class="d-none d-xl-table-cell">{{prj.created_at}}</td>
-											<td class="d-none d-xl-table-cell">{{prj.closing_date}}</td>
-											<td class="d-none d-md-table-cell">{{prj.funding_goal}}</td>
-											<td class="d-none d-md-table-cell">Current</td>
-											<td><span class="badge bg-success">Open</span></td>
-											<td>
-                                                <a class="" href="/administrator/single-project/{{prj.id}}/">
-                                                    <i class="align-middle" data-feather="eye"></i>
+                                <div class="card-body table-responsive">
+                                    <table class="table table-hover ">
+                                        <thead class="table-dark">
+                                        <tr>
+                                            <th>Project Title</th>
+                                            <th>Target</th>
+                                            <th>Value</th>
+                                            <th>Current</th>
+                                            <th>Start date</th>
+                                            <th>End date</th>
+                                            <th>Status</th>
+                                            <th></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for p in context.lst_prj %}
+                                        <tr>
+                                            <td>{{p.title}}</td>
+                                            <td>{{p.funding_goal}}</td>
+                                            <td>{{p.tile_value}}</td>
+                                            <td>{{p.current_amount}}</td>
+                                            <td>{{p.created_at}}</td>
+                                            <td>{{p.closing_date}}</td>
+                                            <td>
+                                                {% if p.current_amount == p.funding_goal %}
+                                                <span class="badge bg-success">Success</span>
+                                                {% elif p.validity == False %}
+                                                <span class="badge bg-danger">Failed</span>
+                                                {% elif p.table_status == True %}
+                                                <span class="badge bg-warning text-black">Open</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a class="" href="/administrator/single-project/{{p.id}}/">
+                                                  <i class="align-middle" data-feather="eye"></i>
                                                 </a>
                                             </td>
-										</tr>
+                                        </tr>
                                         {% endfor %}
-									</tbody>
-								</table>
+                                        </tbody>
+                                    </table>
+                                </div>
 							</div>
 						</div>
 					</div>

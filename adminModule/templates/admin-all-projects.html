@@ -133,12 +133,12 @@
                             <td>{{p.created_at}}</td>
                             <td>{{p.closing_date}}</td>
                             <td>
-                                {% if p.validity == False %}
+                                {% if p.current_amount == p.funding_goal %}
+                                <span class="badge bg-success">Success</span>
+                                {% elif p.validity == False %}
                                 <span class="badge bg-danger">Failed</span>
                                 {% elif p.table_status == True %}
-                                <span class="badge bg-success">Open</span>
-                                {% else %}
-                                <span class="badge bg-warning text-black">Closed</span>
+                                <span class="badge bg-warning text-black">Open</span>
                                 {% endif %}
                             </td>
                             <td>
