@@ -10,42 +10,46 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <form method="post">
+                <form method="post" id="create-project-form">
                     {% csrf_token %}
                     <div class="modal-body">
-
                         <div class="row">
                             <div class="col-lg-6 px-3">
                                 <h3 class="card-title my-2 text-black">Project Details</h3>
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="projectTitle" placeholder="Enter the project title.. " name="title">
+                                            <input type="text" class="form-control" id="projectTitle" placeholder="Enter the project title.. " name="title" required>
                                             <label for="projectTitle">Project Title</label>
+                                            <span class="text-danger" id="projectTitle-error"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="fundingGoal" placeholder="Enter the funding goal.. " name="goal">
+                                            <input type="number" class="form-control" id="fundingGoal" placeholder="Enter the funding goal.. " name="goal" required>
                                             <label for="fundingGoal">Funding Goal</label>
+                                            <span class="text-danger" id="fundingGoal-error"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="tileValue" placeholder="Enter tile value " name="tvalue">
+                                            <input type="number" class="form-control" id="tileValue" placeholder="Enter tile value " name="tvalue" required>
                                             <label for="tileValue">Single Tile Value</label>
+                                            <span class="text-danger" id="tileValue-error"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-floating mb-2">
-                                        <input type="date" class="form-control" id="closingDate" placeholder="Enter Closing Date " name="clsdate">
-                                        <label for="closingDate">Closing Date</label>
-                                    </div>
+                                            <input type="date" class="form-control" id="closingDate" placeholder="Enter Closing Date " name="clsdate" required>
+                                            <label for="closingDate">Closing Date</label>
+                                            <span class="text-danger" id="closingDate-error"></span>
+                                        </div>
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-floating mb-2">
-                                            <textarea class="form-control" id="projectDesc" style="resize:none; height:75px;" placeholder="Enter the description..." name="desc"></textarea>
+                                            <textarea class="form-control" id="projectDesc" style="resize:none; height:75px;" placeholder="Enter the description..." name="desc" required></textarea>
                                             <label for="projectDesc">Project Description</label>
+                                            <span class="text-danger" id="projectDesc-error"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -55,43 +59,47 @@
                                 <div class="row">
                                     <div class="col-lg-6">
                                         <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="fname" placeholder="Enter Firstname" name="fname">
+                                            <input type="text" class="form-control" id="fname" placeholder="Enter Firstname" name="fname" required>
                                             <label for="fname">First Name</label>
+                                            <span class="text-danger" id="fname-error"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="lname" placeholder="Enter Lastname" name="lname">
+                                            <input type="text" class="form-control" id="lname" placeholder="Enter Lastname" name="lname" required>
                                             <label for="lname">Last Name</label>
+                                            <span class="text-danger" id="lname-error"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-floating mb-2">
-                                            <input type="number" class="form-control" id="age"  placeholder="Enter Age " name="age">
+                                            <input type="number" class="form-control" id="age" placeholder="Enter Age " name="age" required>
                                             <label for="age">Enter Age</label>
+                                            <span class="text-danger" id="age-error"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-floating mb-2">
-                                            <input type="tel" class="form-control" id="telPhn"  placeholder="Enter Phone Number.. " name="phn">
+                                            <input type="tel" class="form-control" id="telPhn" placeholder="Enter Phone Number.. " name="phn" required>
                                             <label for="telPhn">Phone Number</label>
+                                            <span class="text-danger" id="telPhn-error"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-floating mb-2">
-                                            <textarea class="form-control" style="resize:none; height:75px;" id="address" placeholder="Enter your Address.." name="addr"></textarea>
+                                            <textarea class="form-control" style="resize:none; height:75px;" id="address" placeholder="Enter your Address.." name="addr" required></textarea>
                                             <label for="address">Address</label>
+                                            <span class="text-danger" id="address-error"></span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
                     <div class="modal-footer d-flex justify-content-between">
                         <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
-                        <button type="submit" class="btn btn-success">Save changes</button>
+                        <button type="submit" class="btn btn-success">Add</button>
                     </div>
                 </form>
             </div>
@@ -154,5 +162,118 @@
             </div>
         </div>
     </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('create-project-form');
+
+        // Define all input elements
+        const projectTitleInput = document.getElementById('projectTitle');
+        const fundingGoalInput = document.getElementById('fundingGoal');
+        const tileValueInput = document.getElementById('tileValue');
+        const closingDateInput = document.getElementById('closingDate');
+        const projectDescInput = document.getElementById('projectDesc');
+        const fnameInput = document.getElementById('fname');
+        const lnameInput = document.getElementById('lname');
+        const ageInput = document.getElementById('age');
+        const phoneInput = document.getElementById('telPhn');
+        const addressInput = document.getElementById('address');
+
+        // Regex patterns for validation
+        const phoneRegex = /^\d{10}$/;
+        const nameRegex = /^[a-zA-Z\s]+$/;
+
+        function updateValidationStatus(inputElement, isValid, errorMessage = "") {
+            const errorSpan = document.getElementById(`${inputElement.id}-error`);
+            if (isValid) {
+                inputElement.classList.remove('is-invalid');
+                inputElement.classList.add('is-valid');
+                if (errorSpan) errorSpan.textContent = "";
+            } else {
+                inputElement.classList.remove('is-valid');
+                inputElement.classList.add('is-invalid');
+                if (errorSpan) errorSpan.textContent = errorMessage;
+            }
+        }
+
+        function validateForm() {
+            let formIsValid = true;
+
+            // 1. Validate all required fields
+            const requiredInputs = form.querySelectorAll('[required]');
+            requiredInputs.forEach(input => {
+                if (input.value.trim() === '') {
+                    updateValidationStatus(input, false, "This field is required.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(input, true);
+                }
+            });
+
+            // 2. Validate specific fields with custom rules
+
+            // Validate First and Last Name
+            if (fnameInput.value.trim() !== '' && !nameRegex.test(fnameInput.value)) {
+                updateValidationStatus(fnameInput, false, "Must contain only letters and spaces.");
+                formIsValid = false;
+            }
+            if (lnameInput.value.trim() !== '' && !nameRegex.test(lnameInput.value)) {
+                updateValidationStatus(lnameInput, false, "Must contain only letters and spaces.");
+                formIsValid = false;
+            }
+
+            // Validate Phone Number
+            if (phoneInput.value.trim() !== '' && !phoneRegex.test(phoneInput.value)) {
+                updateValidationStatus(phoneInput, false, "Please enter a valid 10-digit phone number.");
+                formIsValid = false;
+            }
+
+            // Validate Closing Date (must be in the future)
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const closingDate = new Date(closingDateInput.value);
+
+            if (closingDateInput.value.trim() !== '' && (isNaN(closingDate.getTime()) || closingDate <= today)) {
+                updateValidationStatus(closingDateInput, false, "The closing date must be in the future.");
+                formIsValid = false;
+            }
+
+            // Validate Funding Goal and Tile Value
+            const fundingGoal = parseFloat(fundingGoalInput.value);
+            const tileValue = parseFloat(tileValueInput.value);
+
+            if (fundingGoalInput.value.trim() !== '' && (isNaN(fundingGoal) || fundingGoal <= 0)) {
+                updateValidationStatus(fundingGoalInput, false, "Must be a positive number.");
+                formIsValid = false;
+            }
+            if (tileValueInput.value.trim() !== '' && (isNaN(tileValue) || tileValue <= 0)) {
+                updateValidationStatus(tileValueInput, false, "Must be a positive number.");
+                formIsValid = false;
+            }
+            if (!isNaN(fundingGoal) && !isNaN(tileValue) && fundingGoal <= tileValue) {
+                updateValidationStatus(fundingGoalInput, false, "Goal must be greater than tile value.");
+                updateValidationStatus(tileValueInput, false, "Goal must be greater than tile value.");
+                formIsValid = false;
+            }
+
+            // Validate Age
+            const age = parseInt(ageInput.value);
+            if (ageInput.value.trim() !== '' && (isNaN(age) || age < 1 || age > 150)) {
+                updateValidationStatus(ageInput, false, "Please enter a valid age.");
+                formIsValid = false;
+            }
+
+            return formIsValid;
+        }
+
+        // Add the submit event listener to run validation
+        form.addEventListener('submit', (event) => {
+            const formIsValid = validateForm();
+            if (!formIsValid) {
+                event.preventDefault(); // Stop form submission if validation fails
+            }
+        });
+    });
+</script>
 
 {% endblock %}

@@ -32,13 +32,13 @@ class Transaction(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=3, default='INR')
     status = models.CharField(max_length=10,)
-    transaction_id = models.CharField(max_length=255, unique=True)
+    tracking_id = models.CharField(max_length=255, unique=True)
     transaction_time = models.DateTimeField(auto_now_add=True)
     message = models.CharField(max_length=255, blank=True)
     table_status = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"Transaction {self.transaction_id} by {self.sender.first_name} {self.sender.last_name}"
+        return f"Transaction {self.tracking_id} by {self.sender.first_name} {self.sender.last_name}"
 
 
 class Screenshot(models.Model):
