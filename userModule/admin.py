@@ -14,7 +14,7 @@ class SelectedTileAdmin(admin.ModelAdmin):
 
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('transaction_id', 'sender', 'project', 'amount', 'status', 'transaction_time', 'table_status')
+    list_display = ('tracking_id', 'sender', 'project', 'amount', 'status', 'transaction_time', 'table_status')
 
 
 class ScreenShotAdmin(admin.ModelAdmin):

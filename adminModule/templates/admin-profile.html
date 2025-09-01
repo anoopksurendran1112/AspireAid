@@ -70,10 +70,13 @@
                 <div class="card-header ">
                     <h1 class="mb-3">{{admin.first_name}} {{admin.last_name}}</h1>
                 </div>
-                <div class="card-body table-responsive pb-0">
-                    <h3 class="text-muted"><strong>User Details</strong></h3>
-                    <div class="row mb-2">
-                        <div class="col-6 mb-3">
+                <div class="card-body table-responsive">
+                    <h3 class=" text-center mb-3"><strong>User Details</strong></h3>
+                    <div class="row mb-3">
+                        <div class="col-4 d-flex justify-content-center align-items-center">
+                            <img height="200px" src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}" alt="">
+                        </div>
+                        <div class="col-8 mb-3">
                             <table class="table text-start">
                                 <tr>
                                     <td>Email Address</td>
@@ -93,13 +96,13 @@
                                 </tr>
                             </table>
                         </div>
-                        <div class="col-6 d-flex justify-content-center align-items-center">
+                    </div>
+                    <div class="row mb-1">
+                        <h3 class=" text-center mb-3"><strong>Institution Details</strong></h3>
+                        <div class="col-4 d-flex justify-content-center align-items-center">
                             <img height="200px" src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}" alt="">
                         </div>
-                    </div>
-                    <div class="row mb-2">
-                        <h3 class="text-muted"><strong>Institution Details</strong></h3>
-                        <div class="col-6 mb-3">
+                        <div class="col-8 mb-3">
                             <table class="table text-start mb-4">
                                 <tr>
                                     <td>Institution Name</td>
@@ -119,11 +122,8 @@
                                 </tr>
                             </table>
                         </div>
-                        <div class="col-6 d-flex justify-content-center align-items-center">
-                            <img height="200px" src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}" alt="">
-                        </div>
                     </div>
-                    <div class="m-3">
+                    <div class="my-3 text-center">
                         <button type="button" class=" btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                             <i class="align-middle" data-feather="edit"></i>
                             Edit
