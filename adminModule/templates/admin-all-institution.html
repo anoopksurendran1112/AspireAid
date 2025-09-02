@@ -2,7 +2,7 @@
 {% block content %}
 
 <!---------------------- Modal for Adding new Institution -------------------->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="institutionModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog ">
             <div class="modal-content">
                 <div class="modal-header">
@@ -34,20 +34,61 @@
                     </div>
                     <div class="modal-footer d-flex justify-content-between">
                         <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-success">Saves</button>
+                        <button type="submit" class="btn btn-success">Register</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
+<!---------------------- Modal for Updating Institution -------------------->
+    <div class="modal fade" id="institutionViewModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="institutionViewModalLabel"><strong>Institution</strong></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="row p-2">
+                            <div class="col-lg-12 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="inst_name" placeholder="Enter Institution name" name="inst_name" disabled>
+                                <label for="inst_name">Institution name</label>
+                            </div>
+                            <div class="col-lg-12 form-floating mb-1 p-1">
+                                <input type="email" class="form-control" id="inst_email" placeholder="Enter Institution email"  name="inst_email" disabled>
+                                <label for="inst_email">Institution email</label>
+                            </div>
+                            <div class="col-lg-12 form-floating mb-1 p-1">
+                                <input type="tel" class="form-control" id="inst_phn" placeholder="Enter Institution phone number" name="inst_phn" disabled>
+                                <label for="inst_phn">Institution phone number</label>
+                            </div>
+                            <div class="col-lg-12 form-floating mb-1 p-1">
+                                <textarea class="form-control" placeholder="Enter Address" id="inst_address"  name="inst_address" disabled></textarea>
+                                <label for="inst_address">Enter address</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" id="edit-button">Edit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 <!---------------------- All Institution Table Details -------------------->
+
+
    <div class="row">
         <div class="col-12 ">
             <h1 class="mb-4"><strong>All Institutional Details</strong></h1>
-            <div class="card h-100 data-card">
+            <div class="card data-card pb-5">
                 <div class="card-header text-end">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#institutionModal">
                         Add a new Institution +
                     </button>
                 </div>
@@ -69,10 +110,15 @@
                             <td>{{i.email}}</td>
                             <td>{{i.phn}}</td>
                             <td>{{i.address}}</td>
-                            <td>
-                                <a class="" href="/administrator/">
-                                    <i class="align-middle" data-feather="eye"></i>
-                                </a>
+                            <td >
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <a class="me-3" data-bs-toggle="modal" data-bs-target="#institutionViewModal">
+                                        <i class="align-middle" data-feather="eye"></i>
+                                    </a>
+                                    <a class="me-3 text-danger" href="/administrator/delete-institution/{{i.id}}/">
+                                            <i class="align-middle" data-feather="trash"></i>
+                                        </a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -83,5 +129,18 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: '{{ message.tags|title }}!',
+                    text: '{{ message }}',
+                    icon: '{{ message.tags }}',
+                    confirmButtonText: 'OK'
+                });
+            {% endfor %}
+        {% endif %}
+    </script>
 
 {% endblock %}

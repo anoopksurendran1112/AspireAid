@@ -25,5 +25,7 @@ urlpatterns = [
     path('unverify-transaction/<int:tid>/',views.adminUnverifyTransaction),
 
     path('all-institution/',views.adminAllInstitution),
+    path('delete-institution/<int:iid>/',views.adminDeleteInstitution),
+    path('update-institution/<int:iid>/',views.adminUpdateInstitution),
     path('all-insti-admin/',views.adminAllInstiAdmin),
 ]

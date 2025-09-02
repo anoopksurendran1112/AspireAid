@@ -1,5 +1,3 @@
-from django.db.models import F
-
 from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -15,10 +13,12 @@ from django.db import IntegrityError
 from reportlab.lib.units import inch
 from django.utils import timezone
 from reportlab.lib import colors
+from django.db.models import F
 from io import BytesIO
 import qrcode
 import urllib
 import io
+from django.contrib import messages
 
 
 # Create your views here.
@@ -34,8 +34,10 @@ def adminLogin(request):
             if user.is_staff or user.is_superuser:
                 return redirect('/administrator/admin-dash/')
             else:
+                messages.error(request, "You do not have administrative privileges.")
                 return redirect('/administrator/')
         else:
+            messages.error(request, "Invalid username or password. Please try again.")
             return redirect('/administrator/')
     return render(request, "admin-login.html")
 
@@ -57,24 +59,18 @@ def adminDashboard(request):
             if p.closing_date < timezone.now():
                 p.validity = False
         context = {
-            'all_prj': all_prj,
-            'cls_prj': closed_prj,
-            'lst_prj': latest_projects,
-            'cmp_prj': completed_prj,
-            'fail_prj': failed_prj,
-            'all_tra': all_tra,
-            'ver_tra': ver_tra,
-            'unver_tra': unver_tra,
-            'rej_tra': rej_tra,
+            'all_prj': all_prj, 'cls_prj': closed_prj, 'lst_prj': latest_projects, 'cmp_prj': completed_prj, 'fail_prj': failed_prj,
+            'all_tra': all_tra, 'ver_tra': ver_tra, 'unver_tra': unver_tra, 'rej_tra': rej_tra,
         }
         return render(request, "admin-dashboard.html", {'admin':request.user, 'context': context})
     else:
-        return redirect('/')
+        return redirect('/administrator/')
 
 
 def adminLogOut(request):
     logout(request)
-    return redirect('/')
+    messages.warning(request, "You have been logged out successfully.")
+    return redirect('/administrator/')
 
 
 def adminProfile(request):
@@ -94,10 +90,32 @@ def adminAllInstitution(request):
             inst_address = request.POST.get('inst_address')
             new_inst = Institution(institution_name=inst_name, address=inst_address, phn=inst_phn, email=inst_email)
             new_inst.save()
+            messages.success(request, f'Registered {inst_name} Successfully.')
             return redirect('/administrator/all-institution/')
         return render(request,"admin-all-institution.html", {'admin': request.user, 'institutions': inst})
     else:
-        return redirect('/')
+        return redirect('/administrator/')
+
+
+def adminUpdateInstitution(request,iid):
+    if request.user.is_superuser:
+        institution = get_object_or_404(Institution, id=iid)
+        institution_name = institution.institution_name
+
+        messages.success(request, f'Institution {institution_name} has been Updated successfully.')
+        return redirect('/administrator/all-institution/')
+    else:
+        return redirect('/administrator/')
+
+def adminDeleteInstitution(request,iid):
+    if request.user.is_superuser:
+        institution = get_object_or_404(Institution, id=iid)
+        institution_name = institution.institution_name
+        institution.delete()
+        messages.warning(request, f'Institution {institution_name} has been deleted successfully.')
+        return redirect('/administrator/all-institution/')
+    else:
+        return redirect('/administrator/')
 
 
 def adminAllInstiAdmin(request):
@@ -120,7 +138,7 @@ def adminAllInstiAdmin(request):
                 return redirect('/administrator/all-insti-admin/')
         return render(request,"admin-all-insti-admin.html", {'admin': request.user, 'inst':inst, 'administrators':administrators})
     else:
-        return redirect('/')
+        return redirect('/administrator/')
 
 
 def adminAllProject(request):
