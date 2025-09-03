@@ -133,10 +133,29 @@ def adminAllInstiAdmin(request):
             try:
                 ins = Institution.objects.get(id=inst)
                 CustomUser.objects.create_user(first_name=firstname, last_name=lastname, email=em, institution=ins, username=usr, is_staff = True, phn_no=phn, password=pwd)
+                messages.success(request, f'Registered new admin {firstname} {lastname} for {ins.institution_name}.')
                 return redirect('/administrator/all-insti-admin/')
             except IntegrityError:
                 return redirect('/administrator/all-insti-admin/')
         return render(request,"admin-all-insti-admin.html", {'admin': request.user, 'inst':inst, 'administrators':administrators})
+    else:
+        return redirect('/administrator/')
+
+
+def adminUpdateAdmin(request,aid):
+    if request.user.is_superuser:
+        admin_to_update  = get_object_or_404(CustomUser, id=aid)
+        if request.method == 'POST':
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            email = request.POST.get('email')
+            inst_id = request.POST.get('inst_name')
+            phn_no = request.POST.get('phn_no')
+
+            print(request)
+
+            messages.success(request, f'Admin {first_name} {last_name} has been Updated successfully.')
+        return redirect('/administrator/all-institution/')
     else:
         return redirect('/administrator/')
 
