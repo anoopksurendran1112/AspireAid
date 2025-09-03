@@ -1,11 +1,13 @@
 from userModule.models import PersonalDetails, SelectedTile, Transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from adminModule.models import Project, Institution
+from django.core.mail import send_mail
 from django.utils import timezone
+from django.conf import settings
 from django.urls import reverse
 import urllib.parse
+import requests
 import uuid
-from django.core.mail import send_mail
 
 # Create your views here.
 def userIndex(request, ins_id):
@@ -102,29 +104,48 @@ def userCheckoutView(request,ins_id):
         project = get_object_or_404(Project, id=project_id)
         total_amount = len(selected_tiles_str.split('-')) * project.tile_value
 
-        sender = PersonalDetails.objects.create(email=email, first_name= fname, last_name= lname,phone= phn,address= addr,)
-        selected_tile_instance = SelectedTile.objects.create(project=project, sender=sender, tiles=selected_tiles_str)
-        transaction = Transaction.objects.create(tiles_bought=selected_tile_instance, sender=sender, project=project,amount=total_amount,
-                                                 currency="INR", status="Unverified", tracking_id=str(uuid.uuid4()), message=message_text)
+        try:
+            # Create database records inside the try block
+            sender = PersonalDetails.objects.create(email=email, first_name=fname, last_name=lname, phone=phn,
+                                                    address=addr, )
+            selected_tile_instance = SelectedTile.objects.create(project=project, sender=sender,
+                                                                 tiles=selected_tiles_str)
+            transaction = Transaction.objects.create(tiles_bought=selected_tile_instance, sender=sender,
+                                                     project=project, amount=total_amount,
+                                                     currency="INR", status="Unverified", tracking_id=str(uuid.uuid4()),
+                                                     message=message_text)
 
-        # Sending EMAIL as completion
-        subject = f'Payment Initiated for "{project.title}"'
-        proof_upload_url = f'http://your-domain.com/proof-upload/{transaction.tracking_id}/'
-        plain_text_message = (
-                                f'Dear {fname} {lname},\n\n'
-                                f'Your payment for the project "{project.title}" has been initiated. You can track the status using your mobile number.\n\n'
-                                f'Please upload proof of payment at : {proof_upload_url}\n\n'
-                                f'- Team {project.created_by.institution.institution_name}'
-                            )
-        sender_email = project.created_by.institution.email
-        receiver_email = email
-        send_mail(
-                    subject=subject,
-                    message=plain_text_message,
-                    from_email=sender_email,
-                    recipient_list=[receiver_email],
-                    fail_silently=False,
-                )
+            # Sending EMAIL for payment initiated
+            subject = f'Payment Initiated for "{project.title}"'
+            proof_upload_url = f'http://your-domain.com/proof-upload/{transaction.tracking_id}/'
+            plain_text_message = (
+                f'Dear {fname} {lname},\n'
+                f'Your payment for the project "{project.title}" has been initiated. You can track the status using your mobile number.\n'
+                f'Please upload proof of payment at : {proof_upload_url}\n'
+                f'- Team {project.created_by.institution.institution_name}'
+            )
+            sender_email = project.created_by.institution.email
+            receiver_email = email
+            send_mail(subject=subject, message=plain_text_message, from_email=sender_email,
+                      recipient_list=[receiver_email],
+                      fail_silently=False, )
+
+            # Sending WHATSAPP message for payment initiated
+            params_string = f"{fname} {lname},{project.title},{proof_upload_url}"
+            api_params = {
+                'user': settings.BHASHSMS_API_USER, 'pass': settings.BHASHSMS_API_PASS,
+                'sender': settings.BHASHSMS_API_SENDER,
+                'phone': phn, 'text': 'cf_payment_initiated', 'priority': settings.BHASHSMS_API_PRIORITY,
+                'stype': settings.BHASHSMS_API_STYPE,
+                'Params': params_string,
+            }
+            response = requests.get(settings.BHASHSMS_API, params=api_params)
+            print(f'WhatsApp API Response Status: {response.status_code}')
+            print(f'WhatsApp API Response Content: {response.text}')
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
         return redirect(f'/user/{ins_id}/single-project/{project_id}/')
     return render(request, 'user-checkout.html', {'ins':ins,'project': project, 'selected_tiles': selected_tiles, 'count':selected_tile_count})
 

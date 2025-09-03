@@ -2,7 +2,7 @@
 {% block content %}
 
 <!---------------------- Modal for Adding new Admin -------------------->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="newAdminModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog ">
             <div class="modal-content">
                 <div class="modal-header">
@@ -62,13 +62,75 @@
         </div>
     </div>
 
+<!---------------------- Modal for Updating Admin -------------------->
+    <div class="modal fade" id="updateAdminModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Add a new Admin</strong></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="row p-2">
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="first_name" placeholder="First name" name="first_name" required>
+                                <label for="first_name">First name</label>
+                            </div>
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="last_name" placeholder="Last name" name="last_name" required>
+                                <label for="last_name">Last name</label>
+                            </div>
+                            <div class="col-lg-12 form-floating mb-1 p-1">
+                                <input type="email" class="form-control" id="email" placeholder="Enter Email" name="email" required>
+                                <label for="username">Email</label>
+                            </div>
+                            <div class="col-lg-12 form-floating mb-1 p-1">
+                                <select class="form-control" aria-label="Default select example" id="inst_name" name="inst_name" required>
+                                    <option selected disabled>Select the Affiliated Institution</option>
+                                    {% for i in inst %}
+                                    <option value="{{i.id}}">{{i.institution_name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="inst_name">Institution name</label>
+                            </div>
+                            <div class="col-lg-12 form-floating mb-1 p-1">
+                                <input type="tel" class="form-control" id="phn_no" placeholder="Enter Contact number" name="phn_no" required>
+                                <label for="phn_no">Contact number</label>
+                            </div>
+                            <div class="col-lg-12 form-floating mb-1 p-1">
+                                <input type="text" class="form-control" id="username" placeholder="Enter Username" name="username" required>
+                                <label for="username">Username</label>
+                            </div>
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="password" class="form-control" id="password" placeholder="Enter Password" name="password" required>
+                                <label for="password">Old Password</label>
+                            </div>
+                            <div class="col-lg-6 form-floating mb-1 p-1">
+                                <input type="password" class="form-control" id="confirm_password" placeholder="Confirm Password" name="confirm_password" required>
+                                <label for="confirm_password">New Password</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning" id="edit-button" >Edit</button>
+                    <button type="submit" class="btn btn-primary" id="update-button" hidden>Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 <!---------------------- All Admin Table Details -------------------->
     <div class="row">
         <div class="col-12 ">
             <h1 class="mb-4"><strong>All Administrators</strong></h1>
             <div class="card h-100 data-card">
                 <div class="card-header text-end">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newAdminModal">
                         Register a new Admin +
                     </button>
                 </div>
@@ -93,9 +155,20 @@
                             <td>{{i.institution.institution_name}}</td>
                             <td>{{i.phn_no}}</td>
                             <td>
-                                <a class="" href="/administrator/">
-                                    <i class="align-middle" data-feather="eye"></i>
-                                </a>
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <a class="me-3" data-bs-toggle="modal" data-bs-target="#updateAdminModal" data-action-type="view"
+                                        data-first-name="{{ i.first_name }}"
+                                        data-last-name="{{ i.last_name }}"
+                                        data-email="{{ i.email }}"
+                                        data-inst-id="{{ i.institution.id }}"
+                                        data-phn-no="{{ i.phn_no }}"
+                                        data-username="{{ i.username }}">
+                                        <i class="align-middle" data-feather="eye"></i>
+                                    </a>
+                                    <a class="me-3 text-danger" href="/administrator/delete-institution/{{i.id}}/">
+                                        <i class="align-middle" data-feather="trash"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -105,6 +178,20 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: '{{ message.tags|title }}!',
+                    text: '{{ message }}',
+                    icon: '{{ message.tags }}',
+                    confirmButtonText: 'OK'
+                });
+            {% endfor %}
+        {% endif %}
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -128,5 +215,61 @@
             confirmPasswordInput.addEventListener('input', checkPasswords);
         });
     </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('updateAdminModal');
+        const form = modal.querySelector('form');
+        const formInputs = modal.querySelectorAll('input, select');
+        const editButton = document.getElementById('edit-button');
+        const updateButton = document.getElementById('update-button');
+
+        // This listener populates the modal when the "eye" icon is clicked
+        modal.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget;
+
+            // Extract the admin data from the data-* attributes
+            const firstName = button.getAttribute('data-first-name');
+            const lastName = button.getAttribute('data-last-name');
+            const email = button.getAttribute('data-email');
+            const instId = button.getAttribute('data-inst-id');
+            const phnNo = button.getAttribute('data-phn-no');
+            const username = button.getAttribute('data-username');
+
+            // Populate the form fields with the data
+            modal.querySelector('#first_name').value = firstName;
+            modal.querySelector('#last_name').value = lastName;
+            modal.querySelector('#email').value = email;
+            modal.querySelector('#phn_no').value = phnNo;
+            modal.querySelector('#username').value = username;
+
+            // Select the correct option in the dropdown
+            modal.querySelector('#inst_name').value = instId;
+
+            // The password fields should always be empty for security
+            modal.querySelector('#password').value = '';
+            modal.querySelector('#confirm_password').value = '';
+
+            // Initial state: inputs are disabled, and only the 'Edit' button is visible
+            formInputs.forEach(input => {
+                input.disabled = true;
+            });
+            editButton.hidden = false;
+            updateButton.hidden = true;
+        });
+
+        // This listener handles the click on the 'Edit' button
+        editButton.addEventListener('click', () => {
+            // Hide the 'Edit' button and show the 'Update' button
+            editButton.hidden = true;
+            updateButton.hidden = false;
+
+            // Enable all form fields so they can be edited
+            formInputs.forEach(input => {
+                input.disabled = false;
+            });
+        });
+    });
+</script>
 
 {% endblock %}

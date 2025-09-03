@@ -117,15 +117,22 @@ USE_I18N = True
 USE_TZ = True
 
 # EMAIL Setups
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST_USER = 'anoopksurendran2002@gmail.com'
+EMAIL_HOST_PASSWORD = 'ilgc xnjo tpwj wzrv'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
+
+# WHATSAPP Setups
+BHASHSMS_API = "http://bhashsms.com/api/sendmsg.php"
+BHASHSMS_API_PASS = "123456"
+BHASHSMS_API_USER = "kochidigital_bw"
+BHASHSMS_API_SENDER = "BUZWAP"
+BHASHSMS_API_PRIORITY = "wa"
+BHASHSMS_API_STYPE= "normal"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
