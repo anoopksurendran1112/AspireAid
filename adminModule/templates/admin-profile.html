@@ -3,15 +3,15 @@
 {% block content %}
 
 <!---------------------- Modal for Adding or Updating Bank Details -------------------->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog ">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Update Default Bank Details</strong></h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Update Your Details</strong></h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <form method="post" action="{% url 'update_bank' %}">
+                <form method="post" action="">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="row p-2">
@@ -124,7 +124,7 @@
                         </div>
                     </div>
                     <div class="my-3 text-center">
-                        <button type="button" class=" btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        <button type="button" class=" btn btn-primary" data-bs-toggle="modal" data-bs-target="#profileModal">
                             <i class="align-middle" data-feather="edit"></i>
                             Edit
                         </button>

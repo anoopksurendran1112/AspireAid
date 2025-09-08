@@ -131,8 +131,10 @@ def userCheckoutView(request,ins_id):
                                                      message=message_text)
 
             # Sending EMAIL for payment initiated
+            base_url = f"{request.scheme}://{request.get_host()}"
+            proof_upload_url = f"{base_url}/user/{ins_id}/proof-upload/{transaction.id}/"
+            print(proof_upload_url)
             subject = f'Payment Initiated for "{project.title}"'
-            proof_upload_url = f'http://your-domain.com/proof-upload/{transaction.tracking_id}/'
             plain_text_message = (
                 f'Dear {fname} {lname},\n'
                 f'Your payment for the project "{project.title}" has been initiated. You can track the status using your mobile number.\n'
@@ -178,3 +180,16 @@ def userTrackStatus(request, ins_id):
             else:
                 t.num_tiles = 0
     return render(request, "user-track-status.html", {'ins': ins, 'tra':transactions})
+
+
+def userProofUpload(request, ins_id, trans_id):
+    ins = get_object_or_404(Institution, id=ins_id)
+    tra = get_object_or_404(Transaction, id=trans_id)
+    tiles_string = tra.tiles_bought.tiles
+    if tiles_string:
+        count = len(tiles_string.split('-'))
+    else:
+        count = 0
+
+    return render(request, "user-proof-upload.html", {'ins': ins,
+        'tra': tra,'count': count,})
