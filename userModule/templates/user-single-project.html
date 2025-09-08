@@ -35,12 +35,12 @@
                                             {% else %}
                                                 src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
                                             {% endif %}
-                                            alt="Click to upload an image"
-                                            style="cursor: pointer; width: 100px; height: 100px; display: block;"
+                                            alt="Beneficiary image"
+                                            style="width: 100px; height: 100px; display: block;"
                                             class="border rounded-circle">
-                                            <h5><strong>{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</strong></h5>
                                         </div>
                                         <div class="col-sm-6 col-xl-12 align-self-end">
+                                            <h5 class="mb-2"><strong>{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</strong></h5>
                                             <table class="table">
                                                 <tr>
                                                     <th class="py-1 ps-0">Age</th>
@@ -84,7 +84,7 @@
                                             </tr>
                                             <tr>
                                                 <th class="p-1">Current</th>
-                                                <td class="p-1">{{project.funding_goal}} Rs</td>
+                                                <td class="p-1">{{project.current_amount}} Rs</td>
                                             </tr>
                                             <tr>
                                                 <th class="p-1">Tile value</th>
@@ -112,9 +112,17 @@
 
                 <div class="col-12">
                     <div class="card data-card ">
-                        {% if project.closing_date < now %}
+                        {% if project.status == 'Expired' %}
                         <div class="card-header text-center p-4">
-                            <h2 ><strong>Booking Closed</strong></h2>
+                            <h2><strong>Project Expired</strong></h2>
+                        </div>
+                        {% elif project.status == 'Completed' %}
+                        <div class="card-header text-center p-4">
+                            <h2><strong>Project Fully Funded!</strong></h2>
+                        </div>
+                        {% elif project.status == 'Closed' %}
+                        <div class="card-header text-center p-4">
+                            <h2><strong>Booking Closed</strong></h2>
                         </div>
                         {% else %}
                             <div class="card-header">
@@ -184,6 +192,23 @@
             </div>
         </div>
     </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: '{{ message.tags|title }}!',
+                    text: '{{ message }}',
+                    icon: '{{ message.tags }}',
+                    confirmButtonText: 'OK'
+                });
+            {% endfor %}
+        {% endif %}
+    </script>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const tileGrid = document.querySelector('.tile-grid');

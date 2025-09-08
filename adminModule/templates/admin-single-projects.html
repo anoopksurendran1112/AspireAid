@@ -185,11 +185,21 @@
                                         <th class="p-1">Status</th>
                                         <td class="p-1 text-end">
                                             {% if project.current_amount == project.funding_goal %}
-                                            <span class="badge bg-success">Success</span>
+                                                <a class="btn btn-sm btn-success "  style="width:70px;">
+                                                    Success
+                                                </a>
                                             {% elif project.validity == False %}
-                                            <span class="badge bg-danger">Failed</span>
-                                            {% elif project.table_status == True %}
-                                            <span class="badge bg-warning text-black">Open</span>
+                                                <a class="btn btn-sm btn-danger "  style="width:70px;">
+                                                    Failed
+                                                </a>
+                                            {% else %}
+                                                <a href="/administrator/change-project-status/{{project.id}}" class="btn btn-sm btn-warning text-black"  style="width:70px;">
+                                                    {% if project.table_status %}
+                                                        Open
+                                                    {% else %}
+                                                        Close
+                                                    {% endif %}
+                                                </a>
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -198,24 +208,28 @@
                         </div>
                     </div>
                 </div>
-                  <div class="card-body pb-0">
-                      <p class="card-text">{{project.description}}</p>
-                      <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
-                      <div class="text-end">
-                          <button type="button" class="btn btn-warning text-black" data-bs-toggle="modal" data-bs-target="#imgModal" >
-                              <i class="align-middle" data-feather="image"></i>
-                              <span class="align-middle">Images</span>
-                          </button>
-                          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                              <i class="align-middle" data-feather="edit"></i>
-                              <span class="align-middle">Edit</span>
-                          </button>
-                          <button type="button" class="btn btn-primary" id="share-project">
-                              <i class="align-middle" data-feather="share"></i>
-                              <span class="align-middle">Share</span>
-                          </button>
-                      </div>
-                  </div>
+                <div class="card-body pb-0">
+                    <p class="card-text">{{project.description}}</p>
+                    <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            <i class="align-middle" data-feather="edit"></i>
+                            <span class="align-middle">Edit</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#imgModal" >
+                            <i class="align-middle" data-feather="image"></i>
+                            <span class="align-middle">Upload</span>
+                        </button>
+                        <a href="/administrator/delete-project/{{project.id}}/" class="btn btn-danger">
+                            <i class="align-middle" data-feather="trash"></i>
+                            <span class="align-middle">Delete</span>
+                        </a>
+                        <button type="button" class="btn btn-primary" id="share-project">
+                            <i class="align-middle" data-feather="share"></i>
+                            <span class="align-middle">Share</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -358,6 +372,22 @@
         </div>
 
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: '{{ message.tags|title }}!',
+                    text: '{{ message }}',
+                    icon: '{{ message.tags }}',
+                    confirmButtonText: 'OK'
+                });
+            {% endfor %}
+        {% endif %}
+    </script>
+
 
 <script>
     const shareProjectButton = document.getElementById('share-project');

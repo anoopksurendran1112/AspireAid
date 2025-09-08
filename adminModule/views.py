@@ -1,3 +1,7 @@
+import requests
+from django.conf import settings
+from django.core.mail import send_mail,EmailMessage
+
 from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -11,6 +15,7 @@ from django.core.files.base import ContentFile
 from reportlab.lib.pagesizes import A4
 from django.db import IntegrityError
 from reportlab.lib.units import inch
+from django.contrib import messages
 from django.utils import timezone
 from reportlab.lib import colors
 from django.db.models import F
@@ -18,7 +23,6 @@ from io import BytesIO
 import qrcode
 import urllib
 import io
-from django.contrib import messages
 
 
 # Create your views here.
@@ -106,6 +110,7 @@ def adminUpdateInstitution(request,iid):
         return redirect('/administrator/all-institution/')
     else:
         return redirect('/administrator/')
+
 
 def adminDeleteInstitution(request,iid):
     if request.user.is_superuser:
@@ -199,6 +204,7 @@ def adminAllProject(request):
                 file_name = f"project_{new_project.id}_qr.png"
                 new_project.qr_code.save(file_name, ContentFile(buffer.getvalue()), save=True)
 
+            messages.success(request, "A new project has been created successfully.")
             return redirect('/administrator/all-project/')
         return render(request, "admin-all-projects.html",{'prj':prj, 'admin': request.user})
     else:
@@ -265,6 +271,32 @@ def adminSingleProject(request, pid):
         return redirect('/')
 
 
+def adminChangeProjectStatus(request, pid):
+    if request.user.is_superuser or request.user.is_staff:
+        project_instance = get_object_or_404(Project, id=pid)
+
+        new_status = not project_instance.table_status
+        project_instance.table_status = new_status
+        project_instance.save()
+        if new_status:
+            messages.success(request, f'The project {project_instance.title} has been enabled.')
+        else:
+            messages.warning(request, f'The project {project_instance.title} has been disabled.')
+        return redirect(f'/administrator/single-project/{pid}/')
+    else:
+        return redirect('/administrator/')
+
+
+def adminDeleteProject(request,pid):
+    if request.user.is_superuser or request.user.is_staff:
+        project_instance = get_object_or_404(Project, id=pid)
+        project_instance.delete()
+        messages.warning(request, "A project has been deleted.")
+        return redirect('/administrator/all-project/')
+    else:
+        return redirect('/administrator/')
+
+
 def upload_project_image(request, project_id):
     if request.user.is_superuser or request.user.is_staff:
         if request.method == 'POST':
@@ -277,6 +309,29 @@ def upload_project_image(request, project_id):
                 )
                 new_image.save()
         return redirect(f'/administrator/single-project/{project_id}/')
+    else:
+        return redirect('/')
+
+
+def delete_project_image(request, img_id):
+    if request.user.is_superuser or request.user.is_staff:
+        img = ProjectImage.objects.get(id=img_id)
+        prj_id = img.project.id
+        img.delete()
+        return redirect(f'/administrator/single-project/{prj_id}/')
+    else:
+        return redirect('/')
+
+
+def upload_beneficiary_image(request, prj_id):
+    if request.user.is_superuser or request.user.is_staff:
+        if request.method == 'POST':
+            project_instance = get_object_or_404(Project, id=prj_id)
+            if 'bene_img' in request.FILES:
+                uploaded_img = request.FILES['bene_img']
+                project_instance.beneficiary.profile_pic = uploaded_img
+                project_instance.beneficiary.save()
+        return redirect(f'/administrator/single-project/{prj_id}/')
     else:
         return redirect('/')
 
@@ -310,29 +365,6 @@ def adminUpdateBankDetails(request):
                 request.user.default_bank = bank_details
                 request.user.save()
             return redirect(request.META.get('HTTP_REFERER', '/'))
-    else:
-        return redirect('/')
-
-
-def delete_project_image(request, img_id):
-    if request.user.is_superuser or request.user.is_staff:
-        img = ProjectImage.objects.get(id=img_id)
-        prj_id = img.project.id
-        img.delete()
-        return redirect(f'/administrator/single-project/{prj_id}/')
-    else:
-        return redirect('/')
-
-
-def upload_beneficiary_image(request, prj_id):
-    if request.user.is_superuser or request.user.is_staff:
-        if request.method == 'POST':
-            project_instance = get_object_or_404(Project, id=prj_id)
-            if 'bene_img' in request.FILES:
-                uploaded_img = request.FILES['bene_img']
-                project_instance.beneficiary.profile_pic = uploaded_img
-                project_instance.beneficiary.save()
-        return redirect(f'/administrator/single-project/{prj_id}/')
     else:
         return redirect('/')
 
@@ -375,6 +407,44 @@ def adminApproveTransaction(request, tid):
                 transaction.project.table_status = False
             transaction.project.save()
             transaction.save()
+
+            try:
+                # Sending EMAIL for payment verified
+                subject = f'Payment successfully verified for "{transaction.project.title}"'
+                receipt, created = Receipt.objects.update_or_create(
+                    transaction=transaction,
+                    defaults={'receipt_pdf': generate_receipt_pdf(transaction)}
+                )
+                plain_text_message = (
+                    f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n'
+                    f'Your payment for the project "{transaction.project.title}" has been verified. Your transaction is now complete.\n'
+                    f'You can view your receipt here : {receipt.receipt_pdf}\n'
+                    f'- Team {transaction.project.created_by.institution.institution_name}'
+                )
+                sender_email = transaction.project.created_by.institution.email
+                receiver_email = transaction.sender.email
+                email_message = EmailMessage( subject=subject, body=plain_text_message, from_email=sender_email, to=[receiver_email], )
+
+                pdf_path = receipt.receipt_pdf.path
+                email_message.attach_file(pdf_path)
+                email_message.send(fail_silently=False)
+
+            # Sending WHATSAPP message for payment initiated
+            #     params_string = f"{fname} {lname},{project.title},{proof_upload_url}"
+            #     api_params = {
+            #         'user': settings.BHASHSMS_API_USER, 'pass': settings.BHASHSMS_API_PASS,
+            #         'sender': settings.BHASHSMS_API_SENDER,
+            #         'phone': phn, 'text': 'cf_payment_initiated', 'priority': settings.BHASHSMS_API_PRIORITY,
+            #         'stype': settings.BHASHSMS_API_STYPE,
+            #         'Params': params_string,
+            #     }
+            #     response = requests.get(settings.BHASHSMS_API, params=api_params)
+            #     print(f'WhatsApp API Response Status: {response.status_code}')
+            #     print(f'WhatsApp API Response Content: {response.text}')
+            except Exception as e:
+                print(f"An error occurred: {e}")
+
+            messages.success(request, f'The transaction: {transaction.tracking_id} has been approved.')
         return redirect('/administrator/all-transactions/')
     else:
         return redirect('/')
@@ -392,6 +462,7 @@ def adminRejectTransaction(request, tid):
             transaction.project.table_status = True
             transaction.project.save()
             transaction.save()
+            messages.error(request, f'The transaction: {transaction.tracking_id} has been rejected.')
         return redirect('/administrator/all-transactions/')
     else:
         return redirect('/')
@@ -409,6 +480,7 @@ def adminUnverifyTransaction(request, tid):
             transaction.project.table_status = True
             transaction.project.save()
             transaction.save()
+            messages.warning(request, f'The transaction: {transaction.tracking_id} has been unverified.')
         return redirect('/administrator/all-transactions/')
     else:
         return redirect('/')
@@ -555,7 +627,7 @@ def generate_receipt_pdf(transaction):
 
     # --- Payment Details Section ---
     elements.append(Paragraph("Payment Details", styles['SubtitleStyle']))
-    elements.append(Paragraph(f'<b>Transaction ID:</b> {transaction.transaction_id}', styles['NormalStyle']))
+    elements.append(Paragraph(f'<b>Tracking ID:</b> {transaction.tracking_id}', styles['NormalStyle']))
     elements.append(Paragraph(f'<b>Transaction Date:</b> {transaction.transaction_time}', styles['NormalStyle']))
     elements.append(Spacer(1, 10))
     elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
@@ -570,7 +642,7 @@ def generate_receipt_pdf(transaction):
     # Reset buffer position to the beginning before returning
     buffer.seek(0)
 
-    return ContentFile(buffer.getvalue(), name=f'{transaction.transaction_id}.pdf')
+    return ContentFile(buffer.getvalue(), name=f'{transaction.tracking_id}.pdf')
 
 
 def adminGenerateReceipts(request, t_id):
@@ -581,10 +653,10 @@ def adminGenerateReceipts(request, t_id):
             transaction=transaction_instance,
             defaults={'receipt_pdf': generate_receipt_pdf(transaction_instance)}
         )
+        messages.success(request, f'A receipt for the transaction: {transaction_instance.tracking_id} has been created.')
         return redirect('/administrator/all-transactions/')
     else:
         return redirect('/administrator/')
-
 
 
 def adminAllReceipts(request):
