@@ -110,14 +110,14 @@
     <div class="row">
         <div class="col-12 ">
             <h1 class="mb-4"><strong>All Project Details</strong></h1>
-            <div class="card h-100 data-card">
+            <div class="card data-card">
                 <div class="card-header text-end">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ModalAddProject"
                             {% if not admin.default_bank %} disabled {% endif %} >
                          Add new Project +
                     </button>
                 </div>
-                <div class="card-body table-responsive pb-0">
+                <div class="card-body table-responsive pb-6">
                     <table class="table table-hover my-0">
                         <thead class="table-dark">
                         <tr>
@@ -140,14 +140,24 @@
                             <td>{{p.current_amount}}</td>
                             <td>{{p.created_at}}</td>
                             <td>{{p.closing_date}}</td>
-                            <td>
+                            <td class="text-center">
                                 {% if p.current_amount == p.funding_goal %}
-                                <span class="badge bg-success">Success</span>
-                                {% elif p.validity == False %}
-                                <span class="badge bg-danger">Failed</span>
-                                {% elif p.table_status == True %}
-                                <span class="badge bg-warning text-black">Open</span>
-                                {% endif %}
+                                        <a class="btn btn-sm btn-success " style="width:70px;">
+                                            Success
+                                        </a>
+                                    {% elif p.validity == False %}
+                                        <a class="btn btn-sm btn-danger " style="width:70px;">
+                                            Failed
+                                        </a>
+                                    {% else %}
+                                        <a class="btn btn-sm btn-warning text-black"  style="width:70px;">
+                                            {% if p.table_status %}
+                                                Open
+                                            {% else %}
+                                                Close
+                                            {% endif %}
+                                        </a>
+                                    {% endif %}
                             </td>
                             <td>
                                 <a class="" href="/administrator/single-project/{{p.id}}/">
@@ -162,6 +172,21 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: '{{ message.tags|title }}!',
+                    text: '{{ message }}',
+                    icon: '{{ message.tags }}',
+                    confirmButtonText: 'OK'
+                });
+            {% endfor %}
+        {% endif %}
+    </script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {

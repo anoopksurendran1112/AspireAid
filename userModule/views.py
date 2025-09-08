@@ -2,6 +2,7 @@ from userModule.models import PersonalDetails, SelectedTile, Transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from adminModule.models import Project, Institution
 from django.core.mail import send_mail
+from django.contrib import messages
 from django.utils import timezone
 from django.conf import settings
 from django.urls import reverse
@@ -42,45 +43,59 @@ def userAllProject(request,ins_id):
     return render(request, 'user-projects.html',{'ins':ins, 'prj':projects})
 
 
-def userSingleProject(request,prj_id, ins_id):
-    ins = Institution.objects.get(id=ins_id)
-    prj = Project.objects.get(id=prj_id)
+def userSingleProject(request, prj_id, ins_id):
+    ins = get_object_or_404(Institution, id=ins_id)
+    prj = get_object_or_404(Project, id=prj_id)
 
-    if prj.closing_date < timezone.now():
-        prj.status = 'expired'
-    tile_range = range(1, int(prj.funding_goal // prj.tile_value) + 1)
-
-    # Separating bought tiles based on the transaction status for displaying with color
-    verified_transactions = Transaction.objects.filter(project=prj, status='Verified',tiles_bought__table_status=True)
-    processing_transactions = Transaction.objects.filter(project=prj,status='Unverified',tiles_bought__table_status=True)
-    sold_tiles_list = []
-    processing_tiles_list = []
-
-    sold_tiles_list_of_strings = verified_transactions.values_list('tiles_bought__tiles', flat=True)
-    processing_tiles_list_of_strings = processing_transactions.values_list('tiles_bought__tiles', flat=True)
-
-    for tiles_str in sold_tiles_list_of_strings:
-        if tiles_str:
-            sold_tiles_list.extend([int(t) for t in tiles_str.split('-') if t.isdigit()])
-
-    for tiles_str in processing_tiles_list_of_strings:
-        if tiles_str:
-            processing_tiles_list.extend([int(t) for t in tiles_str.split('-') if t.isdigit()])
-
-    processing_tiles_set = set(processing_tiles_list)
-    sold_tiles_set = set(sold_tiles_list)
-
-    # For checkout
     if request.method == "POST":
         selected_tiles = request.POST.get("selected_tiles_input")
         checkout_url = reverse('user_checkout', kwargs={'ins_id': ins.id})
-        query_string = urllib.parse.urlencode({
-            'project_id': prj.id,
-            'selected_tiles': selected_tiles
-        })
+        query_string = urllib.parse.urlencode({'project_id': prj.id,'selected_tiles': selected_tiles})
         return redirect(f"{checkout_url}?{query_string}")
-    return render(request, 'user-single-project.html', {'ins':ins, 'project': prj,'t_range': tile_range,
-                                                            'processing_tiles_set': processing_tiles_set, 'sold_tiles_set': sold_tiles_set, 'now': timezone.now()})
+
+    else:
+        prj.status =''
+        if prj.funding_goal == prj.current_amount:
+            prj.status = 'Completed'
+            prj.save()
+        elif prj.closing_date < timezone.now():
+            prj.status = 'Expired'
+            prj.save()
+        elif prj.table_status is False:
+            prj.status = 'Closed'
+            prj.save()
+
+        if prj.status not in ['Completed', 'Expired', 'Closed']:
+            tile_range = range(1, int(prj.funding_goal // prj.tile_value) + 1)
+
+            verified_transactions = Transaction.objects.filter(project=prj, status='Verified',
+                                                               tiles_bought__table_status=True)
+            processing_transactions = Transaction.objects.filter(project=prj, status='Unverified',
+                                                                 tiles_bought__table_status=True)
+
+            sold_tiles_list = []
+            processing_tiles_list = []
+
+            sold_tiles_list_of_strings = verified_transactions.values_list('tiles_bought__tiles', flat=True)
+            processing_tiles_list_of_strings = processing_transactions.values_list('tiles_bought__tiles', flat=True)
+
+            for tiles_str in sold_tiles_list_of_strings:
+                if tiles_str:
+                    sold_tiles_list.extend([int(t) for t in tiles_str.split('-') if t.isdigit()])
+
+            for tiles_str in processing_tiles_list_of_strings:
+                if tiles_str:
+                    processing_tiles_list.extend([int(t) for t in tiles_str.split('-') if t.isdigit()])
+
+            processing_tiles_set = set(processing_tiles_list)
+            sold_tiles_set = set(sold_tiles_list)
+
+            return render(request, 'user-single-project.html',
+                          { 'ins': ins, 'project': prj, 't_range': tile_range, 'processing_tiles_set': processing_tiles_set,
+                            'sold_tiles_set': sold_tiles_set, 'now': timezone.now()})
+        else:
+            return render(request, 'user-single-project.html',
+                          { 'ins': ins,'project': prj,'now': timezone.now()})
 
 
 def userCheckoutView(request,ins_id):
@@ -143,6 +158,7 @@ def userCheckoutView(request,ins_id):
             print(f'WhatsApp API Response Status: {response.status_code}')
             print(f'WhatsApp API Response Content: {response.text}')
 
+            messages.success(request, f'Payment for the tiles {selected_tiles_str} has been initiated.')
         except Exception as e:
             print(f"An error occurred: {e}")
 
