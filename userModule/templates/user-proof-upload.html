@@ -10,22 +10,32 @@
                 </div>
                 <div class="card-body">
                     <div class="invoice-title">
-                        <div class="my-4">
-                           <h2>{{tra.sender.first_name}} {{tra.sender.last_name}}</h2>
-                        </div>
                         <div class="row">
+                            <div class="col-12 mb-4">
+                                <div class="my-4">
+                                   <h2>{{tra.sender.first_name}} {{tra.sender.last_name}}</h2>
+                                </div>
+                                <p class="mb-1">Email: {{tra.sender.email}}</p>
+                                <p class="mb-1">Phone: {{tra.sender.phone}}</p>
+                                <p class="mb-1">Address: {{tra.sender.email}}</p>
+                            </div>
                             <div class="col-md-6 col-sm-12 mb-2">
-                                <p class="mb-1">Target: {{project.funding_goal}}</p>
-                                <p class="mb-1">Created by: {{project.created_by.email}}</p>
-                                <p class="mb-1">Created on: {{project.created_at}}</p>
-                                <p class="mb-1">Closing by: {{project.closing_date}}</p>
+                                <div class="col-12 mb-4">
+                                    <h3>Project Details</h3>
+                                </div>
+                                <p class="mb-1">Target: {{tra.project.funding_goal}}</p>
+                                <p class="mb-1">Created by: {{tra.project.created_by.email}}</p>
+                                <p class="mb-1">Created on: {{tra.project.created_at}}</p>
+                                <p class="mb-1">Closing by: {{tra.project.closing_date}}</p>
                             </div>
                             <div class="col-md-6 col-sm-12 text-sm-end mb-2" >
-                                 <p class="mb-1"><strong>Beneficiary Details</strong></p>
-                                 <p class="mb-1">{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</p>
-                                 <p class="mb-1">{{project.beneficiary.age}} years old</p>
-                                 <p class="mb-1">{{project.beneficiary.phone_number}}</p>
-                                 <p class="mb-1">{{project.beneficiary.address}}</p>
+                                <div class="col-12 mb-4">
+                                    <h3>Beneficiary Details</h3>
+                                </div>
+                                 <p class="mb-1">{{tra.project.beneficiary.first_name}} {{tra.project.beneficiary.last_name}}</p>
+                                 <p class="mb-1">{{tra.project.beneficiary.age}} years old</p>
+                                 <p class="mb-1">{{tra.project.beneficiary.phone_number}}</p>
+                                 <p class="mb-1">{{tra.project.beneficiary.address}}</p>
                             </div>
                         </div>
                     </div>
@@ -88,19 +98,13 @@
         // Elements for total calculation
         const totalSpan = document.getElementById('calculated-total');
         const tbody = document.querySelector('tbody');
+        const tileValue = parseFloat(tbody.dataset.tileValue);
+        const count = parseInt(tbody.dataset.count);
 
-        // Check if the data attributes exist and are valid numbers
-        if (tbody && tbody.dataset.tileValue && tbody.dataset.count) {
-            const tileValue = parseFloat(tbody.dataset.tileValue);
-            const count = parseInt(tbody.dataset.count);
-
-            // Calculate the total and display it
-            if (!isNaN(tileValue) && !isNaN(count)) {
-                const total = tileValue * count;
-                if (totalSpan) {
-                    totalSpan.textContent = `${total.toFixed(2)} Rs`;
-                }
-            }
+        // Calculate the total and display it
+        const total = tileValue * count;
+        if (totalSpan) {
+            totalSpan.textContent = `${total.toFixed(2)} Rs`;
         }
 
         // --- Form Validation Logic for the Upload Form ---
