@@ -37,9 +37,11 @@
                                 </a>
                             </td>
                             <td>
+                                {% if not admin.is_superuser %}
                                 <a href="" class="btn btn-primary btn-sm">
                                     Send
                                 </a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}

@@ -6,8 +6,12 @@ urlpatterns = [
     path('admin-dash/',views.adminDashboard),
     path('admin-log-out/',views.adminLogOut),
 
-    path('update-bank/',views.adminUpdateBankDetails, name='update_bank'),
     path('profile/',views.adminProfile),
+    path('update-admin/<int:aid>/', views.adminUpdateAdmin, name='update_admin'),
+    path('admin_profile_img/',views.adminProfilePicture),
+    path('admin_inst_img/',views.adminInstitutionPicture),
+
+    path('update-bank/',views.adminUpdateBankDetails, name='update_bank'),
 
     path('generate-receipt/<int:t_id>/', views.adminGenerateReceipts),
     path('all-receipts/',views.adminAllReceipts),
@@ -29,7 +33,5 @@ urlpatterns = [
     path('all-institution/',views.adminAllInstitution),
     path('delete-institution/<int:iid>/',views.adminDeleteInstitution),
     path('update-institution/<int:iid>/',views.adminUpdateInstitution),
-
     path('all-insti-admin/',views.adminAllInstiAdmin),
-    path('update-admin/<int:aid>/', views.adminUpdateAdmin, name='update_admin'),
 ]

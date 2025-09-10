@@ -1,28 +1,18 @@
-import requests
-from django.conf import settings
-from django.core.mail import send_mail,EmailMessage
-
 from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from adminModule.utils import generate_receipt_pdf, whatsapp_send_approve, email_send_approve
 from django.shortcuts import render, redirect, get_object_or_404
-from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER
+from userModule.models import Transaction, Receipt, Screenshot
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from reportlab.platypus.flowables import HRFlowable
-from userModule.models import Transaction, Receipt
 from django.core.files.base import ContentFile
-from reportlab.lib.pagesizes import A4
+from decimal import Decimal, InvalidOperation
 from django.db import IntegrityError
-from reportlab.lib.units import inch
 from django.contrib import messages
 from django.utils import timezone
-from reportlab.lib import colors
 from django.db.models import F
 from io import BytesIO
 import qrcode
 import urllib
-import io
 
 
 # Create your views here.
@@ -48,27 +38,44 @@ def adminLogin(request):
 
 @login_required(login_url='/administrator/')
 def adminDashboard(request):
-    if request.user.is_superuser or request.user.is_staff:
+    if request.user.is_superuser:
+        all_prj = Project.objects.all().count()
+        closed_prj = Project.objects.filter(closing_date__lte=timezone.now()).count()
+        completed_prj = Project.objects.filter(current_amount__gte=F('funding_goal')).count()
+        failed_prj = Project.objects.filter(closing_date__lte=timezone.now(), current_amount__lt=F('funding_goal')).count()
+
+        all_tra = Transaction.objects.all().count()
+        ver_tra = Transaction.objects.filter(status='Verified').count()
+        unver_tra = Transaction.objects.filter(status='Unverified').count()
+        rej_tra = Transaction.objects.filter(status='Rejected').count()
+
+        latest_projects = Project.objects.filter(closing_date__gte=timezone.now(),current_amount__lt=F('funding_goal')).order_by('-created_at')[:5]
+
+    elif request.user.is_staff:
         all_prj = Project.objects.filter(created_by=request.user).count()
         closed_prj = Project.objects.filter(created_by=request.user, closing_date__lte=timezone.now()).count()
         completed_prj = Project.objects.filter(created_by=request.user, current_amount__gte=F('funding_goal')).count()
-        failed_prj = Project.objects.filter(created_by=request.user, closing_date__lte=timezone.now(), current_amount__lt=F('funding_goal')).count()
+        failed_prj = Project.objects.filter(created_by=request.user, closing_date__lte=timezone.now(),current_amount__lt=F('funding_goal')).count()
+
         all_tra = Transaction.objects.filter(project__created_by=request.user).count()
         ver_tra = Transaction.objects.filter(project__created_by=request.user, status='Verified').count()
         unver_tra = Transaction.objects.filter(project__created_by=request.user, status='Unverified').count()
         rej_tra = Transaction.objects.filter(project__created_by=request.user, status='Rejected').count()
 
         latest_projects = Project.objects.filter(created_by=request.user, closing_date__gte=timezone.now(), current_amount__lt=F('funding_goal')).order_by('-created_at')[:5]
-        for p in latest_projects:
-            if p.closing_date < timezone.now():
-                p.validity = False
-        context = {
-            'all_prj': all_prj, 'cls_prj': closed_prj, 'lst_prj': latest_projects, 'cmp_prj': completed_prj, 'fail_prj': failed_prj,
-            'all_tra': all_tra, 'ver_tra': ver_tra, 'unver_tra': unver_tra, 'rej_tra': rej_tra,
-        }
-        return render(request, "admin-dashboard.html", {'admin':request.user, 'context': context})
+
     else:
         return redirect('/administrator/')
+
+    for p in latest_projects:
+        if p.closing_date < timezone.now():
+            p.validity = False
+
+    context = {
+        'all_prj': all_prj, 'cls_prj': closed_prj, 'lst_prj': latest_projects, 'cmp_prj': completed_prj, 'fail_prj': failed_prj,
+        'all_tra': all_tra, 'ver_tra': ver_tra, 'unver_tra': unver_tra, 'rej_tra': rej_tra,}
+
+    return render(request, "admin-dashboard.html", {'admin': request.user,'context': context})
 
 
 def adminLogOut(request):
@@ -77,22 +84,57 @@ def adminLogOut(request):
     return redirect('/administrator/')
 
 
+# Profile page of the logged admin
 def adminProfile(request):
     if request.user.is_superuser or request.user.is_staff:
         return render(request, 'admin-profile.html',{'admin': request.user})
     else:
-        return redirect('/')
+        return redirect('/administrator/')
 
 
+# Updating logged admin's profile picture
+def adminProfilePicture(request):
+    if request.user.is_superuser or request.user.is_staff:
+        if request.method == 'POST':
+            uploaded_img = request.FILES.get('admin_img')
+            if uploaded_img:
+                request.user.profile_pic = uploaded_img
+                request.user.save()
+                messages.success(request, "Your profile picture has been updated successfully!")
+            else:
+                messages.error(request, "No image was uploaded. Please select a file.")
+        return redirect('/administrator/profile/')
+    else:
+        return redirect('/administrator/')
+
+
+# Updating logged admin's institution's picture
+def adminInstitutionPicture(request):
+    if request.user.is_superuser or request.user.is_staff:
+        if request.method == 'POST':
+            uploaded_img = request.FILES.get('inst_img')
+            if uploaded_img:
+                request.user.institution.institution_img = uploaded_img
+                request.user.institution.save()
+                messages.success(request, "Institution profile picture has been updated successfully!")
+            else:
+                messages.error(request, "No image was uploaded. Please select a file.")
+        return redirect('/administrator/profile/')
+    else:
+        return redirect('/administrator/')
+
+
+# Superuser listing all Institutions and adding new Institutions
 def adminAllInstitution(request):
     if request.user.is_superuser:
         inst= Institution.objects.all()
         if request.method == "POST":
             inst_name = request.POST.get('inst_name')
             inst_email = request.POST.get('inst_email')
+            inst_app_pwd = request.POST.get('inst_app_pwd')
             inst_phn = request.POST.get('inst_phn')
             inst_address = request.POST.get('inst_address')
-            new_inst = Institution(institution_name=inst_name, address=inst_address, phn=inst_phn, email=inst_email)
+            new_inst = Institution(institution_name=inst_name, address=inst_address, phn=inst_phn, email=inst_email, email_app_password=inst_app_pwd)
             new_inst.save()
             messages.success(request, f'Registered {inst_name} Successfully.')
             return redirect('/administrator/all-institution/')
@@ -101,6 +143,7 @@ def adminAllInstitution(request):
         return redirect('/administrator/')
 
 
+# Superuser Updating existing Institutions
 def adminUpdateInstitution(request,iid):
     if request.user.is_superuser:
         institution = get_object_or_404(Institution, id=iid)
@@ -112,6 +155,7 @@ def adminUpdateInstitution(request,iid):
         return redirect('/administrator/')
 
 
+# Superuser Deleting existing Institutions
 def adminDeleteInstitution(request,iid):
     if request.user.is_superuser:
         institution = get_object_or_404(Institution, id=iid)
@@ -123,6 +167,7 @@ def adminDeleteInstitution(request,iid):
         return redirect('/administrator/')
 
 
+# Superuser listing all Institution's admins and adding new admin
 def adminAllInstiAdmin(request):
     if request.user.is_superuser:
         inst = Institution.objects.all()
@@ -147,6 +192,7 @@ def adminAllInstiAdmin(request):
         return redirect('/administrator/')
 
 
+# Superuser Updating an Institution's admin details
 def adminUpdateAdmin(request,aid):
     if request.user.is_superuser:
         admin_to_update  = get_object_or_404(CustomUser, id=aid)
@@ -166,11 +212,10 @@ def adminUpdateAdmin(request,aid):
 
 
 def adminAllProject(request):
-    if request.user.is_superuser or request.user.is_staff:
+    if request.user.is_superuser:
+        prj = Project.objects.all()
+    elif request.user.is_staff:
         prj = Project.objects.filter(created_by = request.user)
-        for p in prj:
-            if p.closing_date < timezone.now():
-                p.validity = False
         if request.method == "POST":
             title = request.POST.get("title")
             goal = request.POST.get("goal")
@@ -184,11 +229,18 @@ def adminAllProject(request):
             ben_age = request.POST.get("age")
             ben_addr = request.POST.get("addr")
 
+            try:
+                funding_goal = Decimal(goal) if goal else Decimal(0)
+                tile_value = Decimal(tval) if tval else Decimal(0)
+            except InvalidOperation:
+                messages.error(request, "Invalid number format for funding goal or tile value.")
+                return redirect('/administrator/all-project/')
+
             beneficiar, created = Beneficial.objects.get_or_create(first_name=ben_fname, last_name=ben_lname, phone_number=ben_phn,
                 defaults={'address': ben_addr, 'age': ben_age,})
             bank_details = request.user.default_bank
 
-            new_project = Project(title=title, description=desc, beneficiary=beneficiar, created_by=request.user, funding_goal=goal, tile_value=tval, closing_date=clsdate, bank_details=bank_details)
+            new_project = Project(title=title, description=desc, beneficiary=beneficiar, created_by=request.user, funding_goal=funding_goal, tile_value=tile_value, closing_date=clsdate, bank_details=bank_details)
             new_project.save()
 
             upi = bank_details.upi_id if bank_details else None
@@ -206,9 +258,12 @@ def adminAllProject(request):
 
             messages.success(request, "A new project has been created successfully.")
             return redirect('/administrator/all-project/')
-        return render(request, "admin-all-projects.html",{'prj':prj, 'admin': request.user})
     else:
-        return redirect('/')
+        return redirect('/administrator/')
+    for p in prj:
+        if p.closing_date < timezone.now():
+            p.validity = False
+    return render(request, "admin-all-projects.html",{'prj':prj, 'admin': request.user})
 
 
 def adminSingleProject(request, pid):
@@ -268,7 +323,7 @@ def adminSingleProject(request, pid):
         return render(request,"admin-single-projects.html", { 'admin':request.user, 'project': project, 't_range': tile_range,
                                                               'processing_tiles_set': processing_tiles_set, 'sold_tiles_set': sold_tiles_set, 'transaction':transaction_filtered})
     else:
-        return redirect('/')
+        return redirect('/administrator/')
 
 
 def adminChangeProjectStatus(request, pid):
@@ -310,7 +365,7 @@ def upload_project_image(request, project_id):
                 new_image.save()
         return redirect(f'/administrator/single-project/{project_id}/')
     else:
-        return redirect('/')
+        return redirect('/administrator/')
 
 
 def delete_project_image(request, img_id):
@@ -320,7 +375,7 @@ def delete_project_image(request, img_id):
         img.delete()
         return redirect(f'/administrator/single-project/{prj_id}/')
     else:
-        return redirect('/')
+        return redirect('/administrator/')
 
 
 def upload_beneficiary_image(request, prj_id):
@@ -333,7 +388,7 @@ def upload_beneficiary_image(request, prj_id):
                 project_instance.beneficiary.save()
         return redirect(f'/administrator/single-project/{prj_id}/')
     else:
-        return redirect('/')
+        return redirect('/administrator/')
 
 
 def adminUpdateBankDetails(request):
@@ -366,21 +421,22 @@ def adminUpdateBankDetails(request):
                 request.user.save()
             return redirect(request.META.get('HTTP_REFERER', '/'))
     else:
-        return redirect('/')
+        return redirect('/administrator/')
 
 
 def adminAllTransactions(request):
-    if request.user.is_superuser or request.user.is_staff:
-        prj = Project.objects.filter(created_by = request.user)
-        transaction_filtered = Transaction.objects.filter(project__in=prj).order_by('-transaction_time')
-        for t in transaction_filtered:
-            if t.tiles_bought:
-                t.num_tiles = len(t.tiles_bought.tiles.split('-'))
-            else:
-                t.num_tiles = 0
-        return render(request, 'admin-all-transactions.html', {'transaction':transaction_filtered})
+    if request.user.is_superuser:
+        transaction_filtered = Transaction.objects.all().order_by('-transaction_time')
+    elif request.user.is_staff:
+        transaction_filtered = Transaction.objects.filter(project__created_by=request.user).order_by('-transaction_time')
     else:
-        return redirect('/')
+        return redirect('/administrator/')
+    for t in transaction_filtered:
+        if t.tiles_bought:
+            t.num_tiles = len(t.tiles_bought.tiles.split('-'))
+        else:
+            t.num_tiles = 0
+    return render(request, 'admin-all-transactions.html', {'admin':request.user, 'transaction':transaction_filtered})
 
 
 def adminVerifyTransaction(request, tid):
@@ -390,64 +446,47 @@ def adminVerifyTransaction(request, tid):
             transaction.num_tiles = len(transaction.tiles_bought.tiles.split('-'))
         else:
             transaction.num_tiles = 0
-        return render(request, "admin-verify-transaction.html", {'admin': request.user, 'transaction': transaction})
+        screenshot = Screenshot.objects.filter(transaction=transaction).order_by('-id').first()
+        return render(request, "admin-verify-transaction.html", {'admin': request.user, 'transaction': transaction, 'screenshot': screenshot})
     else:
-        return redirect('/')
+        return redirect('/administrator/')
 
 
 def adminApproveTransaction(request, tid):
     if request.user.is_superuser or request.user.is_staff:
         transaction = Transaction.objects.get(id=tid)
-        if transaction.status != "Verified":
-            transaction.status = "Verified"
-            transaction.table_status = True
-            transaction.tiles_bought.table_status = True
-            transaction.project.current_amount += transaction.amount
-            if transaction.project.funding_goal == transaction.project.current_amount:
-                transaction.project.table_status = False
-            transaction.project.save()
-            transaction.save()
+        try:
+            if transaction.status != "Verified":
 
-            try:
-                # Sending EMAIL for payment verified
-                subject = f'Payment successfully verified for "{transaction.project.title}"'
-                receipt, created = Receipt.objects.update_or_create(
-                    transaction=transaction,
-                    defaults={'receipt_pdf': generate_receipt_pdf(transaction)}
-                )
-                plain_text_message = (
-                    f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n'
-                    f'Your payment for the project "{transaction.project.title}" has been verified. Your transaction is now complete.\n'
-                    f'You can view your receipt here : {receipt.receipt_pdf}\n'
-                    f'- Team {transaction.project.created_by.institution.institution_name}'
-                )
-                sender_email = transaction.project.created_by.institution.email
-                receiver_email = transaction.sender.email
-                email_message = EmailMessage( subject=subject, body=plain_text_message, from_email=sender_email, to=[receiver_email], )
+                # Update transaction status
+                transaction.status = "Verified"
+                transaction.table_status = True
+                transaction.tiles_bought.table_status = True
 
-                pdf_path = receipt.receipt_pdf.path
-                email_message.attach_file(pdf_path)
-                email_message.send(fail_silently=False)
+                # Update project amount and status
+                project_instance = transaction.project
+                project_instance.current_amount += transaction.amount
+                if project_instance.funding_goal <= project_instance.current_amount:
+                    project_instance.table_status = False
 
-            # Sending WHATSAPP message for payment initiated
-            #     params_string = f"{fname} {lname},{project.title},{proof_upload_url}"
-            #     api_params = {
-            #         'user': settings.BHASHSMS_API_USER, 'pass': settings.BHASHSMS_API_PASS,
-            #         'sender': settings.BHASHSMS_API_SENDER,
-            #         'phone': phn, 'text': 'cf_payment_initiated', 'priority': settings.BHASHSMS_API_PRIORITY,
-            #         'stype': settings.BHASHSMS_API_STYPE,
-            #         'Params': params_string,
-            #     }
-            #     response = requests.get(settings.BHASHSMS_API, params=api_params)
-            #     print(f'WhatsApp API Response Status: {response.status_code}')
-            #     print(f'WhatsApp API Response Content: {response.text}')
-            except Exception as e:
-                print(f"An error occurred: {e}")
+                # Save all changes inside the atomic block
+                transaction.save()
+                project_instance.save()
 
-            messages.success(request, f'The transaction: {transaction.tracking_id} has been approved.')
+                email_send_approve(transaction)
+                whatsapp_send_approve(request,transaction)
+
+                messages.success(request, f'The transaction: {transaction.tracking_id} has been approved.')
+            else:
+                messages.info(request, "This transaction has already been verified.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            messages.error(request, f"Failed to approve transaction: {e}")
+            return redirect('/administrator/all-transactions/')
+
         return redirect('/administrator/all-transactions/')
     else:
-        return redirect('/')
+        return redirect('/administrator/')
 
 
 def adminRejectTransaction(request, tid):
@@ -465,7 +504,7 @@ def adminRejectTransaction(request, tid):
             messages.error(request, f'The transaction: {transaction.tracking_id} has been rejected.')
         return redirect('/administrator/all-transactions/')
     else:
-        return redirect('/')
+        return redirect('/administrator/')
 
 
 def adminUnverifyTransaction(request, tid):
@@ -483,166 +522,7 @@ def adminUnverifyTransaction(request, tid):
             messages.warning(request, f'The transaction: {transaction.tracking_id} has been unverified.')
         return redirect('/administrator/all-transactions/')
     else:
-        return redirect('/')
-
-
-def generate_receipt_pdf(transaction):
-
-    # A4 page dimensions and margins
-    page_width = A4[0]
-    left_margin = 0.5 * inch
-    right_margin = 0.5 * inch
-    available_width = page_width - left_margin - right_margin
-
-    # Use an in-memory buffer to build the PDF
-    buffer = io.BytesIO()
-
-    # Create the PDF document
-    doc = SimpleDocTemplate(buffer, pagesize=A4,
-                            leftMargin=left_margin, rightMargin=right_margin,
-                            topMargin=0.5 * inch, bottomMargin=0.5 * inch)
-    elements = []
-    transaction.num_tiles = len(transaction.tiles_bought.tiles.split('-'))
-
-    # --- Define Styles ---
-    styles = getSampleStyleSheet()
-    styles.add(ParagraphStyle('TitleStyle', fontName='Helvetica-Bold', fontSize=18, spaceAfter=50, alignment=TA_LEFT))
-    styles.add(ParagraphStyle('SubtitleStyle', fontName='Helvetica-Bold', fontSize=12, spaceAfter=6, alignment=TA_LEFT))
-    styles.add(ParagraphStyle('NormalStyle', fontName='Helvetica', fontSize=10, spaceAfter=6, alignment=TA_LEFT))
-    styles.add(ParagraphStyle('BoldStyle', fontName='Helvetica-Bold', fontSize=10, spaceAfter=6, alignment=TA_LEFT))
-    styles.add(ParagraphStyle('RightAlignNormal', fontName='Helvetica', fontSize=10, spaceAfter=6, alignment=TA_RIGHT))
-    styles.add(
-        ParagraphStyle('AmountDueStyle', fontName='Helvetica-Bold', fontSize=16, spaceAfter=12, alignment=TA_CENTER))
-
-    # --- Header Section (Logo, Invoice Number, Date) ---
-    header_data = [
-        [Paragraph(transaction.project.created_by.institution.institution_name, styles['TitleStyle']), ""],
-        '',
-        [Paragraph(f"NO: invoice 1", styles['BoldStyle']),
-         Paragraph(f"DATE: {timezone.now()}", styles['RightAlignNormal'])]
-    ]
-    header_table = Table(header_data, colWidths=[available_width / 2, available_width / 2])
-    header_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-    ]))
-    elements.append(header_table)
-    elements.append(Spacer(1, 10))
-    elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
-
-    # --- Details Section (Project, Beneficiary, Tiles, Buyer) ---
-    # Create the first row table for Project and Beneficiary details
-    project_beneficiary_data = [
-        [
-            Paragraph("Project Details", styles['SubtitleStyle']),
-            Paragraph("Beneficiary Details", styles['SubtitleStyle']),
-        ],
-        [
-            Paragraph(f"<b>Title:</b> {transaction.project.title}<br/>"
-                      f"<b>Starting date:</b> {transaction.project.created_at}<br/>"
-                      f"<b>Closing date:</b> {transaction.project.closing_date}<br/>"
-                      f"<b>Created by:</b> {transaction.project.closing_date}<br/>", styles['NormalStyle']),
-            Paragraph(f"<b>Name:</b> {transaction.project.beneficiary.first_name} {transaction.project.beneficiary.last_name}<br/>"
-                      f"<b>Phone:</b> {transaction.project.beneficiary.phone_number}<br/>"
-                      f"<b>Address:</b> {transaction.project.beneficiary.phone_number}<br/>", styles['NormalStyle']),
-        ]
-    ]
-
-    project_beneficiary_table = Table(project_beneficiary_data, colWidths=[available_width / 2, available_width / 2])
-    project_beneficiary_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 0),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-    ]))
-    elements.append(project_beneficiary_table)
-
-    # Add a Spacer to create a gap between the two detail rows
-    elements.append(Spacer(1, 10))
-
-    # Create the second row table for Tiles and Buyer details
-    tiles_buyer_data = [
-        [
-            Paragraph("Tiles Details", styles['SubtitleStyle']),
-            Paragraph("Buyer Details", styles['SubtitleStyle']),
-        ],
-        [
-            Paragraph(f"<b>Selected Tiles:</b> {transaction.tiles_bought.tiles}<br/>"
-                      f"<b>Quantity:</b> {transaction.num_tiles}<br/>"
-                      f"<b>Amount:</b> {transaction.amount}<br/>", styles['NormalStyle']),
-            Paragraph(f"<b>Name:</b> {transaction.sender.first_name} {transaction.sender.last_name}<br/>"
-                      f"<b>Phone:</b> {transaction.sender.phone}<br/>"
-                      f"<b>Email:</b> {transaction.sender.email}<br/>"
-                      f"<b>Address:</b> {transaction.sender.address}<br/>", styles['NormalStyle'])
-        ]
-    ]
-
-    tiles_buyer_table = Table(tiles_buyer_data, colWidths=[available_width / 2, available_width / 2])
-    tiles_buyer_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 0),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-    ]))
-    elements.append(tiles_buyer_table)
-    elements.append(Spacer(1, 10))
-    elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
-
-    # --- Items Table ---
-    item_rows = [["Project Title", "Tiles Bought", "Quantity", "Tile Value", "Total"]]
-    total_value = 0
-    row_total = transaction.num_tiles * transaction.project.tile_value
-    item_rows.append([
-        transaction.project.title,
-        transaction.tiles_bought.tiles,
-        transaction.num_tiles,
-        transaction.project.tile_value,
-        row_total
-    ])
-
-    item_rows.append(["", "", "", "Total:", row_total])
-
-    col_widths = [available_width * 0.40, available_width * 0.20, available_width * 0.10, available_width * 0.10,
-                  available_width * 0.20]
-
-    items_table = Table(item_rows, colWidths=col_widths)
-    items_table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
-        ('LINEBELOW', (0, 0), (-1, 0), 1, colors.black),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('TOPPADDING', (0, 0), (-1, 0), 8),
-        ('ALIGN', (0, -1), (-1, -1), 'RIGHT'),
-        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-        ('LINEABOVE', (0, -1), (-1, -1), 1, colors.black),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-    ]))
-
-    elements.append(items_table)
-    elements.append(Spacer(1, 10))
-
-    # --- Amount Due Section ---
-    elements.append(Paragraph(f"Total: {row_total}Rs", styles['AmountDueStyle']))
-    elements.append(Spacer(1, 10))
-    elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
-
-    # --- Payment Details Section ---
-    elements.append(Paragraph("Payment Details", styles['SubtitleStyle']))
-    elements.append(Paragraph(f'<b>Tracking ID:</b> {transaction.tracking_id}', styles['NormalStyle']))
-    elements.append(Paragraph(f'<b>Transaction Date:</b> {transaction.transaction_time}', styles['NormalStyle']))
-    elements.append(Spacer(1, 10))
-    elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
-
-    # --- Notes/Message Section ---
-    elements.append(Paragraph("Message", styles['SubtitleStyle']))
-    elements.append(Paragraph(transaction.message, styles['NormalStyle']))
-
-    # Build PDF
-    doc.build(elements)
-
-    # Reset buffer position to the beginning before returning
-    buffer.seek(0)
-
-    return ContentFile(buffer.getvalue(), name=f'{transaction.tracking_id}.pdf')
+        return redirect('/administrator/')
 
 
 def adminGenerateReceipts(request, t_id):
@@ -660,10 +540,15 @@ def adminGenerateReceipts(request, t_id):
 
 
 def adminAllReceipts(request):
-    if request.user.is_superuser or request.user.is_staff:
+    if request.user.is_superuser:
         receipts = Receipt.objects.all()
-        for r in receipts:
-            r.tile_count = len(r.transaction.tiles_bought.tiles.split('-'))
-        return render(request, 'admin-all-receipts.html',{'rec':receipts})
+    elif request.user.is_staff:
+        receipts = Receipt.objects.filter(transaction__project__created_by=request.user)
     else:
         return redirect('/administrator/')
+    for r in receipts:
+        if r.transaction.tiles_bought and r.transaction.tiles_bought.tiles:
+            r.tile_count = len(r.transaction.tiles_bought.tiles.split('-'))
+        else:
+            r.tile_count = 0
+    return render(request, 'admin-all-receipts.html', {'admin': request.user,'rec': receipts})

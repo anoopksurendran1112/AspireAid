@@ -136,6 +136,35 @@
         </div>
     </div>
 
+<!-------------------Modal for share project--------------------->
+    <div class="modal fade" id="shareProjectModal" tabindex="-1" aria-labelledby="shareProjectModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="shareProjectModalLabel"><strong>Share this Project</strong></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center px-4">
+                    <h4>Share this awesome project!</h4>
+                    <p>You can share this link using these options:</p>
+                    <input id="projectLinkInput" class="form-control my-3" type="text" readonly>
+                    <div class="d-flex justify-content-center">
+                        <button id="copyProjectLink" class="btn btn-secondary m-2">Copy Link</button>
+                        <a href="#" id="whatsappShareProject" target="_blank" class="btn btn-success m-2">
+                            WhatsApp
+                        </a>
+                        <a href="#" id="twitterShareProject" target="_blank" class="btn btn-info m-2">
+                            Twitter
+                        </a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <div class="row g-4 mb-4">
         <div class="col-xl-8 col-lg-12 ">
@@ -182,26 +211,37 @@
                                         <td class="p-1 text-end">{{project.funding_goal}} Rs</td>
                                     </tr>
                                     <tr>
-                                        <th class="p-1">Status</th>
-                                        <td class="p-1 text-end">
-                                            {% if project.current_amount == project.funding_goal %}
-                                                <a class="btn btn-sm btn-success "  style="width:70px;">
-                                                    Success
-                                                </a>
-                                            {% elif project.validity == False %}
-                                                <a class="btn btn-sm btn-danger "  style="width:70px;">
-                                                    Failed
-                                                </a>
-                                            {% else %}
-                                                <a href="/administrator/change-project-status/{{project.id}}" class="btn btn-sm btn-warning text-black"  style="width:70px;">
-                                                    {% if project.table_status %}
-                                                        Open
-                                                    {% else %}
-                                                        Close
-                                                    {% endif %}
-                                                </a>
-                                            {% endif %}
+                                        {% if project.current_amount == project.funding_goal %}
+                                        <td class="p-1">
+                                            <a class="btn btn-sm btn-success" style="width:70px;">
+                                                Success
+                                            </a>
                                         </td>
+                                        {% elif project.validity == False %}
+                                        <td class="p-1">
+                                            <a class="btn btn-sm btn-danger" style="width:70px;">
+                                                Failed
+                                            </a>
+                                        </td>
+                                        {% else %}
+                                        <td class="p-1">
+                                            <form id="status-form-{{ project.id }}" action="/administrator/change-project-status/{{ project.id }}/" method="post" style="display: inline;">
+                                                {% csrf_token %}
+                                                <div class="form-check form-switch d-flex align-items-center">
+                                                    {% if not admin.is_superuser %}
+                                                    <input class="form-check-input status-switch" type="checkbox" role="switch" id="switchCheck-{{ project.id }}" {% if project.table_status %}checked{% endif %}>
+                                                    {% endif %}
+                                                    <label class="form-check-label ms-2" for="switchCheck-{{ project.id }}">
+                                                        {% if project.table_status %}
+                                                            <a class="btn btn-sm btn-warning text-black" style="width:70px;">Open</a>
+                                                        {% else %}
+                                                            <a class="btn btn-sm btn-secondary" style="width:70px;">closed</a>
+                                                        {% endif %}
+                                                    </label>
+                                                </div>
+                                            </form>
+                                        </td>
+                                        {% endif %}
                                     </tr>
                                 </table>
                             </div>
@@ -212,6 +252,7 @@
                     <p class="card-text">{{project.description}}</p>
                     <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
                     <div class="text-end">
+                        {% if not admin.is_superuser %}
                         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
                             <i class="align-middle" data-feather="edit"></i>
                             <span class="align-middle">Edit</span>
@@ -224,7 +265,8 @@
                             <i class="align-middle" data-feather="trash"></i>
                             <span class="align-middle">Delete</span>
                         </a>
-                        <button type="button" class="btn btn-primary" id="share-project">
+                        {% endif %}
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#shareProjectModal">
                             <i class="align-middle" data-feather="share"></i>
                             <span class="align-middle">Share</span>
                         </button>
@@ -390,26 +432,42 @@
 
 
 <script>
-    const shareProjectButton = document.getElementById('share-project');
+    document.addEventListener('DOMContentLoaded', () => {
+        const shareModal = document.getElementById('shareProjectModal');
+        const customUrl = `${window.location.protocol}//${window.location.host}/user/{{project.created_by.institution.id}}/single-project/{{project.id}}/`;
 
-    shareProjectButton.addEventListener('click', async () => {
-        const customUrl = `${window.location.protocol}//${window.location.host}/user/{{admin.institution.id}}/single-project/{{project.id}}/`;
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'Check out this awesome project!',
-                    text: 'This is a description of the content I want to share.',
-                    url: customUrl
-                });
-            } catch (error) {
-                console.error('Sharing failed:', error);
-                alert('Sharing failed. Please try again.');
-            }
-        } else {
-            alert('Web Share API is not supported in this browser.');
-        }
+        // Function to copy the URL to the clipboard
+        const copyToClipboard = () => {
+            const inputField = document.getElementById('projectLinkInput');
+            inputField.select(); // Select the text in the input field
+            inputField.setSelectionRange(0, 99999); // For mobile devices
+            navigator.clipboard.writeText(inputField.value).then(() => {
+                alert('Project link copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy text:', err);
+            });
+        };
+
+        // Event listener for when the modal is shown
+        shareModal.addEventListener('show.bs.modal', event => {
+            const whatsappShare = document.getElementById('whatsappShareProject');
+            const twitterShare = document.getElementById('twitterShareProject');
+            const projectLinkInput = document.getElementById('projectLinkInput');
+
+            // Populate the input field with the custom URL
+            projectLinkInput.value = customUrl;
+
+            // Update the links when the modal is opened
+            const shareText = 'Check out this awesome project:';
+            whatsappShare.href = `https://wa.me/?text=${encodeURIComponent(shareText)}%20${encodeURIComponent(customUrl)}`;
+            twitterShare.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(customUrl)}`;
+        });
+
+        // Event listener for the Copy Link button
+        document.getElementById('copyProjectLink').addEventListener('click', copyToClipboard);
     });
 </script>
+
 <script>
     const fileInput = document.getElementById('imgUpload');
     fileInput.addEventListener('change', function() {
@@ -418,5 +476,18 @@
         }
     });
 </script>
+<script>
+    // This script will automatically submit the form when the switch is toggled.
+    document.addEventListener('DOMContentLoaded', () => {
+        // Find all switches on the page
+        const switches = document.querySelectorAll('.status-switch');
 
+        switches.forEach(switchInput => {
+            switchInput.addEventListener('change', function() {
+                // Find the parent form and submit it
+                this.form.submit();
+            });
+        });
+    });
+</script>
 {% endblock %}

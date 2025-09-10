@@ -7,12 +7,12 @@
             <h1 class="mb-4"><strong>All Transactions</strong></h1>
             <div class="card data-card pb-6">
                 <div class="card-header text-end">
-
                 </div>
                 <div class="card-body table-responsive pb-0">
                     <table class="table table-hover my-0 text-start">
                         <thead class="table-dark">
                         <tr>
+                            <th>Sl no.</th>
                             <th>Project Title</th>
                             <th>Sender</th>
                             <th>No of Tiles</th>
@@ -25,6 +25,7 @@
                         <tbody>
                         {% for t in transaction %}
                         <tr>
+                            <td>{{forloop.counter}}</td>
                             <td>{{t.project.title}}</td>
                             <td>{{t.sender.first_name}} {{t.sender.last_name}}</td>
                             <td>{{ t.num_tiles }}</td>
@@ -40,18 +41,26 @@
                                 <strong>{{t.status}}</strong>
                             </td>
                             <td>
-                                {% if t.status == 'Verified' or t.status == 'Rejected' %}
+                                {% if not admin.is_superuser %}
                                     {% if t.status == 'Verified' %}
-                                        <a href="/administrator/generate-receipt/{{t.id}}/" class="btn btn-success btn-sm my-1" >
+                                        <a href="/administrator/generate-receipt/{{t.id}}/" class="btn btn-success btn-sm my-1">
                                             Receipt
                                         </a>
+                                        <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-secondary btn-sm" style="width: 60px;">
+                                            View
+                                        </a>
+                                    {% elif t.status == 'Rejected' or t.status == 'Unverified' %}
+                                        <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-secondary btn-sm" style="width: 60px;">
+                                            View
+                                        </a>
+                                    {% else %}
+                                        <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-primary btn-sm" style="width: 60px;">
+                                            Verify
+                                        </a>
                                     {% endif %}
+                                {% else %}
                                     <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-secondary btn-sm" style="width: 60px;">
                                         View
-                                    </a>
-                                {% else %}
-                                    <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-primary btn-sm" style="width: 60px;">
-                                        Verify
                                     </a>
                                 {% endif %}
                             </td>

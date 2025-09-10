@@ -24,6 +24,37 @@
 
 <body>
 
+<!---------------------- Modal for Share institution -------------------->
+    <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="shareModalLabel"><strong>Share this page</strong></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <p>You can share this link using these options:</p>
+                    <input id="institutionLinkInput" class="form-control my-3" type="text" readonly>
+                    <div class="d-flex justify-content-center">
+                        <button id="copyLinkButton" class="btn btn-secondary m-2">
+                            <i class="align-middle" data-feather="copy"></i>
+                            Copy Link
+                        </button>
+                        <a href="#" id="whatsappShare" target="_blank" class="btn btn-success m-2">
+                            WhatsApp
+                        </a>
+                        <a href="#" id="twitterShare" target="_blank" class="btn btn-info m-2">
+                            Twitter
+                        </a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <!---------------------- Modal for Adding or Updating Bank Details -------------------->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog ">
@@ -88,8 +119,14 @@
 		<nav id="sidebar" class="sidebar js-sidebar">
 			<div class="sidebar-content js-simplebar">
 				<a class="sidebar-brand" href="/administrator/admin-dash/">
-                    <img src="{% static 'frontend/img/AspireAid_logo.png' %}" alt="Logo"  style="width:50px;">
-                    <span class="align-middle">AspireAid</span>
+                    {% if admin.is_superuser %}
+                    <span class="align-middle">Superuser: {{admin.username}}</span>
+                    {% else %}
+                        {% if admin.institution.institution_img %}
+                        <img src="{{ admin.institution.institution_img.url}}" alt="Logo"  style="width:50px;">
+                        {% endif %}
+                    <span class="align-middle">{{admin.institution.institution_name}}</span>
+                    {% endif %}
                 </a>
 
 <!---------------------- Start Main Side-bar Menu -------------------->
@@ -157,6 +194,7 @@
                 </a>
 				<div class="navbar-collapse collapse">
 					<ul class="navbar-nav navbar-align">
+                        {% if not admin.is_superuser %}
                         <li class="nav-item mx-1">
                             <button type="button" class=" btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                 <i class="align-middle" data-feather="globe"></i>
@@ -164,11 +202,12 @@
                             </button>
                         </li>
                         <li class="nav-item mx-1">
-                            <button type="button" class=" btn btn-success" id="ins_share">
+                            <button type="button" class="btn btn-success" id="ins_share" data-bs-toggle="modal" data-bs-target="#shareModal">
                                 <i class="align-middle" data-feather="share"></i>
                                 Share
                             </button>
                         </li>
+                        {% endif %}
 						<li class="nav-item mx-1">
 							<a class="nav-icon" href="/administrator/admin-log-out/">
 							    <i class="align-middle" data-feather="log-out"></i>
@@ -420,27 +459,53 @@
     <script src="{% static 'Dashboard/js/app.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-        const shareInsButton = document.getElementById('ins_share');
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const shareModal = document.getElementById('shareModal');
+        const customUrl = `${window.location.protocol}//${window.location.host}/user/{{admin.institution.id}}/`;
 
-        shareInsButton.addEventListener('click', async () => {
-            const customUrl = `${window.location.protocol}//${window.location.host}/user/{{admin.institution.id}}/`;
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: 'Welcome, Please support the available projects...',
-                        text: 'This is a description of the content I want to share.',
-                        url: customUrl
-                    });
-                } catch (error) {
-                    console.error('Sharing failed:', error);
-                    alert('Sharing failed. Please try again.');
+        // Function to copy the URL to the clipboard
+        const copyToClipboard = () => {
+            const inputField = document.getElementById('institutionLinkInput');
+            inputField.select(); // Select the text in the input field
+            inputField.setSelectionRange(0, 99999); // For mobile devices
+            navigator.clipboard.writeText(inputField.value).then(() => {
+                alert('Link copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy text:', err);
+            });
+        };
+
+        // Event listener for when the modal is shown
+        if (shareModal) {
+            shareModal.addEventListener('show.bs.modal', event => {
+                const whatsappShare = document.getElementById('whatsappShare');
+                const twitterShare = document.getElementById('twitterShare');
+                const institutionLinkInput = document.getElementById('institutionLinkInput');
+
+                // Populate the input field with the custom URL
+                if (institutionLinkInput) {
+                    institutionLinkInput.value = customUrl;
                 }
-            } else {
-                alert('Web Share API is not supported in this browser.');
-            }
-        });
-    </script>
+
+                // Update the share links
+                const shareText = 'Welcome, please support the available projects...';
+                if (whatsappShare) {
+                    whatsappShare.href = `https://wa.me/?text=${encodeURIComponent(shareText)}%20${encodeURIComponent(customUrl)}`;
+                }
+                if (twitterShare) {
+                    twitterShare.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(customUrl)}`;
+                }
+            });
+        }
+
+        // Event listener for the Copy Link button
+        const copyLinkButton = document.getElementById('copyLinkButton');
+        if (copyLinkButton) {
+            copyLinkButton.addEventListener('click', copyToClipboard);
+        }
+    });
+</script>
 
 </body>
 </html>

@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 
-<!---------------------- Modal for Adding or Updating Bank Details -------------------->
+<!---------------------- Modal for Updating Profile Details -------------------->
     <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog ">
             <div class="modal-content">
@@ -13,46 +13,46 @@
 
                 <form method="post" action="">
                     {% csrf_token %}
-                    <div class="modal-body">
-                        <div class="row p-2">
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="acHolderFirstName" placeholder="Enter Firstname" value="{{admin.default_bank.account_holder_first_name}}" name="account_holder_first_name">
-                                <label for="acHolderFirstName">A/c holder's Firstname</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="acHolderLastName" placeholder="Enter Lastname" value="{{admin.default_bank.account_holder_last_name}}" name="account_holder_last_name">
-                                <label for="acHolderLastName">A/c holder's Lastname</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="number" class="form-control" id="acHolderPhn" placeholder="Enter Phone number" value="{{admin.default_bank.account_holder_phn_no}}" name="account_holder_phn_no">
-                                <label for="acHolderPhn">A/c holder's Phone number</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <textarea class="form-control" placeholder="Enter Address" id="acHolderAddress"  name="account_holder_address">{{admin.default_bank.account_holder_address}}</textarea>
-                                <label for="acHolderAddress">Enter Address</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="bankName" placeholder="Enter Bank Name" value="{{admin.default_bank.bank_name}}" name="bank_name">
-                                <label for="bankName">Bank name</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="branchName" placeholder="Enter Branch Name" value="{{admin.default_bank.branch_name}}" name="branch_name">
-                                <label for="branchName">Branch name</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="ifscCode" placeholder="Enter IFSC code" value="{{admin.default_bank.ifsc_code}}" name="ifsc_code">
-                                <label for="ifscCode">IFSC code</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="number" class="form-control" id="acNumber" placeholder="Enter A/c number" value="{{admin.default_bank.account_no}}" name="account_no">
-                                <label for="acNumber">A/c number</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="upiId" placeholder="Enter UPI id" value="{{admin.default_bank.upi_id}}" name="upi_id">
-                                <label for="upiId">UPI id</label>
-                            </div>
-                        </div>
-                    </div>
+<!--                    <div class="modal-body">-->
+<!--                        <div class="row p-2">-->
+<!--                            <div class="col-lg-6 form-floating mb-1 p-1">-->
+<!--                                <input type="text" class="form-control" id="acHolderFirstName" placeholder="Enter Firstname" value="{{admin.default_bank.account_holder_first_name}}" name="account_holder_first_name">-->
+<!--                                <label for="acHolderFirstName">A/c holder's Firstname</label>-->
+<!--                            </div>-->
+<!--                            <div class="col-lg-6 form-floating mb-1 p-1">-->
+<!--                                <input type="text" class="form-control" id="acHolderLastName" placeholder="Enter Lastname" value="{{admin.default_bank.account_holder_last_name}}" name="account_holder_last_name">-->
+<!--                                <label for="acHolderLastName">A/c holder's Lastname</label>-->
+<!--                            </div>-->
+<!--                            <div class="col-lg-12 form-floating mb-1 p-1">-->
+<!--                                <input type="number" class="form-control" id="acHolderPhn" placeholder="Enter Phone number" value="{{admin.default_bank.account_holder_phn_no}}" name="account_holder_phn_no">-->
+<!--                                <label for="acHolderPhn">A/c holder's Phone number</label>-->
+<!--                            </div>-->
+<!--                            <div class="col-lg-12 form-floating mb-1 p-1">-->
+<!--                                <textarea class="form-control" placeholder="Enter Address" id="acHolderAddress"  name="account_holder_address">{{admin.default_bank.account_holder_address}}</textarea>-->
+<!--                                <label for="acHolderAddress">Enter Address</label>-->
+<!--                            </div>-->
+<!--                            <div class="col-lg-6 form-floating mb-1 p-1">-->
+<!--                                <input type="text" class="form-control" id="bankName" placeholder="Enter Bank Name" value="{{admin.default_bank.bank_name}}" name="bank_name">-->
+<!--                                <label for="bankName">Bank name</label>-->
+<!--                            </div>-->
+<!--                            <div class="col-lg-6 form-floating mb-1 p-1">-->
+<!--                                <input type="text" class="form-control" id="branchName" placeholder="Enter Branch Name" value="{{admin.default_bank.branch_name}}" name="branch_name">-->
+<!--                                <label for="branchName">Branch name</label>-->
+<!--                            </div>-->
+<!--                            <div class="col-lg-6 form-floating mb-1 p-1">-->
+<!--                                <input type="text" class="form-control" id="ifscCode" placeholder="Enter IFSC code" value="{{admin.default_bank.ifsc_code}}" name="ifsc_code">-->
+<!--                                <label for="ifscCode">IFSC code</label>-->
+<!--                            </div>-->
+<!--                            <div class="col-lg-6 form-floating mb-1 p-1">-->
+<!--                                <input type="number" class="form-control" id="acNumber" placeholder="Enter A/c number" value="{{admin.default_bank.account_no}}" name="account_no">-->
+<!--                                <label for="acNumber">A/c number</label>-->
+<!--                            </div>-->
+<!--                            <div class="col-lg-12 form-floating mb-1 p-1">-->
+<!--                                <input type="text" class="form-control" id="upiId" placeholder="Enter UPI id" value="{{admin.default_bank.upi_id}}" name="upi_id">-->
+<!--                                <label for="upiId">UPI id</label>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
                     <div class="modal-footer d-flex justify-content-between">
                         <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
                         <button type="submit" class="btn btn-success">Save changes</button>
@@ -71,10 +71,24 @@
                     <h1 class="mb-3">{{admin.first_name}} {{admin.last_name}}</h1>
                 </div>
                 <div class="card-body table-responsive">
-                    <h3 class=" text-center mb-3"><strong>User Details</strong></h3>
+                    <h3 class=" text-center mb-3"><strong>{% if admin.is_superuser %} Superuser {% else %} User {% endif %}Details</strong></h3>
                     <div class="row mb-3">
                         <div class="col-4 d-flex justify-content-center align-items-center">
-                            <img height="200px" src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}" alt="">
+                            <form id="uploadAdminImgForm" method="post" action="/administrator/admin_profile_img/" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="file" id="adminImgUpload" name="admin_img" style="display: none;">
+                                <label for="adminImgUpload">
+                                    <img
+                                        {% if admin.profile_pic %}
+                                            src="{{ admin.profile_pic.url }}"
+                                        {% else %}
+                                            src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
+                                        {% endif %}
+                                        alt="Click to upload an image"
+                                        style="cursor: pointer; width: 200px; height: 200px;"
+                                        class="border rounded-circle">
+                                </label>
+                            </form>
                         </div>
                         <div class="col-8 mb-3">
                             <table class="table text-start">
@@ -97,10 +111,26 @@
                             </table>
                         </div>
                     </div>
+
+                    {% if admin.institution %}
                     <div class="row mb-1">
                         <h3 class=" text-center mb-3"><strong>Institution Details</strong></h3>
                         <div class="col-4 d-flex justify-content-center align-items-center">
-                            <img height="200px" src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}" alt="">
+                            <form id="uploadInstitutionImgForm" method="post" action="/administrator/admin_inst_img/" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="file" id="instImgUpload" name="inst_img" style="display: none;">
+                                <label for="instImgUpload">
+                                    <img
+                                        {% if admin.institution.institution_img %}
+                                            src="{{ admin.institution.institution_img.url }}"
+                                        {% else %}
+                                            src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
+                                        {% endif %}
+                                        alt="Click to upload an image"
+                                        style="cursor: pointer; width: 200px; height: 200px;"
+                                        class="border rounded-circle">
+                                </label>
+                            </form>
                         </div>
                         <div class="col-8 mb-3">
                             <table class="table text-start mb-4">
@@ -123,6 +153,8 @@
                             </table>
                         </div>
                     </div>
+                    {% endif %}
+
                     <div class="my-3 text-center">
                         <button type="button" class=" btn btn-primary" data-bs-toggle="modal" data-bs-target="#profileModal">
                             <i class="align-middle" data-feather="edit"></i>
@@ -133,5 +165,45 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: '{{ message.tags|title }}!',
+                    text: '{{ message }}',
+                    icon: '{{ message.tags }}',
+                    confirmButtonText: 'OK'
+                });
+            {% endfor %}
+        {% endif %}
+    </script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Function to submit the form when a file is selected
+        const autoSubmitForm = (event) => {
+            const fileInput = event.target;
+            if (fileInput.files && fileInput.files.length > 0) {
+                fileInput.form.submit();
+            }
+        };
+
+        // Add the event listener to both file inputs
+        const adminImgUpload = document.getElementById('adminImgUpload');
+        const instImgUpload = document.getElementById('instImgUpload');
+
+        if (adminImgUpload) {
+            adminImgUpload.addEventListener('change', autoSubmitForm);
+        }
+
+        if (instImgUpload) {
+            instImgUpload.addEventListener('change', autoSubmitForm);
+        }
+    });
+</script>
 
 {% endblock %}

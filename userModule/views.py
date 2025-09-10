@@ -1,24 +1,19 @@
-from userModule.models import PersonalDetails, SelectedTile, Transaction
+from adminModule.utils import whatsapp_send_initiated, email_send_initiated, whatsapp_send_proof, email_send_proof
+from userModule.models import PersonalDetails, SelectedTile, Transaction, Screenshot
 from django.shortcuts import render, redirect, get_object_or_404
 from adminModule.models import Project, Institution
-from django.core.mail import send_mail
 from django.contrib import messages
 from django.utils import timezone
-from django.conf import settings
 from django.urls import reverse
 import urllib.parse
-import requests
 import uuid
+
 
 # Create your views here.
 def userIndex(request, ins_id):
     ins = Institution.objects.get(id=ins_id)
-    projects = Project.objects.filter(
-        created_by__institution=ins,
-        created_by__is_staff=True,
-        closing_date__gte=timezone.now(),
-        table_status=True
-    ).order_by('-created_at')[:3]
+    projects = Project.objects.filter(created_by__institution=ins, created_by__is_staff=True,closing_date__gte=timezone.now(),
+        table_status=True).order_by('-created_at')[:3]
     return render(request, 'index.html',{'ins':ins, 'prj':projects})
       
       
@@ -99,14 +94,15 @@ def userSingleProject(request, prj_id, ins_id):
 
 
 def userCheckoutView(request,ins_id):
-    ins = Institution.objects.get(id=ins_id)
+    ins = get_object_or_404(Institution, id=ins_id)
+
     if request.method == "GET":
         project_id = request.GET.get("project_id")
         selected_tiles = request.GET.get("selected_tiles")
-
-        project = Project.objects.get(id=project_id)
+        project = get_object_or_404(Project, id=project_id)
         selected_tile_count = len(selected_tiles.split('-'))
-    elif  request.method == "POST":
+
+    elif request.method == "POST":
         project_id = request.POST.get("project_id")
         selected_tiles_str = request.POST.get("selected_tiles")
         fname = request.POST.get("fname")
@@ -120,7 +116,6 @@ def userCheckoutView(request,ins_id):
         total_amount = len(selected_tiles_str.split('-')) * project.tile_value
 
         try:
-            # Create database records inside the try block
             sender = PersonalDetails.objects.create(email=email, first_name=fname, last_name=lname, phone=phn,
                                                     address=addr, )
             selected_tile_instance = SelectedTile.objects.create(project=project, sender=sender,
@@ -130,42 +125,50 @@ def userCheckoutView(request,ins_id):
                                                      currency="INR", status="Unverified", tracking_id=str(uuid.uuid4()),
                                                      message=message_text)
 
-            # Sending EMAIL for payment initiated
-            base_url = f"{request.scheme}://{request.get_host()}"
-            proof_upload_url = f"{base_url}/user/{ins_id}/proof-upload/{transaction.id}/"
-            print(proof_upload_url)
-            subject = f'Payment Initiated for "{project.title}"'
-            plain_text_message = (
-                f'Dear {fname} {lname},\n'
-                f'Your payment for the project "{project.title}" has been initiated. You can track the status using your mobile number.\n'
-                f'Please upload proof of payment at : {proof_upload_url}\n'
-                f'- Team {project.created_by.institution.institution_name}'
-            )
-            sender_email = project.created_by.institution.email
-            receiver_email = email
-            send_mail(subject=subject, message=plain_text_message, from_email=sender_email,
-                      recipient_list=[receiver_email],
-                      fail_silently=False, )
+            base_url = f'{request.scheme}://{request.get_host()}'
+            proof_upload_url = f'{base_url}/user/{ins_id}/proof-upload/{transaction.id}/'
 
-            # Sending WHATSAPP message for payment initiated
-            params_string = f"{fname} {lname},{project.title},{proof_upload_url}"
-            api_params = {
-                'user': settings.BHASHSMS_API_USER, 'pass': settings.BHASHSMS_API_PASS,
-                'sender': settings.BHASHSMS_API_SENDER,
-                'phone': phn, 'text': 'cf_payment_initiated', 'priority': settings.BHASHSMS_API_PRIORITY,
-                'stype': settings.BHASHSMS_API_STYPE,
-                'Params': params_string,
-            }
-            response = requests.get(settings.BHASHSMS_API, params=api_params)
-            print(f'WhatsApp API Response Status: {response.status_code}')
-            print(f'WhatsApp API Response Content: {response.text}')
+            whatsapp_send_initiated(transaction,proof_upload_url)
+            email_send_initiated(transaction,proof_upload_url)
 
             messages.success(request, f'Payment for the tiles {selected_tiles_str} has been initiated.')
         except Exception as e:
             print(f"An error occurred: {e}")
+            messages.error(request, f"Failed to perform checkout: {e}")
 
         return redirect(f'/user/{ins_id}/single-project/{project_id}/')
     return render(request, 'user-checkout.html', {'ins':ins,'project': project, 'selected_tiles': selected_tiles, 'count':selected_tile_count})
+
+
+def userProofUpload(request, ins_id, trans_id):
+    ins = get_object_or_404(Institution, id=ins_id)
+    tra = get_object_or_404(Transaction, id=trans_id)
+    tiles_string = tra.tiles_bought.tiles
+    if tiles_string:
+        count = len(tiles_string.split('-'))
+    else:
+        count = 0
+
+    if request.method == 'POST':
+        proof = request.FILES.get('proof_of_payment')
+        if proof:
+            try:
+                new_screenshot = Screenshot(transaction=tra,screen_shot=proof)
+                new_screenshot.save()
+
+                whatsapp_send_proof(tra)
+                email_send_proof(tra)
+
+                messages.success(request, "Proof of payment uploaded successfully!")
+                return redirect(f'/user/{ins_id}/single-project/{tra.project.id}/')
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                messages.error(request, f"An error occurred during proof upload: {e}")
+        else:
+            messages.error(request, "Please select a file to upload.")
+
+    return render(request, "user-proof-upload.html", {'ins': ins,
+        'tra': tra,'count': count,})
 
 
 def userTrackStatus(request, ins_id):
@@ -180,16 +183,3 @@ def userTrackStatus(request, ins_id):
             else:
                 t.num_tiles = 0
     return render(request, "user-track-status.html", {'ins': ins, 'tra':transactions})
-
-
-def userProofUpload(request, ins_id, trans_id):
-    ins = get_object_or_404(Institution, id=ins_id)
-    tra = get_object_or_404(Transaction, id=trans_id)
-    tiles_string = tra.tiles_bought.tiles
-    if tiles_string:
-        count = len(tiles_string.split('-'))
-    else:
-        count = 0
-
-    return render(request, "user-proof-upload.html", {'ins': ins,
-        'tra': tra,'count': count,})
