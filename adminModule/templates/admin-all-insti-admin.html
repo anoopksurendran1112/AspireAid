@@ -3,132 +3,148 @@
 
 <!---------------------- Modal for Adding new Admin -------------------->
     <div class="modal fade" id="newAdminModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog ">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Add a new Admin</strong></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Add a new Admin</strong></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <div class="row p-2">
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="first_name" placeholder="First name" name="first_name" required>
-                                <label for="first_name">First name</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="last_name" placeholder="Last name" name="last_name" required>
-                                <label for="last_name">Last name</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="email" class="form-control" id="email" placeholder="Enter Email" name="email" required>
-                                <label for="username">Email</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <select class="form-control" aria-label="Default select example" id="inst_name" name="inst_name" required>
-                                    <option selected disabled>Select the Affiliated Institution</option>
-                                    {% for i in inst %}
-                                    <option value="{{i.id}}">{{i.institution_name}}</option>
-                                    {% endfor %}
-                                </select>
-                                <label for="inst_name">Institution name</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="tel" class="form-control" id="phn_no" placeholder="Enter Contact number" name="phn_no" required>
-                                <label for="phn_no">Contact number</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="username" placeholder="Enter Username" name="username" required>
-                                <label for="username">Username</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="password" class="form-control" id="password" placeholder="Enter Password" name="password" required>
-                                <label for="password">Password</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="password" class="form-control" id="confirm_password" placeholder="Confirm Password" name="confirm_password" required>
-                                <label for="confirm_password">Confirm Password</label>
-                            </div>
+            <form method="post" id="add-admin-form">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row p-2">
+                        <div class="col-lg-6 form-floating mb-1 p-1">
+                            <input type="text" class="form-control" id="first_name" placeholder="First name" name="first_name" required>
+                            <label for="first_name">First name</label>
+                            <span class="text-danger small-text" id="first_name-error"></span>
+                        </div>
+                        <div class="col-lg-6 form-floating mb-1 p-1">
+                            <input type="text" class="form-control" id="last_name" placeholder="Last name" name="last_name" required>
+                            <label for="last_name">Last name</label>
+                            <span class="text-danger small-text" id="last_name-error"></span>
+                        </div>
+                        <div class="col-lg-12 form-floating mb-1 p-1">
+                            <input type="email" class="form-control" id="email" placeholder="Enter Email" name="email" required>
+                            <label for="email">Email</label>
+                            <span class="text-danger small-text" id="email-error"></span>
+                        </div>
+                        <div class="col-lg-12 form-floating mb-1 p-1">
+                            <select class="form-control" aria-label="Default select example" id="inst_name" name="inst_name" required>
+                                <option selected disabled value="">Select the Affiliated Institution</option>
+                                {% for i in inst %}
+                                <option value="{{i.id}}">{{i.institution_name}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="inst_name">Institution name</label>
+                            <span class="text-danger small-text" id="inst_name-error"></span>
+                        </div>
+                        <div class="col-lg-12 form-floating mb-1 p-1">
+                            <input type="tel" class="form-control" id="phn_no" placeholder="Enter Contact number" name="phn_no" required>
+                            <label for="phn_no">Contact number</label>
+                            <span class="text-danger small-text" id="phn_no-error"></span>
+                        </div>
+                        <div class="col-lg-12 form-floating mb-1 p-1">
+                            <input type="text" class="form-control" id="username" placeholder="Enter Username" name="username" required>
+                            <label for="username">Username</label>
+                            <span class="text-danger small-text" id="username-error"></span>
+                        </div>
+                        <div class="col-lg-6 form-floating mb-1 p-1">
+                            <input type="password" class="form-control" id="password" placeholder="Enter Password" name="password" required>
+                            <label for="password">Password</label>
+                            <span class="text-danger small-text" id="password-error"></span>
+                        </div>
+                        <div class="col-lg-6 form-floating mb-1 p-1">
+                            <input type="password" class="form-control" id="confirm_password" placeholder="Confirm Password" name="confirm_password" required>
+                            <label for="confirm_password">Confirm Password</label>
+                            <span class="text-danger small-text" id="confirm_password-error"></span>
                         </div>
                     </div>
-                    <div class="modal-footer d-flex justify-content-between">
-                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-success" id="saveButton" disabled>Save</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success" id="saveButton" >Save</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
 <!---------------------- Modal for Updating Admin -------------------->
-    <div class="modal fade" id="updateAdminModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog ">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Add a new Admin</strong></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+<div class="modal fade" id="updateAdminModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="updateModalLabel"><strong>Update the Admin</strong></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
-                <form method="post" action="">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <div class="row p-2">
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="first_name" placeholder="First name" name="first_name" required>
-                                <label for="first_name">First name</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="last_name" placeholder="Last name" name="last_name" required>
-                                <label for="last_name">Last name</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="email" class="form-control" id="email" placeholder="Enter Email" name="email" required>
-                                <label for="username">Email</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <select class="form-control" aria-label="Default select example" id="inst_name" name="inst_name" required>
-                                    <option selected disabled>Select the Affiliated Institution</option>
-                                    {% for i in inst %}
-                                    <option value="{{i.id}}">{{i.institution_name}}</option>
-                                    {% endfor %}
-                                </select>
-                                <label for="inst_name">Institution name</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="tel" class="form-control" id="phn_no" placeholder="Enter Contact number" name="phn_no" required>
-                                <label for="phn_no">Contact number</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="username" placeholder="Enter Username" name="username" required>
-                                <label for="username">Username</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="password" class="form-control" id="password" placeholder="Enter Password" name="password" required>
-                                <label for="password">Old Password</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="password" class="form-control" id="confirm_password" placeholder="Confirm Password" name="confirm_password" required>
-                                <label for="confirm_password">New Password</label>
-                            </div>
+            <form method="post" action="" id="update-admin-form">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row p-2">
+                        <div class="col-lg-6 form-floating mb-1 p-1">
+                            <input type="text" class="form-control" id="first_name_update" placeholder="First name" name="first_name" required>
+                            <label for="first_name_update">First name</label>
+                            <span class="text-danger small-text" id="first_name_update-error"></span>
+                        </div>
+                        <div class="col-lg-6 form-floating mb-1 p-1">
+                            <input type="text" class="form-control" id="last_name_update" placeholder="Last name" name="last_name" required>
+                            <label for="last_name_update">Last name</label>
+                            <span class="text-danger small-text" id="last_name_update-error"></span>
+                        </div>
+                        <div class="col-lg-12 form-floating mb-1 p-1">
+                            <input type="email" class="form-control" id="email_update" placeholder="Enter Email" name="email" required>
+                            <label for="email_update">Email</label>
+                            <span class="text-danger small-text" id="email_update-error"></span>
+                        </div>
+                        <div class="col-lg-12 form-floating mb-1 p-1">
+                            <select class="form-control" aria-label="Default select example" id="inst_name_update" name="inst_name" required>
+                                <option selected disabled>Select the Affiliated Institution</option>
+                                {% for i in inst %}
+                                <option value="{{i.id}}">{{i.institution_name}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="inst_name_update">Institution name</label>
+                            <span class="text-danger small-text" id="inst_name_update-error"></span>
+                        </div>
+                        <div class="col-lg-12 form-floating mb-1 p-1">
+                            <input type="tel" class="form-control" id="phn_no_update" placeholder="Enter Contact number" name="phn_no" required>
+                            <label for="phn_no_update">Contact number</label>
+                            <span class="text-danger small-text" id="phn_no_update-error"></span>
+                        </div>
+                        <div class="col-lg-12 form-floating mb-1 p-1">
+                            <input type="text" class="form-control" id="username_update" placeholder="Enter Username" name="username" required>
+                            <label for="username_update">Username</label>
+                            <span class="text-danger small-text" id="username_update-error"></span>
+                        </div>
+                        <div class="col-lg-6 form-floating mb-1 p-1">
+                            <input type="password" class="form-control" id="password_update" placeholder="Enter Password" name="password">
+                            <label for="password_update">Old Password</label>
+                            <span class="text-danger small-text" id="password_update-error"></span>
+                        </div>
+                        <div class="col-lg-6 form-floating mb-1 p-1">
+                            <input type="password" class="form-control" id="confirm_password_update" placeholder="Confirm Password" name="confirm_password">
+                            <label for="confirm_password_update">New Password</label>
+                            <span class="text-danger small-text" id="confirm_password_update-error"></span>
                         </div>
                     </div>
-                    <div class="modal-footer d-flex justify-content-between">
-                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-warning" id="edit-button" >Edit</button>
-                    <button type="submit" class="btn btn-primary" id="update-button" hidden>Update</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning" id="edit-button">Edit</button>
+                <button type="submit" class="btn btn-primary" id="update-button" hidden>Update</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
 <!---------------------- All Admin Table Details -------------------->
     <div class="row">
         <div class="col-12 ">
             <h1 class="mb-4"><strong>All Administrators</strong></h1>
-            <div class="card h-100 data-card">
+            <div class="card data-card pb-5">
                 <div class="card-header text-end">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newAdminModal">
                         Register a new Admin +
@@ -138,6 +154,7 @@
                     <table class="table table-hover my-0">
                         <thead class="table-dark">
                         <tr>
+                            <th>Sl no.</th>
                             <th>Full name</th>
                             <th>Username</th>
                             <th>Email Address</th>
@@ -149,6 +166,7 @@
                         <tbody>
                         {% for i in administrators %}
                         <tr  {% if i.is_superuser == True %}class="table-active"{% endif %} >
+                            <td>{{forloop.counter}}</td>
                             <td>{{i.first_name}} {{i.last_name}}</td>
                             <td>{{i.username}}</td>
                             <td>{{i.email}}</td>
@@ -193,82 +211,238 @@
         {% endif %}
     </script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const passwordInput = document.getElementById('password');
-            const confirmPasswordInput = document.getElementById('confirm_password');
-            const saveButton = document.getElementById('saveButton');
-
-            function checkPasswords() {
-                const password = passwordInput.value;
-                const confirmPassword = confirmPasswordInput.value;
-
-                // Enable button only if both fields are not empty and they match
-                if (password && confirmPassword && password === confirmPassword) {
-                    saveButton.disabled = false;
-                } else {
-                    saveButton.disabled = true;
-                }
-            }
-
-            passwordInput.addEventListener('input', checkPasswords);
-            confirmPasswordInput.addEventListener('input', checkPasswords);
-        });
-    </script>
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const modal = document.getElementById('updateAdminModal');
-        const form = modal.querySelector('form');
-        const formInputs = modal.querySelectorAll('input, select');
-        const editButton = document.getElementById('edit-button');
-        const updateButton = document.getElementById('update-button');
+        // --- Shared Validation Functions and Regex Patterns ---
+        const nameRegex = /^[a-zA-Z\s]+$/;
+        const phoneRegex = /^\d{10}$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-        // This listener populates the modal when the "eye" icon is clicked
-        modal.addEventListener('show.bs.modal', event => {
-            const button = event.relatedTarget;
+        function updateValidationStatus(inputElement, isValid, errorMessage = "") {
+            const errorSpan = document.getElementById(`${inputElement.id}-error`);
+            if (isValid) {
+                inputElement.classList.remove('is-invalid');
+                inputElement.classList.add('is-valid');
+                if (errorSpan) errorSpan.textContent = "";
+            } else {
+                inputElement.classList.remove('is-valid');
+                inputElement.classList.add('is-invalid');
+                if (errorSpan) errorSpan.textContent = errorMessage;
+            }
+        }
 
-            // Extract the admin data from the data-* attributes
-            const firstName = button.getAttribute('data-first-name');
-            const lastName = button.getAttribute('data-last-name');
-            const email = button.getAttribute('data-email');
-            const instId = button.getAttribute('data-inst-id');
-            const phnNo = button.getAttribute('data-phn-no');
-            const username = button.getAttribute('data-username');
-
-            // Populate the form fields with the data
-            modal.querySelector('#first_name').value = firstName;
-            modal.querySelector('#last_name').value = lastName;
-            modal.querySelector('#email').value = email;
-            modal.querySelector('#phn_no').value = phnNo;
-            modal.querySelector('#username').value = username;
-
-            // Select the correct option in the dropdown
-            modal.querySelector('#inst_name').value = instId;
-
-            // The password fields should always be empty for security
-            modal.querySelector('#password').value = '';
-            modal.querySelector('#confirm_password').value = '';
-
-            // Initial state: inputs are disabled, and only the 'Edit' button is visible
-            formInputs.forEach(input => {
-                input.disabled = true;
+        // --- Validation Logic for the "Add Admin" Form ---
+        const addAdminForm = document.getElementById('add-admin-form');
+        if (addAdminForm) {
+            addAdminForm.addEventListener('submit', function (event) {
+                if (!validateAddAdminForm()) {
+                    event.preventDefault();
+                }
             });
-            editButton.hidden = false;
-            updateButton.hidden = true;
-        });
 
-        // This listener handles the click on the 'Edit' button
-        editButton.addEventListener('click', () => {
-            // Hide the 'Edit' button and show the 'Update' button
-            editButton.hidden = true;
-            updateButton.hidden = false;
+            function validateAddAdminForm() {
+                let formIsValid = true;
 
-            // Enable all form fields so they can be edited
-            formInputs.forEach(input => {
-                input.disabled = false;
+                // Validate all fields
+                const firstNameInput = document.getElementById('first_name');
+                const lastNameInput = document.getElementById('last_name');
+                const emailInput = document.getElementById('email');
+                const phoneInput = document.getElementById('phn_no');
+                const instSelect = document.getElementById('inst_name');
+                const usernameInput = document.getElementById('username');
+                const passwordInput = document.getElementById('password');
+                const confirmPasswordInput = document.getElementById('confirm_password');
+
+                if (!nameRegex.test(firstNameInput.value)) {
+                    updateValidationStatus(firstNameInput, false, "Must contain only letters and spaces.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(firstNameInput, true);
+                }
+
+                if (!nameRegex.test(lastNameInput.value)) {
+                    updateValidationStatus(lastNameInput, false, "Must contain only letters and spaces.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(lastNameInput, true);
+                }
+
+                if (!emailInput.value || !/^\S+@\S+\.\S+$/.test(emailInput.value)) {
+                    updateValidationStatus(emailInput, false, "Please enter a valid email address.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(emailInput, true);
+                }
+
+                if (!phoneRegex.test(phoneInput.value)) {
+                    updateValidationStatus(phoneInput, false, "Please enter a valid 10-digit phone number.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(phoneInput, true);
+                }
+
+                if (!instSelect.value) {
+                    updateValidationStatus(instSelect, false, "Please select an institution.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(instSelect, true);
+                }
+
+                if (usernameInput.value.trim() === "") {
+                    updateValidationStatus(usernameInput, false, "Username cannot be empty.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(usernameInput, true);
+                }
+
+                if (!passwordRegex.test(passwordInput.value)) {
+                    updateValidationStatus(passwordInput, false, "Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 symbol.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(passwordInput, true);
+                }
+
+                if (confirmPasswordInput.value !== passwordInput.value) {
+                    updateValidationStatus(confirmPasswordInput, false, "Passwords do not match.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(confirmPasswordInput, true);
+                }
+
+                return formIsValid;
+            }
+        }
+
+        // --- Validation and Logic for the "Update Admin" Form ---
+        const updateAdminModal = document.getElementById('updateAdminModal');
+        if (updateAdminModal) {
+            const updateAdminForm = document.getElementById('update-admin-form');
+            const formInputs = updateAdminModal.querySelectorAll('input, select');
+            const editButton = document.getElementById('edit-button');
+            const updateButton = document.getElementById('update-button');
+
+            function validateUpdateAdminForm() {
+                let formIsValid = true;
+
+                // Validate all required fields
+                const firstNameInput = document.getElementById('first_name_update');
+                const lastNameInput = document.getElementById('last_name_update');
+                const emailInput = document.getElementById('email_update');
+                const phoneInput = document.getElementById('phn_no_update');
+                const instSelect = document.getElementById('inst_name_update');
+                const usernameInput = document.getElementById('username_update');
+
+                if (!nameRegex.test(firstNameInput.value)) {
+                    updateValidationStatus(firstNameInput, false, "Must contain only letters and spaces.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(firstNameInput, true);
+                }
+
+                if (!nameRegex.test(lastNameInput.value)) {
+                    updateValidationStatus(lastNameInput, false, "Must contain only letters and spaces.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(lastNameInput, true);
+                }
+
+                if (!emailInput.value || !/^\S+@\S+\.\S+$/.test(emailInput.value)) {
+                    updateValidationStatus(emailInput, false, "Please enter a valid email address.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(emailInput, true);
+                }
+
+                if (!phoneRegex.test(phoneInput.value)) {
+                    updateValidationStatus(phoneInput, false, "Please enter a valid 10-digit phone number.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(phoneInput, true);
+                }
+
+                if (!instSelect.value) {
+                    updateValidationStatus(instSelect, false, "Please select an institution.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(instSelect, true);
+                }
+
+                if (usernameInput.value.trim() === "") {
+                    updateValidationStatus(usernameInput, false, "Username cannot be empty.");
+                    formIsValid = false;
+                } else {
+                    updateValidationStatus(usernameInput, true);
+                }
+
+                // Conditional validation for password fields
+                const oldPasswordInput = document.getElementById('password_update');
+                const newPasswordInput = document.getElementById('confirm_password_update');
+
+                // Clear any previous password validation messages first
+                updateValidationStatus(oldPasswordInput, true);
+                updateValidationStatus(newPasswordInput, true);
+
+                if (newPasswordInput.value.trim() !== '') {
+                    if (oldPasswordInput.value.trim() === '') {
+                        updateValidationStatus(oldPasswordInput, false, "Old password is required to change password.");
+                        formIsValid = false;
+                    }
+                    if (!passwordRegex.test(newPasswordInput.value)) {
+                        updateValidationStatus(newPasswordInput, false, "Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 symbol.");
+                        formIsValid = false;
+                    }
+                }
+
+                return formIsValid;
+            }
+
+            updateAdminModal.addEventListener('show.bs.modal', event => {
+                const button = event.relatedTarget;
+                const firstName = button.getAttribute('data-first-name');
+                const lastName = button.getAttribute('data-last-name');
+                const email = button.getAttribute('data-email');
+                const instId = button.getAttribute('data-inst-id');
+                const phnNo = button.getAttribute('data-phn-no');
+                const username = button.getAttribute('data-username');
+                const updateAdminId = button.getAttribute('data-admin-id');
+
+                updateAdminForm.action = `/administrator/update-admin/${updateAdminId}/`;
+                document.getElementById('first_name_update').value = firstName;
+                document.getElementById('last_name_update').value = lastName;
+                document.getElementById('email_update').value = email;
+                document.getElementById('phn_no_update').value = phnNo;
+                document.getElementById('username_update').value = username;
+                document.getElementById('inst_name_update').value = instId;
+                document.getElementById('password_update').value = '';
+                document.getElementById('confirm_password_update').value = '';
+
+                formInputs.forEach(input => {
+                    input.classList.remove('is-valid', 'is-invalid');
+                    const errorSpan = document.getElementById(`${input.id}-error`);
+                    if (errorSpan) errorSpan.textContent = '';
+                });
+
+                formInputs.forEach(input => {
+                    input.disabled = true;
+                });
+                editButton.hidden = false;
+                updateButton.hidden = true;
             });
-        });
+
+            editButton.addEventListener('click', () => {
+                editButton.hidden = true;
+                updateButton.hidden = false;
+                formInputs.forEach(input => {
+                    input.disabled = false;
+                });
+            });
+
+            updateAdminForm.addEventListener('submit', function (event) {
+                if (!validateUpdateAdminForm()) {
+                    event.preventDefault();
+                }
+            });
+        }
     });
 </script>
 

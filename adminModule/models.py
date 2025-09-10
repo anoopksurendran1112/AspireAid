@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models import CharField
 
 
 # Create your models here.
@@ -9,6 +10,7 @@ class Institution(models.Model):
     address = models.TextField()
     phn = models.CharField(max_length=20)
     email = models.EmailField(unique=True)
+    email_app_password = CharField(max_length=255, blank=True, null=True)
     institution_img = models.ImageField(upload_to='institution_img/', blank=True, null=True)
     table_status = models.BooleanField(default=True)
 

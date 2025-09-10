@@ -20,7 +20,11 @@
                         <div class="content">
                             <a href="#" target="_blank">
                               <div class="content-overlay"></div>
-                                 <img class="content-image img-fluid d-block mx-auto" src="{% static 'frontend/img/p1.jpg' %}" alt="">
+                                {% if p.images.first %}
+                                    <img class="content-image img-fluid d-block mx-auto" src="{{ p.images.first.project_img.url }}" alt="{{ p.title }} project image">
+                                 {% else %}
+                                    <img class="content-image img-fluid d-block mx-auto" src="{% static 'path/to/default/image.jpg' %}" alt="Default image">
+                                 {% endif %}
                                 <div class="content-details fadeIn-bottom">
                                     <a href="/user/{{ins.id}}/single-project/{{p.id}}/" class="head-btn btn text-uppercase">Donate Now</a>
                                 </div>
