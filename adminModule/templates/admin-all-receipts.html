@@ -38,7 +38,7 @@
                             </td>
                             <td>
                                 {% if not admin.is_superuser %}
-                                <a href="" class="btn btn-primary btn-sm">
+                                <a href="/administrator/send-receipt/{{r.id}}/" class="btn btn-primary btn-sm">
                                     Send
                                 </a>
                                 {% endif %}
@@ -51,5 +51,20 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: '{{ message.tags|title }}!',
+                    text: '{{ message }}',
+                    icon: '{{ message.tags }}',
+                    confirmButtonText: 'OK'
+                });
+            {% endfor %}
+        {% endif %}
+    </script>
 
 {% endblock %}

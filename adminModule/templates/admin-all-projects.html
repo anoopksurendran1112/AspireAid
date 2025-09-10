@@ -10,7 +10,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <form method="post" id="create-project-form">
+                <form method="post" id="create-project-form" action="{% url 'admin_add_project' %}">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="row">
@@ -273,10 +273,17 @@
                 updateValidationStatus(fundingGoalInput, false, "Must be a positive number.");
                 formIsValid = false;
             }
+
+            if (!isNaN(fundingGoal) && fundingGoal > 10000000) {
+                updateValidationStatus(fundingGoalInput, false, "Funding goal cannot exceed 1 Crore (10,000,000).");
+                formIsValid = false;
+            }
+
             if (tileValueInput.value.trim() !== '' && (isNaN(tileValue) || tileValue <= 0)) {
                 updateValidationStatus(tileValueInput, false, "Must be a positive number.");
                 formIsValid = false;
             }
+
             if (!isNaN(fundingGoal) && !isNaN(tileValue) && fundingGoal <= tileValue) {
                 updateValidationStatus(fundingGoalInput, false, "Goal must be greater than tile value.");
                 updateValidationStatus(tileValueInput, false, "Goal must be greater than tile value.");

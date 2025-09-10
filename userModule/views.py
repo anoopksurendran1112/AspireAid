@@ -1,4 +1,5 @@
-from adminModule.utils import whatsapp_send_initiated, email_send_initiated, whatsapp_send_proof, email_send_proof
+from adminModule.utils import whatsapp_send_initiated, email_send_initiated, whatsapp_send_proof, email_send_proof, \
+    sms_send_initiated, sms_send_proof, get_unique_tracking_id
 from userModule.models import PersonalDetails, SelectedTile, Transaction, Screenshot
 from django.shortcuts import render, redirect, get_object_or_404
 from adminModule.models import Project, Institution
@@ -122,12 +123,13 @@ def userCheckoutView(request,ins_id):
                                                                  tiles=selected_tiles_str)
             transaction = Transaction.objects.create(tiles_bought=selected_tile_instance, sender=sender,
                                                      project=project, amount=total_amount,
-                                                     currency="INR", status="Unverified", tracking_id=str(uuid.uuid4()),
+                                                     currency="INR", status="Unverified", tracking_id=get_unique_tracking_id(),
                                                      message=message_text)
 
             base_url = f'{request.scheme}://{request.get_host()}'
-            proof_upload_url = f'{base_url}/user/{ins_id}/proof-upload/{transaction.id}/'
+            proof_upload_url = f'{base_url}/user/{ins_id}/proof/{transaction.id}/'
 
+            sms_send_initiated(transaction,proof_upload_url)
             whatsapp_send_initiated(transaction,proof_upload_url)
             email_send_initiated(transaction,proof_upload_url)
 
@@ -156,6 +158,7 @@ def userProofUpload(request, ins_id, trans_id):
                 new_screenshot = Screenshot(transaction=tra,screen_shot=proof)
                 new_screenshot.save()
 
+                sms_send_proof(tra)
                 whatsapp_send_proof(tra)
                 email_send_proof(tra)
 

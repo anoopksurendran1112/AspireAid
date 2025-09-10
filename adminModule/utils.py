@@ -5,16 +5,124 @@ from django.core.mail import EmailMessage, get_connection
 from reportlab.platypus.flowables import HRFlowable
 from django.core.files.base import ContentFile
 from reportlab.lib.pagesizes import A4
-from userModule.models import Receipt
+from userModule.models import Receipt, Transaction
 from reportlab.lib.units import inch
 from django.utils import timezone
 from reportlab.lib import colors
 from django.conf import settings
 import requests
+import secrets
+import string
 import io
 
 
-"""Sends a WhatsApp message for payment initiated."""
+authorization_key = "EApz1UNdI2KToYWBS5O0Fl4QDM8G6jxvi97PgaRhLqHrfwyeZuMsG2LUHqg6ZQoCKhbwXBz71pi9vANV"
+header_id = "KDIGCF"
+
+
+"""Sends a regular SMS message for payment initiated."""
+def sms_send_initiated(transaction,url):
+    try:
+        user_full_name = f"{transaction.sender.first_name} {transaction.sender.last_name}"
+        project_title = transaction.project.title
+        phone_number = transaction.sender.phone
+
+        variables_values = f"{user_full_name}|{project_title}|{url}|"
+        params = {
+            "authorization": authorization_key,
+            "route": "dlt",
+            "sender_id": header_id,
+            "message": "197975",
+            "variables_values": variables_values,
+            "flash": "0",
+            "numbers": phone_number,
+        }
+        response = requests.get("https://www.fast2sms.com/dev/bulkV2", params=params)
+
+        if response.status_code == 200:
+            print(f"SMS sent successfully to {phone_number}.")
+            print(f"SMS API status code: {response.status_code}")
+            return {"status": "success", "response": response.text}
+        else:
+            print(f"SMS API failed. Status code: {response.status_code}")
+            print(f"Response: {response.text}")
+            return {"status": "error", "response": response.text}
+
+    except Exception as e:
+        print(f"SMS API failed: {e}")
+        return {"status": "error", "message": str(e)}
+
+
+"""Sends a regular SMS message for proof upload."""
+def sms_send_proof(transaction):
+    try:
+        user_full_name = f"{transaction.sender.first_name} {transaction.sender.last_name}"
+        tracking_id = transaction.tracking_id
+        project_title = transaction.project.title
+        phone_number = transaction.sender.phone
+
+        variables_values = f"{user_full_name}|{tracking_id}|{project_title}|"
+        params = {
+            "authorization": authorization_key,
+            "route": "dlt",
+            "sender_id": header_id,
+            "message": "197977",
+            "variables_values": variables_values,
+            "flash": "0",
+            "numbers": phone_number,
+        }
+        response = requests.get("https://www.fast2sms.com/dev/bulkV2", params=params)
+
+        if response.status_code == 200:
+            print(f"SMS sent successfully to {phone_number}.")
+            print(f"SMS API status code: {response.status_code}")
+            return {"status": "success", "response": response.text}
+        else:
+            print(f"SMS API failed. Status code: {response.status_code}")
+            print(f"Response: {response.text}")
+            return {"status": "error", "response": response.text}
+
+    except Exception as e:
+        print(f"SMS API failed: {e}")
+        return {"status": "error", "message": str(e)}
+
+
+"""Sends a regular SMS message for successful verification."""
+def sms_send_approve(request, transaction):
+    try:
+        user_full_name = f"{transaction.sender.first_name} {transaction.sender.last_name}"
+        project_title = transaction.project.title
+        receipt = Receipt.objects.filter(transaction=transaction).first()
+        receipt_url = f"{request.scheme}://{request.get_host()}{receipt.receipt_pdf.url}"
+        phone_number = transaction.sender.phone
+
+        variables_values = f"{user_full_name}|{project_title}|{receipt_url}|"
+        params = {
+            "authorization": authorization_key,
+            "route": "dlt",
+            "sender_id": header_id,
+            "message": "197976",
+            "variables_values": variables_values,
+            "flash": "0",
+            "numbers": phone_number,
+        }
+        response = requests.get("https://www.fast2sms.com/dev/bulkV2", params=params)
+
+        if response.status_code == 200:
+            print(f"SMS sent successfully to {phone_number}.")
+            print(f"SMS API status code: {response.status_code}")
+            return {"status": "success", "response": response.text}
+        else:
+            print(f"SMS API failed. Status code: {response.status_code}")
+            print(f"Response: {response.text}")
+            return {"status": "error", "response": response.text}
+
+    except Exception as e:
+        print(f"SMS API failed: {e}")
+        return {"status": "error", "message": str(e)}
+
+
+"""Sends a Whatsapp message for payment initiated."""
 def whatsapp_send_initiated(transaction,url):
     try:
         params_string = f"{transaction.sender.first_name} {transaction.sender.last_name},{transaction.project.title},{url}"
@@ -36,7 +144,7 @@ def whatsapp_send_initiated(transaction,url):
         print(f"WhatsApp API failed: {e}")
         return False
 
-"""Sends a WhatsApp message for payment initiated."""
+"""Sends a WhatsApp message for proof upload."""
 def whatsapp_send_proof(transaction):
     try:
         params_string = f"{transaction.sender.first_name} {transaction.sender.last_name}, {transaction.tracking_id},{transaction.project.title}"
@@ -85,7 +193,7 @@ def whatsapp_send_approve(request, transaction):
         return False
 
 
-"""Sends a verification email with a receipt."""
+"""Sends an email for payment initiated."""
 def email_send_initiated(transaction,url):
     try:
         institution = transaction.project.created_by.institution
@@ -119,7 +227,7 @@ def email_send_initiated(transaction,url):
         return False
 
 
-"""Sends a verification email with a receipt."""
+"""Sends an email for proof upload."""
 def email_send_proof(transaction):
     try:
         institution = transaction.project.created_by.institution
@@ -135,12 +243,6 @@ def email_send_proof(transaction):
         )
 
         subject = f'Proof upload for "{transaction.project.title}"'
-
-        # Generate and save the receipt
-        receipt, created = Receipt.objects.update_or_create(
-            transaction=transaction,
-            defaults={'receipt_pdf': generate_receipt_pdf(transaction)}
-        )
 
         plain_text_message = (
             f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n'
@@ -160,7 +262,7 @@ def email_send_proof(transaction):
         return False
 
 
-"""Sends a verification email with a receipt."""
+"""Sends an email for successful verification with receipt."""
 def email_send_approve(transaction):
     try:
         institution = transaction.project.created_by.institution
@@ -206,6 +308,13 @@ def email_send_approve(transaction):
         print(f"Email sending failed: {e}")
         return False
 
+
+def get_unique_tracking_id():
+    characters = string.ascii_letters + string.digits
+    while True:
+        tracking_id = ''.join(secrets.choice(characters) for _ in range(12))
+        if not Transaction.objects.filter(tracking_id=tracking_id).exists():
+            return tracking_id
 
 """generate receipt pdf."""
 def generate_receipt_pdf(transaction):
