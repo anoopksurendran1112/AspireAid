@@ -3,7 +3,7 @@
 {% block content %}
 
 <!-------------------Modal for updating project details--------------------->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -11,7 +11,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <form method="post">
+                <form method="post" action="{% url 'admin_update_project' pid=project.id %}">
                     {% csrf_token %}
                     <div class="modal-body">
 
@@ -253,7 +253,7 @@
                     <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
                     <div class="text-end">
                         {% if not admin.is_superuser %}
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#projectModal">
                             <i class="align-middle" data-feather="edit"></i>
                             <span class="align-middle">Edit</span>
                         </button>

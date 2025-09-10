@@ -1,5 +1,5 @@
 from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser
-from adminModule.utils import generate_receipt_pdf, whatsapp_send_approve, email_send_approve
+from adminModule.utils import generate_receipt_pdf, whatsapp_send_approve, email_send_approve, sms_send_approve
 from django.shortcuts import render, redirect, get_object_or_404
 from userModule.models import Transaction, Receipt, Screenshot
 from django.contrib.auth import logout, authenticate, login
@@ -216,48 +216,6 @@ def adminAllProject(request):
         prj = Project.objects.all()
     elif request.user.is_staff:
         prj = Project.objects.filter(created_by = request.user)
-        if request.method == "POST":
-            title = request.POST.get("title")
-            goal = request.POST.get("goal")
-            tval = request.POST.get("tvalue")
-            desc = request.POST.get("desc")
-            clsdate = request.POST.get("clsdate")
-
-            ben_fname = request.POST.get("fname")
-            ben_lname = request.POST.get("lname")
-            ben_phn = request.POST.get("phn")
-            ben_age = request.POST.get("age")
-            ben_addr = request.POST.get("addr")
-
-            try:
-                funding_goal = Decimal(goal) if goal else Decimal(0)
-                tile_value = Decimal(tval) if tval else Decimal(0)
-            except InvalidOperation:
-                messages.error(request, "Invalid number format for funding goal or tile value.")
-                return redirect('/administrator/all-project/')
-
-            beneficiar, created = Beneficial.objects.get_or_create(first_name=ben_fname, last_name=ben_lname, phone_number=ben_phn,
-                defaults={'address': ben_addr, 'age': ben_age,})
-            bank_details = request.user.default_bank
-
-            new_project = Project(title=title, description=desc, beneficiary=beneficiar, created_by=request.user, funding_goal=funding_goal, tile_value=tile_value, closing_date=clsdate, bank_details=bank_details)
-            new_project.save()
-
-            upi = bank_details.upi_id if bank_details else None
-            if upi:
-                payee_name = f"{new_project.bank_details.account_holder_first_name} {new_project.bank_details.account_holder_first_name}"
-                encoded_payee_name = urllib.parse.quote(payee_name)
-
-                google_pay_url = f'upi://pay?pa={upi}&pn={encoded_payee_name}'
-
-                qr_img = qrcode.make(google_pay_url)
-                buffer = BytesIO()
-                qr_img.save(buffer, format='PNG')
-                file_name = f"project_{new_project.id}_qr.png"
-                new_project.qr_code.save(file_name, ContentFile(buffer.getvalue()), save=True)
-
-            messages.success(request, "A new project has been created successfully.")
-            return redirect('/administrator/all-project/')
     else:
         return redirect('/administrator/')
     for p in prj:
@@ -266,43 +224,96 @@ def adminAllProject(request):
     return render(request, "admin-all-projects.html",{'prj':prj, 'admin': request.user})
 
 
+def adminAddProject(request):
+    if request.method != "POST":
+        return redirect('/administrator/all-project/')
+
+    title = request.POST.get("title")
+    goal = request.POST.get("goal")
+    tval = request.POST.get("tvalue")
+    desc = request.POST.get("desc")
+    clsdate = request.POST.get("clsdate")
+
+    ben_fname = request.POST.get("fname")
+    ben_lname = request.POST.get("lname")
+    ben_phn = request.POST.get("phn")
+    ben_age = request.POST.get("age")
+    ben_addr = request.POST.get("addr")
+
+    try:
+        funding_goal = Decimal(goal) if goal else Decimal(0)
+        tile_value = Decimal(tval) if tval else Decimal(0)
+
+        beneficiar, created = Beneficial.objects.get_or_create(
+            first_name=ben_fname, last_name=ben_lname, phone_number=ben_phn,
+            defaults={'address': ben_addr, 'age': ben_age, }
+        )
+        bank_details = request.user.default_bank
+
+        new_project = Project(
+            title=title, description=desc, beneficiary=beneficiar, created_by=request.user,
+            funding_goal=funding_goal, tile_value=tile_value, closing_date=clsdate,
+            bank_details=bank_details
+        )
+        new_project.save()
+
+        if bank_details and bank_details.upi_id:
+            payee_name = f"{bank_details.account_holder_first_name} {bank_details.account_holder_last_name}"
+            encoded_payee_name = urllib.parse.quote(payee_name)
+
+            google_pay_url = f'upi://pay?pa={bank_details.upi_id}&pn={encoded_payee_name}'
+
+            qr_img = qrcode.make(google_pay_url)
+            buffer = BytesIO()
+            qr_img.save(buffer, format='PNG')
+            file_name = f"project_{new_project.id}_qr.png"
+            new_project.qr_code.save(file_name, ContentFile(buffer.getvalue()), save=True)
+        messages.success(request, "A new project has been created successfully.")
+        return redirect('/administrator/all-project/')
+    except InvalidOperation:
+        messages.error(request, "Invalid number format for funding goal or tile value.")
+        return redirect('/administrator/all-project/')
+    except Exception as e:
+        messages.error(request, f"An unexpected error occurred: {e}")
+    return redirect('/administrator/all-project/')
+
+
 def adminSingleProject(request, pid):
     if request.user.is_superuser or request.user.is_staff:
-        project = get_object_or_404(Project, id=pid)
+        project = get_object_or_404(Project.objects.select_related('beneficiary'), id=pid)
+
         if project.closing_date < timezone.now():
             project.validity = False
-        tile_range = range(1, int(project.funding_goal // project.tile_value) + 1)
 
-        # Separating bought tiles based on the transaction status for displaying with color
-        verified_transactions = Transaction.objects.filter(project=project, status='Verified',
-                                                           tiles_bought__table_status=True)
-        processing_transactions = Transaction.objects.filter(project=project, status='Unverified',
-                                                             tiles_bought__table_status=True)
-        sold_tiles_list = []
-        processing_tiles_list = []
+        total_tiles_count = int(project.funding_goal // project.tile_value)
+        tile_range = range(1, total_tiles_count + 1)
 
-        sold_tiles_list_of_strings = verified_transactions.values_list('tiles_bought__tiles', flat=True)
-        processing_tiles_list_of_strings = processing_transactions.values_list('tiles_bought__tiles', flat=True)
+        transactions = Transaction.objects.filter(project=project).select_related('tiles_bought')
 
-        for tiles_str in sold_tiles_list_of_strings:
-            if tiles_str:
-                sold_tiles_list.extend([int(t) for t in tiles_str.split('-') if t.isdigit()])
+        sold_tiles_set = set()
+        processing_tiles_set = set()
 
-        for tiles_str in processing_tiles_list_of_strings:
-            if tiles_str:
-                processing_tiles_list.extend([int(t) for t in tiles_str.split('-') if t.isdigit()])
+        for t in transactions:
+            if t.tiles_bought and t.tiles_bought.tiles:
+                tile_numbers = [int(n) for n in t.tiles_bought.tiles.split('-') if n.isdigit()]
+                t.num_tiles = len(tile_numbers)
 
-        processing_tiles_set = set(processing_tiles_list)
-        sold_tiles_set = set(sold_tiles_list)
-
-        transaction_filtered = Transaction.objects.filter(project=project)
-        for t in transaction_filtered:
-            if t.tiles_bought:
-                t.num_tiles = len(t.tiles_bought.tiles.split('-'))
+                if t.status == 'Verified':
+                    sold_tiles_set.update(tile_numbers)
+                elif t.status == 'Unverified':
+                    processing_tiles_set.update(tile_numbers)
             else:
                 t.num_tiles = 0
+        return render(request,"admin-single-projects.html", { 'admin':request.user, 'project': project, 't_range': tile_range,
+                                                              'processing_tiles_set': processing_tiles_set, 'sold_tiles_set': sold_tiles_set, 'transaction':transactions})
+    else:
+        return redirect('/administrator/')
 
-        if request.method == "POST":
+
+def adminUpdateProject(request, pid):
+    if request.method == "POST":
+        project = get_object_or_404(Project, id=pid)
+        try:
             project.title = request.POST.get("title")
             project.funding_goal = request.POST.get("goal")
             project.tile_value = request.POST.get("tvalue")
@@ -319,11 +330,12 @@ def adminSingleProject(request, pid):
             beneficiary_instance.save()
             project.save()
 
+            messages.success(request, "Project updated successfully.")
             return redirect(f'/administrator/single-project/{pid}/')
-        return render(request,"admin-single-projects.html", { 'admin':request.user, 'project': project, 't_range': tile_range,
-                                                              'processing_tiles_set': processing_tiles_set, 'sold_tiles_set': sold_tiles_set, 'transaction':transaction_filtered})
-    else:
-        return redirect('/administrator/')
+        except Exception as e:
+            messages.error(request, f"An error occurred while updating the project: {e}")
+            return redirect(f'/administrator/single-project/{pid}/')
+    return redirect(f'/administrator/single-project/{pid}/')
 
 
 def adminChangeProjectStatus(request, pid):
@@ -473,7 +485,13 @@ def adminApproveTransaction(request, tid):
                 transaction.save()
                 project_instance.save()
 
+                # Generate and save the receipt
+                receipt, created = Receipt.objects.update_or_create(
+                    transaction=transaction,
+                    defaults={'receipt_pdf': generate_receipt_pdf(transaction)}
+                )
                 email_send_approve(transaction)
+                sms_send_approve(request,transaction)
                 whatsapp_send_approve(request,transaction)
 
                 messages.success(request, f'The transaction: {transaction.tracking_id} has been approved.')
@@ -552,3 +570,16 @@ def adminAllReceipts(request):
         else:
             r.tile_count = 0
     return render(request, 'admin-all-receipts.html', {'admin': request.user,'rec': receipts})
+
+def adminSendReciept(request,r_id):
+    receipt = get_object_or_404(Receipt, id=r_id)
+    try:
+        sms_send_approve(request, receipt.transaction)
+        email_send_approve(receipt.transaction)
+        whatsapp_send_approve(request, receipt.transaction)
+        messages.success(request, f'A receipt has been sent to {receipt.transaction.sender.first_name} {receipt.transaction.sender.last_name}.')
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        messages.error(request, f"Failed to send the receipt to {receipt.transaction.sender.first_name} {receipt.transaction.sender.last_name}.")
+        return redirect('/administrator/all-receipts/')
+    return redirect('/administrator/all-receipts/')

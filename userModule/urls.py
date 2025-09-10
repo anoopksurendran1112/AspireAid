@@ -10,5 +10,5 @@ urlpatterns = [
     path('<int:ins_id>/checkout/', views.userCheckoutView, name='user_checkout'),
     path('<int:ins_id>/track-status/', views.userTrackStatus),
 
-    path('<int:ins_id>/proof-upload/<int:trans_id>/', views.userProofUpload),
+    path('<int:ins_id>/proof/<int:trans_id>/', views.userProofUpload),
 ]

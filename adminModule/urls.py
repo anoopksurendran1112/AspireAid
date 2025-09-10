@@ -11,13 +11,17 @@ urlpatterns = [
     path('admin_profile_img/',views.adminProfilePicture),
     path('admin_inst_img/',views.adminInstitutionPicture),
 
+    path('all-institution/',views.adminAllInstitution),
+    path('delete-institution/<int:iid>/',views.adminDeleteInstitution),
+    path('update-institution/<int:iid>/',views.adminUpdateInstitution),
+    path('all-insti-admin/',views.adminAllInstiAdmin),
+
     path('update-bank/',views.adminUpdateBankDetails, name='update_bank'),
 
-    path('generate-receipt/<int:t_id>/', views.adminGenerateReceipts),
-    path('all-receipts/',views.adminAllReceipts),
-
     path('all-project/',views.adminAllProject),
+    path('add-project/', views.adminAddProject, name='admin_add_project'),
     path('single-project/<int:pid>/',views.adminSingleProject),
+    path('update-project/<int:pid>/', views.adminUpdateProject, name='admin_update_project'),
     path('change-project-status/<int:pid>/',views.adminChangeProjectStatus),
     path('delete-project/<int:pid>/',views.adminDeleteProject),
     path('upload_project_image/<int:project_id>/', views.upload_project_image, name='upload_project_image'),
@@ -30,8 +34,7 @@ urlpatterns = [
     path('reject-transaction/<int:tid>/',views.adminRejectTransaction),
     path('unverify-transaction/<int:tid>/',views.adminUnverifyTransaction),
 
-    path('all-institution/',views.adminAllInstitution),
-    path('delete-institution/<int:iid>/',views.adminDeleteInstitution),
-    path('update-institution/<int:iid>/',views.adminUpdateInstitution),
-    path('all-insti-admin/',views.adminAllInstiAdmin),
+    path('generate-receipt/<int:t_id>/', views.adminGenerateReceipts),
+    path('all-receipts/',views.adminAllReceipts),
+    path('send-receipt/<int:r_id>/',views.adminSendReciept),
 ]

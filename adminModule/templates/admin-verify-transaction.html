@@ -6,10 +6,10 @@
         <div class="col-12 ">
             <h1 class="mb-4">
                 <strong>
-                    Transaction : {{transaction.tracking_id}}
+                    Tracking ID: {{transaction.tracking_id}}
                 </strong>
             </h1>
-            <div class="card data-card">
+            <div class="card data-card container py-2">
                 <div class="card-header text-end">
                     {% if transaction.status != 'Unverified' %}
                     <div class="text-center p-1
@@ -24,7 +24,7 @@
                 </div>
                 <div class="card-body table-responsive">
                     <div class="row mb-2">
-                            <h1 class="mb-5">{{transaction.project.title}}</h1>
+                            <h1 class="mb-4"><strong>{{transaction.project.title}}</strong></h1>
                         <div class="col-6 mb-3">
                             <h3 class="text-muted"><strong>Project Details</strong></h3>
                             <table class="table text-start">
