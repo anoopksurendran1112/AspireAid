@@ -40,7 +40,7 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-floating mb-2">
-                                            <input type="date" class="form-control" id="closingDate" placeholder="Enter Closing Date " name="clsdate" required>
+                                            <input type="datetime-local" class="form-control" id="closingDate" placeholder="Enter Closing Date " name="clsdate" required>
                                             <label for="closingDate">Closing Date</label>
                                             <span class="text-danger" id="closingDate-error"></span>
                                         </div>
@@ -155,9 +155,9 @@
                                         </a>
                                     {% else %}
                                         {% if p.table_status %}
-                                            <a class="btn btn-sm btn-warning text-black" style="width:70px;">Open</a>
+                                            <a class="btn btn-sm btn-warning text-black" style="width:70px;">Active</a>
                                         {% else %}
-                                            <a class="btn btn-sm btn-secondary" style="width:70px;">closed</a>
+                                            <a class="btn btn-sm btn-secondary" style="width:70px;">Closed</a>
                                         {% endif %}
                                     {% endif %}
                             </td>

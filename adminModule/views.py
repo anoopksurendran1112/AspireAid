@@ -1,9 +1,10 @@
-from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser
 from adminModule.utils import generate_receipt_pdf, whatsapp_send_approve, email_send_approve, sms_send_approve
+from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser
 from django.shortcuts import render, redirect, get_object_or_404
 from userModule.models import Transaction, Receipt, Screenshot
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.db import transaction as db_transaction
 from django.core.files.base import ContentFile
 from decimal import Decimal, InvalidOperation
 from django.db import IntegrityError
@@ -11,8 +12,10 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import F
 from io import BytesIO
+import datetime
 import qrcode
 import urllib
+import os
 
 
 # Create your views here.
@@ -232,8 +235,7 @@ def adminAddProject(request):
     goal = request.POST.get("goal")
     tval = request.POST.get("tvalue")
     desc = request.POST.get("desc")
-    clsdate = request.POST.get("clsdate")
-
+    clsdate_str = request.POST.get("clsdate")
     ben_fname = request.POST.get("fname")
     ben_lname = request.POST.get("lname")
     ben_phn = request.POST.get("phn")
@@ -241,40 +243,36 @@ def adminAddProject(request):
     ben_addr = request.POST.get("addr")
 
     try:
+        naive_clsdate = datetime.datetime.strptime(clsdate_str, '%Y-%m-%dT%H:%M')
+        aware_clsdate = timezone.make_aware(naive_clsdate)
         funding_goal = Decimal(goal) if goal else Decimal(0)
         tile_value = Decimal(tval) if tval else Decimal(0)
-
-        beneficiar, created = Beneficial.objects.get_or_create(
-            first_name=ben_fname, last_name=ben_lname, phone_number=ben_phn,
-            defaults={'address': ben_addr, 'age': ben_age, }
-        )
         bank_details = request.user.default_bank
 
-        new_project = Project(
-            title=title, description=desc, beneficiary=beneficiar, created_by=request.user,
-            funding_goal=funding_goal, tile_value=tile_value, closing_date=clsdate,
-            bank_details=bank_details
-        )
-        new_project.save()
+        with db_transaction.atomic():
+            beneficiar, created = Beneficial.objects.get_or_create(first_name=ben_fname, last_name=ben_lname, phone_number=ben_phn,
+                                                                   defaults={'address': ben_addr, 'age': ben_age, })
 
-        if bank_details and bank_details.upi_id:
-            payee_name = f"{bank_details.account_holder_first_name} {bank_details.account_holder_last_name}"
-            encoded_payee_name = urllib.parse.quote(payee_name)
+            new_project = Project(title=title, description=desc, beneficiary=beneficiar, created_by=request.user,
+                                  funding_goal=funding_goal, tile_value=tile_value, closing_date=aware_clsdate,bank_details=bank_details)
+            new_project.save()
 
-            google_pay_url = f'upi://pay?pa={bank_details.upi_id}&pn={encoded_payee_name}'
+            if bank_details and bank_details.upi_id:
+                payee_name = f"{bank_details.account_holder_first_name} {bank_details.account_holder_last_name}"
+                encoded_payee_name = urllib.parse.quote(payee_name)
+                google_pay_url = f'upi://pay?pa={bank_details.upi_id}&pn={encoded_payee_name}'
+                qr_img = qrcode.make(google_pay_url)
+                buffer = BytesIO()
+                qr_img.save(buffer, format='PNG')
+                file_name = f"project_{new_project.id}_qr.png"
+                new_project.qr_code.save(file_name, ContentFile(buffer.getvalue()), save=True)
 
-            qr_img = qrcode.make(google_pay_url)
-            buffer = BytesIO()
-            qr_img.save(buffer, format='PNG')
-            file_name = f"project_{new_project.id}_qr.png"
-            new_project.qr_code.save(file_name, ContentFile(buffer.getvalue()), save=True)
         messages.success(request, "A new project has been created successfully.")
-        return redirect('/administrator/all-project/')
     except InvalidOperation:
         messages.error(request, "Invalid number format for funding goal or tile value.")
-        return redirect('/administrator/all-project/')
     except Exception as e:
         messages.error(request, f"An unexpected error occurred: {e}")
+        print(f"An unexpected error occurred: {e}")
     return redirect('/administrator/all-project/')
 
 
@@ -465,96 +463,131 @@ def adminVerifyTransaction(request, tid):
 
 
 def adminApproveTransaction(request, tid):
-    if request.user.is_superuser or request.user.is_staff:
-        transaction = Transaction.objects.get(id=tid)
-        try:
-            if transaction.status != "Verified":
+    if not (request.user.is_superuser or request.user.is_staff):
+        return redirect('/administrator/')
+    transaction = get_object_or_404(Transaction, id=tid)
+    try:
+        if transaction.status != "Verified":
+            with db_transaction.atomic():
+                new_pdf_data = generate_receipt_pdf(transaction)
+                receipt, created = Receipt.objects.update_or_create(transaction=transaction,defaults={'receipt_pdf': new_pdf_data})
 
-                # Update transaction status
                 transaction.status = "Verified"
                 transaction.table_status = True
                 transaction.tiles_bought.table_status = True
 
-                # Update project amount and status
                 project_instance = transaction.project
                 project_instance.current_amount += transaction.amount
                 if project_instance.funding_goal <= project_instance.current_amount:
                     project_instance.table_status = False
 
-                # Save all changes inside the atomic block
                 transaction.save()
                 project_instance.save()
 
-                # Generate and save the receipt
-                receipt, created = Receipt.objects.update_or_create(
-                    transaction=transaction,
-                    defaults={'receipt_pdf': generate_receipt_pdf(transaction)}
-                )
-                email_send_approve(transaction)
-                sms_send_approve(request,transaction)
-                whatsapp_send_approve(request,transaction)
-
-                messages.success(request, f'The transaction: {transaction.tracking_id} has been approved.')
-            else:
-                messages.info(request, "This transaction has already been verified.")
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            messages.error(request, f"Failed to approve transaction: {e}")
-            return redirect('/administrator/all-transactions/')
-
-        return redirect('/administrator/all-transactions/')
-    else:
-        return redirect('/administrator/')
+            email_send_approve(transaction)
+            sms_send_approve(transaction)
+            whatsapp_send_approve(transaction)
+            messages.success(request, f'The transaction: {transaction.tracking_id} has been approved.')
+        else:
+            messages.info(request, "This transaction has already been verified.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        messages.error(request, f"Failed to approve transaction: {e}")
+    return redirect('/administrator/all-transactions/')
 
 
 def adminRejectTransaction(request, tid):
-    if request.user.is_superuser or request.user.is_staff:
-        transaction = Transaction.objects.get(id=tid)
-        if transaction.status != "Rejected":
-            if transaction.status == "Verified":
-                transaction.project.current_amount -= transaction.amount
-            transaction.status = "Rejected"
-            transaction.table_status = False
-            transaction.tiles_bought.table_status = False
-            transaction.project.table_status = True
-            transaction.project.save()
-            transaction.save()
-            messages.error(request, f'The transaction: {transaction.tracking_id} has been rejected.')
-        return redirect('/administrator/all-transactions/')
-    else:
+    if not (request.user.is_superuser or request.user.is_staff):
         return redirect('/administrator/')
+    transaction_instance = get_object_or_404(Transaction, id=tid)
+    if transaction_instance.status == "Rejected":
+        messages.info(request, f'The transaction: {transaction_instance.tracking_id} is already rejected.')
+        return redirect('/administrator/all-transactions/')
+    try:
+        with db_transaction.atomic():
+            if transaction_instance.status == "Verified":
+                transaction_instance.project.current_amount -= transaction_instance.amount
+
+            transaction_instance.status = "Rejected"
+            transaction_instance.table_status = False
+            transaction_instance.tiles_bought.table_status = False
+            transaction_instance.project.table_status = True
+
+            try:
+                receipt_to_delete = Receipt.objects.get(transaction=transaction_instance)
+                receipt_to_delete.delete() # Deletes from both DB and disk
+            except Receipt.DoesNotExist:
+                pass
+
+            transaction_instance.project.save()
+            transaction_instance.save()
+
+            messages.error(request, f'The transaction: {transaction_instance.tracking_id} has been rejected.')
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        messages.error(request, f"Failed to reject transaction: {e}")
+    return redirect('/administrator/all-transactions/')
 
 
 def adminUnverifyTransaction(request, tid):
-    if request.user.is_superuser or request.user.is_staff:
-        transaction = Transaction.objects.get(id=tid)
-        if transaction.status != "Unverified":
-            if transaction.status == "Verified":
-                transaction.project.current_amount -= transaction.amount
-            transaction.status = "Unverified"
-            transaction.table_status = True
-            transaction.tiles_bought.table_status = True
-            transaction.project.table_status = True
-            transaction.project.save()
-            transaction.save()
-            messages.warning(request, f'The transaction: {transaction.tracking_id} has been unverified.')
-        return redirect('/administrator/all-transactions/')
-    else:
+    if not (request.user.is_superuser or request.user.is_staff):
         return redirect('/administrator/')
+    transaction_instance = get_object_or_404(Transaction, id=tid)
+    if transaction_instance.status == "Unverified":
+        messages.info(request, f'The transaction: {transaction_instance.tracking_id} is already unverified.')
+        return redirect('/administrator/all-transactions/')
+    try:
+        with db_transaction.atomic():
+            if transaction_instance.status == "Verified":
+                transaction_instance.project.current_amount -= transaction_instance.amount
+
+            transaction_instance.status = "Unverified"
+            transaction_instance.table_status = True
+            transaction_instance.tiles_bought.table_status = True
+            transaction_instance.project.table_status = True
+
+            try:
+                receipt_to_delete = Receipt.objects.get(transaction=transaction_instance)
+                receipt_to_delete.delete()
+            except Receipt.DoesNotExist:
+                pass
+
+            transaction_instance.project.save()
+            transaction_instance.save()
+
+            messages.warning(request, f'The transaction: {transaction_instance.tracking_id} has been unverified.')
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        messages.error(request, f"Failed to unverify transaction: {e}")
+    return redirect('/administrator/all-transactions/')
 
 
 def adminGenerateReceipts(request, t_id):
-    if request.user.is_superuser or request.user.is_staff:
-        transaction_instance = get_object_or_404(Transaction, id=t_id)
-
-        receipt, created = Receipt.objects.update_or_create(
-            transaction=transaction_instance,
-            defaults={'receipt_pdf': generate_receipt_pdf(transaction_instance)}
-        )
-        messages.success(request, f'A receipt for the transaction: {transaction_instance.tracking_id} has been created.')
-        return redirect('/administrator/all-transactions/')
-    else:
+    if not (request.user.is_superuser or request.user.is_staff):
         return redirect('/administrator/')
+    transaction_instance = get_object_or_404(Transaction, id=t_id)
+    try:
+        with db_transaction.atomic():
+            old_receipt = None
+            try:
+                old_receipt = Receipt.objects.get(transaction=transaction_instance)
+            except Receipt.DoesNotExist:
+                pass
+
+            new_pdf_data = generate_receipt_pdf(transaction_instance)
+            receipt, created = Receipt.objects.update_or_create(transaction=transaction_instance,defaults={'receipt_pdf': new_pdf_data})
+
+            if not created and old_receipt and old_receipt.receipt_pdf:
+                old_file_path = old_receipt.receipt_pdf.path
+                if os.path.exists(old_file_path):
+                    os.remove(old_file_path)
+
+        messages.success(request,f'A receipt for the transaction: {transaction_instance.tracking_id} has been created.')
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        messages.error(request, f"Failed to generate receipt: {e}")
+    return redirect('/administrator/all-transactions/')
 
 
 def adminAllReceipts(request):
@@ -571,12 +604,13 @@ def adminAllReceipts(request):
             r.tile_count = 0
     return render(request, 'admin-all-receipts.html', {'admin': request.user,'rec': receipts})
 
+
 def adminSendReciept(request,r_id):
     receipt = get_object_or_404(Receipt, id=r_id)
     try:
-        sms_send_approve(request, receipt.transaction)
+        sms_send_approve(receipt.transaction)
         email_send_approve(receipt.transaction)
-        whatsapp_send_approve(request, receipt.transaction)
+        whatsapp_send_approve(receipt.transaction)
         messages.success(request, f'A receipt has been sent to {receipt.transaction.sender.first_name} {receipt.transaction.sender.last_name}.')
     except Exception as e:
         print(f"An error occurred: {e}")
