@@ -137,14 +137,11 @@ def userCheckoutView(request, ins_id):
                 selected_tile_instance = SelectedTile.objects.create(project=project,sender=sender,tiles=selected_tiles_str)
                 transaction = Transaction.objects.create(tiles_bought=selected_tile_instance,sender=sender,project=project,amount=total_amount,currency="INR",status="Unverified",tracking_id=get_unique_tracking_id(),message=message_text)
 
-            base_url = f'{request.scheme}://{request.get_host()}'
-            proof_upload_url = f'{base_url}/user/{ins_id}/proof/{transaction.id}/'
+            proof_upload_url = f'{ins_id}/proof/{transaction.id}'
 
-            # proof_upload_url = f'{ins_id}/proof/{transaction.id}/'
-
-            sms_send_initiated(transaction,proof_upload_url)
+            # sms_send_initiated(transaction,proof_upload_url)
             whatsapp_send_initiated(transaction,proof_upload_url)
-            email_send_initiated(transaction,proof_upload_url)
+            # email_send_initiated(transaction,proof_upload_url)
 
             messages.success(request, f'Payment for the tiles {selected_tiles_str} has been initiated.')
         except Exception as e:
@@ -181,9 +178,9 @@ def userProofUpload(request, ins_id, trans_id):
                 except Screenshot.DoesNotExist:
                     new_screenshot = Screenshot.objects.create(transaction=tra, screen_shot=proof)
 
-            sms_send_proof(tra)
+            # sms_send_proof(tra)
             whatsapp_send_proof(tra)
-            email_send_proof(tra)
+            # email_send_proof(tra)
 
             messages.success(request, "Proof of payment uploaded successfully!")
         except Exception as e:
