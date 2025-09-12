@@ -14,6 +14,7 @@ import requests
 import secrets
 import string
 import io
+import os
 
 
 authorization_key = "EApz1UNdI2KToYWBS5O0Fl4QDM8G6jxvi97PgaRhLqHrfwyeZuMsG2LUHqg6ZQoCKhbwXBz71pi9vANV"
@@ -88,15 +89,18 @@ def sms_send_proof(transaction):
 
 
 """Sends a regular SMS message for successful verification."""
-def sms_send_approve(request, transaction):
+def sms_send_approve(transaction):
     try:
+        receipt = Receipt.objects.filter(transaction=transaction).first()
+
         user_full_name = f"{transaction.sender.first_name} {transaction.sender.last_name}"
         project_title = transaction.project.title
-        receipt = Receipt.objects.filter(transaction=transaction).first()
-        receipt_url = f"{request.scheme}://{request.get_host()}{receipt.receipt_pdf.url}"
+        if receipt.receipt_pdf:
+            receipt.filename = os.path.basename(receipt.receipt_pdf.name)
+
         phone_number = transaction.sender.phone
 
-        variables_values = f"{user_full_name}|{project_title}|{receipt_url}|"
+        variables_values = f"{user_full_name}|{project_title}|{receipt.filename}|"
         params = {
             "authorization": authorization_key,
             "route": "dlt",
@@ -144,6 +148,7 @@ def whatsapp_send_initiated(transaction,url):
         print(f"WhatsApp API failed: {e}")
         return False
 
+
 """Sends a WhatsApp message for proof upload."""
 def whatsapp_send_proof(transaction):
     try:
@@ -168,12 +173,13 @@ def whatsapp_send_proof(transaction):
 
 
 """Sends a WhatsApp message for successful verification."""
-def whatsapp_send_approve(request, transaction):
+def whatsapp_send_approve(transaction):
     try:
         receipt = Receipt.objects.filter(transaction=transaction).first()
-        receipt_url = f"{request.scheme}://{request.get_host()}{receipt.receipt_pdf.url}"
+        if receipt.receipt_pdf:
+            receipt.filename = os.path.basename(receipt.receipt_pdf.name)
 
-        params_string = f"{transaction.sender.first_name} {transaction.sender.last_name}, {transaction.project.title}, {receipt_url}"
+        params_string = f"{transaction.sender.first_name} {transaction.sender.last_name}, {transaction.project.title}, {receipt.filename}"
         api_params = {
             'user': settings.BHASHSMS_API_USER,
             'pass': settings.BHASHSMS_API_PASS,

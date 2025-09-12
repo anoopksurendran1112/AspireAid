@@ -26,7 +26,7 @@
                         {% for t in transaction %}
                         <tr>
                             <td>{{forloop.counter}}</td>
-                            <td>{{t.project.title}}</td>
+                            <td><a href="/administrator/single-project/{{t.project.id}}/">{{t.project.title}}</a></td>
                             <td>{{t.sender.first_name}} {{t.sender.last_name}}</td>
                             <td>{{ t.num_tiles }}</td>
                             <td>{{t.amount}}</td>

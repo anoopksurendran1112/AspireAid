@@ -1,13 +1,15 @@
-from adminModule.utils import whatsapp_send_initiated, email_send_initiated, whatsapp_send_proof, email_send_proof, \
-    sms_send_initiated, sms_send_proof, get_unique_tracking_id
+import os
+
+from adminModule.utils import whatsapp_send_initiated, email_send_initiated, whatsapp_send_proof, email_send_proof, sms_send_initiated, sms_send_proof, get_unique_tracking_id
 from userModule.models import PersonalDetails, SelectedTile, Transaction, Screenshot
 from django.shortcuts import render, redirect, get_object_or_404
 from adminModule.models import Project, Institution
+from django.db import transaction as db_transaction
 from django.contrib import messages
 from django.utils import timezone
 from django.urls import reverse
 import urllib.parse
-import uuid
+
 
 
 # Create your views here.
@@ -94,14 +96,16 @@ def userSingleProject(request, prj_id, ins_id):
                           { 'ins': ins,'project': prj,'now': timezone.now()})
 
 
-def userCheckoutView(request,ins_id):
-    ins = get_object_or_404(Institution, id=ins_id)
+def userCheckoutView(request, ins_id):
+    institution = get_object_or_404(Institution, id=ins_id)
 
     if request.method == "GET":
         project_id = request.GET.get("project_id")
         selected_tiles = request.GET.get("selected_tiles")
         project = get_object_or_404(Project, id=project_id)
         selected_tile_count = len(selected_tiles.split('-'))
+        return render(request, 'user-checkout.html', {'ins': institution,'project': project,
+                                                      'selected_tiles': selected_tiles,'count': selected_tile_count})
 
     elif request.method == "POST":
         project_id = request.POST.get("project_id")
@@ -117,17 +121,26 @@ def userCheckoutView(request,ins_id):
         total_amount = len(selected_tiles_str.split('-')) * project.tile_value
 
         try:
-            sender = PersonalDetails.objects.create(email=email, first_name=fname, last_name=lname, phone=phn,
-                                                    address=addr, )
-            selected_tile_instance = SelectedTile.objects.create(project=project, sender=sender,
-                                                                 tiles=selected_tiles_str)
-            transaction = Transaction.objects.create(tiles_bought=selected_tile_instance, sender=sender,
-                                                     project=project, amount=total_amount,
-                                                     currency="INR", status="Unverified", tracking_id=get_unique_tracking_id(),
-                                                     message=message_text)
+            with db_transaction.atomic():
+
+                if project.closing_date <= timezone.now():
+                    messages.error(request, "This project is closed for contributions.")
+                    return redirect(f'/user/{ins_id}/single-project/{project_id}/')
+                if not project.table_status:
+                    messages.error(request, "This project is no longer active for contributions.")
+                    return redirect(f'/user/{ins_id}/single-project/{project_id}/')
+                if SelectedTile.objects.filter(project=project, tiles=selected_tiles_str).exists():
+                    messages.error(request, "These tiles have already been selected.")
+                    return redirect(f'/user/{ins_id}/single-project/{project_id}/')
+
+                sender = PersonalDetails.objects.create(email=email,first_name=fname,last_name=lname,phone=phn,address=addr)
+                selected_tile_instance = SelectedTile.objects.create(project=project,sender=sender,tiles=selected_tiles_str)
+                transaction = Transaction.objects.create(tiles_bought=selected_tile_instance,sender=sender,project=project,amount=total_amount,currency="INR",status="Unverified",tracking_id=get_unique_tracking_id(),message=message_text)
 
             base_url = f'{request.scheme}://{request.get_host()}'
             proof_upload_url = f'{base_url}/user/{ins_id}/proof/{transaction.id}/'
+
+            # proof_upload_url = f'{ins_id}/proof/{transaction.id}/'
 
             sms_send_initiated(transaction,proof_upload_url)
             whatsapp_send_initiated(transaction,proof_upload_url)
@@ -137,41 +150,48 @@ def userCheckoutView(request,ins_id):
         except Exception as e:
             print(f"An error occurred: {e}")
             messages.error(request, f"Failed to perform checkout: {e}")
-
         return redirect(f'/user/{ins_id}/single-project/{project_id}/')
-    return render(request, 'user-checkout.html', {'ins':ins,'project': project, 'selected_tiles': selected_tiles, 'count':selected_tile_count})
 
 
 def userProofUpload(request, ins_id, trans_id):
     ins = get_object_or_404(Institution, id=ins_id)
     tra = get_object_or_404(Transaction, id=trans_id)
-    tiles_string = tra.tiles_bought.tiles
-    if tiles_string:
-        count = len(tiles_string.split('-'))
-    else:
-        count = 0
+
+    tiles_string = tra.tiles_bought.tiles if tra.tiles_bought else ''
+    count = len(tiles_string.split('-')) if tiles_string else 0
 
     if request.method == 'POST':
         proof = request.FILES.get('proof_of_payment')
-        if proof:
-            try:
-                new_screenshot = Screenshot(transaction=tra,screen_shot=proof)
-                new_screenshot.save()
-
-                sms_send_proof(tra)
-                whatsapp_send_proof(tra)
-                email_send_proof(tra)
-
-                messages.success(request, "Proof of payment uploaded successfully!")
-                return redirect(f'/user/{ins_id}/single-project/{tra.project.id}/')
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                messages.error(request, f"An error occurred during proof upload: {e}")
-        else:
+        if not proof:
             messages.error(request, "Please select a file to upload.")
+            return redirect(f'/user/{ins_id}/proof/{tra.id}/')
 
-    return render(request, "user-proof-upload.html", {'ins': ins,
-        'tra': tra,'count': count,})
+        try:
+            with db_transaction.atomic():
+
+                try:
+                    old_screenshot = Screenshot.objects.get(transaction=tra)
+                    old_file_path = old_screenshot.screen_shot.path
+                    old_screenshot.screen_shot = proof
+                    old_screenshot.save()
+
+                    if os.path.exists(old_file_path):
+                        os.remove(old_file_path)
+
+                except Screenshot.DoesNotExist:
+                    new_screenshot = Screenshot.objects.create(transaction=tra, screen_shot=proof)
+
+            sms_send_proof(tra)
+            whatsapp_send_proof(tra)
+            email_send_proof(tra)
+
+            messages.success(request, "Proof of payment uploaded successfully!")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            messages.error(request, f"An error occurred during proof upload: {e}")
+        return redirect(f'/user/{ins_id}/single-project/{tra.project.id}/')
+
+    return render(request, "user-proof-upload.html", {'ins': ins,'tra': tra,'count': count})
 
 
 def userTrackStatus(request, ins_id):

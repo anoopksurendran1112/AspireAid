@@ -233,7 +233,7 @@
                                                     {% endif %}
                                                     <label class="form-check-label ms-2" for="switchCheck-{{ project.id }}">
                                                         {% if project.table_status %}
-                                                            <a class="btn btn-sm btn-warning text-black" style="width:70px;">Open</a>
+                                                            <a class="btn btn-sm btn-warning text-black" style="width:70px;">Active</a>
                                                         {% else %}
                                                             <a class="btn btn-sm btn-secondary" style="width:70px;">closed</a>
                                                         {% endif %}
@@ -374,7 +374,6 @@
                     <table class="table table-hover my-0">
                         <thead class="table-dark">
                         <tr>
-                            <th>Project Title</th>
                             <th>Sender</th>
                             <th>No of Tiles</th>
                             <th>Amount</th>
@@ -386,7 +385,6 @@
                         <tbody>
                         {% for t in transaction %}
                         <tr>
-                            <td>{{t.project.title}}</td>
                             <td>{{t.sender.first_name}} {{t.sender.last_name}}</td>
                             <td>{{ t.num_tiles }} [{{t.tiles_bought.tiles}}]</td>
                             <td>{{t.amount}}</td>

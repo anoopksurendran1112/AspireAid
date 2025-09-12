@@ -8,82 +8,143 @@
                 <div class="card-header">
                     <h1 class="text-center my-2"><strong>Upload Proof</strong></h1>
                 </div>
-                <div class="card-body">
-                    <div class="invoice-title">
+                <div class="card-body px-5 py-5">
+                    <div class="invoice-title text-dark">
                         <div class="row">
                             <div class="col-12 mb-4">
-                                <div class="my-4">
-                                   <h2>{{tra.sender.first_name}} {{tra.sender.last_name}}</h2>
+                                <div class="my-2">
+                                   <h2>Buyer Details</h2>
                                 </div>
-                                <p class="mb-1">Email: {{tra.sender.email}}</p>
-                                <p class="mb-1">Phone: {{tra.sender.phone}}</p>
-                                <p class="mb-1">Address: {{tra.sender.email}}</p>
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <th>Full name:</th>
+                                            <td><strong>{{tra.sender.first_name}} {{tra.sender.last_name}}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Email:</th>
+                                            <td><strong>{{tra.sender.email}}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Phone:</th>
+                                            <td><strong>{{tra.sender.phone}}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Address:</th>
+                                            <td><strong>{{tra.sender.address}}</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="col-md-6 col-sm-12 mb-2">
-                                <div class="col-12 mb-4">
+                            <div class="col-md-6 col-sm-12">
+                                <div class="mb-2">
                                     <h3>Project Details</h3>
                                 </div>
-                                <p class="mb-1">Target: {{tra.project.funding_goal}}</p>
-                                <p class="mb-1">Created by: {{tra.project.created_by.email}}</p>
-                                <p class="mb-1">Created on: {{tra.project.created_at}}</p>
-                                <p class="mb-1">Closing by: {{tra.project.closing_date}}</p>
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <th>Project:</th>
+                                            <td><strong>{{tra.project.title}}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Target:</th>
+                                            <td><strong>{{tra.project.funding_goal}}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Created on:</th>
+                                            <td><strong>{{tra.project.created_at}}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Closing by:</th>
+                                            <td><strong>{{tra.project.closing_date}}</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="col-md-6 col-sm-12 text-sm-end mb-2" >
-                                <div class="col-12 mb-4">
+                            <div class="col-md-6 col-sm-12" >
+                                <div class="mb-2">
                                     <h3>Beneficiary Details</h3>
                                 </div>
-                                 <p class="mb-1">{{tra.project.beneficiary.first_name}} {{tra.project.beneficiary.last_name}}</p>
-                                 <p class="mb-1">{{tra.project.beneficiary.age}} years old</p>
-                                 <p class="mb-1">{{tra.project.beneficiary.phone_number}}</p>
-                                 <p class="mb-1">{{tra.project.beneficiary.address}}</p>
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <th>Beneficiary name:</th>
+                                            <td><strong>{{tra.project.beneficiary.first_name}} {{tra.project.beneficiary.last_name}}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Beneficiary age:</th>
+                                            <td><strong>{{tra.project.beneficiary.age}} years old</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Beneficiary phone:</th>
+                                            <td><strong>{{tra.project.beneficiary.phone_number}}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Beneficiary address:</th>
+                                            <td><strong>{{tra.project.beneficiary.address}}</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-12 table-responsive">
+                                <hr class="my-4">
+                                <table class="table align-middle table-nowrap table-centered">
+                                    <thead class="bg-dark text-white">
+                                        <tr>
+                                            <th>Selected Tiles</th>
+                                            <th>Tile Value</th>
+                                            <th>Quantity</th>
+                                            <th class="text-end" style="width: 120px;">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="total-details" data-tile-value="{{ tra.project.tile_value }}" data-count="{{ count }}">
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <h5 class="text-truncate font-size-14 mb-1">{{tra.tiles_bought.tiles}}</h5>
+                                                </div>
+                                            </td>
+                                            <td>{{tra.project.tile_value}} Rs</td>
+                                            <td>{{count}}</td>
+                                            <td class="text-end" style="width: 120px;">
+                                                <span id="calculated-total"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-12 table-responsive">
+                                <hr class="my-4">
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <th>Tracking ID:</th>
+                                            <td><strong>{{tra.tracking_id}}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Transaction Time:</th>
+                                            <td><strong>{{tra.transaction_time}}</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="col-12 table-responsive upload-proof-form">
+                                <hr class="my-4">
+                                <form id="upload-form" method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="proof-file" class="form-label" style="width:auto"><strong>Upload Proof of Payment:</strong></label>
+                                        <input type="file" class="form-control" id="proof-file" name="proof_of_payment" accept="image/*,application/pdf" required>
+                                    </div>
+                                    <div class="text-end">
+                                        <button type="submit" id="upload-button" class="btn btn-primary" disabled>
+                                            Submit Proof
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div class="container table-responsive mb-4">
-                        <table class="table align-middle table-nowrap table-centered mb-0">
-                            <thead class="bg-dark text-white">
-                                <tr>
-                                    <th>Selected Tiles</th>
-                                    <th>Tile Value</th>
-                                    <th>Quantity</th>
-                                    <th class="text-end" style="width: 120px;">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody data-tile-value="{{ tra.project.tile_value }}" data-count="{{ count }}">
-                                <tr>
-                                    <td>
-                                        <div>
-                                            <h5 class="text-truncate font-size-14 mb-1">{{tra.tiles_bought.tiles}}</h5>
-                                        </div>
-                                    </td>
-                                    <td>{{tra.project.tile_value}} Rs</td>
-                                    <td>{{count}}</td>
-                                    <td class="text-end" style="width: 120px;">
-                                        <span id="calculated-total"></span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div class="upload-proof-form">
-                        <form id="upload-form" method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label for="proof-file" class="form-label" style="width:auto">Upload Proof of Payment:</label>
-                                <input type="file" class="form-control" id="proof-file" name="proof_of_payment" accept="image/*,application/pdf" required>
-                            </div>
-                            <div class="text-end">
-                                <button type="submit" id="upload-button" class="btn btn-primary" disabled>
-                                    Submit Proof
-                                </button>
-                            </div>
-                        </form>
                     </div>
 
                 </div>
@@ -108,35 +169,47 @@
         {% endif %}
     </script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Elements for total calculation
-        const totalSpan = document.getElementById('calculated-total');
-        const tbody = document.querySelector('tbody');
-        const tileValue = parseFloat(tbody.dataset.tileValue);
-        const count = parseInt(tbody.dataset.count);
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elements for total calculation
+            const totalSpan = document.getElementById('calculated-total');
+            const tbody = document.getElementById('total-details'); // Corrected selector
 
-        // Calculate the total and display it
-        const total = tileValue * count;
-        if (totalSpan) {
-            totalSpan.textContent = `${total.toFixed(2)} Rs`;
-        }
+            // Check if the element exists to prevent errors
+            if (tbody) {
+                const tileValue = parseFloat(tbody.dataset.tileValue);
+                const count = parseInt(tbody.dataset.count);
 
-        // --- Form Validation Logic for the Upload Form ---
-        const uploadButton = document.getElementById('upload-button');
-        const proofFile = document.getElementById('proof-file');
-
-        // Function to check if a file is selected
-        function checkFileSelected() {
-            if (proofFile.files.length > 0) {
-                uploadButton.disabled = false;
-            } else {
-                uploadButton.disabled = true;
+                // Calculate the total and display it
+                const total = tileValue * count;
+                if (totalSpan) {
+                    totalSpan.textContent = `${total.toFixed(2)} Rs`;
+                }
             }
-        }
 
-        // Add event listener to the file input
-        proofFile.addEventListener('change', checkFileSelected);
-    });
-</script>
+            // --- Form Validation Logic for the Upload Form ---
+            const uploadForm = document.getElementById('upload-form'); // Get the form element
+            const uploadButton = document.getElementById('upload-button');
+            const proofFile = document.getElementById('proof-file');
+
+            // Function to check if a file is selected
+            function checkFileSelected() {
+                if (proofFile.files.length > 0) {
+                    uploadButton.disabled = false;
+                } else {
+                    uploadButton.disabled = true;
+                }
+            }
+
+            // Add event listener to the file input
+            proofFile.addEventListener('change', checkFileSelected);
+
+            // --- Resubmission prevention logic ---
+            uploadForm.addEventListener('submit', () => {
+                // Disable the button and change its text on submission
+                uploadButton.disabled = true;
+                uploadButton.textContent = 'Submitting...';
+            });
+        });
+    </script>
 {% endblock %}
