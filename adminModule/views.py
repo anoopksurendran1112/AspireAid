@@ -1,4 +1,6 @@
-from adminModule.utils import generate_receipt_pdf, whatsapp_send_approve, email_send_approve, sms_send_approve
+from adminModule.utils import generate_receipt_pdf, whatsapp_send_approve, email_send_approve, sms_send_approve, \
+    email_send_reject, sms_send_reject, whatsapp_send_reject, email_send_unverify, sms_send_unverify, \
+    whatsapp_send_unverify
 from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser
 from django.shortcuts import render, redirect, get_object_or_404
 from userModule.models import Transaction, Receipt, Screenshot
@@ -465,16 +467,21 @@ def adminVerifyTransaction(request, tid):
 def adminApproveTransaction(request, tid):
     if not (request.user.is_superuser or request.user.is_staff):
         return redirect('/administrator/')
+
     transaction = get_object_or_404(Transaction, id=tid)
+
     try:
         if transaction.status != "Verified":
             with db_transaction.atomic():
+
                 new_pdf_data = generate_receipt_pdf(transaction)
+
                 receipt, created = Receipt.objects.update_or_create(transaction=transaction,defaults={'receipt_pdf': new_pdf_data})
 
                 transaction.status = "Verified"
                 transaction.table_status = True
-                transaction.tiles_bought.table_status = True
+                if transaction.tiles_bought:
+                    transaction.tiles_bought.table_status = True
 
                 project_instance = transaction.project
                 project_instance.current_amount += transaction.amount
@@ -487,7 +494,8 @@ def adminApproveTransaction(request, tid):
             email_send_approve(transaction)
             sms_send_approve(transaction)
             whatsapp_send_approve(transaction)
-            messages.success(request, f'The transaction: {transaction.tracking_id} has been approved.')
+
+            messages.success(request,f'The transaction: {transaction.tracking_id} has been approved and a receipt has been generated.')
         else:
             messages.info(request, "This transaction has already been verified.")
     except Exception as e:
@@ -515,14 +523,18 @@ def adminRejectTransaction(request, tid):
 
             try:
                 receipt_to_delete = Receipt.objects.get(transaction=transaction_instance)
-                receipt_to_delete.delete() # Deletes from both DB and disk
+                receipt_to_delete.delete()
             except Receipt.DoesNotExist:
                 pass
 
             transaction_instance.project.save()
             transaction_instance.save()
 
-            messages.error(request, f'The transaction: {transaction_instance.tracking_id} has been rejected.')
+        email_send_reject(transaction_instance)
+        sms_send_reject(transaction_instance)
+        whatsapp_send_reject(transaction_instance)
+
+        messages.error(request, f'The transaction: {transaction_instance.tracking_id} has been rejected.')
     except Exception as e:
         print(f"An error occurred: {e}")
         messages.error(request, f"Failed to reject transaction: {e}")
@@ -555,7 +567,11 @@ def adminUnverifyTransaction(request, tid):
             transaction_instance.project.save()
             transaction_instance.save()
 
-            messages.warning(request, f'The transaction: {transaction_instance.tracking_id} has been unverified.')
+        email_send_unverify(transaction_instance)
+        sms_send_unverify(transaction_instance)
+        whatsapp_send_unverify(transaction_instance)
+
+        messages.warning(request, f'The transaction: {transaction_instance.tracking_id} has been unverified.')
     except Exception as e:
         print(f"An error occurred: {e}")
         messages.error(request, f"Failed to unverify transaction: {e}")
@@ -583,7 +599,6 @@ def adminGenerateReceipts(request, t_id):
                     os.remove(old_file_path)
 
         messages.success(request,f'A receipt for the transaction: {transaction_instance.tracking_id} has been created.')
-
     except Exception as e:
         print(f"An error occurred: {e}")
         messages.error(request, f"Failed to generate receipt: {e}")

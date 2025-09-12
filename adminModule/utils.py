@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER
@@ -17,12 +18,20 @@ import io
 import os
 
 
+SMS_INITIATE_TEMPLATE_ID = "197975"
+SMS_PROOF_TEMPLATE_ID = "197977"
+SMS_APPROVE_TEMPLATE_ID = "197976"
+SMS_REJECT_TEMPLATE_ID = ""
+SMS_UNVERIFY_TEMPLATE_ID = ""
+
 authorization_key = "EApz1UNdI2KToYWBS5O0Fl4QDM8G6jxvi97PgaRhLqHrfwyeZuMsG2LUHqg6ZQoCKhbwXBz71pi9vANV"
 header_id = "KDIGCF"
 
+SMS_DLT_API = "https://www.fast2sms.com/dev/bulkV2"
+
 
 """Sends a regular SMS message for payment initiated."""
-def sms_send_initiated(transaction,url):
+def sms_send_initiated(transaction, url):
     try:
         user_full_name = f"{transaction.sender.first_name} {transaction.sender.last_name}"
         project_title = transaction.project.title
@@ -30,15 +39,11 @@ def sms_send_initiated(transaction,url):
 
         variables_values = f"{user_full_name}|{project_title}|{url}|"
         params = {
-            "authorization": authorization_key,
-            "route": "dlt",
-            "sender_id": header_id,
-            "message": "197975",
-            "variables_values": variables_values,
-            "flash": "0",
-            "numbers": phone_number,
-        }
-        response = requests.get("https://www.fast2sms.com/dev/bulkV2", params=params)
+            "authorization": authorization_key, "route": "dlt", "sender_id": header_id,
+            "message": SMS_INITIATE_TEMPLATE_ID, "variables_values": variables_values,
+            "flash": "0", "numbers": phone_number}
+
+        response = requests.get(SMS_DLT_API, params=params)
 
         if response.status_code == 200:
             print(f"SMS sent successfully to {phone_number}.")
@@ -48,7 +53,6 @@ def sms_send_initiated(transaction,url):
             print(f"SMS API failed. Status code: {response.status_code}")
             print(f"Response: {response.text}")
             return {"status": "error", "response": response.text}
-
     except Exception as e:
         print(f"SMS API failed: {e}")
         return {"status": "error", "message": str(e)}
@@ -64,15 +68,10 @@ def sms_send_proof(transaction):
 
         variables_values = f"{user_full_name}|{tracking_id}|{project_title}|"
         params = {
-            "authorization": authorization_key,
-            "route": "dlt",
-            "sender_id": header_id,
-            "message": "197977",
-            "variables_values": variables_values,
-            "flash": "0",
-            "numbers": phone_number,
-        }
-        response = requests.get("https://www.fast2sms.com/dev/bulkV2", params=params)
+            "authorization": authorization_key, "route": "dlt", "sender_id": header_id,
+            "message": SMS_PROOF_TEMPLATE_ID, "variables_values": variables_values,
+            "flash": "0", "numbers": phone_number,}
+        response = requests.get(SMS_DLT_API, params=params)
 
         if response.status_code == 200:
             print(f"SMS sent successfully to {phone_number}.")
@@ -82,7 +81,6 @@ def sms_send_proof(transaction):
             print(f"SMS API failed. Status code: {response.status_code}")
             print(f"Response: {response.text}")
             return {"status": "error", "response": response.text}
-
     except Exception as e:
         print(f"SMS API failed: {e}")
         return {"status": "error", "message": str(e)}
@@ -91,10 +89,11 @@ def sms_send_proof(transaction):
 """Sends a regular SMS message for successful verification."""
 def sms_send_approve(transaction):
     try:
-        receipt = Receipt.objects.filter(transaction=transaction).first()
+        receipt = get_object_or_404(Receipt, transaction=transaction)
 
         user_full_name = f"{transaction.sender.first_name} {transaction.sender.last_name}"
         project_title = transaction.project.title
+
         if receipt.receipt_pdf:
             receipt.filename = os.path.basename(receipt.receipt_pdf.name)
 
@@ -102,15 +101,11 @@ def sms_send_approve(transaction):
 
         variables_values = f"{user_full_name}|{project_title}|{receipt.filename}|"
         params = {
-            "authorization": authorization_key,
-            "route": "dlt",
-            "sender_id": header_id,
-            "message": "197976",
-            "variables_values": variables_values,
-            "flash": "0",
-            "numbers": phone_number,
-        }
-        response = requests.get("https://www.fast2sms.com/dev/bulkV2", params=params)
+            "authorization": authorization_key,"route": "dlt","sender_id": header_id,
+            "message": SMS_APPROVE_TEMPLATE_ID,"variables_values": variables_values,
+            "flash": "0","numbers": phone_number,}
+
+        response = requests.get(SMS_DLT_API, params=params)
 
         if response.status_code == 200:
             print(f"SMS sent successfully to {phone_number}.")
@@ -120,27 +115,78 @@ def sms_send_approve(transaction):
             print(f"SMS API failed. Status code: {response.status_code}")
             print(f"Response: {response.text}")
             return {"status": "error", "response": response.text}
-
     except Exception as e:
         print(f"SMS API failed: {e}")
         return {"status": "error", "message": str(e)}
 
 
-"""Sends a Whatsapp message for payment initiated."""
-def whatsapp_send_initiated(transaction,url):
+"""Sends a regular SMS message for rejected verification."""
+def sms_send_reject(transaction):
     try:
-        params_string = f"{transaction.sender.first_name} {transaction.sender.last_name},{transaction.project.title},{url}"
+        user_full_name = f"{transaction.sender.first_name} {transaction.sender.last_name}"
+        project_title = transaction.project.title
+        phone_number = transaction.sender.phone
+
+        variables_values = f"{user_full_name}|{project_title}|"
+        params = {
+            "authorization": authorization_key,"route": "dlt","sender_id": header_id,
+            "message": SMS_REJECT_TEMPLATE_ID,"variables_values": variables_values,
+            "flash": "0","numbers": phone_number,}
+
+        response = requests.get(SMS_DLT_API, params=params)
+
+        if response.status_code == 200:
+            print(f"Rejection SMS sent successfully to {phone_number}.")
+            print(f"SMS API status code: {response.status_code}")
+            return {"status": "success", "response": response.text}
+        else:
+            print(f"Rejection SMS API failed. Status code: {response.status_code}")
+            print(f"Response: {response.text}")
+            return {"status": "error", "response": response.text}
+    except Exception as e:
+        print(f"Rejection SMS API failed: {e}")
+        return {"status": "error", "message": str(e)}
+
+
+"""Sends a regular SMS message for unverified verification."""
+def sms_send_unverify(transaction):
+    try:
+        user_full_name = f"{transaction.sender.first_name} {transaction.sender.last_name}"
+        project_title = transaction.project.title
+        phone_number = transaction.sender.phone
+
+        variables_values = f"{user_full_name}|{project_title}|"
+        params = {
+            "authorization": authorization_key,"route": "dlt","sender_id": header_id,
+            "message": SMS_UNVERIFY_TEMPLATE_ID,"variables_values": variables_values,
+            "flash": "0","numbers": phone_number,}
+
+        response = requests.get(SMS_DLT_API, params=params)
+
+        if response.status_code == 200:
+            print(f"Unverified SMS sent successfully to {phone_number}.")
+            print(f"SMS API status code: {response.status_code}")
+            return {"status": "success", "response": response.text}
+        else:
+            print(f"Unverified SMS API failed. Status code: {response.status_code}")
+            print(f"Response: {response.text}")
+            return {"status": "error", "response": response.text}
+    except Exception as e:
+        print(f"Unverified SMS API failed: {e}")
+        return {"status": "error", "message": str(e)}
+
+
+"""Sends a Whatsapp message for payment initiated."""
+def whatsapp_send_initiated(transaction, url):
+    try:
+        params_string = f"{transaction.sender.first_name} {transaction.sender.last_name},{transaction.tracking_id},{transaction.project.title},{url}"
         api_params = {
-            'user': settings.BHASHSMS_API_USER,
-            'pass': settings.BHASHSMS_API_PASS,
-            'sender': settings.BHASHSMS_API_SENDER,
-            'phone': transaction.sender.phone,
-            'text': 'cf_payment_initiated',
-            'priority': settings.BHASHSMS_API_PRIORITY,
-            'stype': settings.BHASHSMS_API_STYPE,
-            'Params': params_string,
-        }
+            'user': settings.BHASHSMS_API_USER,'pass': settings.BHASHSMS_API_PASS,'sender': settings.BHASHSMS_API_SENDER,
+            'phone': transaction.sender.phone,'text': 'cf_payment_initiated_v2','priority': settings.BHASHSMS_API_PRIORITY,
+            'stype': settings.BHASHSMS_API_STYPE,'Params': params_string}
+
         response = requests.get(settings.BHASHSMS_API, params=api_params)
+
         print(f'WhatsApp API Response Status: {response.status_code}')
         print(f'WhatsApp API Response Content: {response.text}')
         return response.status_code == 200
@@ -161,9 +207,9 @@ def whatsapp_send_proof(transaction):
             'text': 'cf_successful_proof',
             'priority': settings.BHASHSMS_API_PRIORITY,
             'stype': settings.BHASHSMS_API_STYPE,
-            'Params': params_string,
-        }
+            'Params': params_string,}
         response = requests.get(settings.BHASHSMS_API, params=api_params)
+
         print(f'WhatsApp API Response Status: {response.status_code}')
         print(f'WhatsApp API Response Content: {response.text}')
         return response.status_code == 200
@@ -175,7 +221,7 @@ def whatsapp_send_proof(transaction):
 """Sends a WhatsApp message for successful verification."""
 def whatsapp_send_approve(transaction):
     try:
-        receipt = Receipt.objects.filter(transaction=transaction).first()
+        receipt = get_object_or_404(Receipt, transaction=transaction)
         if receipt.receipt_pdf:
             receipt.filename = os.path.basename(receipt.receipt_pdf.name)
 
@@ -185,12 +231,61 @@ def whatsapp_send_approve(transaction):
             'pass': settings.BHASHSMS_API_PASS,
             'sender': settings.BHASHSMS_API_SENDER,
             'phone': transaction.sender.phone,
-            'text': 'cf_successful_verification',
+            'text': 'cf_transaction_approved',
             'priority': settings.BHASHSMS_API_PRIORITY,
             'stype': settings.BHASHSMS_API_STYPE,
-            'Params': params_string,
-        }
+            'Params': params_string}
+
         response = requests.get(settings.BHASHSMS_API, params=api_params)
+
+        print(f'WhatsApp API Response Status: {response.status_code}')
+        print(f'WhatsApp API Response Content: {response.text}')
+        return response.status_code == 200
+    except Exception as e:
+        print(f"WhatsApp API failed: {e}")
+        return False
+
+
+"""Sends a WhatsApp message for rejected verification."""
+def whatsapp_send_reject(transaction):
+    try:
+        params_string = f"{transaction.sender.first_name} {transaction.sender.last_name}, {transaction.project.title}"
+        api_params = {
+            'user': settings.BHASHSMS_API_USER,
+            'pass': settings.BHASHSMS_API_PASS,
+            'sender': settings.BHASHSMS_API_SENDER,
+            'phone': transaction.sender.phone,
+            'text': 'cf_transaction_rejected',
+            'priority': settings.BHASHSMS_API_PRIORITY,
+            'stype': settings.BHASHSMS_API_STYPE,
+            'Params': params_string}
+
+        response = requests.get(settings.BHASHSMS_API, params=api_params)
+
+        print(f'WhatsApp API Response Status: {response.status_code}')
+        print(f'WhatsApp API Response Content: {response.text}')
+        return response.status_code == 200
+    except Exception as e:
+        print(f"WhatsApp API failed: {e}")
+        return False
+
+
+"""Sends a WhatsApp message for unverified verification."""
+def whatsapp_send_unverify(transaction):
+    try:
+        params_string = f"{transaction.sender.first_name} {transaction.sender.last_name}, {transaction.project.title}"
+        api_params = {
+            'user': settings.BHASHSMS_API_USER,
+            'pass': settings.BHASHSMS_API_PASS,
+            'sender': settings.BHASHSMS_API_SENDER,
+            'phone': transaction.sender.phone,
+            'text': 'cf_transaction_unverified',
+            'priority': settings.BHASHSMS_API_PRIORITY,
+            'stype': settings.BHASHSMS_API_STYPE,
+            'Params': params_string}
+
+        response = requests.get(settings.BHASHSMS_API, params=api_params)
+
         print(f'WhatsApp API Response Status: {response.status_code}')
         print(f'WhatsApp API Response Content: {response.text}')
         return response.status_code == 200
@@ -200,33 +295,29 @@ def whatsapp_send_approve(transaction):
 
 
 """Sends an email for payment initiated."""
-def email_send_initiated(transaction,url):
+def email_send_initiated(transaction, url):
     try:
         institution = transaction.project.created_by.institution
 
-        # Create a new connection for this specific email
         connection = get_connection(
-            host='smtp.gmail.com',
-            port=587,
-            username=institution.email,
-            password=institution.email_app_password,
-            use_tls=True,
-            use_ssl=False
-        )
+            host='smtp.gmail.com',port=587,username=institution.email,
+            password=institution.email_app_password,use_tls=True,use_ssl=False)
 
         subject = f'Payment Initiated for "{transaction.project.title}"'
         plain_text_message = (
             f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n\n'
-            f'Your payment for the project "{transaction.project.title}" has been initiated. You can track the status using your mobile number.\n'
+            f'Your payment for the project "{transaction.project.title}" has been initiated has been initiated with tracking id: {transaction.tracking_id}. You can track the status using your mobile number.\n'
             f'Please upload proof of payment at : {url}\n\n'
-            f'- Team {transaction.project.created_by.institution.institution_name}'
-        )
+            f'- Team {transaction.project.created_by.institution.institution_name}')
+
         sender_email = transaction.project.created_by.institution.email
         receiver_email = transaction.sender.email
 
         email_message = EmailMessage(subject=subject, body=plain_text_message, from_email=sender_email,
                                      to=[receiver_email], connection=connection)
+
         email_message.send(fail_silently=False)
+
         return True
     except Exception as e:
         print(f"Email sending failed: {e}")
@@ -238,30 +329,25 @@ def email_send_proof(transaction):
     try:
         institution = transaction.project.created_by.institution
 
-        # Create a new connection for this specific email
         connection = get_connection(
-            host='smtp.gmail.com',
-            port=587,
-            username=institution.email,
-            password=institution.email_app_password,
-            use_tls=True,
-            use_ssl=False
-        )
+            host='smtp.gmail.com',port=587,username=institution.email,
+            password=institution.email_app_password,use_tls=True,use_ssl=False)
 
         subject = f'Proof upload for "{transaction.project.title}"'
-
         plain_text_message = (
             f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n'
             f'Your proof of payment (tracking ID: {transaction.tracking_id}) for the project "{transaction.project.title}" has been successfully uploaded.\n'
             f'Our team will verify it shortly.\n\n'
-            f'- Team {transaction.project.created_by.institution.institution_name}'
-        )
+            f'- Team {transaction.project.created_by.institution.institution_name}')
+
         sender_email = transaction.project.created_by.institution.email
         receiver_email = transaction.sender.email
 
         email_message = EmailMessage(subject=subject, body=plain_text_message, from_email=sender_email,
                                      to=[receiver_email], connection=connection)
+
         email_message.send(fail_silently=False)
+
         return True
     except Exception as e:
         print(f"Email sending failed: {e}")
@@ -273,42 +359,90 @@ def email_send_approve(transaction):
     try:
         institution = transaction.project.created_by.institution
 
-        # Create a new connection for this specific email
         connection = get_connection(
-            host='smtp.gmail.com',
-            port=587,
-            username=institution.email,
-            password=institution.email_app_password,
-            use_tls=True,
-            use_ssl=False
-        )
+            host='smtp.gmail.com',port=587,username=institution.email,
+            password=institution.email_app_password,use_tls=True,use_ssl=False)
 
         subject = f'Payment successfully verified for "{transaction.project.title}"'
-
-        # Generate and save the receipt
-        receipt, created = Receipt.objects.update_or_create(
-            transaction=transaction,
-            defaults={'receipt_pdf': generate_receipt_pdf(transaction)}
-        )
-
         plain_text_message = (
             f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n\n'
             f'Your payment for the project "{transaction.project.title}" has been verified. Your transaction is now complete.\n'
-            f'Your receipt is attached below.\n\n'  # Use .url for the link
-            f'- Team {institution.institution_name}'
-        )
+            f'Your receipt is attached below.\n\n'
+            f'- Team {institution.institution_name}')
 
-        email_message = EmailMessage(
-            subject=subject,
-            body=plain_text_message,
-            from_email=institution.email,
-            to=[transaction.sender.email],
-            connection=connection
-        )
+        sender_email = transaction.project.created_by.institution.email
+        receiver_email = transaction.sender.email
 
+        email_message = EmailMessage(subject=subject,body=plain_text_message,from_email=sender_email,
+            to=[receiver_email],connection=connection)
+
+        receipt = get_object_or_404(Receipt, transaction=transaction)
         pdf_path = receipt.receipt_pdf.path
         email_message.attach_file(pdf_path)
+
         email_message.send(fail_silently=False)
+
+        return True
+    except Exception as e:
+        print(f"Email sending failed: {e}")
+        return False
+
+
+"""Sends an email for rejected verification."""
+def email_send_reject(transaction):
+    try:
+        institution = transaction.project.created_by.institution
+        connection = get_connection(
+            host='smtp.gmail.com',port=587,username=institution.email,
+            password=institution.email_app_password,use_tls=True,use_ssl=False)
+
+        subject = f'Payment Verification Rejected for "{transaction.project.title}"'
+        plain_text_message = (
+            f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n\n'
+            f'We regret to inform you that your payment for the project "{transaction.project.title}" has been rejected.\n'
+            f'Please re-upload a clear and valid proof of payment.\n\n'
+            f'- Team {institution.institution_name}')
+
+        sender_email = transaction.project.created_by.institution.email
+        receiver_email = transaction.sender.email
+
+        email_message = EmailMessage(subject=subject,body=plain_text_message,from_email=sender_email,
+            to=[receiver_email],connection=connection)
+
+        email_message.send(fail_silently=False)
+
+        return True
+    except Exception as e:
+        print(f"Email sending failed: {e}")
+        return False
+
+
+"""Sends an email for unverified verification."""
+
+
+def email_send_unverify(transaction):
+    try:
+        institution = transaction.project.created_by.institution
+
+        connection = get_connection(
+            host='smtp.gmail.com',port=587,username=institution.email,
+            password=institution.email_app_password,use_tls=True,use_ssl=False)
+
+        subject = f'Payment Status Unverified for "{transaction.project.title}"'
+        plain_text_message = (
+            f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n\n'
+            f'Your payment for the project "{transaction.project.title}" has been set to unverified status.\n'
+            f'This may require further action or re-uploading your proof of payment.\n\n'
+            f'- Team {institution.institution_name}')
+
+        sender_email = transaction.project.created_by.institution.email
+        receiver_email = transaction.sender.email
+
+        email_message = EmailMessage(subject=subject,body=plain_text_message,from_email=sender_email,
+            to=[receiver_email],connection=connection)
+
+        email_message.send(fail_silently=False)
+
         return True
     except Exception as e:
         print(f"Email sending failed: {e}")
