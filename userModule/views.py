@@ -139,9 +139,9 @@ def userCheckoutView(request, ins_id):
 
             proof_upload_url = f'{ins_id}/proof/{transaction.id}'
 
-            # sms_send_initiated(transaction,proof_upload_url)
+            sms_send_initiated(transaction,proof_upload_url)
             whatsapp_send_initiated(transaction,proof_upload_url)
-            # email_send_initiated(transaction,proof_upload_url)
+            email_send_initiated(transaction,proof_upload_url)
 
             messages.success(request, f'Payment for the tiles {selected_tiles_str} has been initiated.')
         except Exception as e:
@@ -178,9 +178,9 @@ def userProofUpload(request, ins_id, trans_id):
                 except Screenshot.DoesNotExist:
                     new_screenshot = Screenshot.objects.create(transaction=tra, screen_shot=proof)
 
-            # sms_send_proof(tra)
+            sms_send_proof(tra)
             whatsapp_send_proof(tra)
-            # email_send_proof(tra)
+            email_send_proof(tra)
 
             messages.success(request, "Proof of payment uploaded successfully!")
         except Exception as e:
