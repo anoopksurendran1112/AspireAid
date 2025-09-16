@@ -7,14 +7,18 @@ urlpatterns = [
     path('admin-log-out/',views.adminLogOut),
 
     path('profile/',views.adminProfile),
-    path('update-admin/<int:aid>/', views.adminUpdateAdmin, name='update_admin'),
     path('admin_profile_img/',views.adminProfilePicture),
     path('admin_inst_img/',views.adminInstitutionPicture),
 
     path('all-institution/',views.adminAllInstitution),
-    path('delete-institution/<int:iid>/',views.adminDeleteInstitution),
+    path('change-institution-status/<int:iid>/',views.AdminChangeInstitutionStatus),
+    path('delete-institution/<int:iid>/',views.adminDeleteInstitutionPermanent),
     path('update-institution/<int:iid>/',views.adminUpdateInstitution),
+
     path('all-insti-admin/',views.adminAllInstiAdmin),
+    path('change-admin-status/<int:aid>/',views.AdminChangeInstitutionAdminStatus),
+    path('delete-insti-admin/<int:aid>/',views.adminDeletePermanent),
+    path('update-institution-admin/<int:aid>/',views.adminUpdateInstitutionAdmin),
 
     path('update-bank/',views.adminUpdateBankDetails, name='update_bank'),
 

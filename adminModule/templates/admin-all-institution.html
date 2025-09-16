@@ -55,7 +55,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="institutionViewModalLabel"><strong>Institution</strong></h1>
+                <h1 class="modal-title fs-5" id="institutionViewModalLabel"><strong>Update Institution</strong></h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -72,6 +72,11 @@
                             <input type="email" class="form-control" id="inst_email_update" placeholder="Enter Institution email" name="inst_email" required disabled>
                             <label for="inst_email_update">Institution email</label>
                             <span class="text-danger small-text" id="inst_email_update-error"></span>
+                        </div>
+                        <div class="col-lg-12 form-floating mb-1 p-1" id="app_password_field" hidden>
+                            <input type="password" class="form-control" id="inst_app_pwd_update" placeholder="Enter new App Password" name="inst_app_pwd">
+                            <label for="inst_app_pwd_update">App Password</label>
+                            <span class="text-danger small-text" id="inst_app_pwd_update-error"></span>
                         </div>
                         <div class="col-lg-12 form-floating mb-1 p-1">
                             <input type="tel" class="form-control" id="inst_phn_update" placeholder="Enter Institution phone number" name="inst_phn" required disabled>
@@ -95,6 +100,36 @@
     </div>
 </div>
 
+
+<!---------------------- Modal for Deleting Institution -------------------->
+<div class="modal fade" id="permanentDeleteModal" tabindex="-1" aria-labelledby="permanentDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="permanentDeleteModalLabel"><strong>Delete Institution</strong></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form method="post" action="">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Warning!</strong> This action is permanent and cannot be undone.
+                        <br>
+                        All associated data, including projects, transactions, and users, will be permanently deleted.
+                    </div>
+                    <p>Are you sure you want to proceed?</p>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning">Delete Permanently</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 <!---------------------- All Institution Table Details -------------------->
    <div class="row">
         <div class="col-12 ">
@@ -114,7 +149,8 @@
                             <th>Email Address</th>
                             <th>Contact Number</th>
                             <th>Institution Address</th>
-                            <th></th>
+                            <th>Status</th>
+                            <th colspan="3" class="text-center">Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -126,18 +162,31 @@
                             <td>{{i.phn}}</td>
                             <td>{{i.address}}</td>
                             <td>
+                                {% if i.table_status %}
+                                <strong class="text-success">Active</strong>
+                                {% else %}
+                                <strong class="text-danger">Inactive</strong>
+                                {% endif %}
+                            </td>
+                            <td>
                                 <div class="d-flex align-items-center justify-content-center">
                                     <a class="me-3" data-bs-toggle="modal" data-bs-target="#institutionViewModal" data-action-type="view"
-                                        data-inst-id="{{ i.id }}"
-                                       data-inst-name="{{ i.institution_name }}"
-                                       data-inst-email="{{ i.email }}"
-                                       data-inst-phn="{{ i.phn }}"
-                                       data-inst-address="{{ i.address }}">
-                                        <i class="align-middle" data-feather="eye"></i>
+                                       data-inst-id="{{ i.id }}" data-inst-name="{{ i.institution_name }}" data-inst-email="{{ i.email }}"
+                                       data-inst-phn="{{ i.phn }}" data-inst-address="{{ i.address }}">
+                                        <i class="align-middle" data-feather="edit"></i>
                                     </a>
-                                    <a class="me-3 text-danger" href="/administrator/delete-institution/{{i.id}}/">
+                                    {% if i.table_status %}
+                                    <a class="me-3 text-success" href="/administrator/change-institution-status/{{i.id}}/">
+                                        <i class="align-middle" data-feather="chevrons-up"></i>
+                                    </a>
+                                    {% else %}
+                                    <a class="me-3 text-danger" href="/administrator/change-institution-status/{{i.id}}/">
+                                        <i class="align-middle" data-feather="chevrons-down"></i>
+                                    </a>
+                                    {% endif %}
+                                    <button type="button" class="btn text-danger" data-bs-toggle="modal" data-bs-target="#permanentDeleteModal" data-inst-id="{{ i.id }}">
                                         <i class="align-middle" data-feather="trash"></i>
-                                    </a>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -165,13 +214,27 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // --- Modal Elements ---
+        const permanentDeleteModal = document.getElementById('permanentDeleteModal');
         const institutionModal = document.getElementById('institutionModal');
         const updateModal = document.getElementById('institutionViewModal');
 
-        // Regex patterns for validation
+        // --- Form Elements ---
+        const addForm = document.getElementById('add-institution-form');
+        const updateForm = document.getElementById('update-institution-form');
+
+        // --- Form-specific Buttons & Inputs (for the Update modal) ---
+        const formInputs = updateForm ? updateForm.querySelectorAll('input, textarea') : [];
+        const editButton = document.getElementById('edit-button');
+        const updateButton = document.getElementById('update-button');
+        const appPasswordField = document.getElementById('app_password_field');
+        const passwordInput = document.getElementById('inst_app_pwd_update');
+
+        // --- Regex patterns for validation ---
         const phoneRegex = /^\d{10}$/;
         const emailRegex = /^\S+@\S+\.\S+$/;
 
+        // --- Validation Utility Functions ---
         function updateValidationStatus(inputElement, isValid, errorMessage = "") {
             const errorSpan = document.getElementById(`${inputElement.id}-error`);
             if (isValid) {
@@ -186,6 +249,7 @@
         }
 
         function resetValidationStatus(form) {
+            if (!form) return;
             form.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
                 el.classList.remove('is-valid', 'is-invalid');
             });
@@ -205,7 +269,7 @@
             const addressInput = form.querySelector('[name="inst_address"]');
             const passwordInput = form.querySelector('[name="inst_app_pwd"]');
 
-            // --- Validate each field
+            // --- Validate each field ---
             if (!nameInput.value.trim()) {
                 updateValidationStatus(nameInput, false, "Institution name is required.");
                 formIsValid = false;
@@ -234,11 +298,19 @@
                 updateValidationStatus(addressInput, true);
             }
 
-            // The password field only exists on the "add" form
+            // The password field exists on both forms now
             if (passwordInput && !passwordInput.value.trim()) {
-                updateValidationStatus(passwordInput, false, "App password is required.");
-                formIsValid = false;
-            } else if (passwordInput) {
+                // If it's a new institution, password is required
+                if (form.id === 'add-institution-form') {
+                    updateValidationStatus(passwordInput, false, "App password is required.");
+                    formIsValid = false;
+                }
+                // If it's an update and the field is shown, it should be validated
+                else if (form.id === 'update-institution-form' && !appPasswordField.hidden) {
+                    // Password field for update is optional, so no error here
+                }
+            }
+            if (passwordInput) {
                 updateValidationStatus(passwordInput, true);
             }
 
@@ -246,58 +318,77 @@
         }
 
         // --- Event Listeners for the "Add New" form ---
-        const addForm = document.getElementById('add-institution-form');
-        addForm.addEventListener('submit', function (event) {
-            if (!validateForm(addForm)) {
-                event.preventDefault();
-            }
-        });
-
-        // --- Event Listeners for the "Update" form ---
-        const updateForm = document.getElementById('update-institution-form');
-        const formInputs = updateForm.querySelectorAll('input, textarea');
-        const editButton = document.getElementById('edit-button');
-        const updateButton = document.getElementById('update-button');
-
-        // This listener populates the modal and resets validation state
-        updateModal.addEventListener('show.bs.modal', event => {
-            const button = event.relatedTarget;
-            const institutionId = button.getAttribute('data-inst-id');
-            const institutionName = button.getAttribute('data-inst-name');
-            const institutionEmail = button.getAttribute('data-inst-email');
-            const institutionPhn = button.getAttribute('data-inst-phn');
-            const institutionAddress = button.getAttribute('data-inst-address');
-
-            updateForm.action = `/administrator/update-institution/${institutionId}/`;
-            updateModal.querySelector('#inst_name_update').value = institutionName;
-            updateModal.querySelector('#inst_email_update').value = institutionEmail;
-            updateModal.querySelector('#inst_phn_update').value = institutionPhn;
-            updateModal.querySelector('#inst_address_update').value = institutionAddress;
-
-            formInputs.forEach(input => {
-                input.disabled = true;
+        if (addForm) {
+            addForm.addEventListener('submit', function (event) {
+                if (!validateForm(addForm)) {
+                    event.preventDefault();
+                }
             });
-            editButton.hidden = false;
-            updateButton.hidden = true;
-            resetValidationStatus(updateForm);
-        });
+        }
 
-        // This listener handles the click on the 'Edit' button
-        editButton.addEventListener('click', () => {
-            editButton.hidden = true;
-            updateButton.hidden = false;
-            formInputs.forEach(input => {
-                input.disabled = false;
+
+        // --- Event Listeners for the "Update" modal ---
+        if (updateModal) {
+            updateModal.addEventListener('show.bs.modal', event => {
+                const button = event.relatedTarget;
+                const institutionId = button.getAttribute('data-inst-id');
+                const institutionName = button.getAttribute('data-inst-name');
+                const institutionEmail = button.getAttribute('data-inst-email');
+                const institutionPhn = button.getAttribute('data-inst-phn');
+                const institutionAddress = button.getAttribute('data-inst-address');
+
+                if (updateForm) {
+                    updateForm.action = `/administrator/update-institution/${institutionId}/`;
+                    updateModal.querySelector('#inst_name_update').value = institutionName;
+                    updateModal.querySelector('#inst_email_update').value = institutionEmail;
+                    updateModal.querySelector('#inst_phn_update').value = institutionPhn;
+                    updateModal.querySelector('#inst_address_update').value = institutionAddress;
+                    passwordInput.value = ""; // Clear the password field
+                }
+
+                if (formInputs) {
+                    formInputs.forEach(input => {
+                        input.disabled = true;
+                    });
+                }
+
+                if (appPasswordField) appPasswordField.hidden = true; // Hide password field
+                if (editButton) editButton.hidden = false;
+                if (updateButton) updateButton.hidden = true;
+                if (updateForm) resetValidationStatus(updateForm);
             });
-        });
 
-        // This listener handles the submission of the "update" form
-        updateForm.addEventListener('submit', function(event) {
-            if (!validateForm(updateForm)) {
-                event.preventDefault();
+            if (editButton) {
+                editButton.addEventListener('click', () => {
+                    editButton.hidden = true;
+                    updateButton.hidden = false;
+                    formInputs.forEach(input => {
+                        input.disabled = false;
+                    });
+                    if (appPasswordField) appPasswordField.hidden = false; // Show password field
+                });
             }
-        });
+
+            if (updateForm) {
+                updateForm.addEventListener('submit', function(event) {
+                    if (!validateForm(updateForm)) {
+                        event.preventDefault();
+                    }
+                });
+            }
+        }
+
+
+        // --- Event Listener for the "Permanent Delete" modal ---
+        if (permanentDeleteModal) {
+            permanentDeleteModal.addEventListener('show.bs.modal', (event) => {
+                const button = event.relatedTarget;
+                const instId = button.getAttribute('data-inst-id');
+                const form = permanentDeleteModal.querySelector('form');
+                const newActionUrl = `/administrator/delete-institution/${instId}/`;
+                if (form) form.action = newActionUrl;
+            });
+        }
     });
 </script>
-
 {% endblock %}

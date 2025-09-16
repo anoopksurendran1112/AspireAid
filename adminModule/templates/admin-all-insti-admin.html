@@ -119,7 +119,7 @@
                             <span class="text-danger small-text" id="username_update-error"></span>
                         </div>
                         <div class="col-lg-6 form-floating mb-1 p-1">
-                            <input type="password" class="form-control" id="password_update" placeholder="Enter Password" name="password">
+                            <input type="password" class="form-control" id="password_update" placeholder="Enter Password" name="password" required>
                             <label for="password_update">Old Password</label>
                             <span class="text-danger small-text" id="password_update-error"></span>
                         </div>
@@ -139,6 +139,36 @@
         </div>
     </div>
 </div>
+
+
+<!---------------------- Modal for Deleting Institution Admin -------------------->
+<div class="modal fade" id="adminPermanentDeleteModal" tabindex="-1" aria-labelledby="adminPermanentDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="adminPermanentDeleteModalLabel"><strong>Delete Institution Admin</strong></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form method="post" action="">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Warning!</strong> Deleting this admin account is permanent and cannot be undone.
+                        <br>
+                        This user will be removed from the system and lose all access.
+                    </div>
+                    <p>Are you sure you want to proceed?</p>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning">Delete Permanently</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 <!---------------------- All Admin Table Details -------------------->
     <div class="row">
@@ -160,7 +190,8 @@
                             <th>Email Address</th>
                             <th>Institution</th>
                             <th>Contact Number</th>
-                            <th></th>
+                            <th>Status</th>
+                            <th colspan="3" class="text-center">Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -173,19 +204,33 @@
                             <td>{{i.institution.institution_name}}</td>
                             <td>{{i.phn_no}}</td>
                             <td>
+                                {% if i.table_status %}
+                                <strong class="text-success">Active</strong>
+                                {% else %}
+                                <strong class="text-danger">Inactive</strong>
+                                {% endif %}
+                            </td>
+                            <td>
                                 <div class="d-flex align-items-center justify-content-center">
                                     <a class="me-3" data-bs-toggle="modal" data-bs-target="#updateAdminModal" data-action-type="view"
+                                       data-admin-id="{{ i.id }}"
                                         data-first-name="{{ i.first_name }}"
                                         data-last-name="{{ i.last_name }}"
                                         data-email="{{ i.email }}"
                                         data-inst-id="{{ i.institution.id }}"
                                         data-phn-no="{{ i.phn_no }}"
                                         data-username="{{ i.username }}">
-                                        <i class="align-middle" data-feather="eye"></i>
+                                        <i class="align-middle" data-feather="edit"></i>
                                     </a>
-                                    <a class="me-3 text-danger" href="/administrator/delete-institution/{{i.id}}/">
-                                        <i class="align-middle" data-feather="trash"></i>
+                                    {% if i.table_status %}
+                                    <a class="me-3 text-success" href="/administrator/change-admin-status/{{i.id}}/">
+                                        <i class="align-middle" data-feather="chevrons-up"></i>
                                     </a>
+                                    {% else %}
+                                    <a class="me-3 text-danger" href="/administrator/change-admin-status/{{i.id}}/">
+                                        <i class="align-middle" data-feather="chevrons-down"></i>
+                                    </a>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>
@@ -210,6 +255,24 @@
             {% endfor %}
         {% endif %}
     </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const adminDeleteModal = document.getElementById('adminPermanentDeleteModal');
+
+        if (adminDeleteModal) {
+            adminDeleteModal.addEventListener('show.bs.modal', (event) => {
+                const button = event.relatedTarget;
+                const adminId = button.getAttribute('data-admin-id');
+                const form = adminDeleteModal.querySelector('form');
+
+                // The URL should match your Django URL pattern
+                const newActionUrl = `/administrator/delete-insti-admin/${adminId}/`;
+                form.action = newActionUrl;
+            });
+        }
+    });
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -406,7 +469,7 @@
                 const username = button.getAttribute('data-username');
                 const updateAdminId = button.getAttribute('data-admin-id');
 
-                updateAdminForm.action = `/administrator/update-admin/${updateAdminId}/`;
+                updateAdminForm.action = `/administrator/update-institution-admin/${updateAdminId}/`;
                 document.getElementById('first_name_update').value = firstName;
                 document.getElementById('last_name_update').value = lastName;
                 document.getElementById('email_update').value = email;

@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-l198fkq+e5j&o_t&z4%b1g3&s%@0&3@iicwo6w0k2kyulp&1g_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['aid.kochi.digital','localhost','127.0.0.1']
+# ALLOWED_HOSTS = ['aid.kochi.digital']
+ALLOWED_HOSTS = []
 
 
 # Application definition

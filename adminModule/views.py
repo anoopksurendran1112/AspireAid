@@ -131,45 +131,98 @@ def adminInstitutionPicture(request):
 
 # Superuser listing all Institutions and adding new Institutions
 def adminAllInstitution(request):
-    if request.user.is_superuser:
-        inst= Institution.objects.all()
-        if request.method == "POST":
-            inst_name = request.POST.get('inst_name')
-            inst_email = request.POST.get('inst_email')
-            inst_app_pwd = request.POST.get('inst_app_pwd')
-            inst_phn = request.POST.get('inst_phn')
-            inst_address = request.POST.get('inst_address')
-            new_inst = Institution(institution_name=inst_name, address=inst_address, phn=inst_phn, email=inst_email, email_app_password=inst_app_pwd)
-            new_inst.save()
+    if not request.user.is_superuser:
+        messages.error(request, "You do not have permission to perform this action.")
+        return redirect('/administrator/')
+
+    inst = Institution.objects.all()
+    if request.method == "POST":
+        inst_name = request.POST.get('inst_name')
+        inst_email = request.POST.get('inst_email')
+        inst_app_pwd = request.POST.get('inst_app_pwd')
+        inst_phn = request.POST.get('inst_phn')
+        inst_address = request.POST.get('inst_address')
+
+        try:
+            with db_transaction.atomic():
+                new_inst = Institution(institution_name=inst_name,address=inst_address,phn=inst_phn,email=inst_email,email_app_password=inst_app_pwd)
+                new_inst.save()
             messages.success(request, f'Registered {inst_name} Successfully.')
-            return redirect('/administrator/all-institution/')
-        return render(request,"admin-all-institution.html", {'admin': request.user, 'institutions': inst})
-    else:
+        except IntegrityError as e:
+            if 'email' in str(e).lower():
+                messages.error(request, "Registration failed: An institution with this email already exists.")
+            else:
+                messages.error(request,"Registration failed due to a database integrity error. Please check your inputs.")
+            print(f"IntegrityError: {e}")
+        except Exception as e:
+            print(f"An unexpected error occurred while adding a new institution: {e}")
+            messages.error(request, "Failed to register new institution due to an unknown error.")
+        return redirect('/administrator/all-institution/')
+    return render(request, "admin-all-institution.html", {'admin': request.user, 'institutions': inst})
+
+
+def adminUpdateInstitution(request, iid):
+    if not request.user.is_superuser:
+        messages.error(request, "You do not have permission to perform this action.")
         return redirect('/administrator/')
 
+    institution = get_object_or_404(Institution, id=iid)
+    if request.method == 'POST':
+        try:
+            with db_transaction.atomic():
+                institution_name = request.POST.get('inst_name')
+                institution_email = request.POST.get('inst_email')
+                institution_phn = request.POST.get('inst_phn')
+                institution_address = request.POST.get('inst_address')
+                institution_app_password = request.POST.get('inst_app_pwd')
 
-# Superuser Updating existing Institutions
-def adminUpdateInstitution(request,iid):
-    if request.user.is_superuser:
-        institution = get_object_or_404(Institution, id=iid)
-        institution_name = institution.institution_name
+                institution.institution_name = institution_name
+                institution.email = institution_email
+                institution.phn = institution_phn
+                institution.address = institution_address
+                if institution_app_password:
+                    institution.email_app_password = institution_app_password
 
-        messages.success(request, f'Institution {institution_name} has been Updated successfully.')
+                institution.save()
+
+            messages.success(request, f'Institution "{institution.institution_name}" has been updated successfully.')
+        except Exception as e:
+            print(f"Failed to update institution: {e}")
+            messages.error(request, f"Failed to update institution: {e}")
         return redirect('/administrator/all-institution/')
     else:
-        return redirect('/administrator/')
-
-
-# Superuser Deleting existing Institutions
-def adminDeleteInstitution(request,iid):
-    if request.user.is_superuser:
-        institution = get_object_or_404(Institution, id=iid)
-        institution_name = institution.institution_name
-        institution.delete()
-        messages.warning(request, f'Institution {institution_name} has been deleted successfully.')
         return redirect('/administrator/all-institution/')
-    else:
+
+
+def AdminChangeInstitutionStatus(request, iid):
+    if not request.user.is_superuser:
+        messages.error(request, "You do not have permission to perform this action.")
         return redirect('/administrator/')
+
+    institution = get_object_or_404(Institution, id=iid)
+    try:
+        with db_transaction.atomic():
+            if institution.table_status:
+                institution.table_status = False
+                messages.warning(request, f'Institution {institution.institution_name} has been deactivated.')
+            else:
+                institution.table_status = True
+                messages.success(request,f'Institution {institution.institution_name} has been activated successfully.')
+            institution.save()
+    except Exception as e:
+        print(f"Failed to change institution status: {e}")
+        messages.error(request, "Failed to change institution status due to an error.")
+    return redirect('/administrator/all-institution/')
+
+
+def adminDeleteInstitutionPermanent(request,iid):
+    if not request.user.is_superuser:
+        messages.error(request, "You do not have permission to perform this action.")
+        return redirect('/administrator/')
+    institution = get_object_or_404(Institution, id=iid)
+    institution.delete()
+    messages.warning(request, f'Institution {institution.institution_name} has been permanently deleted.')
+    return redirect('/administrator/all-institution/')
 
 
 # Superuser listing all Institution's admins and adding new admin
@@ -198,22 +251,94 @@ def adminAllInstiAdmin(request):
 
 
 # Superuser Updating an Institution's admin details
-def adminUpdateAdmin(request,aid):
-    if request.user.is_superuser:
-        admin_to_update  = get_object_or_404(CustomUser, id=aid)
-        if request.method == 'POST':
-            first_name = request.POST.get('first_name')
-            last_name = request.POST.get('last_name')
-            email = request.POST.get('email')
-            inst_id = request.POST.get('inst_name')
-            phn_no = request.POST.get('phn_no')
-
-            print(request)
-
-            messages.success(request, f'Admin {first_name} {last_name} has been Updated successfully.')
-        return redirect('/administrator/all-institution/')
-    else:
+def adminUpdateInstitutionAdmin(request, aid):
+    if not request.user.is_superuser:
+        messages.error(request, "You do not have permission to perform this action.")
         return redirect('/administrator/')
+
+    admin_to_update = get_object_or_404(CustomUser, id=aid)
+
+    if request.method == 'POST':
+        try:
+            with db_transaction.atomic():
+                old_password = request.POST.get('password')
+                new_password = request.POST.get('confirm_password')
+
+                if not admin_to_update.check_password(old_password):
+                    messages.error(request, "Incorrect old password. Please try again.")
+                    return redirect('/administrator/all-insti-admin/')
+                if new_password:
+                    admin_to_update.set_password(new_password)
+
+                admin_to_update.first_name = request.POST.get('first_name')
+                admin_to_update.last_name = request.POST.get('last_name')
+                admin_to_update.email = request.POST.get('email')
+                admin_to_update.phn_no = request.POST.get('phn_no')
+                admin_to_update.username = request.POST.get('username')
+
+                inst_id = request.POST.get('inst_name')
+                admin_to_update.institution = get_object_or_404(Institution, id=inst_id)
+
+                admin_to_update.save()
+
+            messages.success(request, f'Admin "{admin_to_update.username}" has been updated successfully.')
+        except IntegrityError:
+            messages.error(request, "A user with this username or email already exists. Please use a unique value.")
+        except Exception as e:
+            print(f"Failed to update admin: {e}")
+            messages.error(request, "Failed to update admin due to an unexpected error.")
+        return redirect('/administrator/all-insti-admin/')
+    else:
+        return redirect('/administrator/all-insti-admin/')
+
+
+def AdminChangeInstitutionAdminStatus(request, aid):
+    if not request.user.is_superuser:
+        messages.error(request, "You do not have permission to perform this action.")
+        return redirect('/administrator/')
+
+    institutionadmin = get_object_or_404(CustomUser, id=aid)
+    if institutionadmin.id == request.user.id:
+        messages.error(request, "You cannot deactivate your own account.")
+        return redirect('/administrator/all-insti-admin/')
+    try:
+        with db_transaction.atomic():
+            if institutionadmin.table_status:
+                institutionadmin.table_status = False
+                messages.warning(request, f'Admin {institutionadmin.username} of {institutionadmin.institution} has been deactivated.')
+            else:
+                institutionadmin.table_status = True
+                messages.success(request,f'Admin {institutionadmin.username} of {institutionadmin.institution} has been activated successfully.')
+            institutionadmin.save()
+    except Exception as e:
+        print(f"Failed to change admin status: {e}")
+        messages.error(request, "Failed to change admin status due to an error.")
+    return redirect('/administrator/all-insti-admin/')
+
+
+def adminDeletePermanent(request, aid):
+    if not request.user.is_superuser:
+        messages.error(request, "You do not have permission to perform this action.")
+        return redirect('/administrator/')
+
+    admin_to_delete = get_object_or_404(CustomUser, id=aid)
+
+    if admin_to_delete.id == request.user.id:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect('/administrator/all-insti-admin/')
+
+    admin_username = admin_to_delete.username
+    admin_institution = admin_to_delete.institution
+
+    try:
+        with db_transaction.atomic():
+            admin_to_delete.delete()
+        messages.warning(request, f'Admin {admin_username} of {admin_institution} has been permanently deleted.')
+    except Exception as e:
+        print(f"Failed to delete admin: {e}")
+        messages.error(request, "Failed to delete admin due to an error. It may have related records.")
+    return redirect('/administrator/all-insti-admin/')
+
 
 
 def adminAllProject(request):
