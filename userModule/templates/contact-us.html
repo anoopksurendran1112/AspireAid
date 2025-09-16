@@ -7,53 +7,52 @@
         <div class="overlay overlay-bg"></div>
         <div class="container">
             <div class="row d-flex justify-content-end">
-                <div class="col-lg-6 col-sm-12 pb-50 header-text">
-                    <h1>Contact Us</h1>
-
+                <div class="col-12 pb-50 header-text">
+                    <h1 class="display-4">Get in Touch</h1>
+                    <p class="lead text-white">We're here to answer your questions and provide support for your journey with our crowdfunding initiative.</p>
                 </div>
             </div>
             <div class="row d-flex justify-content-center">
                 <div class="col-lg-6 contact-left">
-                    <div class="single-info">
-                        <h4>Divided Evenly</h4>
-                        <p>
-                            inappropriate behavior is often laughed off as “boys will be boys,” <br> women face higher conduct women face higher conduct.
-                        </p>
+                    <div class="mb-5 text-white">
+                        <h4 class="lead mb-2"><strong>Official College Address</strong></h4>
+                        <address >
+                            {{ins.address}}
+                        </address>
                     </div>
-                    <div class="single-info">
-                        <h4>Transperancy All the Way</h4>
-                        <p>
-                            inappropriate behavior is often laughed off as “boys will be boys,” <br> women face higher conduct women face higher conduct.
-                        </p>
+
+                    <div class="mb-5 text-white">
+                        <h4 class="lead mb-2"><strong>Contact Numbers</strong></h4>
+                        <p class="mb-0">Institution number: <a class="text-white" href="tel:[{{ins.phn}}]">{{ins.phn}}</a></p>
+                        <p class="mb-0">Admin number: <a class="text-white" href="tel:[{{ins.phn}}]">{{ins.phn}}</a></p>
                     </div>
-                    <div class="single-info">
-                        <h4>Trustworthy</h4>
-                        <p>
-                            inappropriate behavior is often laughed off as “boys will be boys,” <br> women face higher conduct women face higher conduct.
-                        </p>
+
+                    <div class="mb-5 text-white">
+                        <h4 class="lead mb-2"><strong>Official Email</strong></h4>
+                        <p class="mb-0"><a class="text-white"  href="mailto:{{ins.email}}">{{ins.email}}</a></p>
                     </div>
                 </div>
                 <div class="col-lg-6 contact-right">
-                    <form class="booking-form" id="myForm" action="donate.php">
-                            <div class="row">
-                                <div class="col-lg-6 d-flex flex-column">
-                                    <input name="fname" placeholder="Enter your first  name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your first name'" class="form-control mt-20" required="" type="text" required>
-                                </div>
-                                <div class="col-lg-6 d-flex flex-column">
-                                    <input name="fname" placeholder="Enter your last name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your last name'" class="form-control mt-20" required="" type="text" required>
-                                </div>
-                                <div class="col-lg-12 d-flex flex-column">
-                                    <input name="email" placeholder="Enter email address" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,63}$" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'" class="form-control mt-20" required="" type="email">
-                                </div>
-                                <div class="col-lg-12 d-flex flex-column">
-                                    <input name="phone" placeholder="Enter phone number" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter phone number'" class="form-control mt-20" required type="tel" pattern="[0-9]{10}" title="Enter a 10-digit phone number">
-                                    <textarea class="form-control mt-20" name="message" placeholder="Messege" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Messege'" required=""></textarea>
-                                </div>
-                                <div class="col-lg-12 d-flex justify-content-start send-btn">
-                                    <button class="submit-btn primary-btn mt-20 text-uppercase ">Send Message</button>
-                                </div>
-                                <div class="alert-msg"></div>
+                    <h4 class="lead mb-2 text-white"><strong>Send us a message</strong></h4>
+                    <form class="booking-form">
+                        <div class="row">
+                            <div class="col-lg-6 d-flex flex-column">
+                                <input name="fname" placeholder="Enter your first  name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your first name'" class="form-control mt-20" type="text" required>
                             </div>
+                            <div class="col-lg-6 d-flex flex-column">
+                                <input name="fname" placeholder="Enter your last name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your last name'" class="form-control mt-20" type="text" required>
+                            </div>
+                            <div class="col-lg-12 d-flex flex-column">
+                                <input name="email" placeholder="Enter email address" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,63}$" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'" class="form-control mt-20" required type="email">
+                            </div>
+                            <div class="col-lg-12 d-flex flex-column">
+                                <input name="phone" placeholder="Enter phone number" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter phone number'" class="form-control mt-20" required type="tel" pattern="[0-9]{10}" title="Enter a 10-digit phone number">
+                                <textarea class="form-control mt-20" name="message" placeholder="Messege" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Messege'" required=""></textarea>
+                            </div>
+                            <div class="col-lg-12 d-flex justify-content-start send-btn">
+                                <button type="submit" class="submit-btn primary-btn mt-20 text-uppercase ">Send Message</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
