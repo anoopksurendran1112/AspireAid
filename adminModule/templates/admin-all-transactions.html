@@ -18,6 +18,7 @@
                             <th>No of Tiles</th>
                             <th>Amount</th>
                             <th>Time</th>
+                            <th>Time</th>
                             <th>status</th>
                             <th></th>
                         </tr>
@@ -31,6 +32,7 @@
                             <td>{{ t.num_tiles }}</td>
                             <td>{{t.amount}}</td>
                             <td>{{t.transaction_time}}</td>
+                            <td>{{t.table_status}}</td>
                             <td class="{% if t.status == 'Verified'%}
                                         text-success
                                     {% elif t.status == 'Rejected' %}

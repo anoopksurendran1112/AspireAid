@@ -120,19 +120,18 @@ def userCheckoutView(request, ins_id):
         project = get_object_or_404(Project, id=project_id)
         total_amount = len(selected_tiles_str.split('-')) * project.tile_value
 
+        if project.closing_date <= timezone.now():
+            messages.error(request, "This project is closed for contributions.")
+            return redirect(f'/user/{ins_id}/single-project/{project_id}/')
+        if not project.table_status:
+            messages.error(request, "This project is no longer active for contributions.")
+            return redirect(f'/user/{ins_id}/single-project/{project_id}/')
+        if SelectedTile.objects.filter(project=project, tiles=selected_tiles_str, table_status=True).exists():
+            messages.error(request, "These tiles have already been selected.")
+            return redirect(f'/user/{ins_id}/single-project/{project_id}/')
+
         try:
             with db_transaction.atomic():
-
-                if project.closing_date <= timezone.now():
-                    messages.error(request, "This project is closed for contributions.")
-                    return redirect(f'/user/{ins_id}/single-project/{project_id}/')
-                if not project.table_status:
-                    messages.error(request, "This project is no longer active for contributions.")
-                    return redirect(f'/user/{ins_id}/single-project/{project_id}/')
-                if SelectedTile.objects.filter(project=project, tiles=selected_tiles_str).exists():
-                    messages.error(request, "These tiles have already been selected.")
-                    return redirect(f'/user/{ins_id}/single-project/{project_id}/')
-
                 sender = PersonalDetails.objects.create(email=email,first_name=fname,last_name=lname,phone=phn,address=addr)
                 selected_tile_instance = SelectedTile.objects.create(project=project,sender=sender,tiles=selected_tiles_str)
                 transaction = Transaction.objects.create(tiles_bought=selected_tile_instance,sender=sender,project=project,amount=total_amount,currency="INR",status="Unverified",tracking_id=get_unique_tracking_id(),message=message_text)
@@ -145,7 +144,6 @@ def userCheckoutView(request, ins_id):
 
             messages.success(request, f'Payment for the tiles {selected_tiles_str} has been initiated.')
         except Exception as e:
-            print(f"An error occurred: {e}")
             messages.error(request, f"Failed to perform checkout: {e}")
         return redirect(f'/user/{ins_id}/single-project/{project_id}/')
 
@@ -184,7 +182,6 @@ def userProofUpload(request, ins_id, trans_id):
 
             messages.success(request, "Proof of payment uploaded successfully!")
         except Exception as e:
-            print(f"An error occurred: {e}")
             messages.error(request, f"An error occurred during proof upload: {e}")
         return redirect(f'/user/{ins_id}/single-project/{tra.project.id}/')
 
@@ -194,12 +191,24 @@ def userProofUpload(request, ins_id, trans_id):
 def userTrackStatus(request, ins_id):
     ins = Institution.objects.get(id=ins_id)
     transactions = Transaction.objects.none()
+    search_content = ''
+
     if request.method == 'POST':
-        phn = request.POST.get('phn')
-        transactions = Transaction.objects.filter(sender__phone = phn).order_by('-transaction_time')
-        for t in transactions:
-            if t.tiles_bought:
-                t.num_tiles = len(t.tiles_bought.tiles.split('-'))
+        track_query = request.POST.get('track', '').strip()
+        search_content = track_query
+
+        if track_query:
+            if '@' in track_query:
+                transactions = Transaction.objects.filter(sender__email=track_query).order_by('-transaction_time')
+            elif track_query.isdigit():
+                transactions = Transaction.objects.filter(sender__phone=track_query).order_by('-transaction_time')
             else:
-                t.num_tiles = 0
-    return render(request, "user-track-status.html", {'ins': ins, 'tra':transactions})
+                transactions = Transaction.objects.filter(tracking_id=track_query).order_by('-transaction_time')
+
+            for t in transactions:
+                if t.tiles_bought:
+                    t.num_tiles = len(t.tiles_bought.tiles.split('-'))
+                else:
+                    t.num_tiles = 0
+
+    return render(request, "user-track-status.html", {'ins': ins, 'tra': transactions, 'search': search_content})
