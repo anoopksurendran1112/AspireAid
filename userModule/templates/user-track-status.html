@@ -2,72 +2,109 @@
 {% load static %}
 {% block content %}
 
-    <!-- Start About Area -->
-    <section class=" section-gap" id="about">
-        <div class="container">
-            <h1 class="mb-5 text-center">Track your status...</h1>
-            <div class="py-5">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="row justify-content-center align-items-center g-3">
-                        <div class="col-md-3">
-                            <input type="tel" class="form-control" placeholder="Enter your phone number" name="phn">
-                        </div>
-                        <div class="col-md-3">
-                            <button class="btn btn-primary" type="submit">Track Status</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            {% if tra %}
-            <div class="table-responsive pt-5">
-                <table class="table table-hover my-0">
+    <!-- Start Track Status Area -->
+<section class="section-gap" id="track-status">
+    <div class="container">
+        <h1 class="mb-4 text-center">Track your status</h1>
+        <p class="lead text-center text-muted">Enter your Tracking ID, Phone number or Email ID below to view your transaction history.</p>
+
+        <div class="d-flex justify-content-center">
+            <form method="post" class="text-center w-50 mx-auto" id="trackForm">
+                {% csrf_token %}
+                <div class="input-group mb-2 shadow-sm rounded">
+                    <input type="text" class="form-control" placeholder="Enter your Tracking ID, Phone number or Email ID" name="track" required>
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fa fa-search me-2"></i> Track Status
+                    </button>
+                </div>
+                <div id="validationMessage" class="invalid-feedback d-block text-start mb-3" style="display: none;"></div>
+            </form>
+        </div>
+
+        {% if tra %}
+        <div class="pt-5">
+            <h3 class="mb-3 text-center">Your Transactions from: {{search}}</h3>
+            <div class="table-responsive">
+                <table class="table table-hover my-0 ">
                     <thead class="bg-dark text-white">
-                    <tr>
-                        <th>Sl no</th>
-                        <th>Project</th>
-                        <th>Tile Value</th>
-                        <th>Date</th>
-                        <th>Selected Tiles</th>
-                        <th>Quantity</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                    </tr>
+                        <tr>
+                            <th>Sl no</th>
+                            <th>Project</th>
+                            <th>Tile Value</th>
+                            <th>Date</th>
+                            <th>Selected Tiles</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
                     </thead>
-                    <tbody>
-                    {% for t in tra %}
-                    <tr>
-                        <td>{{forloop.counter}}</td>
-                        <td>{{t.project.title}}</td>
-                        <td>{{t.project.tile_value}}</td>
-                        <td>{{t.transaction_time}}</td>
-                        <td>{{t.tiles_bought.tiles}}</td>
-                        <td>{{t.num_tiles}}</td>
-                        <td>{{t.amount}}</td>
-                        <td>
-                            {% if t.status == 'Unverified' %}
-                                <span class="badge bg-secondary">{{t.status}}</span>
-                            {% elif t.status == 'Verified' %}
-                                <span class="badge bg-success">{{t.status}}</span>
-                            {% else %}
-                                <span class="badge bg-danger">{{t.status}}</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
+                    <tbody class="text-dark">
+                        {% for t in tra %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td><a href="/user/{{ins.id}}/single-project/{{t.project.id}}/">{{t.project.title}}</a></td>
+                            <td>₹{{t.project.tile_value}}</td>
+                            <td>{{t.transaction_time|date:"M d, Y"}}</td>
+                            <td>{{t.tiles_bought.tiles}}</td>
+                            <td>{{t.num_tiles}}</td>
+                            <td>₹{{t.amount}}</td>
+                            <td>
+                                {% if t.status == 'Unverified' %}
+                                    <h6 class="text-secondary"><strong>{{t.status}}</strong></h6>
+                                {% elif t.status == 'Verified' %}
+                                    <h6 class="text-success"><strong>{{t.status}}</strong></h6>
+                                {% else %}
+                                    <h6 class="text-danger"><strong>{{t.status}}</strong></h6>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
+        </div>
 
-            {% else %}
-            <div class="py-5">
-                {% if request.method == 'POST' %}
-                    <h1 class="mb-5 text-center text-muted">No transactions found for this number...</h1>
-                {% endif %}
-            </div>
+        {% else %}
+        <div class="py-5 text-center">
+            {% if request.method == 'POST' %}
+                <div class="alert alert-info" role="alert">
+                    <h4 class="alert-heading">No transactions found!</h4>
+                    <p>It seems we couldn't find any donations for the phone number you entered. Please double-check the number and try again.</p>
+                </div>
             {% endif %}
         </div>
-    </section>
-    <!-- End About Area -->
+        {% endif %}
+    </div>
+</section>
+<!-- End Track Status Area -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('trackForm');
+        const trackInput = form.querySelector('[name="track"]');
+        const validationMessage = document.getElementById('validationMessage');
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const inputValue = trackInput.value.trim();
+
+            if (/^\d+$/.test(inputValue)) {
+                if (inputValue.length !== 10) {
+                    validationMessage.textContent = "Phone number must be exactly 10 digits.";
+                    validationMessage.style.display = 'block';
+                    trackInput.classList.add('is-invalid');
+                    return;
+                }
+            }
+
+            validationMessage.style.display = 'none'; // Hide the message if no error
+            trackInput.classList.remove('is-invalid'); // Remove invalid class
+
+            form.submit();
+        });
+    });
+</script>
 
 {% endblock %}
+

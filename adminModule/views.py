@@ -152,11 +152,9 @@ def adminAllInstitution(request):
             if 'email' in str(e).lower():
                 messages.error(request, "Registration failed: An institution with this email already exists.")
             else:
-                messages.error(request,"Registration failed due to a database integrity error. Please check your inputs.")
-            print(f"IntegrityError: {e}")
+                messages.error(request,f"Registration failed due to a database integrity error {e}. Please check your inputs.")
         except Exception as e:
-            print(f"An unexpected error occurred while adding a new institution: {e}")
-            messages.error(request, "Failed to register new institution due to an unknown error.")
+            messages.error(request, f"Failed to register new institution due to an unknown error {e}.")
         return redirect('/administrator/all-institution/')
     return render(request, "admin-all-institution.html", {'admin': request.user, 'institutions': inst})
 
@@ -187,7 +185,6 @@ def adminUpdateInstitution(request, iid):
 
             messages.success(request, f'Institution "{institution.institution_name}" has been updated successfully.')
         except Exception as e:
-            print(f"Failed to update institution: {e}")
             messages.error(request, f"Failed to update institution: {e}")
         return redirect('/administrator/all-institution/')
     else:
@@ -210,8 +207,7 @@ def AdminChangeInstitutionStatus(request, iid):
                 messages.success(request,f'Institution {institution.institution_name} has been activated successfully.')
             institution.save()
     except Exception as e:
-        print(f"Failed to change institution status: {e}")
-        messages.error(request, "Failed to change institution status due to an error.")
+        messages.error(request, f"Failed to change institution status due to an error {e}.")
     return redirect('/administrator/all-institution/')
 
 
@@ -285,8 +281,7 @@ def adminUpdateInstitutionAdmin(request, aid):
         except IntegrityError:
             messages.error(request, "A user with this username or email already exists. Please use a unique value.")
         except Exception as e:
-            print(f"Failed to update admin: {e}")
-            messages.error(request, "Failed to update admin due to an unexpected error.")
+            messages.error(request, f"Failed to update admin due to an unexpected error {e}.")
         return redirect('/administrator/all-insti-admin/')
     else:
         return redirect('/administrator/all-insti-admin/')
@@ -311,8 +306,7 @@ def AdminChangeInstitutionAdminStatus(request, aid):
                 messages.success(request,f'Admin {institutionadmin.username} of {institutionadmin.institution} has been activated successfully.')
             institutionadmin.save()
     except Exception as e:
-        print(f"Failed to change admin status: {e}")
-        messages.error(request, "Failed to change admin status due to an error.")
+        messages.error(request, f"Failed to change admin status due to an error {e}.")
     return redirect('/administrator/all-insti-admin/')
 
 
@@ -335,8 +329,7 @@ def adminDeletePermanent(request, aid):
             admin_to_delete.delete()
         messages.warning(request, f'Admin {admin_username} of {admin_institution} has been permanently deleted.')
     except Exception as e:
-        print(f"Failed to delete admin: {e}")
-        messages.error(request, "Failed to delete admin due to an error. It may have related records.")
+        messages.error(request, f"Failed to delete admin due to an error {e}.")
     return redirect('/administrator/all-insti-admin/')
 
 
@@ -399,7 +392,6 @@ def adminAddProject(request):
         messages.error(request, "Invalid number format for funding goal or tile value.")
     except Exception as e:
         messages.error(request, f"An unexpected error occurred: {e}")
-        print(f"An unexpected error occurred: {e}")
     return redirect('/administrator/all-project/')
 
 
@@ -624,7 +616,6 @@ def adminApproveTransaction(request, tid):
         else:
             messages.info(request, "This transaction has already been verified.")
     except Exception as e:
-        print(f"An error occurred: {e}")
         messages.error(request, f"Failed to approve transaction: {e}")
     return redirect('/administrator/all-transactions/')
 
@@ -653,6 +644,7 @@ def adminRejectTransaction(request, tid):
                 pass
 
             transaction_instance.project.save()
+            transaction_instance.tiles_bought.save()
             transaction_instance.save()
 
         email_send_reject(transaction_instance)
@@ -661,7 +653,6 @@ def adminRejectTransaction(request, tid):
 
         messages.error(request, f'The transaction: {transaction_instance.tracking_id} has been rejected.')
     except Exception as e:
-        print(f"An error occurred: {e}")
         messages.error(request, f"Failed to reject transaction: {e}")
     return redirect('/administrator/all-transactions/')
 
@@ -690,6 +681,7 @@ def adminUnverifyTransaction(request, tid):
                 pass
 
             transaction_instance.project.save()
+            transaction_instance.tiles_bought.save()
             transaction_instance.save()
 
         email_send_unverify(transaction_instance)
@@ -698,7 +690,6 @@ def adminUnverifyTransaction(request, tid):
 
         messages.warning(request, f'The transaction: {transaction_instance.tracking_id} has been unverified.')
     except Exception as e:
-        print(f"An error occurred: {e}")
         messages.error(request, f"Failed to unverify transaction: {e}")
     return redirect('/administrator/all-transactions/')
 
@@ -725,7 +716,6 @@ def adminGenerateReceipts(request, t_id):
 
         messages.success(request,f'A receipt for the transaction: {transaction_instance.tracking_id} has been created.')
     except Exception as e:
-        print(f"An error occurred: {e}")
         messages.error(request, f"Failed to generate receipt: {e}")
     return redirect('/administrator/all-transactions/')
 
@@ -753,7 +743,6 @@ def adminSendReciept(request,r_id):
         whatsapp_send_approve(receipt.transaction)
         messages.success(request, f'A receipt has been sent to {receipt.transaction.sender.first_name} {receipt.transaction.sender.last_name}.')
     except Exception as e:
-        print(f"An error occurred: {e}")
-        messages.error(request, f"Failed to send the receipt to {receipt.transaction.sender.first_name} {receipt.transaction.sender.last_name}.")
+        messages.error(request, f"Failed to send the receipt to {receipt.transaction.sender.first_name} {receipt.transaction.sender.last_name} due to the error {e}.")
         return redirect('/administrator/all-receipts/')
     return redirect('/administrator/all-receipts/')

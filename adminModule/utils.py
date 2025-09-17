@@ -46,15 +46,10 @@ def sms_send_initiated(transaction, url):
         response = requests.get(SMS_DLT_API, params=params)
 
         if response.status_code == 200:
-            print(f"SMS sent successfully to {phone_number}.")
-            print(f"SMS API status code: {response.status_code}")
             return {"status": "success", "response": response.text}
         else:
-            print(f"SMS API failed. Status code: {response.status_code}")
-            print(f"Response: {response.text}")
             return {"status": "error", "response": response.text}
     except Exception as e:
-        print(f"SMS API failed: {e}")
         return {"status": "error", "message": str(e)}
 
 
@@ -74,15 +69,10 @@ def sms_send_proof(transaction):
         response = requests.get(SMS_DLT_API, params=params)
 
         if response.status_code == 200:
-            print(f"SMS sent successfully to {phone_number}.")
-            print(f"SMS API status code: {response.status_code}")
             return {"status": "success", "response": response.text}
         else:
-            print(f"SMS API failed. Status code: {response.status_code}")
-            print(f"Response: {response.text}")
             return {"status": "error", "response": response.text}
     except Exception as e:
-        print(f"SMS API failed: {e}")
         return {"status": "error", "message": str(e)}
 
 
@@ -108,15 +98,10 @@ def sms_send_approve(transaction):
         response = requests.get(SMS_DLT_API, params=params)
 
         if response.status_code == 200:
-            print(f"SMS sent successfully to {phone_number}.")
-            print(f"SMS API status code: {response.status_code}")
             return {"status": "success", "response": response.text}
         else:
-            print(f"SMS API failed. Status code: {response.status_code}")
-            print(f"Response: {response.text}")
             return {"status": "error", "response": response.text}
     except Exception as e:
-        print(f"SMS API failed: {e}")
         return {"status": "error", "message": str(e)}
 
 
@@ -136,15 +121,10 @@ def sms_send_reject(transaction):
         response = requests.get(SMS_DLT_API, params=params)
 
         if response.status_code == 200:
-            print(f"Rejection SMS sent successfully to {phone_number}.")
-            print(f"SMS API status code: {response.status_code}")
             return {"status": "success", "response": response.text}
         else:
-            print(f"Rejection SMS API failed. Status code: {response.status_code}")
-            print(f"Response: {response.text}")
             return {"status": "error", "response": response.text}
     except Exception as e:
-        print(f"Rejection SMS API failed: {e}")
         return {"status": "error", "message": str(e)}
 
 
@@ -164,34 +144,25 @@ def sms_send_unverify(transaction):
         response = requests.get(SMS_DLT_API, params=params)
 
         if response.status_code == 200:
-            print(f"Unverified SMS sent successfully to {phone_number}.")
-            print(f"SMS API status code: {response.status_code}")
             return {"status": "success", "response": response.text}
         else:
-            print(f"Unverified SMS API failed. Status code: {response.status_code}")
-            print(f"Response: {response.text}")
             return {"status": "error", "response": response.text}
     except Exception as e:
-        print(f"Unverified SMS API failed: {e}")
         return {"status": "error", "message": str(e)}
 
 
 """Sends a Whatsapp message for payment initiated."""
 def whatsapp_send_initiated(transaction, url):
     try:
-        params_string = f"{transaction.sender.first_name} {transaction.sender.last_name},{transaction.tracking_id},{transaction.project.title},{url}"
+        params_string = f"{transaction.sender.first_name} {transaction.sender.last_name},{transaction.project.title},{transaction.tracking_id},{url}"
         api_params = {
             'user': settings.BHASHSMS_API_USER,'pass': settings.BHASHSMS_API_PASS,'sender': settings.BHASHSMS_API_SENDER,
             'phone': transaction.sender.phone,'text': 'cf_payment_initiated_v2','priority': settings.BHASHSMS_API_PRIORITY,
             'stype': settings.BHASHSMS_API_STYPE,'Params': params_string}
 
         response = requests.get(settings.BHASHSMS_API, params=api_params)
-
-        print(f'WhatsApp API Response Status: {response.status_code}')
-        print(f'WhatsApp API Response Content: {response.text}')
         return response.status_code == 200
     except Exception as e:
-        print(f"WhatsApp API failed: {e}")
         return False
 
 
@@ -208,13 +179,10 @@ def whatsapp_send_proof(transaction):
             'priority': settings.BHASHSMS_API_PRIORITY,
             'stype': settings.BHASHSMS_API_STYPE,
             'Params': params_string,}
-        response = requests.get(settings.BHASHSMS_API, params=api_params)
 
-        print(f'WhatsApp API Response Status: {response.status_code}')
-        print(f'WhatsApp API Response Content: {response.text}')
+        response = requests.get(settings.BHASHSMS_API, params=api_params)
         return response.status_code == 200
     except Exception as e:
-        print(f"WhatsApp API failed: {e}")
         return False
 
 
@@ -237,12 +205,8 @@ def whatsapp_send_approve(transaction):
             'Params': params_string}
 
         response = requests.get(settings.BHASHSMS_API, params=api_params)
-
-        print(f'WhatsApp API Response Status: {response.status_code}')
-        print(f'WhatsApp API Response Content: {response.text}')
         return response.status_code == 200
     except Exception as e:
-        print(f"WhatsApp API failed: {e}")
         return False
 
 
@@ -261,12 +225,8 @@ def whatsapp_send_reject(transaction):
             'Params': params_string}
 
         response = requests.get(settings.BHASHSMS_API, params=api_params)
-
-        print(f'WhatsApp API Response Status: {response.status_code}')
-        print(f'WhatsApp API Response Content: {response.text}')
         return response.status_code == 200
     except Exception as e:
-        print(f"WhatsApp API failed: {e}")
         return False
 
 
@@ -285,12 +245,8 @@ def whatsapp_send_unverify(transaction):
             'Params': params_string}
 
         response = requests.get(settings.BHASHSMS_API, params=api_params)
-
-        print(f'WhatsApp API Response Status: {response.status_code}')
-        print(f'WhatsApp API Response Content: {response.text}')
         return response.status_code == 200
     except Exception as e:
-        print(f"WhatsApp API failed: {e}")
         return False
 
 
@@ -317,10 +273,8 @@ def email_send_initiated(transaction, url):
                                      to=[receiver_email], connection=connection)
 
         email_message.send(fail_silently=False)
-
         return True
     except Exception as e:
-        print(f"Email sending failed: {e}")
         return False
 
 
@@ -350,7 +304,6 @@ def email_send_proof(transaction):
 
         return True
     except Exception as e:
-        print(f"Email sending failed: {e}")
         return False
 
 
@@ -384,7 +337,6 @@ def email_send_approve(transaction):
 
         return True
     except Exception as e:
-        print(f"Email sending failed: {e}")
         return False
 
 
@@ -413,7 +365,6 @@ def email_send_reject(transaction):
 
         return True
     except Exception as e:
-        print(f"Email sending failed: {e}")
         return False
 
 
@@ -445,7 +396,6 @@ def email_send_unverify(transaction):
 
         return True
     except Exception as e:
-        print(f"Email sending failed: {e}")
         return False
 
 
