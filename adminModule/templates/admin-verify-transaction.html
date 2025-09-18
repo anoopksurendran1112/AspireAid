@@ -2,144 +2,165 @@
 {% block content %}
 
 <!---------------------- All Institution Table Details -------------------->
-    <div class="row">
-        <div class="col-12 ">
-            <h1 class="mb-4">
-                <strong>
-                    Tracking ID: {{transaction.tracking_id}}
-                </strong>
-            </h1>
-            <div class="card data-card container py-2">
-                <div class="card-header text-end">
-                    {% if transaction.status != 'Unverified' %}
-                    <div class="text-center p-1
-                            {% if transaction.status == 'Verified' %}
-                                bg-success
-                            {% elif transaction.status == 'Rejected' %}
-                                bg-danger
-                            {% endif %}">
-                        <h1 class="text-white"><strong>{{transaction.status}}</strong></h1>
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="card-body table-responsive">
-                    <div class="row mb-2">
-                            <h1 class="mb-4"><strong>{{transaction.project.title}}</strong></h1>
-                        <div class="col-6 mb-3">
-                            <h3 class="text-muted"><strong>Project Details</strong></h3>
-                            <table class="table text-start">
-                                <tr>
-                                    <td>Target</td>
-                                    <td>{{transaction.project.funding_goal}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Tile Value</td>
-                                    <td>{{transaction.project.tile_value}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Closing date</td>
-                                    <td>{{transaction.project.closing_date}}</td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <h3 class="text-muted"><strong>Beneficiary Details</strong></h3>
-                            <table class="table text-start">
-                                <tr>
-                                    <td>Full Name</td>
-                                    <td>{{transaction.project.beneficiary.first_name}} {{transaction.project.beneficiary.last_name}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Phone Number</td>
-                                    <td>{{transaction.project.beneficiary.phone_number}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Age</td>
-                                    <td>{{transaction.project.beneficiary.age}} years old</td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <h3 class="text-muted"><strong>Buyer Details</strong></h3>
-                            <table class="table text-start mb-4">
-                                <tr>
-                                    <td>Full Name</td>
-                                    <td>{{transaction.sender.first_name}} {{transaction.sender..last_name}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Email</td>
-                                    <td>{{transaction.sender.email}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Phone</td>
-                                    <td>{{transaction.sender.phone}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Address</td>
-                                    <td>{{transaction.sender.address}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Tracking ID</td>
-                                    <td>{{transaction.tracking_id}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Transaction Time</td>
-                                    <td>{{transaction.transaction_time}}</td>
-                                </tr>
-                            </table>
+<div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0"><strong>Transaction</strong> Details</h1>
+        {% if transaction.status != 'Unverified' %}
+            <span class="badge
+                {% if transaction.status == 'Verified' %}bg-success
+                {% elif transaction.status == 'Rejected' %}bg-danger
+                {% endif %}
+                fs-4 py-2 px-3">
+                {{ transaction.status }}
+            </span>
+        {% endif %}
+    </div>
 
-                            <table class="table container mb-4">
-                                <thead>
-                                    <tr class="table-dark">
-                                        <th>Tiles</th>
-                                        <th>Tile Value</th>
-                                        <th>Quantity</th>
-                                        <th class="text-end" style="width: 120px;">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <h5>Tiles: {{transaction.tiles_bought.tiles}}</h5>
-                                        </td>
-                                        <td>{{transaction.project.tile_value}} Rs.</td>
-                                        <td>{{transaction.num_tiles}}</td>
-                                        <td class="text-end" style="width: 120px;">{{transaction.amount}} Rs.</td>
-                                    </tr>
-                                </tbody>
+    <div class="card data-card p-3">
+        <div class="card-body">
+            <h2 class="mb-3"><strong>{{ transaction.project.title }}</strong></h2>
+            <hr>
+
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header bg-dark">
+                            <h4 class="text-light mb-0"><strong>Project Details</strong></h4>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless table-sm mb-0">
+                                <tr>
+                                    <td class="fw-bold">Target</td>
+                                    <td>${{ transaction.project.funding_goal }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Tile Value</td>
+                                    <td>${{ transaction.project.tile_value }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Closing Date</td>
+                                    <td>{{ transaction.project.closing_date|date:"Y-m-d" }}</td>
+                                </tr>
                             </table>
-                            <h2><strong>Proof of Payment</strong></h2>
-                            {% if screenshot %}
-                                <p>Attached Screenshot:</p>
-                                <object data="{{ screenshot.screen_shot.url }}" class="border" style="max-width: 100%; height: 500px;">
-                                    <p>Your browser doesn't support PDF/image display. You can <a href="{{ screenshot.screen_shot.url }}" target="_blank">download the file</a> instead.</p>
-                                </object>
-                            {% else %}
-                                <p>No proof of payment has been uploaded for this transaction yet.</p>
-                            {% endif %}
                         </div>
                     </div>
-                    {% if not admin.is_superuser %}
-                    {% if transaction.status == 'Unverified' %}
-                    <div class="text-end">
-                        <a class="btn btn-danger" href="/administrator/reject-transaction/{{transaction.id}}/">Reject</a>
-                        <a class="btn btn-success" href="/administrator/approve-transaction/{{transaction.id}}/">Approve</a>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header bg-dark">
+                            <h4 class="text-white mb-0"><strong>Beneficiary Details</strong></h4>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless table-sm mb-0">
+                                <tr>
+                                    <td class="fw-bold">Full Name</td>
+                                    <td>{{ transaction.project.beneficiary.first_name }} {{ transaction.project.beneficiary.last_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Phone Number</td>
+                                    <td>{{ transaction.project.beneficiary.phone_number }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Age</td>
+                                    <td>{{ transaction.project.beneficiary.age }} years old</td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
-                    {% elif transaction.status == 'Verified' %}
-                    <div class="text-end">
-                        <a class="btn btn-secondary" href="/administrator/unverify-transaction/{{transaction.id}}/">Unverify</a>
-                        <a class="btn btn-danger" href="/administrator/reject-transaction/{{transaction.id}}/">Reject</a>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header bg-dark">
+                            <h4 class="text-light mb-0"><strong>Buyer Details</strong></h4>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless table-sm mb-0">
+                                <tr>
+                                    <td class="fw-bold">Full Name</td>
+                                    <td>{{ transaction.sender.first_name }} {{ transaction.sender.last_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Email</td>
+                                    <td>{{ transaction.sender.email }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Phone</td>
+                                    <td>{{ transaction.sender.phone }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Address</td>
+                                    <td>{{ transaction.sender.address }}</td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-dark">
+                    <h4 class="text-light mb-0"><strong>Transaction Summary</strong></h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <ul class="list-unstyled mb-0">
+                            <li><strong>Tracking ID:</strong> {{ transaction.tracking_id }}</li>
+                            <li><strong>Transaction Time:</strong> {{ transaction.transaction_time|date:"F d, Y P" }}</li>
+                            <li><strong>Tiles Bought:</strong> {{ transaction.tiles_bought.tiles }}</li>
+                        </ul>
+                        <div class="text-end">
+                            <h4 class="mb-0 fw-bold">{{ transaction.num_tiles }} Tiles</h4>
+                            <h2 class="mb-0 text-success fw-bold">${{ transaction.amount }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-dark">
+                    <h4 class="text-light mb-0"><strong>Proof of Payment</strong></h4>
+                </div>
+                <div class="card-body text-center">
+                    {% if screenshot %}
+                        <object data="{{ screenshot.screen_shot.url }}" class="border" style="height: 500px;">
+                            <p>Your browser doesn't support PDF/image display. You can <a href="{{ screenshot.screen_shot.url }}" target="_blank">download the file</a> instead.</p>
+                        </object>
                     {% else %}
-                    <div class="text-end">
-                        <a class="btn btn-secondary" href="/administrator/unverify-transaction/{{transaction.id}}/">Unverify</a>
-                        <a class="btn btn-success" href="/administrator/approve-transaction/{{transaction.id}}/">Approve</a>
-                    </div>
-                    {% endif %}
+                        <p class="text-muted">No proof of payment has been uploaded for this transaction yet.</p>
                     {% endif %}
                 </div>
             </div>
+
+            {% if not admin.is_superuser %}
+            <div class="text-end mt-4">
+                {% if transaction.status == 'Unverified' %}
+                    <a class="btn btn-danger me-2" href="/administrator/reject-transaction/{{ transaction.id }}/">
+                        <i class="align-middle me-1" data-feather="x-circle"></i> Reject
+                    </a>
+                    <a class="btn btn-success" href="/administrator/approve-transaction/{{ transaction.id }}/">
+                        <i class="align-middle me-1" data-feather="check-circle"></i> Approve
+                    </a>
+                {% elif transaction.status == 'Verified' %}
+                    <a class="btn btn-secondary me-2" href="/administrator/unverify-transaction/{{ transaction.id }}/">
+                        <i class="align-middle me-1" data-feather="rotate-ccw"></i> Unverify
+                    </a>
+                    <a class="btn btn-danger" href="/administrator/reject-transaction/{{ transaction.id }}/">
+                        <i class="align-middle me-1" data-feather="x-circle"></i> Reject
+                    </a>
+                {% else %}
+                    <a class="btn btn-secondary me-2" href="/administrator/unverify-transaction/{{ transaction.id }}/">
+                        <i class="align-middle me-1" data-feather="rotate-ccw"></i> Unverify
+                    </a>
+                    <a class="btn btn-success" href="/administrator/approve-transaction/{{ transaction.id }}/">
+                        <i class="align-middle me-1" data-feather="check-circle"></i> Approve
+                    </a>
+                {% endif %}
+            </div>
+            {% endif %}
+
         </div>
     </div>
-
+</div>
 {% endblock %}

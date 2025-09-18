@@ -2,58 +2,106 @@
 {% block content %}
 <!---------------------- All Institution Table Details -------------------->
     <div class="row">
-        <div class="col-12 ">
-            <h1 class="mb-4"><strong>All Receipts</strong></h1>
-            <div class="card data-card">
-                <div class="card-header text-end">
+    <div class="col-12">
+        <h1 class="mb-3"><strong>Receipts</strong></h1>
+        <div class="card data-card py-3">
+            <div class="card-header d-flex justify-content-end align-items-center">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
+                    <i class="align-middle me-1" data-feather="filter"></i> Advanced Filter
+                </button>
+            </div>
 
+            <div class="collapse" id="advancedFilterCollapse">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="tracking_id" name="tracking_id" placeholder="Enter Tracking ID">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="project_title" name="project_title" placeholder="Enter Project Title">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="sender_name" name="sender_name" placeholder="Enter Sender Name">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="start_date" class="form-label">From Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="end_date" class="form-label">To Date</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="order_by_amount" class="form-label">Amount</label>
+                            <select id="order_by_amount" name="amount_order" class="form-select">
+                                <option value="">None</option>
+                                <option value="asc">Ascending</option>
+                                <option value="desc">Descending</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="order_by_tiles" class="form-label">Bought Tiles</label>
+                            <select id="order_by_tiles" name="tiles_order" class="form-select">
+                                <option value="">None</option>
+                                <option value="asc">Ascending</option>
+                                <option value="desc">Descending</option>
+                            </select>
+                        </div>
+                        <div class="col-12 text-end mt-3">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="align-middle me-1" data-feather="check"></i> Apply Filters
+                            </button>
+                            <a href="." class="btn btn-danger">
+                                <i class="align-middle me-1" data-feather="x"></i> Clear Filters
+                            </a>
+                        </div>
+                    </form>
                 </div>
-                <div class="card-body table-responsive pb-6">
-                    <table class="table table-hover my-0">
-                        <thead class="table-dark">
-                        <tr>
-                            <th>Sl no</th>
-                            <th>Project</th>
-                            <th>Sender</th>
-                            <th>Selected tiles</th>
-                            <th>Quantity</th>
-                            <th>Amount</th>
-                            <th class="text-center">Transaction</th>
-                            <th class="text-center">Receipts</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for r in rec %}
-                        <tr>
-                            <td>{{forloop.counter}}</td>
-                            <td><a href="/administrator/single-project/{{r.transaction.project.id}}/">{{r.transaction.project.title}}</a></td>
-                            <td>{{r.transaction.sender.first_name}} {{r.transaction.sender.last_name}}</td>
-                            <td>{{r.transaction.tiles_bought.tiles}}</td>
-                            <td>{{r.tile_count}}</td>
-                            <td>{{r.transaction.amount}}</td>
-                            <td class="text-center">
-                                <a class="btn btn-secondary btn-sm" href="/administrator/verify-transaction/{{r.transaction.id}}/">
-                                    View Transaction
+            </div>
+
+            <div class="card-body table-responsive">
+                <table class="table table-hover my-0">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Sl no.</th>
+                        <th>Project</th>
+                        <th>Sender</th>
+                        <th>Selected Tiles</th>
+                        <th>Quantity</th>
+                        <th>Amount</th>
+                        <th class="text-center">Transaction & Receipts</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for r in rec %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td><a href="/administrator/single-project/{{ r.transaction.project.id }}/">{{ r.transaction.project.title }}</a></td>
+                        <td>{{ r.transaction.sender.first_name }} {{ r.transaction.sender.last_name }}</td>
+                        <td>{{ r.transaction.tiles_bought.tiles }}</td>
+                        <td>{{ r.tile_count }}</td>
+                        <td>${{ r.transaction.amount }}</td>
+                        <td class="text-center">
+                            <a class="btn btn-info btn-sm" href="/administrator/verify-transaction/{{ r.transaction.id }}/">
+                                <i class="align-middle" data-feather="info"></i> View
+                            </a>
+                            <a class="btn btn-primary btn-sm me-1" href="{{ r.receipt_pdf.url }}" target="_blank" rel="noopener noreferrer">
+                                <i class="align-middle" data-feather="download"></i> View PDF
+                            </a>
+                            {% if not admin.is_superuser %}
+                                <a href="/administrator/send-receipt/{{ r.id }}/" class="btn btn-success btn-sm">
+                                    <i class="align-middle" data-feather="send"></i> Send
                                 </a>
-                            </td>
-                            <td class="text-center">
-                                <a class="btn btn-primary btn-sm" href="{{ r.receipt_pdf.url }}" target="_blank" rel="noopener noreferrer">
-                                    View Receipt
-                                </a>
-                                {% if not admin.is_superuser %}
-                                <a href="/administrator/send-receipt/{{r.id}}/" class="btn btn-success btn-sm">
-                                    Send Receipt
-                                </a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

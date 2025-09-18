@@ -33,7 +33,7 @@
 
 			<!-- Start Header Area -->
 			<header class="default-header">
-				<div class="container">
+				<div class="container-fluid px-5">
 					<div class="header-wrap">
 						<div class="header-top d-flex justify-content-between align-items-center">
 							<div class="logo">
@@ -65,7 +65,7 @@
 			<!-- start banner Area -->
 			<section class="banner-area relative" id="home">
 				<div class="overlay overlay-bg"></div>
-				<div class="container">
+				<div class="container-fluid px-5">
 						<div class="row fullscreen align-items-center justify-content-start" style="height: 915px;">
 							<div class="banner-content col-lg-9 col-md-12">
 								<h1>
@@ -155,83 +155,73 @@
 			</section>
 			<!-- End about Area -->
 
-			<!-- Start donate Area -->
-			<section class="donate-area relative section-gap" id="donate">
-				<div class="overlay overlay-bg"></div>
-				<div class="container">
-					<div class="row d-flex justify-content-end">
-						<div class="col-lg-6 col-sm-12 pb-80 header-text">
-							<h1>Donate Now</h1>
-							<p>
-								Join hands with us to fund the next big idea. Every contribution, big or small, directly empowers students and faculty to turn their groundbreaking projects into reality. By supporting campus innovation, you're not just donating—you're investing in the future of our university community.
-							</p>
-						</div>
-					</div>
-					<div class="row d-flex justify-content-center">
-						<div class="col-lg-6 contact-left">
-							<div class="single-info">
-								<h4>Direct Impact</h4>
-								<p>
-									Every contribution goes directly to the causes you care about, ensuring your generosity makes a tangible difference in our community.
-								</p>
-							</div>
-							<div class="single-info">
-								<h4>Full Transparency</h4>
-								<p>
-									We provide complete visibility into how your funds are used. You can track our progress and see the positive change you helped create.
-								</p>
-							</div>
-							<div class="single-info">
-								<h4>Ethical and Secure</h4>
-								<p>
-									We are committed to the highest standards of ethics and accountability. Your donation is handled with care and integrity, every step of the way.
-								</p>
-							</div>
-						</div>
-						<div class="col-lg-6 contact-right">
-							<form class="booking-form" id="myForm" action="donate.php">
-								 	<div class="row">
-								 		<div class="col-lg-12 d-flex flex-column">
-							 				<select name="type" class="app-select form-control" required>
-												<option data-display="Project you want to donate">Project you want to donate</option>
-												<option value="1">Donate type 1</option>
-												<option value="2">Donate type 2</option>
-												<option value="3">Donate type 3</option>
-											</select>
-								 		</div>
-							 			<div class="col-lg-6 d-flex flex-column">
-											<input name="fname" placeholder="Enter your name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your name'" class="form-control mt-20" required="" type="text" required>
-										</div>
-										<div class="col-lg-6 d-flex flex-column">
-											<input name="email" placeholder="Enter email address" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,63}$" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'" class="form-control mt-20" required="" type="email">
-										</div>
-										<div class="col-lg-12 d-flex flex-column">
-											<input name="amount" placeholder="Donation amount (INR)" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Donation amount (INR)'" class="form-control mt-20" required="" type="text">
+			<!-- Start Contact Area -->
+			    <section class="donate-area relative section-gap" id="donate">
+                    <div class="overlay overlay-bg"></div>
+                    <div class="container">
+                        <div class="row d-flex justify-content-end">
+                            <div class="col-12 pb-50 header-text">
+                                <h1 class="display-4">Get in Touch</h1>
+                                <p class=" text-white">
+                                    We'd love to hear from you! Whether you have a question about a project, need assistance with a donation, or want to discuss a new idea, our team is here to help.
+                                    Your feedback and support are vital to our community's success. Feel free to reach out—together, we can continue to make a difference.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-lg-6 contact-left">
+                                <div class="mb-5 text-white">
+                                    <h4 class="lead mb-2"><strong>Official College Address</strong></h4>
+                                    <address class="text-muted">
+                                        {{ins.address}}
+                                    </address>
+                                </div>
 
-											<textarea class="form-control mt-20" name="message" placeholder="Messege" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Messege'" required=""></textarea>
-										</div>
+                                <div class="mb-5 text-white">
+                                    <h4 class="lead mb-2"><strong>Contact Numbers</strong></h4>
+                                    <p class="mb-0"><a class="text-muted" href="tel:[{{ins.phn}}]">+91-{{ins.phn}}</a></p>
+                                    <p class="mb-0"><a class="text-muted" href="tel:[{{ins.phn}}]">+91-{{ins.phn}}</a></p>
+                                </div>
 
-										<div class="col-lg-12 d-flex justify-content-center send-btn">
-											<button class="submit-btn primary-btn mt-20 text-uppercase ">donate<span class="lnr lnr-arrow-right"></span></button>
-										</div>
+                                <div class="mb-5 text-white">
+                                    <h4 class="lead mb-2"><strong>Official Email</strong></h4>
+                                    <p class="mb-0"><a class="text-muted"  href="mailto:{{ins.email}}">{{ins.email}}</a></p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 contact-right">
+                                <h4 class="lead mb-2 text-white"><strong>Send us a message</strong></h4>
+                                <form class="booking-form">
+                                    <div class="row">
+                                        <div class="col-lg-6 d-flex flex-column">
+                                            <input name="fname" placeholder="Enter your first  name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your first name'" class="form-control mt-20" type="text" required>
+                                        </div>
+                                        <div class="col-lg-6 d-flex flex-column">
+                                            <input name="fname" placeholder="Enter your last name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your last name'" class="form-control mt-20" type="text" required>
+                                        </div>
+                                        <div class="col-lg-12 d-flex flex-column">
+                                            <input name="email" placeholder="Enter email address" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,63}$" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'" class="form-control mt-20" required type="email">
+                                        </div>
+                                        <div class="col-lg-12 d-flex flex-column">
+                                            <input name="phone" placeholder="Enter phone number" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter phone number'" class="form-control mt-20" required type="tel" pattern="[0-9]{10}" title="Enter a 10-digit phone number">
+                                            <textarea class="form-control mt-20" name="message" placeholder="Messege" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Messege'" required=""></textarea>
+                                        </div>
+                                        <div class="col-lg-12 d-flex justify-content-start send-btn">
+                                            <button type="submit" class="submit-btn primary-btn mt-20 text-uppercase ">Send Message</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-										<div class="alert-msg"></div>
-									</div>
-					  		</form>
-					  		<p class="payment-method">
-					  			We Accept :   <img src="{% static 'frontend/img/payment.png' %}" alt="">
-					  		</p>
-						</div>
-					</div>
-				</div>
-			</section>
-			<!-- End donate Area -->
+			<!-- End Contact Area -->
 
             {% endblock %}
 
 			<!-- start footer Area -->
 			<footer class="footer-area section-gap">
-				<div class="container">
+				<div class="container-fluid px-5">
 					<div class="row d-flex flex-column justify-content-center">
 						<ul class="footer-menu">
 							<li><a href="/user/index/{{ins.id}}/">Home</a></li>
