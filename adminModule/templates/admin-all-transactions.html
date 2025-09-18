@@ -1,67 +1,128 @@
 {% extends 'admin-dashboard.html' %}
+{% load static %}
 {% block content %}
 
-<!---------------------- All Institution Table Details -------------------->
     <div class="row">
-        <div class="col-12 ">
-            <h1 class="mb-4"><strong>All Transactions</strong></h1>
-            <div class="card data-card pb-6">
-                <div class="card-header text-end">
+        <div class="col-12">
+            <h1 class="mb-3"><strong>Transaction</strong> Details</h1>
+            <div class="card data-card py-3">
+                <div class="card-header d-flex justify-content-end align-items-center">
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
+                         <i class="align-middle me-1" data-feather="filter"></i> Advanced Filter
+                    </button>
                 </div>
-                <div class="card-body table-responsive pb-0">
-                    <table class="table table-hover my-0 text-start">
+
+                <div class="collapse" id="advancedFilterCollapse">
+                    <div class="card-body">
+                        <form method="get" class="row g-3">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="tracking_id" name="tracking_id" placeholder="Enter Tracking ID">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="project_title" name="project_title" placeholder="Enter Project Title">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="sender_name" name="sender_name" placeholder="Enter Buyer name">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="status_filter" class="form-label">Status</label>
+                                <select id="status_filter" name="status" class="form-select">
+                                    <option value="">All</option>
+                                    <option value="Unverified">Unverified</option>
+                                    <option value="Verified">Verified</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="start_date" class="form-label">From Date</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="end_date" class="form-label">To Date</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="order_by_amount" class="form-label">Amount</label>
+                                <select id="order_by_amount" name="amount_order" class="form-select">
+                                    <option value="">None</option>
+                                    <option value="asc">Ascending</option>
+                                    <option value="desc">Descending</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="order_by_tiles" class="form-label">Bought Tiles</label>
+                                <select id="order_by_tiles" name="tiles_order" class="form-select">
+                                    <option value="">None</option>
+                                    <option value="asc">Ascending</option>
+                                    <option value="desc">Descending</option>
+                                </select>
+                            </div>
+                            <div class="col-12 text-end mt-3">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="align-middle me-1" data-feather="check"></i> Apply Filters
+                                </button>
+                                <a href="." class="btn btn-danger">
+                                    <i class="align-middle me-1" data-feather="x"></i> Clear Filters
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card-body table-responsive">
+                    <table class="table table-hover text-start">
                         <thead class="table-dark">
                         <tr>
                             <th>Sl no.</th>
                             <th>Project Title</th>
-                            <th>Sender</th>
+                            <th>Buyer</th>
                             <th>No of Tiles</th>
                             <th>Amount</th>
                             <th>Time</th>
-                            <th>status</th>
-                            <th></th>
+                            <th class="text-center">Action</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for t in transaction %}
                         <tr>
-                            <td>{{forloop.counter}}</td>
-                            <td><a href="/administrator/single-project/{{t.project.id}}/">{{t.project.title}}</a></td>
-                            <td>{{t.sender.first_name}} {{t.sender.last_name}}</td>
+                            <td>{{ forloop.counter }}</td>
+                            <td><a href="/administrator/single-project/{{ t.project.id }}/">{{ t.project.title }}</a></td>
+                            <td>{{ t.sender.first_name }} {{ t.sender.last_name }}</td>
                             <td>{{ t.num_tiles }}</td>
-                            <td>{{t.amount}}</td>
-                            <td>{{t.transaction_time}}</td>
-                            <td class="{% if t.status == 'Verified'%}
-                                        text-success
-                                    {% elif t.status == 'Rejected' %}
-                                        text-danger
-                                    {% elif t.status == 'Unverified' %}
-                                        text-dark-subtle
-                                    {% endif %}">
-                                <strong>{{t.status}}</strong>
-                            </td>
+                            <td>${{ t.amount }}</td>
+                            <td>{{ t.transaction_time|date:"M d, Y P" }}</td>
                             <td>
                                 {% if not admin.is_superuser %}
                                     {% if t.status == 'Verified' %}
-                                        <a href="/administrator/generate-receipt/{{t.id}}/" class="btn btn-success btn-sm my-1">
-                                            Receipt
+                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-success btn-sm" style="width: 85px;">
+                                            <i class="align-middle" data-feather="check-circle"></i> Verified
                                         </a>
-                                        <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-secondary btn-sm" style="width: 60px;">
-                                            View
+                                        <a href="/administrator/generate-receipt/{{ t.id }}/" class="btn btn-success btn-sm my-1" style="width: 85px;">
+                                            <i class="align-middle" data-feather="file-text"></i> Receipt
                                         </a>
-                                    {% elif t.status == 'Rejected' or t.status == 'Unverified' %}
-                                        <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-secondary btn-sm" style="width: 60px;">
-                                            View
+                                    {% elif t.status == 'Unverified' %}
+                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-primary btn-sm" style="width: 85px;">
+                                            <i class="align-middle" data-feather="info"></i> Verify
                                         </a>
-                                    {% else %}
-                                        <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-primary btn-sm" style="width: 60px;">
-                                            Verify
+                                    {% elif t.status == 'Rejected' %}
+                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-danger btn-sm" style="width: 85px;">
+                                            <i class="align-middle" data-feather="x-circle"></i> Rejected
                                         </a>
                                     {% endif %}
                                 {% else %}
-                                    <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-secondary btn-sm" style="width: 60px;">
-                                        View
-                                    </a>
+                                    {% if t.status == 'Verified' %}
+                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-success btn-sm" style="width: 85px;">
+                                            <i class="align-middle" data-feather="check-circle"></i> Verified
+                                        </a>
+                                    {% elif t.status == 'Unverified' %}
+                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-primary btn-sm" style="width: 85px;">
+                                            <i class="align-middle" data-feather="info"></i> Verify
+                                        </a>
+                                    {% elif t.status == 'Rejected' %}
+                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-danger btn-sm" style="width: 85px;">
+                                            <i class="align-middle" data-feather="x-circle"></i> Rejected
+                                        </a>
+                                    {% endif %}
                                 {% endif %}
                             </td>
                         </tr>

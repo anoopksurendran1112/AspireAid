@@ -2,34 +2,36 @@
 {% load static %}
 {% block content %}
 
-    <!-- Start donate Area -->
     <section class="donate-area relative section-gap" id="donate">
         <div class="overlay overlay-bg"></div>
         <div class="container">
             <div class="row d-flex justify-content-end">
                 <div class="col-12 pb-50 header-text">
                     <h1 class="display-4">Get in Touch</h1>
-                    <p class="lead text-white">We're here to answer your questions and provide support for your journey with our crowdfunding initiative.</p>
+                    <p class=" text-white">
+                        We'd love to hear from you! Whether you have a question about a project, need assistance with a donation, or want to discuss a new idea, our team is here to help.
+                        Your feedback and support are vital to our community's success. Feel free to reach out—together, we can continue to make a difference.
+                    </p>
                 </div>
             </div>
             <div class="row d-flex justify-content-center">
                 <div class="col-lg-6 contact-left">
                     <div class="mb-5 text-white">
                         <h4 class="lead mb-2"><strong>Official College Address</strong></h4>
-                        <address >
+                        <address class="text-muted">
                             {{ins.address}}
                         </address>
                     </div>
 
                     <div class="mb-5 text-white">
                         <h4 class="lead mb-2"><strong>Contact Numbers</strong></h4>
-                        <p class="mb-0">Institution number: <a class="text-white" href="tel:[{{ins.phn}}]">{{ins.phn}}</a></p>
-                        <p class="mb-0">Admin number: <a class="text-white" href="tel:[{{ins.phn}}]">{{ins.phn}}</a></p>
+                        <p class="mb-0"><a class="text-muted" href="tel:[{{ins.phn}}]">+91-{{ins.phn}}</a></p>
+                        <p class="mb-0"><a class="text-muted" href="tel:[{{ins.phn}}]">+91-{{ins.phn}}</a></p>
                     </div>
 
                     <div class="mb-5 text-white">
                         <h4 class="lead mb-2"><strong>Official Email</strong></h4>
-                        <p class="mb-0"><a class="text-white"  href="mailto:{{ins.email}}">{{ins.email}}</a></p>
+                        <p class="mb-0"><a class="text-muted"  href="mailto:{{ins.email}}">{{ins.email}}</a></p>
                     </div>
                 </div>
                 <div class="col-lg-6 contact-right">
@@ -59,6 +61,5 @@
             </div>
         </div>
     </section>
-    <!-- End donate Area -->
 
 {% endblock %}

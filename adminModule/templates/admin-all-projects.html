@@ -108,72 +108,128 @@
 
 <!---------------------- All Institution Table Details -------------------->
     <div class="row">
-        <div class="col-12 ">
-            <h1 class="mb-4"><strong>All Project Details</strong></h1>
-            <div class="card data-card">
-                <div class="card-header text-end">
+    <div class="col-12">
+        <h1 class="mb-3"><strong>Project</strong> Details</h1>
+        <div class="card data-card py-3">
+            <div class="card-header d-flex justify-content-end align-items-center">
                 {% if not admin.is_superuser %}
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ModalAddProject"
+                    <button type="button" class="btn btn-info btn-sm me-2" data-bs-toggle="modal" data-bs-target="#ModalAddProject"
                             {% if not admin.default_bank %} disabled {% endif %} >
-                         Add new Project +
+                        <i class="align-middle me-1" data-feather="folder-plus"></i> Add New Project
                     </button>
                 {% endif %}
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
+                    <i class="align-middle me-1" data-feather="filter"></i> Advanced Filter
+                </button>
+            </div>
+
+            <div class="collapse" id="advancedFilterCollapse">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-12">
+                            <input type="text" class="form-control" id="project_title" name="project_title" placeholder="Enter Project Name">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="project_status" class="form-label">Status</label>
+                            <select id="project_status" name="project_status" class="form-select">
+                                <option value="">All</option>
+                                <option value="active">Active</option>
+                                <option value="closed">Closed</option>
+                                <option value="success">Success</option>
+                                <option value="failed">Failed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="start_date" class="form-label">Created From Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="end_date" class="form-label">Created To Date</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="order_by_target" class="form-label">Target Amount</label>
+                            <select id="order_by_target" name="target_order" class="form-select">
+                                <option value="">None</option>
+                                <option value="asc">Ascending</option>
+                                <option value="desc">Descending</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="order_by_current_amount" class="form-label">Current Amount</label>
+                            <select id="order_by_current_amount" name="amount_order" class="form-select">
+                                <option value="">None</option>
+                                <option value="asc">Ascending</option>
+                                <option value="desc">Descending</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="order_by_date" class="form-label">Closing Date</label>
+                            <select id="order_by_date" name="date_order" class="form-select">
+                                <option value="">None</option>
+                                <option value="asc">Ascending</option>
+                                <option value="desc">Descending</option>
+                            </select>
+                        </div>
+                        <div class="col-12 text-end mt-3">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="align-middle me-1" data-feather="check"></i> Apply Filters
+                            </button>
+                            <a href="." class="btn btn-danger">
+                                <i class="align-middle me-1" data-feather="x"></i> Clear Filters
+                            </a>
+                        </div>
+                    </form>
                 </div>
-                <div class="card-body table-responsive pb-6">
-                    <table class="table table-hover my-0">
-                        <thead class="table-dark">
-                        <tr>
-                            <th>Sl no.</th>
-                            <th>Project Title</th>
-                            <th>Target</th>
-                            <th>Value</th>
-                            <th>Current</th>
-                            <th>Start date</th>
-                            <th>End date</th>
-                            <th>Status</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for p in prj %}
-                        <tr>
-                            <td>{{forloop.counter}}</td>
-                            <td>{{p.title}}</td>
-                            <td>{{p.funding_goal}}</td>
-                            <td>{{p.tile_value}}</td>
-                            <td>{{p.current_amount}}</td>
-                            <td>{{p.created_at}}</td>
-                            <td>{{p.closing_date}}</td>
-                            <td class="text-center">
-                                {% if p.current_amount == p.funding_goal %}
-                                        <a class="btn btn-sm btn-success " style="width:70px;">
-                                            Success
-                                        </a>
-                                    {% elif p.validity == False %}
-                                        <a class="btn btn-sm btn-danger " style="width:70px;">
-                                            Failed
-                                        </a>
-                                    {% else %}
-                                        {% if p.table_status %}
-                                            <a class="btn btn-sm btn-warning text-black" style="width:70px;">Active</a>
-                                        {% else %}
-                                            <a class="btn btn-sm btn-secondary" style="width:70px;">Closed</a>
-                                        {% endif %}
-                                    {% endif %}
-                            </td>
-                            <td>
-                                <a class="" href="/administrator/single-project/{{p.id}}/">
-                                  <i class="align-middle" data-feather="eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            </div>
+
+            <div class="card-body table-responsive">
+                <table class="table table-hover my-0">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Sl no.</th>
+                        <th>Project Title</th>
+                        <th>Target</th>
+                        <th>Current</th>
+                        <th>Created At</th>
+                        <th>Closing Date</th>
+                        <th>Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for p in prj %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ p.title }}</td>
+                        <td>${{ p.funding_goal }}</td>
+                        <td>${{ p.current_amount }}</td>
+                        <td>{{ p.created_at|date:"M d, Y" }}</td>
+                        <td>{{ p.closing_date|date:"M d, Y" }}</td>
+                        <td class="{% if p.current_amount >= p.funding_goal %}text-success
+                                    {% elif not p.table_status %}text-danger
+                                    {% elif p.table_status %}text-primary
+                                    {% endif %}">
+                            <strong>
+                                {% if p.current_amount >= p.funding_goal %}Success
+                                {% elif not p.table_status %}Failed
+                                {% elif p.table_status %}Active
+                                {% endif %}
+                            </strong>
+                        </td>
+                        <td class="text-center">
+                            <a class="btn btn-info btn-sm" href="/administrator/single-project/{{ p.id }}/">
+                                <i class="align-middle" data-feather="info"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

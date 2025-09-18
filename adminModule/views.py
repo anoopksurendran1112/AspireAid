@@ -12,7 +12,7 @@ from decimal import Decimal, InvalidOperation
 from django.db import IntegrityError
 from django.contrib import messages
 from django.utils import timezone
-from django.db.models import F
+from django.db.models import F, Q
 from io import BytesIO
 import datetime
 import qrcode
@@ -464,23 +464,62 @@ def adminDeletePermanent(request, aid):
 
 
 def adminAllProject(request):
-    if request.user.is_superuser:
-        if not request.user.table_status:
-            messages.error(request, "Your account has been deactivated by another superuser.")
-            return redirect('/administrator/logout/')
-        prj = Project.objects.all()
-    elif request.user.is_staff:
-        if not request.user.table_status:
-            messages.error(request, "Your account has been deactivated by a superuser.")
-            return redirect('/administrator/logout/')
-        prj = Project.objects.filter(created_by = request.user)
-    else:
+    if not (request.user.is_superuser or request.user.is_staff):
         return redirect('/administrator/')
 
-    for p in prj:
-        if p.closing_date < timezone.now():
-            p.validity = False
-    return render(request, "admin-all-projects.html",{'prj':prj, 'admin': request.user})
+    if not request.user.table_status or (request.user.is_staff and not request.user.institution.table_status):
+        messages.error(request, "Your account or institution has been deactivated by a superuser.")
+        return redirect('/administrator/logout/')
+
+    if request.user.is_superuser:
+        projects = Project.objects.all()
+    else:
+        projects = Project.objects.filter(created_by=request.user)
+
+    project_title = request.GET.get('project_title')
+    project_status = request.GET.get('project_status')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    amount_order = request.GET.get('amount_order')
+    date_order = request.GET.get('date_order')
+    target_order = request.GET.get('target_order')
+
+    if project_title:
+        projects = projects.filter(title__icontains=project_title)
+
+    if project_status:
+        if project_status == 'active':
+            projects = projects.filter(table_status=True, closing_date__gt=timezone.now())
+        elif project_status == 'closed':
+            projects = projects.filter(table_status=False)
+        elif project_status == 'success':
+            projects = projects.filter(current_amount__gte=F('funding_goal'))
+        elif project_status == 'failed':
+            projects = projects.filter(Q(table_status=False) | Q(closing_date__lte=timezone.now()))
+
+    if start_date:
+        projects = projects.filter(created_at__date__gte=start_date)
+    if end_date:
+        projects = projects.filter(created_at__date__lte=end_date)
+
+    if amount_order == 'asc':
+        projects = projects.order_by('current_amount')
+    elif amount_order == 'desc':
+        projects = projects.order_by('-current_amount')
+    elif target_order == 'asc':
+        projects = projects.order_by('funding_goal')
+    elif target_order == 'desc':
+        projects = projects.order_by('-funding_goal')
+    elif date_order == 'asc':
+        projects = projects.order_by('closing_date')
+    elif date_order == 'desc':
+        projects = projects.order_by('-closing_date')
+    else:
+        projects = projects.order_by('-created_at')
+
+    for p in projects:
+        p.validity = p.closing_date >= timezone.now()
+    return render(request, "admin-all-projects.html", {'prj': projects, 'admin': request.user})
 
 
 def adminAddProject(request):
@@ -538,6 +577,11 @@ def adminSingleProject(request, pid):
             return redirect('/administrator/logout/')
 
         project = get_object_or_404(Project.objects.select_related('beneficiary'), id=pid)
+
+        if project.funding_goal > 0:
+            project.progress = round((project.current_amount / project.funding_goal) * 100, 3)
+        else:
+            project.progress = 0
 
         if project.closing_date < timezone.now():
             project.validity = False
@@ -695,25 +739,71 @@ def adminUpdateBankDetails(request):
 
 
 def adminAllTransactions(request):
-    if request.user.is_superuser:
-        if not request.user.table_status:
-            messages.error(request, "Your account has been deactivated by another superuser.")
-            return redirect('/administrator/logout/')
-        transaction_filtered = Transaction.objects.all().order_by('-transaction_time')
-    elif request.user.is_staff:
-        if not request.user.table_status:
-            messages.error(request, "Your account has been deactivated by a superuser.")
-            return redirect('/administrator/logout/')
-        transaction_filtered = Transaction.objects.filter(project__created_by=request.user).order_by('-transaction_time')
-    else:
+    if not (request.user.is_superuser or request.user.is_staff):
         return redirect('/administrator/')
 
-    for t in transaction_filtered:
-        if t.tiles_bought:
-            t.num_tiles = len(t.tiles_bought.tiles.split('-'))
-        else:
-            t.num_tiles = 0
-    return render(request, 'admin-all-transactions.html', {'admin':request.user, 'transaction':transaction_filtered})
+    if not request.user.table_status or (request.user.is_staff and not request.user.institution.table_status):
+        messages.error(request, "Your account or institution has been deactivated by a superuser.")
+        return redirect('/administrator/logout/')
+
+    if request.user.is_superuser:
+        transactions = Transaction.objects.all()
+    else:
+        transactions = Transaction.objects.filter(project__created_by=request.user)
+
+    tracking_id = request.GET.get('tracking_id')
+    project_title = request.GET.get('project_title')
+    sender_name = request.GET.get('sender_name')
+    status = request.GET.get('status')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    amount_order = request.GET.get('amount_order')
+    tiles_order = request.GET.get('tiles_order')
+
+    if tracking_id:
+        transactions = transactions.filter(tracking_id__icontains=tracking_id)
+    if project_title:
+        transactions = transactions.filter(project__title__icontains=project_title)
+    if sender_name:
+        transactions = transactions.filter(
+            Q(sender__first_name__icontains=sender_name) | Q(sender__last_name__icontains=sender_name))
+    if status:
+        transactions = transactions.filter(status=status)
+    if start_date:
+        transactions = transactions.filter(transaction_time__date__gte=start_date)
+    if end_date:
+        transactions = transactions.filter(transaction_time__date__lte=end_date)
+
+    transactions = transactions.order_by('-transaction_time')
+
+    if amount_order == 'asc':
+        transactions = sorted(transactions, key=lambda t: t.amount)
+    elif amount_order == 'desc':
+        transactions = sorted(transactions, key=lambda t: t.amount, reverse=True)
+
+
+    if tiles_order == 'asc':
+        for t in transactions:
+            if t.tiles_bought and t.tiles_bought.tiles:
+                t.num_tiles = len(t.tiles_bought.tiles.split('-'))
+            else:
+                t.num_tiles = 0
+        transactions = sorted(transactions, key=lambda t: t.num_tiles)
+    elif tiles_order == 'desc':
+        for t in transactions:
+            if t.tiles_bought and t.tiles_bought.tiles:
+                t.num_tiles = len(t.tiles_bought.tiles.split('-'))
+            else:
+                t.num_tiles = 0
+        transactions = sorted(transactions, key=lambda t: t.num_tiles, reverse=True)
+
+    for t in transactions:
+        if not hasattr(t, 'num_tiles'):
+            if t.tiles_bought and t.tiles_bought.tiles:
+                t.num_tiles = len(t.tiles_bought.tiles.split('-'))
+            else:
+                t.num_tiles = 0
+    return render(request, 'admin-all-transactions.html', {'admin': request.user, 'transaction': transactions})
 
 
 def adminVerifyTransaction(request, tid):
@@ -932,25 +1022,65 @@ def adminGenerateReceipts(request, t_id):
 
 
 def adminAllReceipts(request):
-    if request.user.is_superuser:
-        if not request.user.table_status:
-            messages.error(request, "Your account has been deactivated by another superuser.")
-            return redirect('/administrator/logout/')
-        receipts = Receipt.objects.all()
-    elif request.user.is_staff:
-        if not request.user.table_status:
-            messages.error(request, "Your account has been deactivated by a superuser.")
-            return redirect('/administrator/logout/')
-        receipts = Receipt.objects.filter(transaction__project__created_by=request.user)
-    else:
+    if not (request.user.is_superuser or request.user.is_staff):
         return redirect('/administrator/')
 
+    if not request.user.table_status or (request.user.is_staff and not request.user.institution.table_status):
+        messages.error(request, "Your account or institution has been deactivated by a superuser.")
+        return redirect('/administrator/logout/')
+
+    if request.user.is_superuser:
+        receipts = Receipt.objects.all()
+    else:
+        receipts = Receipt.objects.filter(transaction__project__created_by=request.user)
+
+    tracking_id = request.GET.get('tracking_id')
+    project_title = request.GET.get('project_title')
+    sender_name = request.GET.get('sender_name')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    amount_order = request.GET.get('amount_order')
+    tiles_order = request.GET.get('tiles_order')
+
+    if tracking_id:
+        receipts = receipts.filter(transaction__tracking_id__icontains=tracking_id)
+    if project_title:
+        receipts = receipts.filter(transaction__project__title__icontains=project_title)
+    if sender_name:
+        receipts = receipts.filter(Q(transaction__sender__first_name__icontains=sender_name) | Q(
+                transaction__sender__last_name__icontains=sender_name))
+    if start_date:
+        receipts = receipts.filter(transaction__transaction_time__date__gte=start_date)
+    if end_date:
+        receipts = receipts.filter(transaction__transaction_time__date__lte=end_date)
+
+    if amount_order or tiles_order:
+        if tiles_order:
+            for r in receipts:
+                if r.transaction.tiles_bought and r.transaction.tiles_bought.tiles:
+                    r.tile_count = len(r.transaction.tiles_bought.tiles.split('-'))
+                else:
+                    r.tile_count = 0
+
+            if tiles_order == 'asc':
+                receipts = sorted(receipts, key=lambda r: r.tile_count)
+            elif tiles_order == 'desc':
+                receipts = sorted(receipts, key=lambda r: r.tile_count, reverse=True)
+
+        elif amount_order == 'asc':
+            receipts = receipts.order_by('transaction__amount')
+        elif amount_order == 'desc':
+            receipts = receipts.order_by('-transaction__amount')
+    else:
+        receipts = receipts.order_by('-transaction__transaction_time')
+
     for r in receipts:
-        if r.transaction.tiles_bought and r.transaction.tiles_bought.tiles:
-            r.tile_count = len(r.transaction.tiles_bought.tiles.split('-'))
-        else:
-            r.tile_count = 0
-    return render(request, 'admin-all-receipts.html', {'admin': request.user,'rec': receipts})
+        if not hasattr(r, 'tile_count'):
+            if r.transaction.tiles_bought and r.transaction.tiles_bought.tiles:
+                r.tile_count = len(r.transaction.tiles_bought.tiles.split('-'))
+            else:
+                r.tile_count = 0
+    return render(request, 'admin-all-receipts.html', {'admin': request.user, 'rec': receipts})
 
 
 def adminSendReciept(request, r_id):

@@ -4,15 +4,15 @@
 
     <!-- Start Track Status Area -->
 <section class="section-gap" id="track-status">
-    <div class="container">
+    <div class="container-fluid px-5">
         <h1 class="mb-4 text-center">Track your status</h1>
-        <p class="lead text-center text-muted">Enter your Tracking ID, Phone number or Email ID below to view your transaction history.</p>
+        <p class="lead text-center text-muted mb-4">Enter your Tracking ID, Phone number or Email ID below to view your transaction history.</p>
 
         <div class="d-flex justify-content-center">
             <form method="post" class="text-center w-50 mx-auto" id="trackForm">
                 {% csrf_token %}
                 <div class="input-group mb-2 shadow-sm rounded">
-                    <input type="text" class="form-control" placeholder="Enter your Tracking ID, Phone number or Email ID" name="track" required>
+                    <input type="text" class="form-control" placeholder="Tracking ID, Phone number or Email ID" name="track" required>
                     <button class="btn btn-primary" type="submit">
                         <i class="fa fa-search me-2"></i> Track Status
                     </button>
@@ -20,7 +20,9 @@
                 <div id="validationMessage" class="invalid-feedback d-block text-start mb-3" style="display: none;"></div>
             </form>
         </div>
+    </div>
 
+    <div class="container">
         {% if tra %}
         <div class="pt-5">
             <h3 class="mb-3 text-center">Your Transactions from: {{search}}</h3>
