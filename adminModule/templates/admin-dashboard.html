@@ -28,36 +28,42 @@
 <body>
 
 <!---------------------- Modal for Share institution -------------------->
-    <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="shareModalLabel"><strong>Share this page</strong></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title fs-5 text-white" id="shareModalLabel"><strong>Share this page</strong></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p class="lead mb-4">You can share your institution link using these options:</p>
+                <div class="input-group mb-3">
+                    <input id="institutionLinkInput" class="form-control" type="text" readonly>
+                    <button id="copyLinkButton" class="btn btn-outline-secondary" type="button">
+                        <i class="align-middle" data-feather="copy"></i>
+                    </button>
                 </div>
-                <div class="modal-body text-center p-4">
-                    <p>You can share this link using these options:</p>
-                    <input id="institutionLinkInput" class="form-control my-3" type="text" readonly>
-                    <div class="d-flex justify-content-center">
-                        <button id="copyLinkButton" class="btn btn-secondary m-2">
-                            <i class="align-middle" data-feather="copy"></i>
-                            Copy Link
-                        </button>
-                        <a href="#" id="whatsappShare" target="_blank" class="btn btn-success m-2">
-                            WhatsApp
-                        </a>
-                        <a href="#" id="twitterShare" target="_blank" class="btn btn-info m-2">
-                            Twitter
-                        </a>
-                    </div>
+                <div class="d-flex justify-content-center flex-wrap">
+                    <a href="#" id="whatsappShare" target="_blank" class="btn btn-success m-2">
+                        <i class="align-middle" data-feather="message-circle"></i>
+                        WhatsApp
+                    </a>
+                    <a href="#" id="facebookShare" target="_blank" class="btn btn-primary m-2">
+                        <i class="align-middle" data-feather="thumbs-up"></i>
+                        Facebook
+                    </a>
+                    <a href="#" id="twitterShare" target="_blank" class="btn btn-info m-2">
+                        <i class="align-middle" data-feather="twitter"></i>
+                        Twitter
+                    </a>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
-
+</div>
 <!---------------------- Modal for Adding or Updating Bank Details -------------------->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog ">
@@ -199,13 +205,13 @@
 					<ul class="navbar-nav navbar-align">
                         {% if not admin.is_superuser %}
                         <li class="nav-item mx-1">
-                            <button type="button" class=" btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            <button type="button" class=" btn btn-warning text-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                 <i class="align-middle" data-feather="globe"></i>
                                 Bank
                             </button>
                         </li>
                         <li class="nav-item mx-1">
-                            <button type="button" class="btn btn-success" id="ins_share" data-bs-toggle="modal" data-bs-target="#shareModal">
+                            <button type="button" class="btn btn-primary" id="ins_share" data-bs-toggle="modal" data-bs-target="#shareModal">
                                 <i class="align-middle" data-feather="share"></i>
                                 Share
                             </button>
@@ -465,45 +471,52 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const shareModal = document.getElementById('shareModal');
+        const institutionLinkInput = document.getElementById('institutionLinkInput');
+        const copyLinkButton = document.getElementById('copyLinkButton');
+        const whatsappShare = document.getElementById('whatsappShare');
+        const twitterShare = document.getElementById('twitterShare');
+        const facebookShare = document.getElementById('facebookShare'); // New element
+
         const customUrl = `${window.location.protocol}//${window.location.host}/user/{{admin.institution.id}}/`;
+        const shareText = `Welcome!
+Check out the available donation projects from {{ admin.institution.institution_name }}.
+Through this link, you can access our crowdfunding platform and support those in need.
+Your contribution can make a big difference!`;
 
         // Function to copy the URL to the clipboard
         const copyToClipboard = () => {
-            const inputField = document.getElementById('institutionLinkInput');
-            inputField.select(); // Select the text in the input field
-            inputField.setSelectionRange(0, 99999); // For mobile devices
-            navigator.clipboard.writeText(inputField.value).then(() => {
-                alert('Link copied to clipboard!');
-            }).catch(err => {
-                console.error('Failed to copy text:', err);
-            });
+            if (institutionLinkInput) {
+                institutionLinkInput.select();
+                institutionLinkInput.setSelectionRange(0, 99999);
+                navigator.clipboard.writeText(institutionLinkInput.value).catch(err => {
+                    console.error('Failed to copy text:', err);
+                });
+            }
         };
 
         // Event listener for when the modal is shown
         if (shareModal) {
             shareModal.addEventListener('show.bs.modal', event => {
-                const whatsappShare = document.getElementById('whatsappShare');
-                const twitterShare = document.getElementById('twitterShare');
-                const institutionLinkInput = document.getElementById('institutionLinkInput');
-
                 // Populate the input field with the custom URL
                 if (institutionLinkInput) {
                     institutionLinkInput.value = customUrl;
                 }
 
                 // Update the share links
-                const shareText = 'Welcome, please support the available projects...';
                 if (whatsappShare) {
-                    whatsappShare.href = `https://wa.me/?text=${encodeURIComponent(shareText)}%20${encodeURIComponent(customUrl)}`;
+                    whatsappShare.href = `https://wa.me/?text=${encodeURIComponent(shareText)}%0A${encodeURIComponent(customUrl)}`;
                 }
                 if (twitterShare) {
                     twitterShare.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(customUrl)}`;
+                }
+                // Update the new Facebook share link
+                if (facebookShare) {
+                    facebookShare.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(customUrl)}`;
                 }
             });
         }
 
         // Event listener for the Copy Link button
-        const copyLinkButton = document.getElementById('copyLinkButton');
         if (copyLinkButton) {
             copyLinkButton.addEventListener('click', copyToClipboard);
         }

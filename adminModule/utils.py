@@ -8,9 +8,9 @@ from django.core.files.base import ContentFile
 from reportlab.lib.pagesizes import A4
 from userModule.models import Receipt, Transaction
 from reportlab.lib.units import inch
-from django.utils import timezone
 from reportlab.lib import colors
 from django.conf import settings
+import datetime
 import requests
 import secrets
 import string
@@ -161,9 +161,14 @@ def whatsapp_send_initiated(transaction, url):
             'stype': settings.BHASHSMS_API_STYPE,'Params': params_string}
 
         response = requests.get(settings.BHASHSMS_API, params=api_params)
-        return response.status_code == 200
+        if response.status_code == 200:
+            return {"status": "success", "response": response.text}
+        else:
+            error_message = f"API returned non-200 status code: {response.status_code}. Response: {response.text}"
+            return {"status": "error", "message": error_message}
     except Exception as e:
-        return False
+        error_message = f"An exception occurred during WhatsApp send: {str(e)}"
+        return {"status": "error", "message": error_message}
 
 
 """Sends a WhatsApp message for proof upload."""
@@ -181,9 +186,14 @@ def whatsapp_send_proof(transaction):
             'Params': params_string,}
 
         response = requests.get(settings.BHASHSMS_API, params=api_params)
-        return response.status_code == 200
+        if response.status_code == 200:
+            return {"status": "success", "response": response.text}
+        else:
+            error_message = f"API returned non-200 status code: {response.status_code}. Response: {response.text}"
+            return {"status": "error", "message": error_message}
     except Exception as e:
-        return False
+        error_message = f"An exception occurred during WhatsApp send: {str(e)}"
+        return {"status": "error", "message": error_message}
 
 
 """Sends a WhatsApp message for successful verification."""
@@ -205,9 +215,14 @@ def whatsapp_send_approve(transaction):
             'Params': params_string}
 
         response = requests.get(settings.BHASHSMS_API, params=api_params)
-        return response.status_code == 200
+        if response.status_code == 200:
+            return {"status": "success", "response": response.text}
+        else:
+            error_message = f"API returned non-200 status code: {response.status_code}. Response: {response.text}"
+            return {"status": "error", "message": error_message}
     except Exception as e:
-        return False
+        error_message = f"An exception occurred during WhatsApp send: {str(e)}"
+        return {"status": "error", "message": error_message}
 
 
 """Sends a WhatsApp message for rejected verification."""
@@ -225,9 +240,14 @@ def whatsapp_send_reject(transaction):
             'Params': params_string}
 
         response = requests.get(settings.BHASHSMS_API, params=api_params)
-        return response.status_code == 200
+        if response.status_code == 200:
+            return {"status": "success", "response": response.text}
+        else:
+            error_message = f"API returned non-200 status code: {response.status_code}. Response: {response.text}"
+            return {"status": "error", "message": error_message}
     except Exception as e:
-        return False
+        error_message = f"An exception occurred during WhatsApp send: {str(e)}"
+        return {"status": "error", "message": error_message}
 
 
 """Sends a WhatsApp message for unverified verification."""
@@ -245,9 +265,25 @@ def whatsapp_send_unverify(transaction):
             'Params': params_string}
 
         response = requests.get(settings.BHASHSMS_API, params=api_params)
-        return response.status_code == 200
+        if response.status_code == 200:
+            return {"status": "success", "response": response.text}
+        else:
+            error_message = f"API returned non-200 status code: {response.status_code}. Response: {response.text}"
+            return {"status": "error", "message": error_message}
     except Exception as e:
-        return False
+        error_message = f"An exception occurred during WhatsApp send: {str(e)}"
+        return {"status": "error", "message": error_message}
+
+
+"""Start connecting SMTP server"""
+def get_email_connection(institution):
+    try:
+        connection = get_connection(host='smtp.gmail.com',port=587,username=institution.email,
+                                    password=institution.email_app_password,use_tls=True,use_ssl=False)
+        return True, connection
+    except Exception as e:
+        error_message = f"Could not establish email connection. Please check the SMTP credentials. Error: {e}"
+        return False, error_message
 
 
 """Sends an email for payment initiated."""
@@ -255,15 +291,15 @@ def email_send_initiated(transaction, url):
     try:
         institution = transaction.project.created_by.institution
 
-        connection = get_connection(
-            host='smtp.gmail.com',port=587,username=institution.email,
-            password=institution.email_app_password,use_tls=True,use_ssl=False)
+        success, connection = get_email_connection(institution)
+        if not success:
+            return False, connection
 
         subject = f'Payment Initiated for "{transaction.project.title}"'
         plain_text_message = (
             f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n\n'
-            f'Your payment for the project "{transaction.project.title}" has been initiated has been initiated with tracking id: {transaction.tracking_id}. You can track the status using your mobile number.\n'
-            f'Please upload proof of payment at : {url}\n\n'
+            f'Your donation for the project "{transaction.project.title}" has been successfully recorded with tracking id: {transaction.tracking_id}. You can track the status using your mobile number.\n'
+            f'You can upload proof or track the status here: {url}\n\n'
             f'- Team {transaction.project.created_by.institution.institution_name}')
 
         sender_email = transaction.project.created_by.institution.email
@@ -273,9 +309,10 @@ def email_send_initiated(transaction, url):
                                      to=[receiver_email], connection=connection)
 
         email_message.send(fail_silently=False)
-        return True
+        return True, "Email sent successfully."
     except Exception as e:
-        return False
+        error_message = f'An error occurred while sending the email. Error: {e}'
+        return False, error_message
 
 
 """Sends an email for proof upload."""
@@ -283,15 +320,15 @@ def email_send_proof(transaction):
     try:
         institution = transaction.project.created_by.institution
 
-        connection = get_connection(
-            host='smtp.gmail.com',port=587,username=institution.email,
-            password=institution.email_app_password,use_tls=True,use_ssl=False)
+        success, connection = get_email_connection(institution)
+        if not success:
+            return False, connection
 
         subject = f'Proof upload for "{transaction.project.title}"'
         plain_text_message = (
             f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n'
-            f'Your proof of payment (tracking ID: {transaction.tracking_id}) for the project "{transaction.project.title}" has been successfully uploaded.\n'
-            f'Our team will verify it shortly.\n\n'
+            f'Thank you for submitting your donation proof for the project "{transaction.project.title}. Your tracking ID is {transaction.tracking_id}.\n'
+            f'Verification is in progress, and you will be notified once it is completed.\n\n'
             f'- Team {transaction.project.created_by.institution.institution_name}')
 
         sender_email = transaction.project.created_by.institution.email
@@ -302,9 +339,10 @@ def email_send_proof(transaction):
 
         email_message.send(fail_silently=False)
 
-        return True
+        return True, "Email sent successfully."
     except Exception as e:
-        return False
+        error_message = f"An error occurred while sending the email. Error: {str(e)}"
+        return False, error_message
 
 
 """Sends an email for successful verification with receipt."""
@@ -319,7 +357,7 @@ def email_send_approve(transaction):
         subject = f'Payment successfully verified for "{transaction.project.title}"'
         plain_text_message = (
             f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n\n'
-            f'Your payment for the project "{transaction.project.title}" has been verified. Your transaction is now complete.\n'
+            f'Your donation for the project "{transaction.project.title}" has been successfully verified, and the transaction is now complete.\n'
             f'Your receipt is attached below.\n\n'
             f'- Team {institution.institution_name}')
 
@@ -329,15 +367,18 @@ def email_send_approve(transaction):
         email_message = EmailMessage(subject=subject,body=plain_text_message,from_email=sender_email,
             to=[receiver_email],connection=connection)
 
-        receipt = get_object_or_404(Receipt, transaction=transaction)
-        pdf_path = receipt.receipt_pdf.path
-        email_message.attach_file(pdf_path)
+        try:
+            receipt = Receipt.objects.get(transaction=transaction)
+            pdf_path = receipt.receipt_pdf.path
+            email_message.attach_file(pdf_path)
+        except Exception as e:
+            pass
 
         email_message.send(fail_silently=False)
-
-        return True
+        return True, "Email sent successfully."
     except Exception as e:
-        return False
+        error_message = f'An error occurred while sending the email. Error: {e}'
+        return False, error_message
 
 
 """Sends an email for rejected verification."""
@@ -351,8 +392,8 @@ def email_send_reject(transaction):
         subject = f'Payment Verification Rejected for "{transaction.project.title}"'
         plain_text_message = (
             f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n\n'
-            f'We regret to inform you that your payment for the project "{transaction.project.title}" has been rejected.\n'
-            f'Please re-upload a clear and valid proof of payment.\n\n'
+            f'We regret to inform you that, your donation proof for the project "{transaction.project.title}" has been rejected.\n'
+            f'Please contact the admin to resolve the issue and submit a valid proof to complete the transaction.\n\n'
             f'- Team {institution.institution_name}')
 
         sender_email = transaction.project.created_by.institution.email
@@ -362,15 +403,13 @@ def email_send_reject(transaction):
             to=[receiver_email],connection=connection)
 
         email_message.send(fail_silently=False)
-
-        return True
+        return True, "Email sent successfully."
     except Exception as e:
-        return False
+        error_message = f'An error occurred while sending the email. Error: {e}'
+        return False, error_message
 
 
 """Sends an email for unverified verification."""
-
-
 def email_send_unverify(transaction):
     try:
         institution = transaction.project.created_by.institution
@@ -382,8 +421,8 @@ def email_send_unverify(transaction):
         subject = f'Payment Status Unverified for "{transaction.project.title}"'
         plain_text_message = (
             f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n\n'
-            f'Your payment for the project "{transaction.project.title}" has been set to unverified status.\n'
-            f'This may require further action or re-uploading your proof of payment.\n\n'
+            f'Your donation for the project "{transaction.project.title}" remains unverified. Use your registered number to track the current status.\n'
+            f'Our team is reviewing it and will verify soon.\n\n'
             f'- Team {institution.institution_name}')
 
         sender_email = transaction.project.created_by.institution.email
@@ -393,10 +432,10 @@ def email_send_unverify(transaction):
             to=[receiver_email],connection=connection)
 
         email_message.send(fail_silently=False)
-
-        return True
+        return True, "Email sent successfully."
     except Exception as e:
-        return False
+        error_message = f'An error occurred while sending the email. Error: {e}'
+        return False, error_message
 
 
 def get_unique_tracking_id():
@@ -408,7 +447,6 @@ def get_unique_tracking_id():
 
 """generate receipt pdf."""
 def generate_receipt_pdf(transaction):
-
     # A4 page dimensions and margins
     page_width = A4[0]
     left_margin = 0.5 * inch
@@ -423,6 +461,7 @@ def generate_receipt_pdf(transaction):
                             leftMargin=left_margin, rightMargin=right_margin,
                             topMargin=0.5 * inch, bottomMargin=0.5 * inch)
     elements = []
+
     transaction.num_tiles = len(transaction.tiles_bought.tiles.split('-'))
 
     # --- Define Styles ---
@@ -439,8 +478,9 @@ def generate_receipt_pdf(transaction):
     header_data = [
         [Paragraph(transaction.project.created_by.institution.institution_name, styles['TitleStyle']), ""],
         '',
-        [Paragraph(f"NO: invoice 1", styles['BoldStyle']),
-         Paragraph(f"DATE: {timezone.now()}", styles['RightAlignNormal'])]
+        [Paragraph(f"NO: {transaction.tracking_id}", styles['BoldStyle']),  # Fixed hardcoded invoice number
+         Paragraph(f"DATE: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['RightAlignNormal'])]
+        # Formatted the date
     ]
     header_table = Table(header_data, colWidths=[available_width / 2, available_width / 2])
     header_table.setStyle(TableStyle([
@@ -451,7 +491,6 @@ def generate_receipt_pdf(transaction):
     elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
 
     # --- Details Section (Project, Beneficiary, Tiles, Buyer) ---
-    # Create the first row table for Project and Beneficiary details
     project_beneficiary_data = [
         [
             Paragraph("Project Details", styles['SubtitleStyle']),
@@ -459,12 +498,16 @@ def generate_receipt_pdf(transaction):
         ],
         [
             Paragraph(f"<b>Title:</b> {transaction.project.title}<br/>"
-                      f"<b>Starting date:</b> {transaction.project.created_at}<br/>"
-                      f"<b>Closing date:</b> {transaction.project.closing_date}<br/>"
-                      f"<b>Created by:</b> {transaction.project.closing_date}<br/>", styles['NormalStyle']),
-            Paragraph(f"<b>Name:</b> {transaction.project.beneficiary.first_name} {transaction.project.beneficiary.last_name}<br/>"
-                      f"<b>Phone:</b> {transaction.project.beneficiary.phone_number}<br/>"
-                      f"<b>Address:</b> {transaction.project.beneficiary.phone_number}<br/>", styles['NormalStyle']),
+                      f"<b>Starting date:</b> {transaction.project.created_at.strftime('%Y-%m-%d %H:%M:%S')}<br/>"  # Formatted the date
+                      f"<b>Closing date:</b> {transaction.project.closing_date.strftime('%Y-%m-%d %H:%M:%S')}<br/>"  # Formatted the date
+                      f"<b>Created by:</b> {transaction.project.created_by.first_name} {transaction.project.created_by.last_name}<br/>",
+                      # Fixed this bug
+                      styles['NormalStyle']),
+            Paragraph(
+                f"<b>Name:</b> {transaction.project.beneficiary.first_name} {transaction.project.beneficiary.last_name}<br/>"
+                f"<b>Phone:</b> {transaction.project.beneficiary.phone_number}<br/>"
+                f"<b>Address:</b> {transaction.project.beneficiary.address}<br/>",  # Fixed this bug
+                styles['NormalStyle']),
         ]
     ]
 
@@ -475,11 +518,8 @@ def generate_receipt_pdf(transaction):
         ('RIGHTPADDING', (0, 0), (-1, -1), 0),
     ]))
     elements.append(project_beneficiary_table)
-
-    # Add a Spacer to create a gap between the two detail rows
     elements.append(Spacer(1, 10))
 
-    # Create the second row table for Tiles and Buyer details
     tiles_buyer_data = [
         [
             Paragraph("Tiles Details", styles['SubtitleStyle']),
@@ -508,7 +548,6 @@ def generate_receipt_pdf(transaction):
 
     # --- Items Table ---
     item_rows = [["Project Title", "Tiles Bought", "Quantity", "Tile Value", "Total"]]
-    total_value = 0
     row_total = transaction.num_tiles * transaction.project.tile_value
     item_rows.append([
         transaction.project.title,
@@ -549,7 +588,8 @@ def generate_receipt_pdf(transaction):
     # --- Payment Details Section ---
     elements.append(Paragraph("Payment Details", styles['SubtitleStyle']))
     elements.append(Paragraph(f'<b>Tracking ID:</b> {transaction.tracking_id}', styles['NormalStyle']))
-    elements.append(Paragraph(f'<b>Transaction Date:</b> {transaction.transaction_time}', styles['NormalStyle']))
+    elements.append(Paragraph(f'<b>Transaction Date:</b> {transaction.transaction_time.strftime("%Y-%m-%d %H:%M:%S")}',
+                              styles['NormalStyle']))  # Formatted the date
     elements.append(Spacer(1, 10))
     elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
 

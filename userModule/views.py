@@ -14,24 +14,24 @@ import urllib.parse
 
 # Create your views here.
 def userIndex(request, ins_id):
-    ins = Institution.objects.get(id=ins_id)
+    ins = get_object_or_404(Institution, id=ins_id, table_status=True)
     projects = Project.objects.filter(created_by__institution=ins, created_by__is_staff=True,closing_date__gte=timezone.now(),
         table_status=True).order_by('-created_at')[:3]
     return render(request, 'index.html',{'ins':ins, 'prj':projects})
       
       
 def contact_us(request,ins_id):
-    ins = Institution.objects.get(id=ins_id)
+    ins = get_object_or_404(Institution, id=ins_id, table_status=True)
     return render(request,'contact-us.html', {'ins':ins})
 
 
 def about(request, ins_id):
-    ins = Institution.objects.get(id=ins_id)
+    ins = get_object_or_404(Institution, id=ins_id, table_status=True)
     return render(request,'about.html', {'ins':ins})
 
 
 def userAllProject(request,ins_id):
-    ins = Institution.objects.get(id=ins_id)
+    ins = get_object_or_404(Institution, id=ins_id, table_status=True)
     projects = Project.objects.filter(
         created_by__institution=ins,
         created_by__is_staff=True,
@@ -42,59 +42,50 @@ def userAllProject(request,ins_id):
 
 
 def userSingleProject(request, prj_id, ins_id):
-    ins = get_object_or_404(Institution, id=ins_id)
-    prj = get_object_or_404(Project, id=prj_id)
+    ins = get_object_or_404(Institution, id=ins_id, table_status=True)
+    prj = get_object_or_404(Project, id=prj_id, table_status=True)
+
+    total_tiles = int(prj.funding_goal // prj.tile_value)
 
     if request.method == "POST":
         selected_tiles = request.POST.get("selected_tiles_input")
+        if not selected_tiles:
+            return redirect(reverse('user_single_project', kwargs={'ins_id': ins_id, 'prj_id': prj_id}))
+
         checkout_url = reverse('user_checkout', kwargs={'ins_id': ins.id})
-        query_string = urllib.parse.urlencode({'project_id': prj.id,'selected_tiles': selected_tiles})
+        query_string = urllib.parse.urlencode({'project_id': prj.id, 'selected_tiles': selected_tiles})
         return redirect(f"{checkout_url}?{query_string}")
 
     else:
-        prj.status =''
+        project_status = 'Open'
         if prj.funding_goal == prj.current_amount:
-            prj.status = 'Completed'
-            prj.save()
+            project_status = 'Completed'
         elif prj.closing_date < timezone.now():
-            prj.status = 'Expired'
-            prj.save()
-        elif prj.table_status is False:
-            prj.status = 'Closed'
-            prj.save()
+            project_status = 'Expired'
 
-        if prj.status not in ['Completed', 'Expired', 'Closed']:
-            tile_range = range(1, int(prj.funding_goal // prj.tile_value) + 1)
-
-            verified_transactions = Transaction.objects.filter(project=prj, status='Verified',
-                                                               tiles_bought__table_status=True)
-            processing_transactions = Transaction.objects.filter(project=prj, status='Unverified',
-                                                                 tiles_bought__table_status=True)
-
-            sold_tiles_list = []
-            processing_tiles_list = []
-
-            sold_tiles_list_of_strings = verified_transactions.values_list('tiles_bought__tiles', flat=True)
-            processing_tiles_list_of_strings = processing_transactions.values_list('tiles_bought__tiles', flat=True)
-
-            for tiles_str in sold_tiles_list_of_strings:
-                if tiles_str:
-                    sold_tiles_list.extend([int(t) for t in tiles_str.split('-') if t.isdigit()])
-
-            for tiles_str in processing_tiles_list_of_strings:
-                if tiles_str:
-                    processing_tiles_list.extend([int(t) for t in tiles_str.split('-') if t.isdigit()])
-
-            processing_tiles_set = set(processing_tiles_list)
-            sold_tiles_set = set(sold_tiles_list)
-
-            return render(request, 'user-single-project.html',
-                          { 'ins': ins, 'project': prj, 't_range': tile_range, 'processing_tiles_set': processing_tiles_set,
-                            'sold_tiles_set': sold_tiles_set, 'now': timezone.now()})
+        if project_status in ['Completed', 'Expired']:
+            return render(request, 'user-single-project.html',{'ins': ins, 'project': prj, 'status': project_status, 'now': timezone.now()})
         else:
-            return render(request, 'user-single-project.html',
-                          { 'ins': ins,'project': prj,'now': timezone.now()})
+            tile_range = range(1, total_tiles + 1)
+            all_tiles_str_list = SelectedTile.objects.filter(project=prj,table_status=True).values_list('tiles', flat=True)
 
+            all_tiles_list = []
+            for tiles_str in all_tiles_str_list:
+                if tiles_str:
+                    all_tiles_list.extend([int(t) for t in tiles_str.split('-') if t.isdigit()])
+
+            sold_tiles_set = set(Transaction.objects.filter(project=prj,status='Verified').values_list('tiles_bought__tiles', flat=True))
+            sold_tiles = set([int(t) for s in sold_tiles_set for t in s.split('-') if t.isdigit()])
+
+            processing_tiles_set = set(Transaction.objects.filter(project=prj,status='Unverified').values_list('tiles_bought__tiles', flat=True))
+            processing_tiles = set([int(t) for s in processing_tiles_set for t in s.split('-') if t.isdigit()])
+
+            unavailable_tiles_count = len(sold_tiles) + len(processing_tiles)
+            available_tiles_count = total_tiles - unavailable_tiles_count
+
+            return render(request, 'user-single-project.html',{'ins': ins, 'project': prj, 'total_tiles': total_tiles,
+                           'available_tiles_count': available_tiles_count, 't_range': tile_range,'sold_tiles_set': sold_tiles, 'processing_tiles_set': processing_tiles,
+                           'now': timezone.now()})
 
 def userCheckoutView(request, ins_id):
     institution = get_object_or_404(Institution, id=ins_id)
@@ -138,11 +129,32 @@ def userCheckoutView(request, ins_id):
 
             proof_upload_url = f'{ins_id}/proof/{transaction.id}'
 
-            sms_send_initiated(transaction,proof_upload_url)
-            whatsapp_send_initiated(transaction,proof_upload_url)
-            email_send_initiated(transaction,proof_upload_url)
+            # sms_result = sms_send_initiated(transaction, proof_upload_url)
+            whatsapp_result = whatsapp_send_initiated(transaction, request.build_absolute_uri(proof_upload_url))
+            email_success, email_message = email_send_initiated(transaction, request.build_absolute_uri(f'/user/{proof_upload_url}/'))
 
-            messages.success(request, f'Payment for the tiles {selected_tiles_str} has been initiated.')
+            all_notifications_sent = True
+            notification_errors = []
+
+            # if sms_result['status'] == 'error':
+            #     all_notifications_sent = False
+            #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+
+            if whatsapp_result['status'] == 'error':
+                all_notifications_sent = False
+                notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
+
+            if not email_success:
+                all_notifications_sent = False
+                notification_errors.append(f"Email sending failed: {email_message}")
+
+            if all_notifications_sent:
+                messages.success(request,f'Payment for the tiles {selected_tiles_str} has been initiated and a confirmation has been sent via SMS, WhatsApp, and Email.')
+            else:
+                base_message = "Your payment has been successfully initiated, but we encountered issues with some of the notification services."
+                detailed_errors = " ".join(notification_errors)
+                messages.warning(request, f"{base_message} Details: {detailed_errors}")
+
         except Exception as e:
             messages.error(request, f"Failed to perform checkout: {e}")
         return redirect(f'/user/{ins_id}/single-project/{project_id}/')
@@ -176,11 +188,31 @@ def userProofUpload(request, ins_id, trans_id):
                 except Screenshot.DoesNotExist:
                     new_screenshot = Screenshot.objects.create(transaction=tra, screen_shot=proof)
 
-            sms_send_proof(tra)
-            whatsapp_send_proof(tra)
-            email_send_proof(tra)
+            # sms_result = sms_send_proof(tra)
+            whatsapp_result = whatsapp_send_proof(tra)
+            email_success, email_message = email_send_proof(tra)
 
-            messages.success(request, "Proof of payment uploaded successfully!")
+            all_notifications_sent = True
+            notification_errors = []
+
+            # if sms_result['status'] == 'error':
+            #     all_notifications_sent = False
+            #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+
+            if whatsapp_result['status'] == 'error':
+                all_notifications_sent = False
+                notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
+
+            if not email_success:
+                all_notifications_sent = False
+                notification_errors.append(f"Email sending failed: {email_message}")
+
+            if all_notifications_sent:
+                messages.success(request,"Proof of payment uploaded successfully and a confirmation has been sent via email, SMS, and WhatsApp.")
+            else:
+                base_message = "Proof of payment uploaded successfully, but we encountered issues with some of the notification services."
+                detailed_errors = " ".join(notification_errors)
+                messages.warning(request, f"{base_message} Details: {detailed_errors}")
         except Exception as e:
             messages.error(request, f"An error occurred during proof upload: {e}")
         return redirect(f'/user/{ins_id}/single-project/{tra.project.id}/')

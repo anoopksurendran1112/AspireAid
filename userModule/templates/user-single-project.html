@@ -40,7 +40,7 @@
                                             class="border rounded-circle">
                                         </div>
                                         <div class="col-sm-6 col-xl-12 align-self-end">
-                                            <h5 class="mb-2"><strong>{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</strong></h5>
+                                            <h5 class="mb-2 lead"><strong>{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</strong></h5>
                                             <table class="table">
                                                 <tr>
                                                     <th class="py-1 ps-0">Age</th>
@@ -61,10 +61,10 @@
 
                                 <div class="col-12 ">
                                     <div class="card-header">
-                                        <h3><strong>{{project.title}}</strong></h3>
+                                        <h3 class=" display-4"><strong>{{project.title}}</strong></h3>
                                     </div>
                                     <div class="card-body pb-4">
-                                        <p class="card-text">{{project.description}}</p>
+                                        <p class="lead">{{project.description}}</p>
                                         <table class="table mb-4">
                                             <tr>
                                                 <th class="p-1">Status</th>
@@ -74,7 +74,7 @@
                                                     {% elif project.closing_date < now %}
                                                         Booking closed
                                                     {% else %}
-                                                        Available
+                                                        Available: <strong>{{available_tiles_count}} tiles available</strong>
                                                     {% endif %}
                                                 </td>
                                             </tr>
@@ -114,24 +114,24 @@
                     <div class="card data-card ">
                         {% if project.status == 'Expired' %}
                         <div class="card-header text-center p-4">
-                            <h2><strong>Project Expired</strong></h2>
+                            <h2 class="display-4"><strong>Project Expired</strong></h2>
                         </div>
                         {% elif project.status == 'Completed' %}
                         <div class="card-header text-center p-4">
-                            <h2><strong>Project Fully Funded!</strong></h2>
+                            <h2 class="display-4"><strong>Project Fully Funded!</strong></h2>
                         </div>
                         {% elif project.status == 'Closed' %}
                         <div class="card-header text-center p-4">
-                            <h2><strong>Booking Closed</strong></h2>
+                            <h2 class="display-4"><strong>Booking Closed</strong></h2>
                         </div>
                         {% else %}
                             <div class="card-header">
-                                <h3 ><strong>Book Your Tiles</strong></h3>
+                                <h1 class="display-4"><strong>Book Your Tiles</strong></h1>
                             </div>
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div class=" mb-3" id="summary-section">
-                                        <p class="mb-1"><strong>Selected Tiles:</strong>
+                                        <p class="mb-1 lead"><strong>Selected Tiles:</strong>
                                             <span class="js-selected-tiles"></span>
                                         </p>
                                         <p class="mb-1">

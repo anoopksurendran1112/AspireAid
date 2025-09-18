@@ -137,34 +137,42 @@
     </div>
 
 <!-------------------Modal for share project--------------------->
-    <div class="modal fade" id="shareProjectModal" tabindex="-1" aria-labelledby="shareProjectModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="shareProjectModalLabel"><strong>Share this Project</strong></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="shareProjectModal" tabindex="-1" aria-labelledby="shareProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h1 class="modal-title fs-5 text-white" id="shareProjectModalLabel"><strong>Share this Project</strong></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p class="lead mb-4">You can share this project's link using these options:</p>
+                <div class="input-group mb-3">
+                    <input id="projectLinkInput" class="form-control" type="text" readonly>
+                    <button id="copyProjectLink" class="btn btn-outline-secondary" type="button">
+                        <i class="align-middle" data-feather="copy"></i>
+                    </button>
                 </div>
-                <div class="modal-body text-center px-4">
-                    <h4>Share this awesome project!</h4>
-                    <p>You can share this link using these options:</p>
-                    <input id="projectLinkInput" class="form-control my-3" type="text" readonly>
-                    <div class="d-flex justify-content-center">
-                        <button id="copyProjectLink" class="btn btn-secondary m-2">Copy Link</button>
-                        <a href="#" id="whatsappShareProject" target="_blank" class="btn btn-success m-2">
-                            WhatsApp
-                        </a>
-                        <a href="#" id="twitterShareProject" target="_blank" class="btn btn-info m-2">
-                            Twitter
-                        </a>
-                    </div>
+                <div class="d-flex justify-content-center flex-wrap">
+                    <a href="#" id="whatsappShareProject" target="_blank" class="btn btn-success m-2">
+                        <i class="align-middle" data-feather="message-circle"></i>
+                        WhatsApp
+                    </a>
+                    <a href="#" id="facebookShareProject" target="_blank" class="btn btn-primary m-2">
+                        <i class="align-middle" data-feather="thumbs-up"></i>
+                        Facebook
+                    </a>
+                    <a href="#" id="twitterShareProject" target="_blank" class="btn btn-info m-2">
+                        <i class="align-middle" data-feather="twitter"></i>
+                        Twitter
+                    </a>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
-
+</div>
 
     <div class="row g-4 mb-4">
         <div class="col-xl-8 col-lg-12 ">
@@ -190,7 +198,7 @@
                     <div class="col-xl-4 col-lg-12 ">
                         <div class="row h-100 m-0">
                             <div class="col-12 card-header">
-                                <h3><strong>{{project.title}}</strong></h3>
+                                <h3 class="lead"><strong>{{project.title}}</strong></h3>
                             </div>
                             <div class="col-12 align-self-end">
                                 <table class="table m-0">
@@ -208,9 +216,10 @@
                                     </tr>
                                     <tr>
                                         <th class="p-1">Available tiles</th>
-                                        <td class="p-1 text-end">{{project.funding_goal}} Rs</td>
+                                        <td class="p-1 text-end">{{available_tiles_count}}</td>
                                     </tr>
                                     <tr>
+                                        <th class="p-1">Status</th>
                                         {% if project.current_amount == project.funding_goal %}
                                         <td class="p-1">
                                             <a class="btn btn-sm btn-success" style="width:70px;">
@@ -249,7 +258,7 @@
                     </div>
                 </div>
                 <div class="card-body pb-0">
-                    <p class="card-text">{{project.description}}</p>
+                    <p class="card-text lead">{{project.description}}</p>
                     <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
                     <div class="text-end">
                         {% if not admin.is_superuser %}
@@ -278,7 +287,7 @@
         <div class="col-xl-4 col-lg-12">
             <div class="card h-100 data-card">
                 <div class="card-header">
-                    <h3><strong>Beneficiary Details</strong></h3>
+                    <h3 class="lead"><strong>Beneficiary Details</strong></h3>
                 </div>
                 <div class="card-body row">
                     <div class="col-sm-6 col-xl-12">
@@ -434,35 +443,55 @@
         const shareModal = document.getElementById('shareProjectModal');
         const customUrl = `${window.location.protocol}//${window.location.host}/user/{{project.created_by.institution.id}}/single-project/{{project.id}}/`;
 
+        // This is a multiline message using a template literal
+        const shareText = `Check out this amazing project: {{ project.title }}!
+From {{ project.created_by.institution.institution_name }}.
+You can contribute to this project and help them reach their goal.`;
+
         // Function to copy the URL to the clipboard
         const copyToClipboard = () => {
             const inputField = document.getElementById('projectLinkInput');
-            inputField.select(); // Select the text in the input field
-            inputField.setSelectionRange(0, 99999); // For mobile devices
-            navigator.clipboard.writeText(inputField.value).then(() => {
-                alert('Project link copied to clipboard!');
-            }).catch(err => {
-                console.error('Failed to copy text:', err);
-            });
+            if (inputField) {
+                inputField.select();
+                inputField.setSelectionRange(0, 99999);
+                navigator.clipboard.writeText(inputField.value).then(() => {
+                    alert('Project link copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy text:', err);
+                });
+            }
         };
 
         // Event listener for when the modal is shown
-        shareModal.addEventListener('show.bs.modal', event => {
-            const whatsappShare = document.getElementById('whatsappShareProject');
-            const twitterShare = document.getElementById('twitterShareProject');
-            const projectLinkInput = document.getElementById('projectLinkInput');
+        if (shareModal) {
+            shareModal.addEventListener('show.bs.modal', event => {
+                const whatsappShare = document.getElementById('whatsappShareProject');
+                const twitterShare = document.getElementById('twitterShareProject');
+                const facebookShare = document.getElementById('facebookShareProject');
+                const projectLinkInput = document.getElementById('projectLinkInput');
 
-            // Populate the input field with the custom URL
-            projectLinkInput.value = customUrl;
+                if (projectLinkInput) {
+                    projectLinkInput.value = customUrl;
+                }
 
-            // Update the links when the modal is opened
-            const shareText = 'Check out this awesome project:';
-            whatsappShare.href = `https://wa.me/?text=${encodeURIComponent(shareText)}%20${encodeURIComponent(customUrl)}`;
-            twitterShare.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(customUrl)}`;
-        });
+                if (whatsappShare) {
+                    // Use '%0A' to add a newline before the URL to ensure it's clickable
+                    whatsappShare.href = `https://wa.me/?text=${encodeURIComponent(shareText)}%0A${encodeURIComponent(customUrl)}`;
+                }
+                if (twitterShare) {
+                    twitterShare.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(customUrl)}`;
+                }
+                if (facebookShare) {
+                    facebookShare.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(customUrl)}`;
+                }
+            });
+        }
 
         // Event listener for the Copy Link button
-        document.getElementById('copyProjectLink').addEventListener('click', copyToClipboard);
+        const copyProjectLink = document.getElementById('copyProjectLink');
+        if (copyProjectLink) {
+            copyProjectLink.addEventListener('click', copyToClipboard);
+        }
     });
 </script>
 

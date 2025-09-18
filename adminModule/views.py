@@ -57,6 +57,10 @@ def adminDashboard(request):
         latest_projects = Project.objects.filter(closing_date__gte=timezone.now(),current_amount__lt=F('funding_goal')).order_by('-created_at')[:5]
 
     elif request.user.is_staff:
+        if not request.user.table_status or not request.user.institution.table_status:
+            messages.error(request, "Your account or institution has been deactivated by the superuser.")
+            return redirect('/administrator/logout/')
+
         all_prj = Project.objects.filter(created_by=request.user).count()
         closed_prj = Project.objects.filter(created_by=request.user, closing_date__lte=timezone.now()).count()
         completed_prj = Project.objects.filter(created_by=request.user, current_amount__gte=F('funding_goal')).count()
@@ -91,10 +95,13 @@ def adminLogOut(request):
 
 # Profile page of the logged admin
 def adminProfile(request):
-    if request.user.is_superuser or request.user.is_staff:
-        return render(request, 'admin-profile.html',{'admin': request.user})
-    else:
+    if not (request.user.is_superuser or request.user.is_staff):
         return redirect('/administrator/')
+    if not request.user.table_status or (request.user.is_staff and not request.user.institution.table_status):
+        messages.error(request, "Your account or institution has been deactivated by the superuser.")
+        return redirect('/administrator/logout/')
+
+    return render(request, 'admin-profile.html', {'admin': request.user})
 
 
 # Updating logged admin's profile picture
@@ -134,6 +141,10 @@ def adminAllInstitution(request):
     if not request.user.is_superuser:
         messages.error(request, "You do not have permission to perform this action.")
         return redirect('/administrator/')
+
+    if not request.user.table_status:
+        messages.error(request, "Your account has been deactivated by another superuser.")
+        return redirect('/administrator/logout/')
 
     inst = Institution.objects.all()
     if request.method == "POST":
@@ -224,6 +235,9 @@ def adminDeleteInstitutionPermanent(request,iid):
 # Superuser listing all Institution's admins and adding new admin
 def adminAllInstiAdmin(request):
     if request.user.is_superuser:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by another superuser.")
+            return redirect('/administrator/logout/')
         inst = Institution.objects.all()
         administrators = CustomUser.objects.filter(is_staff=True)
         if request.method == 'POST':
@@ -333,14 +347,20 @@ def adminDeletePermanent(request, aid):
     return redirect('/administrator/all-insti-admin/')
 
 
-
 def adminAllProject(request):
     if request.user.is_superuser:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by another superuser.")
+            return redirect('/administrator/logout/')
         prj = Project.objects.all()
     elif request.user.is_staff:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by a superuser.")
+            return redirect('/administrator/logout/')
         prj = Project.objects.filter(created_by = request.user)
     else:
         return redirect('/administrator/')
+
     for p in prj:
         if p.closing_date < timezone.now():
             p.validity = False
@@ -397,6 +417,10 @@ def adminAddProject(request):
 
 def adminSingleProject(request, pid):
     if request.user.is_superuser or request.user.is_staff:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by a superuser.")
+            return redirect('/administrator/logout/')
+
         project = get_object_or_404(Project.objects.select_related('beneficiary'), id=pid)
 
         if project.closing_date < timezone.now():
@@ -405,24 +429,25 @@ def adminSingleProject(request, pid):
         total_tiles_count = int(project.funding_goal // project.tile_value)
         tile_range = range(1, total_tiles_count + 1)
 
-        transactions = Transaction.objects.filter(project=project).select_related('tiles_bought')
+        verified_transactions = Transaction.objects.filter(project=project, status='Verified').select_related('tiles_bought')
+        processing_transactions = Transaction.objects.filter(project=project, status='Unverified').select_related('tiles_bought')
 
         sold_tiles_set = set()
-        processing_tiles_set = set()
-
-        for t in transactions:
+        for t in verified_transactions:
             if t.tiles_bought and t.tiles_bought.tiles:
-                tile_numbers = [int(n) for n in t.tiles_bought.tiles.split('-') if n.isdigit()]
-                t.num_tiles = len(tile_numbers)
+                sold_tiles_set.update([int(n) for n in t.tiles_bought.tiles.split('-') if n.isdigit()])
 
-                if t.status == 'Verified':
-                    sold_tiles_set.update(tile_numbers)
-                elif t.status == 'Unverified':
-                    processing_tiles_set.update(tile_numbers)
-            else:
-                t.num_tiles = 0
-        return render(request,"admin-single-projects.html", { 'admin':request.user, 'project': project, 't_range': tile_range,
-                                                              'processing_tiles_set': processing_tiles_set, 'sold_tiles_set': sold_tiles_set, 'transaction':transactions})
+        processing_tiles_set = set()
+        for t in processing_transactions:
+            if t.tiles_bought and t.tiles_bought.tiles:
+                processing_tiles_set.update([int(n) for n in t.tiles_bought.tiles.split('-') if n.isdigit()])
+
+        unavailable_tiles_count = len(sold_tiles_set) + len(processing_tiles_set)
+        available_tiles_count = total_tiles_count - unavailable_tiles_count
+
+        return render(request, "admin-single-projects.html", {'admin': request.user,'project': project,'t_range': tile_range,
+                                                              'total_tiles_count': total_tiles_count,'available_tiles_count': available_tiles_count,
+                                                              'processing_tiles_set': processing_tiles_set,'sold_tiles_set': sold_tiles_set,'transaction': verified_transactions})
     else:
         return redirect('/administrator/')
 
@@ -555,11 +580,18 @@ def adminUpdateBankDetails(request):
 
 def adminAllTransactions(request):
     if request.user.is_superuser:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by another superuser.")
+            return redirect('/administrator/logout/')
         transaction_filtered = Transaction.objects.all().order_by('-transaction_time')
     elif request.user.is_staff:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by a superuser.")
+            return redirect('/administrator/logout/')
         transaction_filtered = Transaction.objects.filter(project__created_by=request.user).order_by('-transaction_time')
     else:
         return redirect('/administrator/')
+
     for t in transaction_filtered:
         if t.tiles_bought:
             t.num_tiles = len(t.tiles_bought.tiles.split('-'))
@@ -570,6 +602,10 @@ def adminAllTransactions(request):
 
 def adminVerifyTransaction(request, tid):
     if request.user.is_superuser or request.user.is_staff:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by a superuser.")
+            return redirect('/administrator/logout/')
+
         transaction = Transaction.objects.get(id=tid)
         if transaction.tiles_bought:
             transaction.num_tiles = len(transaction.tiles_bought.tiles.split('-'))
@@ -587,34 +623,53 @@ def adminApproveTransaction(request, tid):
 
     transaction = get_object_or_404(Transaction, id=tid)
 
+    if transaction.status == "Verified":
+        messages.info(request, "This transaction has already been verified.")
+        return redirect('/administrator/all-transactions/')
+
     try:
-        if transaction.status != "Verified":
-            with db_transaction.atomic():
+        with db_transaction.atomic():
+            new_pdf_data = generate_receipt_pdf(transaction)
+            receipt, created = Receipt.objects.update_or_create(transaction=transaction,defaults={'receipt_pdf': new_pdf_data})
 
-                new_pdf_data = generate_receipt_pdf(transaction)
+            transaction.status = "Verified"
+            transaction.table_status = True
+            transaction.tiles_bought.table_status = True
 
-                receipt, created = Receipt.objects.update_or_create(transaction=transaction,defaults={'receipt_pdf': new_pdf_data})
+            project_instance = transaction.project
+            project_instance.current_amount += transaction.amount
+            if project_instance.funding_goal <= project_instance.current_amount:
+                project_instance.table_status = False
 
-                transaction.status = "Verified"
-                transaction.table_status = True
-                if transaction.tiles_bought:
-                    transaction.tiles_bought.table_status = True
+            transaction.save()
+            transaction.tiles_bought.save()
+            project_instance.save()
 
-                project_instance = transaction.project
-                project_instance.current_amount += transaction.amount
-                if project_instance.funding_goal <= project_instance.current_amount:
-                    project_instance.table_status = False
+        email_success, email_message = email_send_approve(transaction)
+        # sms_result = sms_send_approve(transaction)
+        whatsapp_result = whatsapp_send_approve(transaction)
 
-                transaction.save()
-                project_instance.save()
+        all_notifications_sent = True
+        notification_errors = []
 
-            email_send_approve(transaction)
-            sms_send_approve(transaction)
-            whatsapp_send_approve(transaction)
+        # if sms_result['status'] == 'error':
+        #     all_notifications_sent = False
+        #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
 
+        if whatsapp_result['status'] == 'error':
+            all_notifications_sent = False
+            notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
+
+        if not email_success:
+            all_notifications_sent = False
+            notification_errors.append(f"Email sending failed: {email_message}")
+
+        if all_notifications_sent:
             messages.success(request,f'The transaction: {transaction.tracking_id} has been approved and a receipt has been generated.')
         else:
-            messages.info(request, "This transaction has already been verified.")
+            base_msg = "The transaction has been approved, but there were issues with some notifications."
+            details_msg = " ".join(notification_errors)
+            messages.warning(request, f"{base_msg} Details: {details_msg}")
     except Exception as e:
         messages.error(request, f"Failed to approve transaction: {e}")
     return redirect('/administrator/all-transactions/')
@@ -647,11 +702,31 @@ def adminRejectTransaction(request, tid):
             transaction_instance.tiles_bought.save()
             transaction_instance.save()
 
-        email_send_reject(transaction_instance)
-        sms_send_reject(transaction_instance)
-        whatsapp_send_reject(transaction_instance)
+        email_success, email_message = email_send_reject(transaction_instance)
+        # sms_result = sms_send_reject(transaction_instance)
+        whatsapp_result = whatsapp_send_reject(transaction_instance)
 
-        messages.error(request, f'The transaction: {transaction_instance.tracking_id} has been rejected.')
+        all_notifications_sent = True
+        notification_errors = []
+
+        # if sms_result['status'] == 'error':
+        #     all_notifications_sent = False
+        #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+
+        if whatsapp_result['status'] == 'error':
+            all_notifications_sent = False
+            notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
+
+        if not email_success:
+            all_notifications_sent = False
+            notification_errors.append(f"Email sending failed: {email_message}")
+
+        if all_notifications_sent:
+            messages.success(request, f'The transaction: {transaction_instance.tracking_id} has been rejected and a notification has been sent to the user.')
+        else:
+            base_msg = "The transaction has been rejected, but there were issues with some notifications."
+            details_msg = " ".join(notification_errors)
+            messages.warning(request, f"{base_msg} Details: {details_msg}")
     except Exception as e:
         messages.error(request, f"Failed to reject transaction: {e}")
     return redirect('/administrator/all-transactions/')
@@ -684,11 +759,31 @@ def adminUnverifyTransaction(request, tid):
             transaction_instance.tiles_bought.save()
             transaction_instance.save()
 
-        email_send_unverify(transaction_instance)
-        sms_send_unverify(transaction_instance)
-        whatsapp_send_unverify(transaction_instance)
+        email_success, email_message = email_send_unverify(transaction_instance)
+        # sms_result = sms_send_unverify(transaction_instance)
+        whatsapp_result = whatsapp_send_unverify(transaction_instance)
 
-        messages.warning(request, f'The transaction: {transaction_instance.tracking_id} has been unverified.')
+        all_notifications_sent = True
+        notification_errors = []
+
+        # if sms_result['status'] == 'error':
+        #     all_notifications_sent = False
+        #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+
+        if whatsapp_result['status'] == 'error':
+            all_notifications_sent = False
+            notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
+
+        if not email_success:
+            all_notifications_sent = False
+            notification_errors.append(f"Email sending failed: {email_message}")
+
+        if all_notifications_sent:
+            messages.success(request, f'The transaction: {transaction_instance.tracking_id} has been unverified and a notification has been sent to the user.')
+        else:
+            base_msg = "The transaction has been unverified, but there were issues with some notifications."
+            details_msg = " ".join(notification_errors)
+            messages.warning(request, f"{base_msg} Details: {details_msg}")
     except Exception as e:
         messages.error(request, f"Failed to unverify transaction: {e}")
     return redirect('/administrator/all-transactions/')
@@ -722,11 +817,18 @@ def adminGenerateReceipts(request, t_id):
 
 def adminAllReceipts(request):
     if request.user.is_superuser:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by another superuser.")
+            return redirect('/administrator/logout/')
         receipts = Receipt.objects.all()
     elif request.user.is_staff:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by a superuser.")
+            return redirect('/administrator/logout/')
         receipts = Receipt.objects.filter(transaction__project__created_by=request.user)
     else:
         return redirect('/administrator/')
+
     for r in receipts:
         if r.transaction.tiles_bought and r.transaction.tiles_bought.tiles:
             r.tile_count = len(r.transaction.tiles_bought.tiles.split('-'))
@@ -735,14 +837,35 @@ def adminAllReceipts(request):
     return render(request, 'admin-all-receipts.html', {'admin': request.user,'rec': receipts})
 
 
-def adminSendReciept(request,r_id):
-    receipt = get_object_or_404(Receipt, id=r_id)
+def adminSendReciept(request, r_id):
     try:
-        sms_send_approve(receipt.transaction)
-        email_send_approve(receipt.transaction)
-        whatsapp_send_approve(receipt.transaction)
-        messages.success(request, f'A receipt has been sent to {receipt.transaction.sender.first_name} {receipt.transaction.sender.last_name}.')
+        receipt = get_object_or_404(Receipt, id=r_id)
+
+        # sms_result = sms_send_approve(receipt.transaction)
+        email_success, email_message = email_send_approve(receipt.transaction)
+        whatsapp_result = whatsapp_send_approve(receipt.transaction)
+
+        all_notifications_sent = True
+        notification_errors = []
+
+        # if sms_result['status'] == 'error':
+        #     all_notifications_sent = False
+        #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+
+        if whatsapp_result['status'] == 'error':
+            all_notifications_sent = False
+            notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
+
+        if not email_success:
+            all_notifications_sent = False
+            notification_errors.append(f"Email sending failed: {email_message}")
+
+        if all_notifications_sent:
+            messages.success(request,f'A receipt has been successfully sent to {receipt.transaction.sender.first_name} {receipt.transaction.sender.last_name}.')
+        else:
+            base_msg = f"Failed to send all confirmation messages for the receipt to {receipt.transaction.sender.first_name} {receipt.transaction.sender.last_name}."
+            details_msg = " ".join(notification_errors)
+            messages.warning(request, f"{base_msg} Details: {details_msg}")
     except Exception as e:
-        messages.error(request, f"Failed to send the receipt to {receipt.transaction.sender.first_name} {receipt.transaction.sender.last_name} due to the error {e}.")
-        return redirect('/administrator/all-receipts/')
+        messages.error(request, f"An unexpected error occurred while sending the receipt: {e}.")
     return redirect('/administrator/all-receipts/')
