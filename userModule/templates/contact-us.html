@@ -34,13 +34,14 @@
                 </div>
                 <div class="col-lg-6 contact-right">
                     <h4 class="lead mb-2 text-white"><strong>Send us a message</strong></h4>
-                    <form class="booking-form">
+                        <form class="booking-form"  method="post">
+                        {% csrf_token %}
                         <div class="row">
                             <div class="col-lg-6 d-flex flex-column">
-                                <input name="fname" placeholder="Enter your first  name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your first name'" class="form-control mt-20" type="text" required>
+                                <input name="first_name" placeholder="Enter your first  name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your first name'" class="form-control mt-20" type="text" required>
                             </div>
                             <div class="col-lg-6 d-flex flex-column">
-                                <input name="fname" placeholder="Enter your last name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your last name'" class="form-control mt-20" type="text" required>
+                                <input name="last_name" placeholder="Enter your last name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your last name'" class="form-control mt-20" type="text" required>
                             </div>
                             <div class="col-lg-12 d-flex flex-column">
                                 <input name="email" placeholder="Enter email address" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,63}$" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'" class="form-control mt-20" required type="email">
