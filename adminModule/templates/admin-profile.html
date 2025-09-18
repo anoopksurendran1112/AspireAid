@@ -2,75 +2,163 @@
 {% load static %}
 {% block content %}
 
-    <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog ">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Update Your Details</strong></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h1 class="modal-title fs-5" id="profileModalLabel"><strong>Update Your Profile Details</strong></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
-                <form method="post" action="/administrator/update-profile/">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <div class="row p-2">
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="acHolderFirstName" placeholder="Enter Firstname" value="{{admin.default_bank.account_holder_first_name}}" name="account_holder_first_name">
-                                <label for="acHolderFirstName">A/c holder's Firstname</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="acHolderLastName" placeholder="Enter Lastname" value="{{admin.default_bank.account_holder_last_name}}" name="account_holder_last_name">
-                                <label for="acHolderLastName">A/c holder's Lastname</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="number" class="form-control" id="acHolderPhn" placeholder="Enter Phone number" value="{{admin.default_bank.account_holder_phn_no}}" name="account_holder_phn_no">
-                                <label for="acHolderPhn">A/c holder's Phone number</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <textarea class="form-control" placeholder="Enter Address" id="acHolderAddress"  name="account_holder_address">{{admin.default_bank.account_holder_address}}</textarea>
-                                <label for="acHolderAddress">Enter Address</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="bankName" placeholder="Enter Bank Name" value="{{admin.default_bank.bank_name}}" name="bank_name">
-                                <label for="bankName">Bank name</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="branchName" placeholder="Enter Branch Name" value="{{admin.default_bank.branch_name}}" name="branch_name">
-                                <label for="branchName">Branch name</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="ifscCode" placeholder="Enter IFSC code" value="{{admin.default_bank.ifsc_code}}" name="ifsc_code">
-                                <label for="ifscCode">IFSC code</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="number" class="form-control" id="acNumber" placeholder="Enter A/c number" value="{{admin.default_bank.account_no}}" name="account_no">
-                                <label for="acNumber">A/c number</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="upiId" placeholder="Enter UPI id" value="{{admin.default_bank.upi_id}}" name="upi_id">
-                                <label for="upiId">UPI id</label>
-                            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <h5 class="mb-3">User Details</h5>
+                    <div class="row gx-3 gy-3">
+                        <div class="col-md-6 form-floating">
+                            <input type="text" class="form-control" id="userFirstName" placeholder="User's Firstname" value="{{ admin.first_name }}" name="first_name">
+                            <label for="userFirstName" class="ms-2 text-muted">First Name</label>
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            <input type="text" class="form-control" id="userLastName" placeholder="User's Lastname" value="{{ admin.last_name }}" name="last_name">
+                            <label for="userLastName" class="ms-2 text-muted">Last Name</label>
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            <input type="email" class="form-control" id="userEmail" placeholder="User's Email ID" value="{{ admin.email }}" name="email">
+                            <label for="userEmail" class="ms-2 text-muted">Email ID</label>
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            <input type="tel" class="form-control" id="userPhn" placeholder="User's Phone number" value="{{ admin.phn_no }}" name="phn_no">
+                            <label for="userPhn" class="ms-2 text-muted">Phone Number</label>
                         </div>
                     </div>
-                    <div class="modal-footer d-flex justify-content-between">
-                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
-                        <button type="submit" class="btn btn-success">Save changes</button>
+
+                    {% if admin.is_staff %}
+                    <hr class="my-4">
+                    <h5 class="mb-3">Institution Details</h5>
+                    <div class="row gx-3 gy-3">
+                        <div class="col-md-6 form-floating">
+                            <input type="text" class="form-control" id="instName" placeholder="Institution Name" value="{{ admin.institution.institution_name }}" name="institution_name">
+                            <label for="instName" class="ms-2 text-muted">Institution Name</label>
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            <input type="tel" class="form-control" id="instPhn" placeholder="Institution Phone" value="{{ admin.institution.phn }}" name="institution_phn">
+                            <label for="instPhn" class="ms-2 text-muted">Institution Phone</label>
+                        </div>
+                        <div class="col-md-12 form-floating">
+                            <textarea class="form-control" id="instAddress" placeholder="Institution Address" name="institution_address" style="height: 100px;">{{ admin.institution.address }}</textarea>
+                            <label for="instAddress" class="ms-2 text-muted">Institution Address</label>
+                        </div>
                     </div>
-                </form>
-            </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save changes</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <div class="row">
-    <div class="col-12 ">
-        <h1 class="mb-4"><strong>{{admin.username}}'s Profile</strong></h1>
-        <div class="card data-card container">
-            <div class="card-body table-responsive">
+<div class="modal fade" id="updateDataModal" tabindex="-1" aria-labelledby="updateDataModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h1 class="modal-title fs-5" id="updateDataModalLabel"><strong>Update Your Account Details</strong></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
-                <h3 class="text-center mb-3"><strong>
-                    {% if admin.is_superuser %} Superuser {% else %} User {% endif %} Details
-                </strong></h3>
+            <form method="post" action="/administrator/update_account_details/">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+
+                    {% if admin.is_staff %}
+                    <fieldset class="mb-4">
+                        <legend class="h5">Institution Email Credentials</legend>
+                        <p class="text-muted small">Update these credentials to manage automated email notifications for your institution.</p>
+                        <div class="row gx-3 gy-3">
+                            <div class="col-md-6 form-floating">
+                                <input type="email" class="form-control" id="instEmail" placeholder="Institution Email" value="{{ admin.institution.email }}" name="institution_email" required>
+                                <label for="instEmail" class="ms-2 text-muted">Institution Email</label>
+                            </div>
+                            <div class="col-md-6 form-floating">
+                                <input type="password" class="form-control" id="instAppPassword" placeholder="Email App Password" name="institution_app_password" value="{{ admin.institution.email_app_password }}" required>
+                                <label for="instAppPassword" class="ms-2 text-muted">Email App Password</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                    {% endif %}
+
+                    <hr class="my-4">
+                    <fieldset>
+                        <legend class="h5">User Account Credentials</legend>
+                        <p class="text-muted small">Enter your current password to confirm your identity before making changes.</p>
+                        <div class="row gx-3 gy-3">
+                            <div class="col-md-6 form-floating">
+                                <input type="text" class="form-control" id="newUsername" placeholder="New Username" value="{{ admin.username }}" name="new_username" required>
+                                <label for="newUsername" class="ms-2 text-muted">New Username</label>
+                            </div>
+
+                            <div class="col-md-6 form-floating">
+                                <input type="password" class="form-control" id="oldPassword" placeholder="Current Password" name="old_password" required>
+                                <label for="oldPassword" class="ms-2 text-muted">Current Password</label>
+                            </div>
+
+                            <hr class="mt-4 mb-2">
+                            <p class="text-muted small">Change your password by entering it in the fields below. Leave these fields blank to keep your current password.</p>
+                            <div class="col-md-6 form-floating">
+                                <input type="password" class="form-control" id="newPassword" placeholder="New Password" name="new_password">
+                                <label for="newPassword" class="ms-2 text-muted">New Password</label>
+                            </div>
+                            <div class="col-md-6 form-floating">
+                                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password" name="confirm_password">
+                                <label for="confirmPassword" class="ms-2 text-muted">Confirm Password</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div>
+    <h1 class="mb-4"><strong>{{admin.username}}'s Profile</strong></h1>
+    <div class="card data-card container">
+        <div class="card-body table-responsive">
+
+            <fieldset class="mb-4">
+                <legend class="h2">
+                    <strong>{% if admin.is_superuser %} Superuser {% else %} User {% endif %} Details</strong>
+                </legend>
                 <div class="row mb-3">
+                    <div class="col-md-8 mb-3">
+                        <table class="table text-start">
+                            <tbody>
+                                <tr>
+                                    <td>Full name</td>
+                                    <td>{{admin.first_name}} {{admin.last_name}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Username</td>
+                                    <td>{{admin.username}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Email Address</td>
+                                    <td>{{admin.email}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Contact No</td>
+                                    <td>{{admin.phn_no}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                     <div class="col-md-4 d-flex justify-content-center align-items-center mb-3">
                         <form id="uploadAdminImgForm" method="post" action="/administrator/admin_profile_img/" enctype="multipart/form-data">
                             {% csrf_token %}
@@ -88,31 +176,35 @@
                             </label>
                         </form>
                     </div>
+                </div>
+            </fieldset>
+
+            {% if admin.institution %}
+            <fieldset class="mb-4">
+                <legend class="h2"><strong>Institution Details</strong></legend>
+                <div class="row mb-1">
                     <div class="col-md-8 mb-3">
                         <table class="table text-start">
-                            <tr>
-                                <td>Full name</td>
-                                <td>{{admin.first_name}} {{admin.last_name}}</td>
-                            </tr>
-                            <tr>
-                                <td>Username</td>
-                                <td>{{admin.username}}</td>
-                            </tr>
-                            <tr>
-                                <td>Email Address</td>
-                                <td>{{admin.email}}</td>
-                            </tr>
-                            <tr>
-                                <td>Contact No</td>
-                                <td>{{admin.phn_no}}</td>
-                            </tr>
+                            <tbody>
+                                <tr>
+                                    <td>Institution Name</td>
+                                    <td>{{admin.institution.institution_name}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Institution Address</td>
+                                    <td>{{admin.institution.address}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Phone No</td>
+                                    <td>{{admin.institution.phn}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Email Address</td>
+                                    <td>{{admin.institution.email}}</td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
-                </div>
-
-                {% if admin.institution %}
-                <h3 class="text-center mb-3"><strong>Institution Details</strong></h3>
-                <div class="row mb-1">
                     <div class="col-md-4 d-flex justify-content-center align-items-center mb-3">
                         <form id="uploadInstitutionImgForm" method="post" action="/administrator/admin_inst_img/" enctype="multipart/form-data">
                             {% csrf_token %}
@@ -130,111 +222,141 @@
                             </label>
                         </form>
                     </div>
-                    <div class="col-md-8 mb-3">
-                        <table class="table text-start">
-                            <tr>
-                                <td>Institution Name</td>
-                                <td>{{admin.institution.institution_name}}</td>
-                            </tr>
-                            <tr>
-                                <td>Institution Address</td>
-                                <td>{{admin.institution.address}}</td>
-                            </tr>
-                            <tr>
-                                <td>Phone No</td>
-                                <td>{{admin.institution.phn}}</td>
-                            </tr>
-                            <tr>
-                                <td>Email Address</td>
-                                <td>{{admin.institution.email}}</td>
-                            </tr>
-                        </table>
-                    </div>
                 </div>
-                {% endif %}
+            </fieldset>
+            {% endif %}
 
-                {% if admin.default_bank %}
-                <h3 class="text-center mb-3"><strong>Bank Details</strong></h3>
+            {% if admin.default_bank %}
+            <fieldset class="mb-4">
+                <legend class="h2"><strong>Bank Details</strong></legend>
                 <div class="row mb-3">
                     <div class="col-12">
                         <table class="table text-start">
-                            <tr>
-                                <td>A/c Holder Name</td>
-                                <td>{{admin.default_bank.account_holder_first_name}} {{admin.default_bank.account_holder_last_name}}</td>
-                            </tr>
-                            <tr>
-                                <td>Bank Name</td>
-                                <td>{{admin.default_bank.bank_name}}</td>
-                            </tr>
-                            <tr>
-                                <td>Branch Name</td>
-                                <td>{{admin.default_bank.branch_name}}</td>
-                            </tr>
-                            <tr>
-                                <td>Account Number</td>
-                                <td>{{admin.default_bank.account_no}}</td>
-                            </tr>
-                            <tr>
-                                <td>IFSC Code</td>
-                                <td>{{admin.default_bank.ifsc_code}}</td>
-                            </tr>
-                            <tr>
-                                <td>UPI ID</td>
-                                <td>{{admin.default_bank.upi_id}}</td>
-                            </tr>
-                            <tr>
-                                <td>A/c Holder's Phone No</td>
-                                <td>{{admin.default_bank.account_holder_phn_no}}</td>
-                            </tr>
-                            <tr>
-                                <td>A/c Holder's Address</td>
-                                <td>{{admin.default_bank.account_holder_address}}</td>
-                            </tr>
+                            <tbody>
+                                <tr>
+                                    <td>A/c Holder Name</td>
+                                    <td>{{admin.default_bank.account_holder_first_name}} {{admin.default_bank.account_holder_last_name}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Bank Name</td>
+                                    <td>{{admin.default_bank.bank_name}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Branch Name</td>
+                                    <td>{{admin.default_bank.branch_name}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Account Number</td>
+                                    <td>{{admin.default_bank.account_no}}</td>
+                                </tr>
+                                <tr>
+                                    <td>IFSC Code</td>
+                                    <td>{{admin.default_bank.ifsc_code}}</td>
+                                </tr>
+                                <tr>
+                                    <td>UPI ID</td>
+                                    <td>{{admin.default_bank.upi_id}}</td>
+                                </tr>
+                                <tr>
+                                    <td>A/c Holder's Phone No</td>
+                                    <td>{{admin.default_bank.account_holder_phn_no}}</td>
+                                </tr>
+                                <tr>
+                                    <td>A/c Holder's Address</td>
+                                    <td>{{admin.default_bank.account_holder_address}}</td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
-                {% endif %}
+            </fieldset>
+            {% endif %}
 
-                <div class="my-3 text-start">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#profileModal">
-                        <i class="align-middle" data-feather="edit"></i>
-                        Edit Details
-                    </button>
-                </div>
+            <div class="my-3 text-start">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#profileModal">
+                    <i class="align-middle" data-feather="edit"></i>
+                    Edit Details
+                </button>
+                <button type="button" class="btn btn-warning text-black" data-bs-toggle="modal" data-bs-target="#updateDataModal">
+                    <i class="align-middle" data-feather="edit"></i>
+                    Change Username or Password
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        {% if messages %}
-            {% for message in messages %}
-                Swal.fire({
-                    title: '{{ message.tags|title }}!',
-                    text: '{{ message }}',
-                    icon: '{{ message.tags }}',
-                    confirmButtonText: 'OK'
-                });
-            {% endfor %}
-        {% endif %}
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const autoSubmitForm = (event) => {
-                const fileInput = event.target;
-                if (fileInput.files && fileInput.files.length > 0) {
-                    fileInput.form.submit();
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                title: '{{ message.tags|title }}!',
+                text: '{{ message }}',
+                icon: '{{ message.tags }}',
+                confirmButtonText: 'OK'
+            });
+        {% endfor %}
+    {% endif %}
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- Profile Image Auto-Submit Logic ---
+        const autoSubmitForm = (event) => {
+            const fileInput = event.target;
+            if (fileInput.files && fileInput.files.length > 0) {
+                fileInput.form.submit();
+            }
+        };
+
+        const adminImgUpload = document.getElementById('adminImgUpload');
+        const instImgUpload = document.getElementById('instImgUpload');
+
+        if (adminImgUpload) {
+            adminImgUpload.addEventListener('change', autoSubmitForm);
+        }
+        if (instImgUpload) {
+            instImgUpload.addEventListener('change', autoSubmitForm);
+        }
+
+        // --- Password Validation Logic ---
+        const updateDataModal = document.getElementById('updateDataModal');
+        if (updateDataModal) {
+            const form = updateDataModal.querySelector('form');
+            const oldPasswordInput = document.getElementById('oldPassword');
+            const newPasswordInput = document.getElementById('newPassword');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+
+            form.addEventListener('submit', (event) => {
+                if (newPasswordInput.value || confirmPasswordInput.value) {
+
+                    // Check if current and new passwords are the same
+                    if (oldPasswordInput.value === newPasswordInput.value) {
+                        alert("Error: Your new password cannot be the same as your current password.");
+                        event.preventDefault();
+                        return;
+                    }
+
+                    // Check if new passwords match
+                    if (newPasswordInput.value !== confirmPasswordInput.value) {
+                        alert("Error: New password and confirm password do not match.");
+                        event.preventDefault();
+                        return;
+                    }
+
+                    // Password complexity regex
+                    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+                    // Check if password meets complexity requirements
+                    if (!passwordRegex.test(newPasswordInput.value)) {
+                        alert("Error: Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one symbol (@$!%*?&).");
+                        event.preventDefault();
+                    }
                 }
-            };
-            const adminImgUpload = document.getElementById('adminImgUpload');
-            const instImgUpload = document.getElementById('instImgUpload');
-            if (adminImgUpload) {
-                adminImgUpload.addEventListener('change', autoSubmitForm);
-            }
-            if (instImgUpload) {
-                instImgUpload.addEventListener('change', autoSubmitForm);
-            }
-        });
-    </script>
+            });
+        }
+    });
+</script>
 
 {% endblock %}

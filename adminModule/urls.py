@@ -7,6 +7,7 @@ urlpatterns = [
     path('admin-log-out/',views.adminLogOut),
 
     path('profile/',views.adminProfile),
+    path('update_account_details/',views.update_account_details),
     path('admin_profile_img/',views.adminProfilePicture),
     path('admin_inst_img/',views.adminInstitutionPicture),
 

@@ -97,11 +97,127 @@ def adminLogOut(request):
 def adminProfile(request):
     if not (request.user.is_superuser or request.user.is_staff):
         return redirect('/administrator/')
+
     if not request.user.table_status or (request.user.is_staff and not request.user.institution.table_status):
         messages.error(request, "Your account or institution has been deactivated by the superuser.")
         return redirect('/administrator/logout/')
 
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        phn_no = request.POST.get('phn_no')
+
+        try:
+            with db_transaction.atomic():
+                request.user.first_name = first_name
+                request.user.last_name = last_name
+                request.user.email = email
+                request.user.phn_no = phn_no
+                request.user.save()
+
+                if request.user.is_staff and request.user.institution:
+                    institution_name = request.POST.get('institution_name')
+                    institution_phn = request.POST.get('institution_phn')
+                    institution_address = request.POST.get('institution_address')
+
+                    inst = request.user.institution
+                    inst.institution_name = institution_name
+                    inst.phn = institution_phn
+                    inst.address = institution_address
+                    inst.save()
+
+            messages.success(request, "Profile updated successfully!")
+            return redirect('/administrator/profile/')
+        except IntegrityError:
+            messages.error(request, "Failed to update profile. The provided email might already be in use.")
+            return redirect('/administrator/profile/')
+        except Exception as e:
+            messages.error(request, f"An unexpected error occurred: {e}")
+            return redirect('/administrator/profile/')
     return render(request, 'admin-profile.html', {'admin': request.user})
+
+
+def update_account_details(request):
+    if not (request.user.is_superuser or request.user.is_staff):
+        return redirect('/administrator/')
+    if not request.user.table_status or (request.user.is_staff and not request.user.institution.table_status):
+        messages.error(request, "Your account or institution has been deactivated by the superuser.")
+        return redirect('/administrator/logout/')
+
+    if request.method != 'POST':
+        return redirect('/administrator/profile/')
+
+    old_password = request.POST.get('old_password')
+    new_password = request.POST.get('new_password')
+    confirm_password = request.POST.get('confirm_password')
+
+    if not request.user.check_password(old_password):
+        messages.error(request, "Invalid current password. Changes were not saved.")
+        return redirect('/administrator/profile/')
+
+    try:
+        with db_transaction.atomic():
+            updated_something = False
+
+            new_username = request.POST.get('new_username')
+            if new_username and new_username != request.user.username:
+                if CustomUser.objects.filter(username=new_username).exists():
+                    messages.error(request, "This username is already taken. Please choose a different one.")
+                    return redirect('/administrator/profile/')
+                request.user.username = new_username
+                updated_something = True
+
+            if new_password and confirm_password:
+                if new_password != confirm_password:
+                    messages.error(request, "New password and confirm password do not match.")
+                    return redirect('/administrator/profile/')
+
+                request.user.set_password(new_password)
+                updated_something = True
+
+            # --- Update Institution Email Credentials (for staff users) ---
+            if request.user.is_staff and request.user.institution:
+                institution_email = request.POST.get('institution_email')
+                institution_app_password = request.POST.get('institution_app_password')
+
+                inst = request.user.institution
+
+                if institution_email and institution_email != inst.email:
+                    if Institution.objects.filter(email=institution_email).exclude(id=inst.id).exists():
+                        messages.error(request, "This institution email is already in use by another institution.")
+                        return redirect('/administrator/profile/')
+                    inst.email = institution_email
+                    updated_something = True
+
+                if institution_app_password and institution_app_password != inst.email_app_password:
+                    inst.email_app_password = institution_app_password
+                    updated_something = True
+
+                if updated_something:
+                    inst.save()
+
+            request.user.save()
+
+            if updated_something:
+                messages.success(request, "Account details updated successfully!")
+                if new_password:
+                    user = authenticate(request, username=request.user.username, password=new_password)
+                    if user is not None:
+                        login(request, user)
+                    else:
+                        messages.info(request,"Your password has been updated. Please log in again with your new password.")
+                        return redirect('/administrator/logout/')
+            else:
+                messages.info(request, "No changes were detected. Your profile remains the same.")
+            return redirect('/administrator/profile/')
+
+    except IntegrityError as e:
+        messages.error(request,f"An integrity error occurred. This is likely because the username or email is already taken. Please try again.")
+        return redirect('/administrator/profile/')
+    except Exception as e:
+        messages.error(request, f"An unexpected error occurred during the update: {e}")
+        return redirect('/administrator/profile/')
 
 
 # Updating logged admin's profile picture
