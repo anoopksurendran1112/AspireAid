@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SelectedTile, Transaction, Screenshot, Receipt, PersonalDetails
+from .models import SelectedTile, Transaction, Screenshot, Receipt, PersonalDetails, ContactMessage
 
 
 # Register your models here.
@@ -30,3 +30,4 @@ admin.site.register(SelectedTile, SelectedTileAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Screenshot, ScreenShotAdmin)
 admin.site.register(Receipt, ReceiptAdmin)
+admin.site.register(ContactMessage)

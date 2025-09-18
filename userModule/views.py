@@ -1,7 +1,7 @@
 import os
 
 from adminModule.utils import whatsapp_send_initiated, email_send_initiated, whatsapp_send_proof, email_send_proof, sms_send_initiated, sms_send_proof, get_unique_tracking_id
-from userModule.models import PersonalDetails, SelectedTile, Transaction, Screenshot
+from userModule.models import PersonalDetails, SelectedTile, Transaction, Screenshot, ContactMessage
 from django.shortcuts import render, redirect, get_object_or_404
 from adminModule.models import Project, Institution
 from django.db import transaction as db_transaction
@@ -22,7 +22,24 @@ def userIndex(request, ins_id):
       
 def contact_us(request,ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        message = request.POST.get('message')
+
+        # Create and save a new ContactMessage object
+        ContactMessage.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone=phone,
+            message=message
+        )
+        return redirect(f'/user/{ins.id}/contact-us/')
     return render(request,'contact-us.html', {'ins':ins})
+
 
 
 def about(request, ins_id):
@@ -244,3 +261,6 @@ def userTrackStatus(request, ins_id):
                     t.num_tiles = 0
 
     return render(request, "user-track-status.html", {'ins': ins, 'tra': transactions, 'search': search_content})
+
+
+
