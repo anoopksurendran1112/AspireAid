@@ -23,7 +23,7 @@
 
             <div class="row mb-4">
                 <div class="col-md-4 mb-3">
-                    <div class="card h-100">
+                    <div class="card data-card h-100">
                         <div class="card-header bg-dark">
                             <h4 class="text-light mb-0"><strong>Project Details</strong></h4>
                         </div>
@@ -31,11 +31,11 @@
                             <table class="table table-borderless table-sm mb-0">
                                 <tr>
                                     <td class="fw-bold">Target</td>
-                                    <td>${{ transaction.project.funding_goal }}</td>
+                                    <td>₹{{ transaction.project.funding_goal }}</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold">Tile Value</td>
-                                    <td>${{ transaction.project.tile_value }}</td>
+                                    <td>₹{{ transaction.project.tile_value }}</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold">Closing Date</td>
@@ -47,7 +47,7 @@
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <div class="card h-100">
+                    <div class="card data-card h-100">
                         <div class="card-header bg-dark">
                             <h4 class="text-white mb-0"><strong>Beneficiary Details</strong></h4>
                         </div>
@@ -71,7 +71,7 @@
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <div class="card h-100">
+                    <div class="card data-card h-100">
                         <div class="card-header bg-dark">
                             <h4 class="text-light mb-0"><strong>Buyer Details</strong></h4>
                         </div>
@@ -99,7 +99,7 @@
                 </div>
             </div>
 
-            <div class="card mb-4">
+            <div class="card data-card mb-4">
                 <div class="card-header bg-dark">
                     <h4 class="text-light mb-0"><strong>Transaction Summary</strong></h4>
                 </div>
@@ -112,13 +112,13 @@
                         </ul>
                         <div class="text-end">
                             <h4 class="mb-0 fw-bold">{{ transaction.num_tiles }} Tiles</h4>
-                            <h2 class="mb-0 text-success fw-bold">${{ transaction.amount }}</h2>
+                            <h2 class="mb-0 text-success fw-bold">₹{{ transaction.amount }}</h2>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card mb-4">
+            <div class="card data-card mb-4">
                 <div class="card-header bg-dark">
                     <h4 class="text-light mb-0"><strong>Proof of Payment</strong></h4>
                 </div>

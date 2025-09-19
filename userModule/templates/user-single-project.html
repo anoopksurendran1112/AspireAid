@@ -9,7 +9,8 @@
                     <div class="card data-card">
                         <div class="card-body p-0">
                             <div class="row">
-                                <div class="col-8 pe-0">
+
+                                <div class="col-9">
                                     <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
                                         <div class="carousel-inner">
                                             {% if project.images.all %}
@@ -20,13 +21,14 @@
                                                 {% endfor %}
                                             {% else %}
                                                 <div class="carousel-item active">
-                                                    <img src="{% static 'Dashboard/img/photos/default-baner.png' %}" class="d-block w-100 carousel-image border" alt="No image available">
+                                                    <img src="{% static 'Dashboard/img/photos/default-banner.jpg' %}" class="d-block w-100 carousel-image border" alt="No image available">
                                                 </div>
                                             {% endif %}
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-4">
+
+                                <div class="col-3">
                                     <div class="row h-100">
                                         <div class="col-sm-6 col-xl-12 d-flex justify-content-start align-items-center g-1">
                                            <img
@@ -60,51 +62,60 @@
                                 </div>
 
                                 <div class="col-12 ">
-                                    <div class="card-header">
-                                        <h3 class=" display-4"><strong>{{project.title}}</strong></h3>
-                                    </div>
-                                    <div class="card-body pb-4">
-                                        <p class="lead">{{project.description}}</p>
-                                        <table class="table mb-4">
-                                            <tr>
-                                                <th class="p-1">Status</th>
-                                                <td class="p-1">
+                                    <div class="card-body pb-0">
+                                        <h4 class="card-title fw-bold mb-0">{{ project.title }}</h4>
+                                        <p class=" text-muted">{{ project.description }}</p>
+
+                                        <div class="mb-4">
+                                            <div class="progress" role="progressbar" aria-label="Project Progress" aria-valuenow="{{ project.progress }}" aria-valuemin="0" aria-valuemax="100" style="height: 10px;">
+                                                <div class="progress-bar bg-primary" style="width: {{ project.progress }}%;"></div>
+                                            </div>
+                                            <div class="d-flex justify-content-end mt-1">
+                                                <strong class="text-primary">{{ project.progress }}%</strong>
+                                            </div>
+                                        </div>
+
+                                        <ul class="list-group list-group-flush mb-3">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                <strong class="text-muted">Status</strong>
+                                                <span>
                                                     {% if project.current_amount >= project.funding_goal %}
-                                                        No tiles available
+                                                        <span class="badge bg-secondary">No Tiles Available</span>
                                                     {% elif project.closing_date < now %}
-                                                        Booking closed
+                                                        <span class="badge bg-danger">Booking Closed</span>
                                                     {% else %}
-                                                        Available: <strong>{{available_tiles_count}} tiles available</strong>
+                                                        <span class="badge bg-success">Available</span>
                                                     {% endif %}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th class="p-1">Goal</th>
-                                                <td class="p-1">{{project.funding_goal}} Rs</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="p-1">Current</th>
-                                                <td class="p-1">{{project.current_amount}} Rs</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="p-1">Tile value</th>
-                                                <td class="p-1">{{project.tile_value}} Rs</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="p-1">Available tiles</th>
-                                                <td class="p-1">{{project.funding_goal}} Rs</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="p-1">Created on</th>
-                                                <td class="p-1">{{project.created_at}}</td>
-                                            </tr>
-                                            <tr>
-                                                <th class="p-1">Close by</th>
-                                                <td class="p-1">{{project.closing_date}}</td>
-                                            </tr>
-                                        </table>
+                                                </span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                <strong class="text-muted">Goal</strong>
+                                                <span>₹{{ project.funding_goal }}</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                <strong class="text-muted">Current</strong>
+                                                <span>₹{{ project.current_amount }}</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                <strong class="text-muted">Tile value</strong>
+                                                <span>₹{{ project.tile_value }}</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                <strong class="text-muted">Available tiles</strong>
+                                                <span>{{ available_tiles_count }}</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                <strong class="text-muted">Created on</strong>
+                                                <span>{{ project.created_at|date:"F d, Y" }}</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                <strong class="text-muted">Close by</strong>
+                                                <span>{{ project.closing_date|date:"F d, Y" }}</span>
+                                            </li>
+                                        </ul>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>

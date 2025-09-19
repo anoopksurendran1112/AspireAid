@@ -1,5 +1,5 @@
 from django.db import models
-from adminModule.models import Project
+from adminModule.models import Project, Institution
 
 
 # Create your models here.
@@ -65,7 +65,25 @@ class ContactMessage(models.Model):
     email = models.EmailField(null=True)
     phone = models.CharField(max_length=15)
     message = models.TextField()
-    sent_at = models.DateTimeField(auto_now_add=True)
+    ins = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='institution', null= True)
+    sent_time = models.DateTimeField(auto_now_add=True)
+    table_status = models.BooleanField(default=True, null=True)
+
+    class Meta:
+        ordering = ['-sent_time']
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+
+
+class MessageReply(models.Model):
+    message = models.ForeignKey(ContactMessage, on_delete=models.CASCADE, related_name='msg')
+    reply = models.TextField()
+    reply_time = models.DateTimeField(auto_now_add=True)
+    table_status = models.BooleanField(default=True, null=True)
+
+    class Meta:
+        ordering = ['-reply_time']
+
+    def __str__(self):
+        return f'Reply to {self.message.first_name} {self.message.last_name} at {self.reply_time}'

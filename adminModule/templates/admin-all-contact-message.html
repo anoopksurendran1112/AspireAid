@@ -1,0 +1,182 @@
+{% extends 'admin-dashboard.html' %}
+{% block content %}
+
+{% for msg in contact_messages %}
+<div class="modal fade" id="messageModal{{ msg.id }}" tabindex="-1" aria-labelledby="messageModalLabel{{ msg.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="messageModalLabel{{ msg.id }}">Message from {{ msg.first_name }} {{ msg.last_name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs" id="myTab{{ msg.id }}" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="message-tab{{ msg.id }}" data-bs-toggle="tab" data-bs-target="#message-content{{ msg.id }}" type="button" role="tab" aria-controls="message-content{{ msg.id }}" aria-selected="true">Message</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="reply-tab{{ msg.id }}" data-bs-toggle="tab" data-bs-target="#reply-content{{ msg.id }}" type="button" role="tab" aria-controls="reply-content{{ msg.id }}" aria-selected="false">Reply</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content mt-3" id="myTabContent{{ msg.id }}">
+                    <div class="tab-pane fade show active" id="message-content{{ msg.id }}" role="tabpanel" aria-labelledby="message-tab{{ msg.id }}">
+                        <div class="p-3 mb-3 border rounded">
+                            <p><strong>Name:</strong> {{ msg.first_name }} {{ msg.last_name }}</p>
+                            <p><strong>Email:</strong> {{ msg.email }}</p>
+                            <p><strong>Phone:</strong> {{ msg.phone }}</p>
+                            <hr>
+                            <p><strong>Message:</strong></p>
+                            <p>{{ msg.message }}</p>
+                            <small class="text-muted d-block text-end">Sent at {{ msg.sent_time|date:"F d, Y P" }}</small>
+                        </div>
+
+                        {% if msg.msg.all %}
+                        <h6 class="mb-2">Replies:</h6>
+                        <div style="max-height: 250px; overflow-y: auto;">
+                            <div class="accordion" id="accordionReplies{{ msg.id }}">
+                                {% for reply in msg.msg.all %}
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="heading{{ reply.id }}">
+                                            <button class="accordion-button collapsed text-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ reply.id }}" aria-expanded="false" aria-controls="collapse{{ reply.id }}">
+                                               Sent at {{ reply.reply_time|date:"F d, Y P" }}
+                                            </button>
+                                        </h2>
+                                        <div id="collapse{{ reply.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ reply.id }}" data-bs-parent="#accordionReplies{{ msg.id }}">
+                                            <div class="accordion-body">
+                                                <strong>{{ reply.reply }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info" role="alert">
+                            No replies sent yet.
+                        </div>
+                    {% endif %}
+                    </div>
+
+                    <div class="tab-pane fade" id="reply-content{{ msg.id }}" role="tabpanel" aria-labelledby="reply-tab{{ msg.id }}">
+                        <form method="post" action="/administrator/send-reply/{{ msg.id }}/">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="replyMessage{{ msg.id }}" class="form-label">Your Reply</label>
+                                <textarea class="form-control" id="replyMessage{{ msg.id }}" name="reply_message" rows="5" required></textarea>
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="align-middle me-1" data-feather="send"></i> Send Reply
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-3"><strong>Contact</strong> Messages</h1>
+        <div class="card data-card py-3">
+            <div class="card-header d-flex justify-content-end align-items-center">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
+                    <i class="align-middle me-1" data-feather="filter"></i> Advanced Filter
+                </button>
+            </div>
+
+            <div class="collapse" id="advancedFilterCollapse">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="sender_name" name="sender_name" placeholder="Enter Sender Name">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="sender_email" name="sender_email" placeholder="Enter Email Address">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="sender_phone" name="sender_phone" placeholder="Enter Phone Number">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="start_date" class="form-label">From Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="end_date" class="form-label">To Date</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date">
+                        </div>
+                        <div class="col-12 text-end mt-3">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="align-middle me-1" data-feather="check"></i> Apply Filters
+                            </button>
+                            <a href="." class="btn btn-danger">
+                                <i class="align-middle me-1" data-feather="x"></i> Clear Filters
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card-body table-responsive">
+                <table class="table table-hover my-0">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Sl no.</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Sent At</th>
+                        <th>Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for msg in contact_messages %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ msg.first_name }} {{ msg.last_name }}</td>
+                        <td>{{ msg.email }}</td>
+                        <td>{{ msg.phone }}</td>
+                        <td>{{ msg.sent_time|date:"M d, Y P" }}</td>
+                        <td class="{% if msg.has_replied == True %} text-success {% else %}
+                                    text-secondary {% endif %}">
+                            <strong>{% if msg.has_replied == True %} Replied {% else %}
+                            Unchecked {% endif %}</strong>
+                        </td>
+                        <td class="text-center">
+                            <a class="btn btn-info btn-sm" href="#" data-bs-toggle="modal" data-bs-target="#messageModal{{ msg.id }}">
+                                <i class="align-middle" data-feather="eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                title: '{{ message.tags|title }}!',
+                text: '{{ message }}',
+                icon: '{{ message.tags }}',
+                confirmButtonText: 'OK'
+            });
+        {% endfor %}
+    {% endif %}
+</script>
+
+{% endblock %}

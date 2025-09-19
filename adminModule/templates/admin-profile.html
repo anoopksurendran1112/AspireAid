@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-light">
                 <h1 class="modal-title fs-5" id="profileModalLabel"><strong>Update Your Profile Details</strong></h1>
@@ -33,7 +33,7 @@
                         </div>
                     </div>
 
-                    {% if admin.is_staff %}
+                    {% if not admin.is_superuser %}
                     <hr class="my-4">
                     <h5 class="mb-3">Institution Details</h5>
                     <div class="row gx-3 gy-3">
@@ -62,7 +62,7 @@
 </div>
 
 <div class="modal fade" id="updateDataModal" tabindex="-1" aria-labelledby="updateDataModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-light">
                 <h1 class="modal-title fs-5" id="updateDataModalLabel"><strong>Update Your Account Details</strong></h1>
@@ -73,7 +73,7 @@
                 {% csrf_token %}
                 <div class="modal-body p-4">
 
-                    {% if admin.is_staff %}
+                    {% if not admin.is_superuser %}
                     <fieldset class="mb-4">
                         <legend class="h5">Institution Email Credentials</legend>
                         <p class="text-muted small">Update these credentials to manage automated email notifications for your institution.</p>
@@ -88,9 +88,9 @@
                             </div>
                         </div>
                     </fieldset>
+                    <hr class="my-4">
                     {% endif %}
 
-                    <hr class="my-4">
                     <fieldset>
                         <legend class="h5">User Account Credentials</legend>
                         <p class="text-muted small">Enter your current password to confirm your identity before making changes.</p>

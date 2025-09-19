@@ -1,9 +1,9 @@
 from adminModule.utils import generate_receipt_pdf, whatsapp_send_approve, email_send_approve, sms_send_approve, \
     email_send_reject, sms_send_reject, whatsapp_send_reject, email_send_unverify, sms_send_unverify, \
-    whatsapp_send_unverify
+    whatsapp_send_unverify, sms_send_response, email_send_response, whatsapp_send_response
 from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser
+from userModule.models import Transaction, Receipt, Screenshot, ContactMessage, MessageReply
 from django.shortcuts import render, redirect, get_object_or_404
-from userModule.models import Transaction, Receipt, Screenshot
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.db import transaction as db_transaction
@@ -95,12 +95,17 @@ def adminLogOut(request):
 
 # Profile page of the logged admin
 def adminProfile(request):
-    if not (request.user.is_superuser or request.user.is_staff):
+    if request.user.is_superuser:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by another superuser.")
+            return redirect('/administrator/logout/')
+    elif request.user.is_staff:
+        if not request.user.table_status or not request.user.institution.table_status:
+            messages.error(request, "Your account or institution has been deactivated by a superuser.")
+            return redirect('/administrator/logout/')
+    else:
+        messages.error(request, "Your Don't have permission to access this page.")
         return redirect('/administrator/')
-
-    if not request.user.table_status or (request.user.is_staff and not request.user.institution.table_status):
-        messages.error(request, "Your account or institution has been deactivated by the superuser.")
-        return redirect('/administrator/logout/')
 
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
@@ -263,6 +268,39 @@ def adminAllInstitution(request):
         return redirect('/administrator/logout/')
 
     inst = Institution.objects.all()
+
+    institution_name = request.GET.get('institution_name')
+    email_filter = request.GET.get('email_filter')
+    phone_filter = request.GET.get('phone_filter')
+    status_filter = request.GET.get('status_filter')
+    name_order = request.GET.get('name_order')
+
+    filter_conditions = Q()
+
+    if institution_name:
+        filter_conditions &= Q(institution_name__icontains=institution_name)
+
+    if email_filter:
+        filter_conditions &= Q(email__icontains=email_filter)
+
+    if phone_filter:
+        filter_conditions &= Q(phn__icontains=phone_filter)
+
+    if status_filter:
+        if status_filter == 'active':
+            filter_conditions &= Q(table_status=True)
+        elif status_filter == 'inactive':
+            filter_conditions &= Q(table_status=False)
+
+    if filter_conditions:
+        inst = inst.filter(filter_conditions)
+
+    if name_order:
+        if name_order == 'asc':
+            inst = inst.order_by('institution_name')
+        elif name_order == 'desc':
+            inst = inst.order_by('-institution_name')
+
     if request.method == "POST":
         inst_name = request.POST.get('inst_name')
         inst_email = request.POST.get('inst_email')
@@ -272,18 +310,19 @@ def adminAllInstitution(request):
 
         try:
             with db_transaction.atomic():
-                new_inst = Institution(institution_name=inst_name,address=inst_address,phn=inst_phn,email=inst_email,email_app_password=inst_app_pwd)
+                new_inst = Institution(institution_name=inst_name, address=inst_address, phn=inst_phn, email=inst_email, email_app_password=inst_app_pwd)
                 new_inst.save()
             messages.success(request, f'Registered {inst_name} Successfully.')
         except IntegrityError as e:
             if 'email' in str(e).lower():
                 messages.error(request, "Registration failed: An institution with this email already exists.")
             else:
-                messages.error(request,f"Registration failed due to a database integrity error {e}. Please check your inputs.")
+                messages.error(request, f"Registration failed due to a database integrity error {e}. Please check your inputs.")
         except Exception as e:
             messages.error(request, f"Failed to register new institution due to an unknown error {e}.")
         return redirect('/administrator/all-institution/')
     return render(request, "admin-all-institution.html", {'admin': request.user, 'institutions': inst})
+
 
 
 def adminUpdateInstitution(request, iid):
@@ -350,30 +389,93 @@ def adminDeleteInstitutionPermanent(request,iid):
 
 # Superuser listing all Institution's admins and adding new admin
 def adminAllInstiAdmin(request):
-    if request.user.is_superuser:
-        if not request.user.table_status:
-            messages.error(request, "Your account has been deactivated by another superuser.")
-            return redirect('/administrator/logout/')
-        inst = Institution.objects.all()
-        administrators = CustomUser.objects.filter(is_staff=True)
-        if request.method == 'POST':
-            firstname = request.POST.get('first_name')
-            lastname = request.POST.get('last_name')
-            em = request.POST.get('email')
-            phn = request.POST.get('phn_no')
-            inst = request.POST.get('inst_name')
-            usr = request.POST.get('username')
-            pwd = request.POST.get('password')
-            try:
-                ins = Institution.objects.get(id=inst)
-                CustomUser.objects.create_user(first_name=firstname, last_name=lastname, email=em, institution=ins, username=usr, is_staff = True, phn_no=phn, password=pwd)
-                messages.success(request, f'Registered new admin {firstname} {lastname} for {ins.institution_name}.')
-                return redirect('/administrator/all-insti-admin/')
-            except IntegrityError:
-                return redirect('/administrator/all-insti-admin/')
-        return render(request,"admin-all-insti-admin.html", {'admin': request.user, 'inst':inst, 'administrators':administrators})
-    else:
+    if not request.user.is_superuser:
         return redirect('/administrator/')
+
+    if not request.user.table_status:
+        messages.error(request, "Your account has been deactivated by another superuser.")
+        return redirect('/administrator/logout/')
+
+    # Start with the base queryset for administrators
+    administrators = CustomUser.objects.filter(is_staff=True)
+    inst = Institution.objects.all()
+
+    # --- Advanced Filter Logic (GET request) ---
+    if request.method == 'GET' and any(param in request.GET for param in
+                                       ['admin_name', 'institution_filter', 'admin_username', 'admin_email',
+                                        'admin_phone', 'status_filter', 'name_order', 'institution_order']):
+        admin_name = request.GET.get('admin_name')
+        institution_filter = request.GET.get('institution_filter')
+        admin_username = request.GET.get('admin_username')
+        admin_email = request.GET.get('admin_email')
+        admin_phone = request.GET.get('admin_phone')
+        status_filter = request.GET.get('status_filter')
+        name_order = request.GET.get('name_order')
+        institution_order = request.GET.get('institution_order')
+
+        filter_conditions = Q()
+
+        if admin_name:
+            filter_conditions &= Q(first_name__icontains=admin_name) | Q(last_name__icontains=admin_name)
+        if institution_filter:
+            filter_conditions &= Q(institution__institution_name__icontains=institution_filter)
+        if admin_username:
+            filter_conditions &= Q(username__icontains=admin_username)
+        if admin_email:
+            filter_conditions &= Q(email__icontains=admin_email)
+        if admin_phone:
+            filter_conditions &= Q(phn_no__icontains=admin_phone)
+        if status_filter:
+            if status_filter == 'active':
+                filter_conditions &= Q(table_status=True)
+            elif status_filter == 'inactive':
+                filter_conditions &= Q(table_status=False)
+
+        administrators = administrators.filter(filter_conditions)
+
+        if name_order:
+            administrators = administrators.order_by(f"{'-' if name_order == 'desc' else ''}first_name")
+        if institution_order:
+            administrators = administrators.order_by(
+                f"{'-' if institution_order == 'desc' else ''}institution__institution_name")
+
+        # This will prevent the POST logic from running and render the filtered results
+        return render(request, "admin-all-insti-admin.html",
+                      {'admin': request.user, 'inst': inst, 'administrators': administrators})
+
+    # --- Add New Admin Logic (POST request) ---
+    if request.method == 'POST':
+        firstname = request.POST.get('first_name')
+        lastname = request.POST.get('last_name')
+        em = request.POST.get('email')
+        phn = request.POST.get('phn_no')
+        inst = request.POST.get('inst_name')
+        usr = request.POST.get('username')
+        pwd = request.POST.get('password')
+        try:
+            ins = Institution.objects.get(id=inst)
+            CustomUser.objects.create_user(
+                first_name=firstname,
+                last_name=lastname,
+                email=em,
+                institution=ins,
+                username=usr,
+                is_staff=True,
+                phn_no=phn,
+                password=pwd
+            )
+            messages.success(request, f'Registered new admin {firstname} {lastname} for {ins.institution_name}.')
+            return redirect('/administrator/all-insti-admin/')
+        except IntegrityError:
+            messages.error(request,
+                           'Failed to register new admin. A user with this username or email might already exist.')
+            return redirect('/administrator/all-insti-admin/')
+        except Exception as e:
+            messages.error(request, f'An unexpected error occurred: {e}')
+            return redirect('/administrator/all-insti-admin/')
+
+    # Render the unfiltered page for the initial GET request
+    return render(request, "admin-all-insti-admin.html",{'admin': request.user, 'inst': inst, 'administrators': administrators})
 
 
 # Superuser Updating an Institution's admin details
@@ -464,17 +566,19 @@ def adminDeletePermanent(request, aid):
 
 
 def adminAllProject(request):
-    if not (request.user.is_superuser or request.user.is_staff):
-        return redirect('/administrator/')
-
-    if not request.user.table_status or (request.user.is_staff and not request.user.institution.table_status):
-        messages.error(request, "Your account or institution has been deactivated by a superuser.")
-        return redirect('/administrator/logout/')
-
     if request.user.is_superuser:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by another superuser.")
+            return redirect('/administrator/logout/')
         projects = Project.objects.all()
-    else:
+    elif request.user.is_staff:
+        if not request.user.table_status or not request.user.institution.table_status:
+            messages.error(request, "Your account or institution has been deactivated by a superuser.")
+            return redirect('/administrator/logout/')
         projects = Project.objects.filter(created_by=request.user)
+    else:
+        messages.error(request, "Your Don't have permission to acces this page.")
+        return redirect('/administrator/')
 
     project_title = request.GET.get('project_title')
     project_status = request.GET.get('project_status')
@@ -571,45 +675,59 @@ def adminAddProject(request):
 
 
 def adminSingleProject(request, pid):
-    if request.user.is_superuser or request.user.is_staff:
-        if not request.user.table_status:
-            messages.error(request, "Your account has been deactivated by a superuser.")
-            return redirect('/administrator/logout/')
-
-        project = get_object_or_404(Project.objects.select_related('beneficiary'), id=pid)
-
-        if project.funding_goal > 0:
-            project.progress = round((project.current_amount / project.funding_goal) * 100, 3)
-        else:
-            project.progress = 0
-
-        if project.closing_date < timezone.now():
-            project.validity = False
-
-        total_tiles_count = int(project.funding_goal // project.tile_value)
-        tile_range = range(1, total_tiles_count + 1)
-
-        verified_transactions = Transaction.objects.filter(project=project, status='Verified').select_related('tiles_bought')
-        processing_transactions = Transaction.objects.filter(project=project, status='Unverified').select_related('tiles_bought')
-
-        sold_tiles_set = set()
-        for t in verified_transactions:
-            if t.tiles_bought and t.tiles_bought.tiles:
-                sold_tiles_set.update([int(n) for n in t.tiles_bought.tiles.split('-') if n.isdigit()])
-
-        processing_tiles_set = set()
-        for t in processing_transactions:
-            if t.tiles_bought and t.tiles_bought.tiles:
-                processing_tiles_set.update([int(n) for n in t.tiles_bought.tiles.split('-') if n.isdigit()])
-
-        unavailable_tiles_count = len(sold_tiles_set) + len(processing_tiles_set)
-        available_tiles_count = total_tiles_count - unavailable_tiles_count
-
-        return render(request, "admin-single-projects.html", {'admin': request.user,'project': project,'t_range': tile_range,
-                                                              'total_tiles_count': total_tiles_count,'available_tiles_count': available_tiles_count,
-                                                              'processing_tiles_set': processing_tiles_set,'sold_tiles_set': sold_tiles_set,'transaction': verified_transactions})
-    else:
+    if not request.user.is_superuser and not request.user.is_staff:
+        messages.error(request, "You don't have permission to access this page.")
         return redirect('/administrator/')
+
+    if not request.user.table_status:
+        messages.error(request, "Your account has been deactivated by a superuser.")
+        return redirect('/administrator/logout/')
+
+    project = get_object_or_404(Project, id=pid)
+
+    # Calculate project progress and validity
+    project.progress = round((project.current_amount / project.funding_goal) * 100,
+                             3) if project.funding_goal > 0 else 0
+    project.validity = project.closing_date >= timezone.now()
+
+    total_tiles_count = int(project.funding_goal // project.tile_value)
+
+    # Retrieve all transactions for the project
+    transactions = Transaction.objects.filter(project=project).select_related('tiles_bought', 'sender').order_by(
+        '-transaction_time')
+
+    # Calculate tiles and available tiles in a single pass
+    sold_tiles_set = set()
+    processing_tiles_set = set()
+
+    for t in transactions:
+        t.num_tiles = 0
+        if t.tiles_bought and t.tiles_bought.tiles:
+            tile_numbers = [int(n) for n in t.tiles_bought.tiles.split('-') if n.isdigit()]
+            t.num_tiles = len(tile_numbers)
+            if t.status == 'Verified':
+                sold_tiles_set.update(tile_numbers)
+            elif t.status == 'Unverified':
+                processing_tiles_set.update(tile_numbers)
+
+    unavailable_tiles_count = len(sold_tiles_set) + len(processing_tiles_set)
+    available_tiles_count = total_tiles_count - unavailable_tiles_count
+
+    # Re-fetch specific transactions for the template, if needed
+    verified_transactions = [t for t in transactions if t.status == 'Verified']
+
+    context = {
+        'admin': request.user,
+        'project': project,
+        'transactions': transactions,  # This now includes all transactions with num_tiles
+        'total_tiles_count': total_tiles_count,
+        'available_tiles_count': available_tiles_count,
+        'sold_tiles_set': sold_tiles_set,
+        'processing_tiles_set': processing_tiles_set,
+        'verified_transactions': verified_transactions,  # Keep this for compatibility if needed
+    }
+
+    return render(request, "admin-single-projects.html", context)
 
 
 def adminUpdateProject(request, pid):
@@ -739,17 +857,19 @@ def adminUpdateBankDetails(request):
 
 
 def adminAllTransactions(request):
-    if not (request.user.is_superuser or request.user.is_staff):
-        return redirect('/administrator/')
-
-    if not request.user.table_status or (request.user.is_staff and not request.user.institution.table_status):
-        messages.error(request, "Your account or institution has been deactivated by a superuser.")
-        return redirect('/administrator/logout/')
-
     if request.user.is_superuser:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by another superuser.")
+            return redirect('/administrator/logout/')
         transactions = Transaction.objects.all()
-    else:
+    elif request.user.is_staff:
+        if not request.user.table_status or not request.user.institution.table_status:
+            messages.error(request, "Your account or institution has been deactivated by a superuser.")
+            return redirect('/administrator/logout/')
         transactions = Transaction.objects.filter(project__created_by=request.user)
+    else:
+        messages.error(request, "Your Don't have permission to access this page.")
+        return redirect('/administrator/')
 
     tracking_id = request.GET.get('tracking_id')
     project_title = request.GET.get('project_title')
@@ -1022,17 +1142,19 @@ def adminGenerateReceipts(request, t_id):
 
 
 def adminAllReceipts(request):
-    if not (request.user.is_superuser or request.user.is_staff):
-        return redirect('/administrator/')
-
-    if not request.user.table_status or (request.user.is_staff and not request.user.institution.table_status):
-        messages.error(request, "Your account or institution has been deactivated by a superuser.")
-        return redirect('/administrator/logout/')
-
     if request.user.is_superuser:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by another superuser.")
+            return redirect('/administrator/logout/')
         receipts = Receipt.objects.all()
-    else:
+    elif request.user.is_staff:
+        if not request.user.table_status or not request.user.institution.table_status:
+            messages.error(request, "Your account or institution has been deactivated by a superuser.")
+            return redirect('/administrator/logout/')
         receipts = Receipt.objects.filter(transaction__project__created_by=request.user)
+    else:
+        messages.error(request, "Your Don't have permission to access this page.")
+        return redirect('/administrator/')
 
     tracking_id = request.GET.get('tracking_id')
     project_title = request.GET.get('project_title')
@@ -1115,3 +1237,65 @@ def adminSendReciept(request, r_id):
     except Exception as e:
         messages.error(request, f"An unexpected error occurred while sending the receipt: {e}.")
     return redirect('/administrator/all-receipts/')
+
+
+def adminContactMessage(request):
+    if request.user.is_superuser:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by another superuser.")
+            return redirect('/administrator/logout/')
+        msg = ContactMessage.objects.all().order_by('-sent_time')
+    elif request.user.is_staff:
+        if not request.user.table_status or not request.user.institution.table_status:
+            messages.error(request, "Your account or institution has been deactivated by a superuser.")
+            return redirect('/administrator/logout/')
+        msg = ContactMessage.objects.filter(ins=request.user.institution).order_by('-sent_time')
+    else:
+        messages.error(request, "Your Don't have permission to access this page.")
+        return redirect('/administrator/')
+
+    for m in msg:
+        m.has_replied = MessageReply.objects.filter(message=m).exists()
+    return render(request, 'admin-all-contact-message.html', {'admin':request.user,'contact_messages': msg})
+
+
+def adminMessageReply(request, msg_id):
+    if request.method == 'POST':
+        reply = request.POST.get('reply_message')
+        try:
+            with db_transaction.atomic():
+                original_message = ContactMessage.objects.get(pk=msg_id)
+                new_reply = MessageReply.objects.create(message=original_message, reply=reply)
+
+                all_notifications_sent = True
+                notification_errors = []
+
+                sms_result = sms_send_response(new_reply)
+                email_success, email_message = email_send_response(new_reply)
+                whatsapp_result = whatsapp_send_response(new_reply)
+
+                if sms_result['status'] == 'error':
+                    all_notifications_sent = False
+                    notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+
+                if whatsapp_result['status'] == 'error':
+                    all_notifications_sent = False
+                    notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
+
+                if not email_success:
+                    all_notifications_sent = False
+                    notification_errors.append(f"Email sending failed: {email_message}")
+
+                if all_notifications_sent:
+                    messages.success(request,f'Reply successfully sent to {original_message.first_name} {original_message.last_name}.')
+                else:
+                    base_msg = f"Reply was saved, but failed to send all notifications to {original_message.first_name} {original_message.last_name}."
+                    details_msg = " ".join(notification_errors)
+                    messages.warning(request, f"{base_msg} Details: {details_msg}")
+        except ContactMessage.DoesNotExist:
+            messages.error(request, "The original message could not be found.")
+        except IntegrityError as e:
+            messages.error(request, f"A database error occurred: {e}.")
+        except Exception as e:
+            messages.error(request, f"An unexpected error occurred while sending the reply: {e}.")
+    return redirect('/administrator/contact-message/')

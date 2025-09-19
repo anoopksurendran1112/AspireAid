@@ -140,7 +140,6 @@
     </div>
 </div>
 
-
 <!---------------------- Modal for Deleting Institution Admin -------------------->
 <div class="modal fade" id="adminPermanentDeleteModal" tabindex="-1" aria-labelledby="adminPermanentDeleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -169,79 +168,135 @@
     </div>
 </div>
 
-
 <!---------------------- All Admin Table Details -------------------->
-    <div class="row">
-        <div class="col-12 ">
-            <h1 class="mb-4"><strong>All Administrators</strong></h1>
-            <div class="card data-card pb-5">
-                <div class="card-header text-end">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newAdminModal">
-                        Register a new Admin +
-                    </button>
+<div class="row">
+    <div class="col-12 ">
+        <h1 class="mb-3"><strong>Administrator</strong> Details</h1>
+        <div class="card data-card py-3">
+            <div class="card-header d-flex justify-content-end align-items-center">
+                <button type="button" class="btn btn-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#newAdminModal">
+                    <i class="align-middle me-1" data-feather="plus"></i> Register a new Administrator
+                </button>
+                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
+                    <i class="align-middle me-1" data-feather="filter"></i> Advanced Filter
+                </button>
+            </div>
+
+            <div class="collapse" id="advancedFilterCollapse">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="admin_name" name="admin_name" placeholder="Enter Administrator Name">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="institution_filter" name="institution_filter" placeholder="Enter Institution Name">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="admin_username" name="admin_username" placeholder="Enter Username">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="admin_email" name="admin_email" placeholder="Enter Administrator Email ID">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="admin_phone" name="admin_phone" placeholder="Enter Phone number">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="status_filter" class="form-label">Status</label>
+                            <select id="status_filter" name="status_filter" class="form-select">
+                                <option value="">All</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="order_by_name" class="form-label">Admin's Name</label>
+                            <select id="order_by_name" name="name_order" class="form-select">
+                                <option value="">None</option>
+                                <option value="asc">Ascending</option>
+                                <option value="desc">Descending</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="order_by_institution" class="form-label">Institution</label>
+                            <select id="order_by_institution" name="institution_order" class="form-select">
+                                <option value="">None</option>
+                                <option value="asc">Ascending</option>
+                                <option value="desc">Descending</option>
+                            </select>
+                        </div>
+                        <div class="col-12 text-end mt-3">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="align-middle me-1" data-feather="check"></i> Apply Filters
+                            </button>
+                            <a href="." class="btn btn-danger">
+                                <i class="align-middle me-1" data-feather="x"></i> Clear Filters
+                            </a>
+                        </div>
+                    </form>
                 </div>
-                <div class="card-body table-responsive pb-0">
-                    <table class="table table-hover my-0">
-                        <thead class="table-dark">
-                        <tr>
-                            <th>Sl no.</th>
-                            <th>Full name</th>
-                            <th>Username</th>
-                            <th>Email Address</th>
-                            <th>Institution</th>
-                            <th>Contact Number</th>
-                            <th>Status</th>
-                            <th colspan="3" class="text-center">Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for i in administrators %}
-                        <tr  {% if i.is_superuser == True %}class="table-active"{% endif %} >
-                            <td>{{forloop.counter}}</td>
-                            <td>{{i.first_name}} {{i.last_name}}</td>
-                            <td>{{i.username}}</td>
-                            <td>{{i.email}}</td>
-                            <td>{{i.institution.institution_name}}</td>
-                            <td>{{i.phn_no}}</td>
-                            <td>
+            </div>
+
+            <div class="card-body table-responsive">
+                <table class="table table-hover my-0">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Sl no.</th>
+                        <th>Full name</th>
+                        <th>Username</th>
+                        <th>Email Address</th>
+                        <th>Institution</th>
+                        <th>Contact Number</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in administrators %}
+                    <tr {% if i.is_superuser %}class="table-active"{% endif %}>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{i.first_name}} {{i.last_name}}</td>
+                        <td>{{i.username}}</td>
+                        <td>{{i.email}}</td>
+                        <td>{{i.institution.institution_name}}</td>
+                        <td>{{i.phn_no}}</td>
+                        <td class="text-center {% if i.table_status %} text-success {% else %} text-danger {% endif %}">
+                            {% if i.table_status %}
+                                <strong>Active</strong>
+                            {% else %}
+                                <strong>Inactive</strong>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#updateAdminModal" data-action-type="view"
+                                   data-admin-id="{{ i.id }}"
+                                   data-first-name="{{ i.first_name }}"
+                                   data-last-name="{{ i.last_name }}"
+                                   data-email="{{ i.email }}"
+                                   data-inst-id="{{ i.institution.id }}"
+                                   data-phn-no="{{ i.phn_no }}"
+                                   data-username="{{ i.username }}">
+                                    <i class="align-middle" data-feather="edit"></i>
+                                </a>
                                 {% if i.table_status %}
-                                <strong class="text-success">Active</strong>
+                                <a class="btn btn-danger btn-sm" href="/administrator/change-admin-status/{{i.id}}/">
+                                    <i class="align-middle" data-feather="toggle-right"></i>
+                                </a>
                                 {% else %}
-                                <strong class="text-danger">Inactive</strong>
+                                <a class="btn btn-success btn-sm" href="/administrator/change-admin-status/{{i.id}}/">
+                                    <i class="align-middle" data-feather="toggle-left"></i>
+                                </a>
                                 {% endif %}
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <a class="me-3" data-bs-toggle="modal" data-bs-target="#updateAdminModal" data-action-type="view"
-                                       data-admin-id="{{ i.id }}"
-                                        data-first-name="{{ i.first_name }}"
-                                        data-last-name="{{ i.last_name }}"
-                                        data-email="{{ i.email }}"
-                                        data-inst-id="{{ i.institution.id }}"
-                                        data-phn-no="{{ i.phn_no }}"
-                                        data-username="{{ i.username }}">
-                                        <i class="align-middle" data-feather="edit"></i>
-                                    </a>
-                                    {% if i.table_status %}
-                                    <a class="me-3 text-success" href="/administrator/change-admin-status/{{i.id}}/">
-                                        <i class="align-middle" data-feather="chevrons-up"></i>
-                                    </a>
-                                    {% else %}
-                                    <a class="me-3 text-danger" href="/administrator/change-admin-status/{{i.id}}/">
-                                        <i class="align-middle" data-feather="chevrons-down"></i>
-                                    </a>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-
+</div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         {% if messages %}

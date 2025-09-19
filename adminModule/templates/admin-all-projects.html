@@ -202,8 +202,8 @@
                     <tr>
                         <td>{{ forloop.counter }}</td>
                         <td>{{ p.title }}</td>
-                        <td>${{ p.funding_goal }}</td>
-                        <td>${{ p.current_amount }}</td>
+                        <td>₹{{ p.funding_goal }}</td>
+                        <td>₹{{ p.current_amount }}</td>
                         <td>{{ p.created_at|date:"M d, Y" }}</td>
                         <td>{{ p.closing_date|date:"M d, Y" }}</td>
                         <td class="{% if p.current_amount >= p.funding_goal %}text-success
