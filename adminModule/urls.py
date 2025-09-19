@@ -23,6 +23,9 @@ urlpatterns = [
 
     path('update-bank/',views.adminUpdateBankDetails, name='update_bank'),
 
+    path('contact-message/',views.adminContactMessage),
+    path('send-reply/<int:msg_id>/',views.adminMessageReply),
+
     path('all-project/',views.adminAllProject),
     path('add-project/', views.adminAddProject, name='admin_add_project'),
     path('single-project/<int:pid>/',views.adminSingleProject),

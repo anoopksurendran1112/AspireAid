@@ -131,72 +131,116 @@
 
 
 <!---------------------- All Institution Table Details -------------------->
-   <div class="row">
-        <div class="col-12 ">
-            <h1 class="mb-4"><strong>All Institutional Details</strong></h1>
-            <div class="card data-card pb-5">
-                <div class="card-header text-end">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#institutionModal" data-action-type="add">
-                        Add a new Institution +
-                    </button>
+    <div class="row">
+    <div class="col-12 ">
+        <h1 class="mb-3"><strong>Institutional</strong> Details</h1>
+        <div class="card data-card py-3">
+            <div class="card-header d-flex justify-content-end align-items-center">
+                <button type="button" class="btn btn-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#institutionModal" data-action-type="add">
+                    <i class="align-middle me-1" data-feather="plus"></i> Register a new Institution
+                </button>
+                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
+                    <i class="align-middle me-1" data-feather="filter"></i> Advanced Filter
+                </button>
+            </div>
+
+            <div class="collapse" id="advancedFilterCollapse">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="institution_name" name="institution_name" placeholder="Enter Institution Name">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="email_filter" name="email_filter" placeholder="Enter Email Address">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="phone_filter" name="phone_filter" placeholder="Enter Phone number">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="status_filter" class="form-label">Status</label>
+                            <select id="status_filter" name="status_filter" class="form-select">
+                                <option value="">All</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="order_by_name" class="form-label">Order by Name</label>
+                            <select id="order_by_name" name="name_order" class="form-select">
+                                <option value="">None</option>
+                                <option value="asc">Ascending</option>
+                                <option value="desc">Descending</option>
+                            </select>
+                        </div>
+                        <div class="col-12 text-end mt-3">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="align-middle me-1" data-feather="check"></i> Apply Filters
+                            </button>
+                            <a href="." class="btn btn-danger">
+                                <i class="align-middle me-1" data-feather="x"></i> Clear Filters
+                            </a>
+                        </div>
+                    </form>
                 </div>
-                <div class="card-body table-responsive pb-0">
-                    <table class="table table-hover my-0">
-                        <thead class="table-dark">
-                        <tr>
-                            <th>Sl no.</th>
-                            <th>Institution Name</th>
-                            <th>Email Address</th>
-                            <th>Contact Number</th>
-                            <th>Institution Address</th>
-                            <th>Status</th>
-                            <th colspan="3" class="text-center">Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for i in institutions %}
-                        <tr>
-                            <td>{{forloop.counter}}</td>
-                            <td>{{i.institution_name}}</td>
-                            <td>{{i.email}}</td>
-                            <td>{{i.phn}}</td>
-                            <td>{{i.address}}</td>
-                            <td>
+            </div>
+
+            <div class="card-body table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Sl no.</th>
+                        <th>Institution Name</th>
+                        <th>Email Address</th>
+                        <th>Contact Number</th>
+                        <th>Institution Address</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in institutions %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{i.institution_name}}</td>
+                        <td>{{i.email}}</td>
+                        <td>{{i.phn}}</td>
+                        <td>{{i.address}}</td>
+                        <td class="text-center {% if i.table_status %} text-success {% else %} text-danger {% endif %}">
+                            {% if i.table_status %}
+                                <strong>Active</strong>
+                            {% else %}
+                                <strong>Inactive</strong>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#institutionViewModal" data-action-type="view"
+                                   data-inst-id="{{ i.id }}" data-inst-name="{{ i.institution_name }}" data-inst-email="{{ i.email }}"
+                                   data-inst-phn="{{ i.phn }}" data-inst-address="{{ i.address }}">
+                                    <i class="align-middle" data-feather="edit"></i>
+                                </a>
                                 {% if i.table_status %}
-                                <strong class="text-success">Active</strong>
+                                <a class="btn btn-success btn-sm" href="/administrator/change-institution-status/{{i.id}}/">
+                                    <i class="align-middle" data-feather="toggle-right"></i>
+                                </a>
                                 {% else %}
-                                <strong class="text-danger">Inactive</strong>
+                                <a class="btn btn-secondary btn-sm" href="/administrator/change-institution-status/{{i.id}}/">
+                                    <i class="align-middle" data-feather="toggle-left"></i>
+                                </a>
                                 {% endif %}
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <a class="me-3" data-bs-toggle="modal" data-bs-target="#institutionViewModal" data-action-type="view"
-                                       data-inst-id="{{ i.id }}" data-inst-name="{{ i.institution_name }}" data-inst-email="{{ i.email }}"
-                                       data-inst-phn="{{ i.phn }}" data-inst-address="{{ i.address }}">
-                                        <i class="align-middle" data-feather="edit"></i>
-                                    </a>
-                                    {% if i.table_status %}
-                                    <a class="me-3 text-success" href="/administrator/change-institution-status/{{i.id}}/">
-                                        <i class="align-middle" data-feather="chevrons-up"></i>
-                                    </a>
-                                    {% else %}
-                                    <a class="me-3 text-danger" href="/administrator/change-institution-status/{{i.id}}/">
-                                        <i class="align-middle" data-feather="chevrons-down"></i>
-                                    </a>
-                                    {% endif %}
-                                    <button type="button" class="btn text-danger" data-bs-toggle="modal" data-bs-target="#permanentDeleteModal" data-inst-id="{{ i.id }}">
-                                        <i class="align-middle" data-feather="trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#permanentDeleteModal" data-inst-id="{{ i.id }}">
+                                    <i class="align-middle" data-feather="trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

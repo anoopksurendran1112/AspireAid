@@ -1,7 +1,7 @@
 {% extends 'admin-dashboard.html' %}
 {% block content %}
 <!---------------------- All Institution Table Details -------------------->
-    <div class="row">
+<div class="row">
     <div class="col-12">
         <h1 class="mb-3"><strong>Receipts</strong></h1>
         <div class="card data-card py-3">
@@ -80,7 +80,7 @@
                         <td>{{ r.transaction.sender.first_name }} {{ r.transaction.sender.last_name }}</td>
                         <td>{{ r.transaction.tiles_bought.tiles }}</td>
                         <td>{{ r.tile_count }}</td>
-                        <td>${{ r.transaction.amount }}</td>
+                        <td>₹{{ r.transaction.amount }}</td>
                         <td class="text-center">
                             <a class="btn btn-info btn-sm" href="/administrator/verify-transaction/{{ r.transaction.id }}/">
                                 <i class="align-middle" data-feather="info"></i> View

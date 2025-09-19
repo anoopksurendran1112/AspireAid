@@ -4,46 +4,42 @@
 
     <!-- Start project Area -->
     <section class="project-area section-gap" id="project">
-        <div class="container-fluid">
-            <div class="row d-flex justify-content-center">
-                <div class="col-md-8 pb-80 header-text">
-                    <h1>Waiting for Help</h1>
-                    <p>
-                         A little help from you can change a life forever. Your support connects hearts to dreams that need a chance. Every contribution brings smiles, hope, and brighter tomorrows. Stay close to the journey of the lives you touch. Together, let’s spread kindness and create lasting impact. Because when we give, we build a future for all.
-                    </p>
-                </div>
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-8 pb-80 header-text">
+                <h1>Waiting for Help</h1>
+                <p>
+                    A little help from you can change a life forever. Your support connects hearts to dreams that need a chance. Every contribution brings smiles, hope, and brighter tomorrows. Stay close to the journey of the lives you touch. Together, let’s spread kindness and create lasting impact. Because when we give, we build a future for all.
+                </p>
             </div>
         </div>
-        <div class="container">
-            <div class="row">
-                {% for p in prj %}
-                <div class="col-lg-4 col-md-4 project-wrap">
-                    <div class="single-project">
-                        <div class="content">
-                            <a href="#" target="_blank">
-                              <div class="content-overlay"></div>
-                                {% if p.images.first %}
-                                    <img class="content-image img-fluid d-block mx-auto" src="{{ p.images.first.project_img.url }}" alt="{{ p.title }} project image">
-                                 {% else %}
-                                    <img class="content-image img-fluid d-block mx-auto" src="{% static 'frontend/img/p1.jpg' %}" alt="Default image">
-                                 {% endif %}
-                                <div class="content-details fadeIn-bottom">
-                                    <a href="/user/{{ins.id}}/single-project/{{p.id}}/" class="head-btn btn text-uppercase">Donate Now</a>
-                                </div>
-                            </a>
-                         </div>
+        <div class="row">
+            {% for p in prj %}
+            <div class="col-lg-4 col-md-4 project-wrap">
+                <div class="single-project">
+                    <div class="content" style="height: 300px;">
+                        <a href="/user/{{ins.id}}/single-project/{{p.id}}/" class="d-block w-100 h-100 position-relative">
+                            <div class="content-overlay"></div>
+                            {% if p.images.first %}
+                                <img class="content-image img-fluid d-block w-100 h-100 object-fit-cover" src="{{ p.images.first.project_img.url }}" alt="{{ p.title }} project image">
+                            {% else %}
+                                <img class="content-image img-fluid d-block w-100 h-100 object-fit-cover" src="{% static 'frontend/img/p1.jpg' %}" alt="Default image">
+                            {% endif %}
+                            <div class="content-details fadeIn-bottom">
+                                <span class="head-btn btn text-uppercase">Donate Now</span>
+                            </div>
+                        </a>
                     </div>
-                    <div class="details">
-                        <a href="#"><h2>{{p.title}}</h2></a>
-                        <p>{{p.description}}</p>
-                        <a class="text-uppercase" href="/user/{{ins.id}}/single-project/{{p.id}}/">view more</a>
-                    </div>
-
                 </div>
-                {% endfor %}
+                <div class="details">
+                    <a href="/user/{{ins.id}}/single-project/{{p.id}}/"><h2>{{p.title}}</h2></a>
+                    <p>{{p.description}}</p>
+                </div>
             </div>
+            {% endfor %}
         </div>
-    </section>
+    </div>
+</section>
     <!-- End project Area -->
 
 {% endblock %}

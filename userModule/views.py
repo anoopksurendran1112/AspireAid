@@ -29,14 +29,7 @@ def contact_us(request,ins_id):
         phone = request.POST.get('phone')
         message = request.POST.get('message')
 
-        # Create and save a new ContactMessage object
-        ContactMessage.objects.create(
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            phone=phone,
-            message=message
-        )
+        ContactMessage.objects.create(first_name=first_name,last_name=last_name,email=email,phone=phone,message=message, ins=ins)
         return redirect(f'/user/{ins.id}/contact-us/')
     return render(request,'contact-us.html', {'ins':ins})
 
@@ -62,6 +55,8 @@ def userSingleProject(request, prj_id, ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
     prj = get_object_or_404(Project, id=prj_id, table_status=True)
 
+    prj.progress = round((prj.current_amount / prj.funding_goal) * 100,
+                             3) if prj.funding_goal > 0 else 0
     total_tiles = int(prj.funding_goal // prj.tile_value)
 
     if request.method == "POST":
@@ -147,7 +142,7 @@ def userCheckoutView(request, ins_id):
             proof_upload_url = f'{ins_id}/proof/{transaction.id}'
 
             # sms_result = sms_send_initiated(transaction, proof_upload_url)
-            whatsapp_result = whatsapp_send_initiated(transaction, request.build_absolute_uri(proof_upload_url))
+            whatsapp_result = whatsapp_send_initiated(transaction, proof_upload_url)
             email_success, email_message = email_send_initiated(transaction, request.build_absolute_uri(f'/user/{proof_upload_url}/'))
 
             all_notifications_sent = True

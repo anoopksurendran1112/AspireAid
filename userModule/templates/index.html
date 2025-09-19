@@ -1,260 +1,261 @@
 <!DOCTYPE html>
 {% load static %}
-	<html lang="zxx" class="no-js">
-	<head>
-		<!-- Mobile Specific Meta -->
-		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<!-- Favicon-->
-		<link rel="shortcut icon" href="{% static 'frontend/img/AspireAid_logo.png' %}">
-		<!-- Author Meta -->
-		<meta name="author" content="Colorlib">
-		<!-- Meta Description -->
-		<meta name="description" content="">
-		<!-- Meta Keyword -->
-		<meta name="keywords" content="">
-		<!-- meta character set -->
-		<meta charset="UTF-8">
-		<!-- Site Title -->
-		<title>AspireAid</title>
+<html lang="zxx" class="no-js">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="author" content="Kochi Digital">
+        <meta name="description" content="AspireAid is a community-driven platform for charitable crowdfunding. Donate tiles to support projects and transform lives.">
+        <meta name="keywords" content="crowdfunding, charity, donation, social good, projects, philanthropy, community support, tiles, AspireAid">
 
-		<link href="https://fonts.googleapis.com/css?family=Poppins:100,200,400,300,500,600,700" rel="stylesheet">
-			<!--
-			CSS
-			============================================= -->
-			<link rel="stylesheet" href="{% static 'frontend/css/linearicons.css' %}">=
-			<link rel="stylesheet" href="{% static 'frontend/css/font-awesome.min.css' %}">
-			<link rel="stylesheet" href="{% static 'frontend/css/magnific-popup.css' %}">
-			<link rel="stylesheet" href="{% static 'frontend/css/nice-select.css' %}">
-			<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-			<link rel="stylesheet" href="{% static 'frontend/css/bootstrap.css' %}">
-			<link rel="stylesheet" href="{% static 'frontend/css/main.css' %}">
-		</head>
-		<body>
+        <meta name="robots" content="index, follow">
+        <meta name="googlebot" content="index, follow">
 
-			<!-- Start Header Area -->
-			<header class="default-header">
-				<div class="container-fluid px-5">
-					<div class="header-wrap">
-						<div class="header-top d-flex justify-content-between align-items-center">
-							<div class="logo">
-								<a href="/user/{{ins.id}}/" class=" d-flex justify-content-between align-items-center">
-                                    {% if ins.institution_img %}
-                                    <img src="{{ ins.institution_img.url}}" alt="Logo"  style="width:50px;">
+        {% if ins.institution_img %}
+        <link rel="shortcut icon" href="{{ ins.institution_img.url}}">
+        {% else %}
+        <link rel="shortcut icon" href="{% static 'frontend/img/default_logo.jpg' %}">
+        {% endif %}
+
+        <title>{{ ins.institution_name }} | AspireAid</title>
+
+        <meta name="theme-color" content="#188151">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+        <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,400,300,500,600,700" rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'frontend/css/linearicons.css' %}">
+        <link rel="stylesheet" href="{% static 'frontend/css/font-awesome.min.css' %}">
+        <link rel="stylesheet" href="{% static 'frontend/css/bootstrap.css' %}">
+        <link rel="stylesheet" href="{% static 'frontend/css/main.css' %}">
+    </head>
+    <body>
+    <!-- Start Header Area -->
+        <header class="default-header">
+            <div class="container-fluid px-5">
+                <div class="header-wrap">
+                    <div class="header-top d-flex justify-content-between align-items-center">
+                        <div class="logo">
+                            <a href="/user/{{ins.id}}/" class=" d-flex justify-content-between align-items-center">
+                                {% if ins.institution_img %}
+                                <img src="{{ ins.institution_img.url}}" alt="Logo"  style="width:50px;">
+                                {% else %}
+                                <img src="{% static 'frontend/img/default_logo' %}" alt="Logo"  style="width:50px;">
+                                {% endif %}
+                                <h4>{{ins.institution_name}}</h4>
+                            </a>
+                        </div>
+                        <div class="main-menubar d-flex align-items-center">
+                            <nav class="hide">
+                                <a href="/user/{{ins.id}}/">Home</a>
+                                <a href="/user/{{ins.id}}/all-project/">Projects</a>
+                                <a href="/user/{{ins.id}}/track-status/">Track Status</a>
+                                <a href="/user/{{ins.id}}/about/">About</a>
+                                <a href="/user/{{ins.id}}/contact-us/">Contact Us</a>
+                            </nav>
+                            <div class="menu-bar"><span class="lnr lnr-menu"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- End Header Area -->
+
+        {% block content %}
+
+        <!-- start banner Area -->
+        <section class="banner-area relative" id="home">
+            <div class="overlay overlay-bg"></div>
+            <div class="container-fluid px-5">
+                    <div class="row fullscreen align-items-center justify-content-start" style="height: 915px;">
+                        <div class="banner-content col-lg-9 col-md-12">
+                            <h1>
+                                Your Donation <br>
+                                is Others Inspiration
+                            </h1>
+                            <a href="/user/{{ins.id}}/all-project/" class="head-btn btn text-uppercase">Donate Now</a>
+                        </div>
+                    </div>
+            </div>
+        </section>
+        <!-- End banner Area -->
+
+        <!-- Start callto Area -->
+            <section class="callto-area relative">
+                <div class="container">
+                    <div class="row d-flex callto-wrap justify-content-between pt-40 pb-40">
+                        <h3 class="text-white">Your Heart, Their Hope.</h3>
+                        <a href="/user/{{ins.id}}/all-project/" class="head-btn head-btn2 btn text-uppercase">Donate Now</a>
+                    </div>
+                </div>
+            </section>
+        <!-- End callto Area -->
+
+
+        <!-- Start project Area -->
+        <section class="project-area section-gap" id="project">
+            <div class="container">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-md-8 pb-80 header-text">
+                        <h1>Waiting for Help</h1>
+                        <p>
+                            A little help from you can change a life forever. Your support connects hearts to dreams that need a chance. Every contribution brings smiles, hope, and brighter tomorrows. Stay close to the journey of the lives you touch. Together, let’s spread kindness and create lasting impact. Because when we give, we build a future for all.
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    {% for p in prj %}
+                    <div class="col-lg-4 col-md-4 project-wrap">
+                        <div class="single-project">
+                            <div class="content" style="height: 300px;">
+                                <a href="/user/{{ins.id}}/single-project/{{p.id}}/" class="d-block w-100 h-100 position-relative">
+                                    <div class="content-overlay"></div>
+                                    {% if p.images.first %}
+                                        <img class="content-image img-fluid d-block w-100 h-100 object-fit-cover" src="{{ p.images.first.project_img.url }}" alt="{{ p.title }} project image">
+                                    {% else %}
+                                        <img class="content-image img-fluid d-block w-100 h-100 object-fit-cover" src="{% static 'frontend/img/p1.jpg' %}" alt="Default image">
                                     {% endif %}
-                                    <h4>{{ins.institution_name}}</h4>
-                                </a>
-							</div>
-							<div class="main-menubar d-flex align-items-center">
-								<nav class="hide">
-									<a href="/user/{{ins.id}}/">Home</a>
-									<a href="/user/{{ins.id}}/all-project/">Projects</a>
-									<a href="/user/{{ins.id}}/track-status/">Track Status</a>
-									<a href="/user/{{ins.id}}/about/">About</a>
-									<a href="/user/{{ins.id}}/contact-us/">Contact Us</a>
-								</nav>
-								<div class="menu-bar"><span class="lnr lnr-menu"></span></div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</header>
-			<!-- End Header Area -->
-
-            {% block content %}
-
-			<!-- start banner Area -->
-			<section class="banner-area relative" id="home">
-				<div class="overlay overlay-bg"></div>
-				<div class="container-fluid px-5">
-						<div class="row fullscreen align-items-center justify-content-start" style="height: 915px;">
-							<div class="banner-content col-lg-9 col-md-12">
-								<h1>
-									Your Donation <br>
-									is Others Inspiration
-								</h1>
-								<a href="/user/{{ins.id}}/all-project/" class="head-btn btn text-uppercase">Donate Now</a>
-							</div>
-						</div>
-				</div>
-			</section>
-			<!-- End banner Area -->
-
-			<!-- Start callto Area -->
-				<section class="callto-area relative">
-					<div class="container">
-						<div class="row d-flex callto-wrap justify-content-between pt-40 pb-40">
-							<h3 class="text-white">Your Heart, Their Hope.</h3>
-							<a href="/user/{{ins.id}}/all-project/" class="head-btn head-btn2 btn text-uppercase">Donate Now</a>
-						</div>
-					</div>
-				</section>
-			<!-- End callto Area -->
-
-
-			<!-- Start project Area -->
-			<section class="project-area section-gap" id="project">
-				<div class="container">
-					<div class="row d-flex justify-content-center">
-						<div class="col-md-8 pb-80 header-text">
-							<h1>Waiting for Help</h1>
-							<p>
-								 A little help from you can change a life forever. Your support connects hearts to dreams that need a chance. Every contribution brings smiles, hope, and brighter tomorrows. Stay close to the journey of the lives you touch. Together, let’s spread kindness and create lasting impact. Because when we give, we build a future for all.
-							</p>
-						</div>
-					</div>
-					<div class="row">
-                        {% for p in prj %}
-						<div class="col-lg-4 col-md-4 project-wrap">
-							<div class="single-project">
-								<div class="content">
-								    <a href="#" target="_blank">
-								      <div class="content-overlay"></div>
-								  		 {% if p.images.first %}
-                                            <img class="content-image img-fluid d-block mx-auto" src="{{ p.images.first.project_img.url }}" alt="{{ p.title }} project image">
-                                         {% else %}
-                                            <img class="content-image img-fluid d-block mx-auto" src="{% static 'frontend/img/p1.jpg' %}" alt="Default image">
-                                         {% endif %}
-								      	<div class="content-details fadeIn-bottom">
-								      		<a href="/user/{{ins.id}}/single-project/{{p.id}}/" class="head-btn btn text-uppercase">Donate Now</a>
-								      	</div>
-								    </a>
-								 </div>
-							</div>
-							<div class="details">
-								<a href="#"><h2>{{p.title}}</h2></a>
-						  		<p>{{p.description}}</p>
-							</div>
-
-						</div>
-                        {% endfor %}
-					</div>
-                    <div class="text-center mt-4">
-                        <h2>
-                            <a class="text-muted" href="/user/{{ins.id}}/all-project/"><strong>View All</strong></a>
-                        </h2>
-                    </div>
-				</div>
-			</section>
-			<!-- End project Area -->
-
-			<!-- Start about Area -->
-			<section class="about-area" id="about">
-				<div class="container-fluid">
-					<div class="row d-flex justify-content-end align-items-center">
-						<div class="col-lg-6 col-md-12 about-left no-padding">
-							<img class="img-fluid" src="{% static 'frontend/img/about-img.jpg' %}" alt="">
-						</div>
-						<div class="col-lg-6 col-md-12 about-right">
-							<h1>Our Unified Mission</h1>
-							<p>
-								Join hands with us to support meaningful projects that shape young minds. Every contribution strengthens student welfare, promotes academic innovation, and enhances the institution’s community initiatives. Whether you are a well-wisher, partner, or esteemed alumnus, your support creates opportunities, fosters growth, and leaves a lasting impact on future generations.</p>
-							<button class="primary-btn mt-20 text-uppercase ">Start Contributing<span class="lnr lnr-arrow-right"></span></button>
-						</div>
-					</div>
-				</div>
-			</section>
-			<!-- End about Area -->
-
-			<!-- Start Contact Area -->
-			    <section class="donate-area relative section-gap" id="donate">
-                    <div class="overlay overlay-bg"></div>
-                    <div class="container">
-                        <div class="row d-flex justify-content-end">
-                            <div class="col-12 pb-50 header-text">
-                                <h1 class="display-4">Get in Touch</h1>
-                                <p class=" text-white">
-                                    We'd love to hear from you! Whether you have a question about a project, need assistance with a donation, or want to discuss a new idea, our team is here to help.
-                                    Your feedback and support are vital to our community's success. Feel free to reach out—together, we can continue to make a difference.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="row d-flex justify-content-center">
-                            <div class="col-lg-6 contact-left">
-                                <div class="mb-5 text-white">
-                                    <h4 class="lead mb-2"><strong>Official College Address</strong></h4>
-                                    <address class="text-muted">
-                                        {{ins.address}}
-                                    </address>
-                                </div>
-
-                                <div class="mb-5 text-white">
-                                    <h4 class="lead mb-2"><strong>Contact Numbers</strong></h4>
-                                    <p class="mb-0"><a class="text-muted" href="tel:[{{ins.phn}}]">+91-{{ins.phn}}</a></p>
-                                    <p class="mb-0"><a class="text-muted" href="tel:[{{ins.phn}}]">+91-{{ins.phn}}</a></p>
-                                </div>
-
-                                <div class="mb-5 text-white">
-                                    <h4 class="lead mb-2"><strong>Official Email</strong></h4>
-                                    <p class="mb-0"><a class="text-muted"  href="mailto:{{ins.email}}">{{ins.email}}</a></p>
-                                </div>
-                            </div>
-                            <div class="col-lg-6 contact-right">
-                                <h4 class="lead mb-2 text-white"><strong>Send us a message</strong></h4>
-                                <form class="booking-form">
-                                    <div class="row">
-                                        <div class="col-lg-6 d-flex flex-column">
-                                            <input name="fname" placeholder="Enter your first  name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your first name'" class="form-control mt-20" type="text" required>
-                                        </div>
-                                        <div class="col-lg-6 d-flex flex-column">
-                                            <input name="fname" placeholder="Enter your last name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your last name'" class="form-control mt-20" type="text" required>
-                                        </div>
-                                        <div class="col-lg-12 d-flex flex-column">
-                                            <input name="email" placeholder="Enter email address" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,63}$" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'" class="form-control mt-20" required type="email">
-                                        </div>
-                                        <div class="col-lg-12 d-flex flex-column">
-                                            <input name="phone" placeholder="Enter phone number" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter phone number'" class="form-control mt-20" required type="tel" pattern="[0-9]{10}" title="Enter a 10-digit phone number">
-                                            <textarea class="form-control mt-20" name="message" placeholder="Messege" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Messege'" required=""></textarea>
-                                        </div>
-                                        <div class="col-lg-12 d-flex justify-content-start send-btn">
-                                            <button type="submit" class="submit-btn primary-btn mt-20 text-uppercase ">Send Message</button>
-                                        </div>
+                                    <div class="content-details fadeIn-bottom">
+                                        <span class="head-btn btn text-uppercase">Donate Now</span>
                                     </div>
-                                </form>
+                                </a>
                             </div>
                         </div>
+                        <div class="details">
+                            <a href="/user/{{ins.id}}/single-project/{{p.id}}/"><h2>{{p.title}}</h2></a>
+                            <p>{{p.description}}</p>
+                        </div>
                     </div>
-                </section>
+                    {% endfor %}
+                </div>
+                <div class="text-center mt-4">
+                    <h2>
+                        <a class="text-muted" href="/user/{{ins.id}}/all-project/"><strong>View All</strong></a>
+                    </h2>
+                </div>
+            </div>
+        </section>
+        <!-- End project Area -->
 
-			<!-- End Contact Area -->
+        <!-- Start about Area -->
+        <section class="about-area" id="about">
+            <div class="container-fluid">
+                <div class="row d-flex justify-content-end align-items-center">
+                    <div class="col-lg-6 col-md-12 about-left no-padding">
+                        <img class="img-fluid" src="{% static 'frontend/img/about-img.jpg' %}" alt="">
+                    </div>
+                    <div class="col-lg-6 col-md-12 about-right">
+                        <h1>Our Unified Mission</h1>
+                        <p>
+                            Join hands with us to support meaningful projects that shape young minds. Every contribution strengthens student welfare, promotes academic innovation, and enhances the institution’s community initiatives. Whether you are a well-wisher, partner, or esteemed alumnus, your support creates opportunities, fosters growth, and leaves a lasting impact on future generations.</p>
+                        <button class="primary-btn mt-20 text-uppercase ">Start Contributing<span class="lnr lnr-arrow-right"></span></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End about Area -->
 
-            {% endblock %}
+        <!-- Start Contact Area -->
+            <section class="donate-area relative section-gap" id="donate">
+                <div class="overlay overlay-bg"></div>
+                <div class="container">
+                    <div class="row d-flex justify-content-end">
+                        <div class="col-12 pb-50 header-text">
+                            <h1 class="display-4">Get in Touch</h1>
+                            <p class=" text-white">
+                                We'd love to hear from you! Whether you have a question about a project, need assistance with a donation, or want to discuss a new idea, our team is here to help.
+                                Your feedback and support are vital to our community's success. Feel free to reach out—together, we can continue to make a difference.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-lg-6 contact-left">
+                            <div class="mb-5 text-white">
+                                <h4 class="lead mb-2"><strong>Official College Address</strong></h4>
+                                <address class="text-muted">
+                                    {{ins.address}}
+                                </address>
+                            </div>
 
-			<!-- start footer Area -->
-			<footer class="footer-area section-gap">
-				<div class="container-fluid px-5">
-					<div class="row d-flex flex-column justify-content-center">
-						<ul class="footer-menu">
-							<li><a href="/user/index/{{ins.id}}/">Home</a></li>
-							<li><a href="/avail-projects/">Projects</a></li>
-							<li><a href="/sign-in/">Track Status</a></li>
-							<li><a href="/about/">About</a></li>
-							<li><a href="/contact-us/">Contact us</a></li>
-						</ul>
-						<div class="footer-social">
-							<a href="#"><i class="fa fa-facebook"></i></a>
-							<a href="#"><i class="fa fa-twitter"></i></a>
-							<a href="#"><i class="fa fa-dribbble"></i></a>
-							<a href="#"><i class="fa fa-behance"></i></a>
-						</div>
-						<p class="footer-text m-0">
-							<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-							Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | <a href="https://kochi.digital/" target="_blank">Kochi Digital</a>
-							<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-						</p>
-					</div>
-				</div>
-			</footer>
-			<!-- End footer Area -->
+                            <div class="mb-5 text-white">
+                                <h4 class="lead mb-2"><strong>Contact Numbers</strong></h4>
+                                <p class="mb-0"><a class="text-muted" href="tel:[{{ins.phn}}]">+91-{{ins.phn}}</a></p>
+                                <p class="mb-0"><a class="text-muted" href="tel:[{{ins.phn}}]">+91-{{ins.phn}}</a></p>
+                            </div>
 
-			<script src="{% static 'frontend/js/vendor/jquery-2.2.4.min.js' %}"></script>
-			<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
-			<script src="{% static 'frontend/js/vendor/bootstrap.min.js' %}"></script>
-			<script src="{% static 'frontend/js/jquery.ajaxchimp.min.js' %}"></script>
-			<script src="{% static 'frontend/js/jquery.nice-select.min.js' %}"></script>
-			<script src="{% static 'frontend/js/jquery.sticky.js' %}"></script>
-			<script src="{% static 'frontend/js/parallax.min.js' %}"></script>
-			<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-			<script src="{% static 'frontend/js/jquery.magnific-popup.min.js' %}"></script>
-			<script src="{% static 'frontend/js/main.js' %}"></script>
-		</body>
-	</html>
+                            <div class="mb-5 text-white">
+                                <h4 class="lead mb-2"><strong>Official Email</strong></h4>
+                                <p class="mb-0"><a class="text-muted"  href="mailto:{{ins.email}}">{{ins.email}}</a></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 contact-right">
+                            <h4 class="lead mb-2 text-white"><strong>Send us a message</strong></h4>
+                            <form class="booking-form">
+                                <div class="row">
+                                    <div class="col-lg-6 d-flex flex-column">
+                                        <input name="fname" placeholder="Enter your first  name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your first name'" class="form-control mt-20" type="text" required>
+                                    </div>
+                                    <div class="col-lg-6 d-flex flex-column">
+                                        <input name="fname" placeholder="Enter your last name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your last name'" class="form-control mt-20" type="text" required>
+                                    </div>
+                                    <div class="col-lg-12 d-flex flex-column">
+                                        <input name="email" placeholder="Enter email address" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,63}$" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'" class="form-control mt-20" required type="email">
+                                    </div>
+                                    <div class="col-lg-12 d-flex flex-column">
+                                        <input name="phone" placeholder="Enter phone number" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter phone number'" class="form-control mt-20" required type="tel" pattern="[0-9]{10}" title="Enter a 10-digit phone number">
+                                        <textarea class="form-control mt-20" name="message" placeholder="Messege" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Messege'" required=""></textarea>
+                                    </div>
+                                    <div class="col-lg-12 d-flex justify-content-start send-btn">
+                                        <button type="submit" class="submit-btn primary-btn mt-20 text-uppercase ">Send Message</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        <!-- End Contact Area -->
+
+        {% endblock %}
+
+        <!-- start footer Area -->
+        <footer class="footer-area section-gap">
+            <div class="container-fluid px-5">
+                <div class="row d-flex flex-column justify-content-center">
+                    <ul class="footer-menu">
+                        <li><a href="/user/{{ins.id}}/">Home</a></li>
+                        <li><a href="/user/{{ins.id}}/all-project/">Projects</a></li>
+                        <li><a href="/user/{{ins.id}}/track-status/">Track Status</a></li>
+                        <li><a href="/user/{{ins.id}}/about/">About</a></li>
+                        <li><a href="/user/{{ins.id}}/contact-us/">Contact us</a></li>
+                    </ul>
+                    <div class="footer-social">
+                        <a href="#"><i class="fa fa-facebook"></i></a>
+                        <a href="#"><i class="fa fa-twitter"></i></a>
+                        <a href="#"><i class="fa fa-dribbble"></i></a>
+                        <a href="#"><i class="fa fa-behance"></i></a>
+                    </div>
+                    <p class="footer-text m-0">
+                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                        Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | <a href="https://kochi.digital/" target="_blank">Kochi Digital</a>
+                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                    </p>
+                </div>
+            </div>
+        </footer>
+        <!-- End footer Area -->
+
+        <script src="{% static 'frontend/js/vendor/jquery-2.2.4.min.js' %}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+        <script src="{% static 'frontend/js/vendor/bootstrap.min.js' %}"></script>
+        <script src="{% static 'frontend/js/jquery.ajaxchimp.min.js' %}"></script>
+        <script src="{% static 'frontend/js/jquery.nice-select.min.js' %}"></script>
+        <script src="{% static 'frontend/js/jquery.sticky.js' %}"></script>
+        <script src="{% static 'frontend/js/parallax.min.js' %}"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script src="{% static 'frontend/js/jquery.magnific-popup.min.js' %}"></script>
+        <script src="{% static 'frontend/js/main.js' %}"></script>
+    </body>
+</html>

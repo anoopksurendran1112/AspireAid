@@ -2,214 +2,212 @@
 {% load static %}
 {% block content %}
 
-    <section class="project-area section-gap" id="project">
-        <div class="container">
-            <div class="card data-card ">
-                <div class="card-header">
-                    <h1 class="text-center my-2"><strong>Upload Proof</strong></h1>
-                </div>
-                <div class="card-body px-5 py-5">
-                    <div class="invoice-title text-dark">
-                        <div class="row">
-                            <div class="col-12 mb-4">
-                                <div class="my-2">
-                                   <h2>Buyer Details</h2>
-                                </div>
-                                <table class="table table-borderless">
-                                    <tbody>
-                                        <tr>
-                                            <th>Full name:</th>
-                                            <td><strong>{{tra.sender.first_name}} {{tra.sender.last_name}}</strong></td>
-                                        </tr>
-                                        <tr>
-                                            <th>Email:</th>
-                                            <td><strong>{{tra.sender.email}}</strong></td>
-                                        </tr>
-                                        <tr>
-                                            <th>Phone:</th>
-                                            <td><strong>{{tra.sender.phone}}</strong></td>
-                                        </tr>
-                                        <tr>
-                                            <th>Address:</th>
-                                            <td><strong>{{tra.sender.address}}</strong></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-md-6 col-sm-12">
-                                <div class="mb-2">
-                                    <h3>Project Details</h3>
-                                </div>
-                                <table class="table table-borderless">
-                                    <tbody>
-                                        <tr>
-                                            <th>Project:</th>
-                                            <td><strong>{{tra.project.title}}</strong></td>
-                                        </tr>
-                                        <tr>
-                                            <th>Target:</th>
-                                            <td><strong>{{tra.project.funding_goal}}</strong></td>
-                                        </tr>
-                                        <tr>
-                                            <th>Created on:</th>
-                                            <td><strong>{{tra.project.created_at}}</strong></td>
-                                        </tr>
-                                        <tr>
-                                            <th>Closing by:</th>
-                                            <td><strong>{{tra.project.closing_date}}</strong></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-md-6 col-sm-12" >
-                                <div class="mb-2">
-                                    <h3>Beneficiary Details</h3>
-                                </div>
-                                <table class="table table-borderless">
-                                    <tbody>
-                                        <tr>
-                                            <th>Beneficiary name:</th>
-                                            <td><strong>{{tra.project.beneficiary.first_name}} {{tra.project.beneficiary.last_name}}</strong></td>
-                                        </tr>
-                                        <tr>
-                                            <th>Beneficiary age:</th>
-                                            <td><strong>{{tra.project.beneficiary.age}} years old</strong></td>
-                                        </tr>
-                                        <tr>
-                                            <th>Beneficiary phone:</th>
-                                            <td><strong>{{tra.project.beneficiary.phone_number}}</strong></td>
-                                        </tr>
-                                        <tr>
-                                            <th>Beneficiary address:</th>
-                                            <td><strong>{{tra.project.beneficiary.address}}</strong></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-12 table-responsive">
-                                <hr class="my-4">
-                                <table class="table align-middle table-nowrap table-centered">
-                                    <thead class="bg-dark text-white">
-                                        <tr>
-                                            <th>Selected Tiles</th>
-                                            <th>Tile Value</th>
-                                            <th>Quantity</th>
-                                            <th class="text-end" style="width: 120px;">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="total-details" data-tile-value="{{ tra.project.tile_value }}" data-count="{{ count }}">
-                                        <tr>
-                                            <td>
-                                                <div>
-                                                    <h5 class="text-truncate font-size-14 mb-1">{{tra.tiles_bought.tiles}}</h5>
-                                                </div>
-                                            </td>
-                                            <td>{{tra.project.tile_value}} Rs</td>
-                                            <td>{{count}}</td>
-                                            <td class="text-end" style="width: 120px;">
-                                                <span id="calculated-total"></span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-12 table-responsive">
-                                <hr class="my-4">
-                                <table class="table table-borderless">
-                                    <tbody>
-                                        <tr>
-                                            <th>Tracking ID:</th>
-                                            <td><strong>{{tra.tracking_id}}</strong></td>
-                                        </tr>
-                                        <tr>
-                                            <th>Transaction Time:</th>
-                                            <td><strong>{{tra.transaction_time}}</strong></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+<section class="project-area section-gap" id="project">
+    <div class="container">
+        <div class="card data-card">
+            <div class="card-header text-center">
+                <h1 class="my-2"><strong>Upload Proof</strong></h1>
+            </div>
+            <div class="card-body p-4">
 
-                            <div class="col-12 table-responsive upload-proof-form">
-                                <hr class="my-4">
-                                <form id="upload-form" method="post" enctype="multipart/form-data">
-                                    {% csrf_token %}
-                                    <div class="mb-3">
-                                        <label for="proof-file" class="form-label" style="width:auto"><strong>Upload Proof of Payment:</strong></label>
-                                        <input type="file" class="form-control" id="proof-file" name="proof_of_payment" accept="image/*,application/pdf" required>
-                                    </div>
-                                    <div class="text-end">
-                                        <button type="submit" id="upload-button" class="btn btn-primary" disabled>
-                                            Submit Proof
-                                        </button>
-                                    </div>
-                                </form>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-12">
+                        <div class="card h-100 border-0">
+                            <div class="card-body">
+                                <h4 class="card-title mb-3">Buyer Details</h4>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <strong>Full name:</strong>
+                                        <span>{{ tra.sender.first_name }} {{ tra.sender.last_name }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <strong>Email:</strong>
+                                        <span>{{ tra.sender.email }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <strong>Phone:</strong>
+                                        <span>{{ tra.sender.phone }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <strong>Address:</strong>
+                                        <span>{{ tra.sender.address }}</span>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
+                </div>
 
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header bg-dark ">
+                                <h4 class="card-title text-white">Project Details</h4>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <strong>Project:</strong>
+                                        <span>{{ tra.project.title }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <strong>Target:</strong>
+                                        <span>₹{{ tra.project.funding_goal }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <strong>Created on:</strong>
+                                        <span>{{ tra.project.created_at|date:"F d, Y" }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <strong>Closing by:</strong>
+                                        <span>{{ tra.project.closing_date|date:"F d, Y" }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header bg-dark ">
+                                <h4 class="card-title text-white">Beneficiary Details</h4>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <strong>Name:</strong>
+                                        <span>{{ tra.project.beneficiary.first_name }} {{ tra.project.beneficiary.last_name }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <strong>Age:</strong>
+                                        <span>{{ tra.project.beneficiary.age }} years old</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <strong>Phone:</strong>
+                                        <span>+91-{{ tra.project.beneficiary.phone_number }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <strong>Address:</strong>
+                                        <span>{{ tra.project.beneficiary.address }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title mb-3">Transaction Summary</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle table-nowrap table-centered mb-0">
+                                <thead class="bg-dark text-white">
+                                    <tr>
+                                        <th>Selected Tiles</th>
+                                        <th>Tile Value</th>
+                                        <th>Quantity</th>
+                                        <th class="text-end">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="total-details" data-tile-value="{{ tra.project.tile_value }}" data-count="{{ count }}">
+                                    <tr>
+                                        <td>
+                                            <h6 class="text-truncate font-size-14 mb-1">{{ tra.tiles_bought.tiles }}</h6>
+                                        </td>
+                                        <td>₹{{ tra.project.tile_value }}</td>
+                                        <td>{{ count }}</td>
+                                        <td class="text-end text-black">
+                                            <strong><span id="calculated-total"></span></strong>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title mb-3">Payment Details</h4>
+                        <ul class="list-group list-group-flush">
+                             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <strong>Tracking ID:</strong>
+                                <strong><span>{{ tra.tracking_id }}</span></strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <strong>Transaction Time:</strong>
+                                <span>{{ tra.transaction_time|date:"F d, Y, h:i A" }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-3">Upload Proof of Payment</h4>
+                        <form id="upload-form" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="proof-file" class="form-label">Choose File</label>
+                                <input type="file" class="form-control" id="proof-file" name="proof_of_payment" accept="image/*,application/pdf" required>
+                                <div class="form-text">Accepted formats: images (.jpg, .png, etc.) and PDFs.</div>
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" id="upload-button" class="btn btn-primary" disabled>
+                                    Submit Proof
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Total Calculation Logic ---
+        const totalSpan = document.getElementById('calculated-total');
+        const tbody = document.getElementById('total-details');
 
-    <script>
-        {% if messages %}
-            {% for message in messages %}
-                Swal.fire({
-                    title: '{{ message.tags|title }}!',
-                    text: '{{ message }}',
-                    icon: '{{ message.tags }}',
-                    confirmButtonText: 'OK'
-                });
-            {% endfor %}
-        {% endif %}
-    </script>
+        if (tbody && totalSpan) {
+            const tileValue = parseFloat(tbody.dataset.tileValue);
+            const count = parseInt(tbody.dataset.count);
+            const total = tileValue * count;
+            totalSpan.textContent = `₹${total.toFixed(2)}`;
+        }
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Elements for total calculation
-            const totalSpan = document.getElementById('calculated-total');
-            const tbody = document.getElementById('total-details'); // Corrected selector
+        // --- Form Validation & Resubmission Prevention ---
+        const uploadForm = document.getElementById('upload-form');
+        const uploadButton = document.getElementById('upload-button');
+        const proofFile = document.getElementById('proof-file');
 
-            // Check if the element exists to prevent errors
-            if (tbody) {
-                const tileValue = parseFloat(tbody.dataset.tileValue);
-                const count = parseInt(tbody.dataset.count);
+        function checkFileSelected() {
+            uploadButton.disabled = proofFile.files.length === 0;
+        }
 
-                // Calculate the total and display it
-                const total = tileValue * count;
-                if (totalSpan) {
-                    totalSpan.textContent = `${total.toFixed(2)} Rs`;
-                }
-            }
+        proofFile.addEventListener('change', checkFileSelected);
 
-            // --- Form Validation Logic for the Upload Form ---
-            const uploadForm = document.getElementById('upload-form'); // Get the form element
-            const uploadButton = document.getElementById('upload-button');
-            const proofFile = document.getElementById('proof-file');
-
-            // Function to check if a file is selected
-            function checkFileSelected() {
-                if (proofFile.files.length > 0) {
-                    uploadButton.disabled = false;
-                } else {
-                    uploadButton.disabled = true;
-                }
-            }
-
-            // Add event listener to the file input
-            proofFile.addEventListener('change', checkFileSelected);
-
-            // --- Resubmission prevention logic ---
-            uploadForm.addEventListener('submit', () => {
-                // Disable the button and change its text on submission
-                uploadButton.disabled = true;
-                uploadButton.textContent = 'Submitting...';
-            });
+        uploadForm.addEventListener('submit', () => {
+            uploadButton.disabled = true;
+            uploadButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...`;
         });
-    </script>
+    });
+
+    // --- SweetAlert Messages ---
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                title: '{{ message.tags|title }}!',
+                text: '{{ message }}',
+                icon: '{{ message.tags }}',
+                confirmButtonText: 'OK'
+            });
+        {% endfor %}
+    {% endif %}
+</script>
+
 {% endblock %}

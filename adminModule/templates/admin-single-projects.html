@@ -3,138 +3,138 @@
 {% block content %}
 
 <!-------------------Modal for updating project details--------------------->
-    <div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Add a new Project</strong></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Add a new Project</strong></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form method="post" action="{% url 'admin_update_project' pid=project.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-lg-6 px-3">
+                            <h3 class="card-title my-2 text-black">Project Details</h3>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-floating mb-2">
+                                        <input type="text" class="form-control" id="projectTitle" placeholder="Enter the project title.. " name="title" value="{{project.title}}">
+                                        <label for="projectTitle">Project Title</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-floating mb-2">
+                                        <input type="text" class="form-control" id="fundingGoal" placeholder="Enter the funding goal.. " name="goal" value="{{project.funding_goal}}">
+                                        <label for="fundingGoal">Funding Goal</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-floating mb-2">
+                                        <input type="text" class="form-control" id="tileValue" placeholder="Enter tile value " name="tvalue" value="{{project.tile_value}}">
+                                        <label for="tileValue">Single Tile Value</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="form-floating mb-2">
+                                        <input type="date" class="form-control" id="closingDate" placeholder="Enter Closing Date " name="clsdate" value="{{ project.closing_date|date:'Y-m-d' }}">                                        <label for="closingDate">Closing Date</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="form-floating mb-2">
+                                        <textarea class="form-control" id="projectDesc" style="resize:none; height:75px;" placeholder="Enter the description..." name="desc">{{project.description}}</textarea>
+                                        <label for="projectDesc">Project Description</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-3">
+                            <h3 class="card-title my-2 text-black">Beneficiary Details</h3>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-floating mb-2">
+                                        <input type="text" class="form-control" id="fname" placeholder="Enter Firstname" name="fname" value="{{project.beneficiary.first_name}}">
+                                        <label for="fname">First Name</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-floating mb-2">
+                                        <input type="text" class="form-control" id="lname" placeholder="Enter Lastname" name="lname" value="{{project.beneficiary.last_name}}">
+                                        <label for="lname">Last Name</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="form-floating mb-2">
+                                        <input type="number" class="form-control" id="age"  placeholder="Enter Age " name="age" value="{{project.beneficiary.age}}">
+                                        <label for="age">Enter Age</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="form-floating mb-2">
+                                        <input type="tel" class="form-control" id="telPhn"  placeholder="Enter Phone Number.. " name="phn" value="{{project.beneficiary.phone_number}}">
+                                        <label for="telPhn">Phone Number</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="form-floating mb-2">
+                                        <textarea class="form-control" style="resize:none; height:75px;" id="address" placeholder="Enter your Address.." name="addr">{{project.beneficiary.address}}</textarea>
+                                        <label for="address">Address</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
 
-                <form method="post" action="{% url 'admin_update_project' pid=project.id %}">
-                    {% csrf_token %}
-                    <div class="modal-body">
-
-                        <div class="row">
-                            <div class="col-lg-6 px-3">
-                                <h3 class="card-title my-2 text-black">Project Details</h3>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="projectTitle" placeholder="Enter the project title.. " name="title" value="{{project.title}}">
-                                            <label for="projectTitle">Project Title</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="fundingGoal" placeholder="Enter the funding goal.. " name="goal" value="{{project.funding_goal}}">
-                                            <label for="fundingGoal">Funding Goal</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="tileValue" placeholder="Enter tile value " name="tvalue" value="{{project.tile_value}}">
-                                            <label for="tileValue">Single Tile Value</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <input type="date" class="form-control" id="closingDate" placeholder="Enter Closing Date " name="clsdate" value="{{ project.closing_date|date:'Y-m-d' }}">                                        <label for="closingDate">Closing Date</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <textarea class="form-control" id="projectDesc" style="resize:none; height:75px;" placeholder="Enter the description..." name="desc">{{project.description}}</textarea>
-                                            <label for="projectDesc">Project Description</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-6 px-3">
-                                <h3 class="card-title my-2 text-black">Beneficiary Details</h3>
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="fname" placeholder="Enter Firstname" name="fname" value="{{project.beneficiary.first_name}}">
-                                            <label for="fname">First Name</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="lname" placeholder="Enter Lastname" name="lname" value="{{project.beneficiary.last_name}}">
-                                            <label for="lname">Last Name</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <input type="number" class="form-control" id="age"  placeholder="Enter Age " name="age" value="{{project.beneficiary.age}}">
-                                            <label for="age">Enter Age</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <input type="tel" class="form-control" id="telPhn"  placeholder="Enter Phone Number.. " name="phn" value="{{project.beneficiary.phone_number}}">
-                                            <label for="telPhn">Phone Number</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <textarea class="form-control" style="resize:none; height:75px;" id="address" placeholder="Enter your Address.." name="addr">{{project.beneficiary.address}}</textarea>
-                                            <label for="address">Address</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div class="modal-footer d-flex justify-content-between">
-                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
-                        <button type="submit" class="btn btn-success">Save changes</button>
-                    </div>
-                </form>
-            </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
+                    <button type="submit" class="btn btn-success">Save changes</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
 <!-------------------Modal for uploading images--------------------->
-    <div class="modal fade" id="imgModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-md">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="imgModalLabel"><strong>Upload Image</strong></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="post" action="{% url 'upload_project_image' project_id=project.id %}" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <table class="table">
-                          <tbody>
-                          {% for image in project.images.all %}
-                            <tr>
-                                <th>
-                                    <a href="{{image.project_img.url}}" target="_blank" rel="noopener noreferrer">{{image.project_img}}</a>
-                                </th>
-                                <td class="text-end">
-                                    <a class="" href="/administrator/del_prj_img/{{image.id}}/">Delete</a>
-                                </td>
-                            </tr>
-                          {% endfor %}
-                          </tbody>
-                        </table>
-                        <div class="my-2">
-                            <input type="file" class="form-control" id="img" placeholder="Upload an image.. " name="img">
-                        </div>
-                    </div>
-                    <div class="modal-footer d-flex justify-content-between">
-                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-success">Upload</button>
-                    </div>
-                </form>
+<div class="modal fade" id="imgModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="imgModalLabel"><strong>Upload Image</strong></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <form method="post" action="{% url 'upload_project_image' project_id=project.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <table class="table">
+                      <tbody>
+                      {% for image in project.images.all %}
+                        <tr>
+                            <th>
+                                <a href="{{image.project_img.url}}" target="_blank" rel="noopener noreferrer">{{image.project_img}}</a>
+                            </th>
+                            <td class="text-end">
+                                <a class="" href="/administrator/del_prj_img/{{image.id}}/">Delete</a>
+                            </td>
+                        </tr>
+                      {% endfor %}
+                      </tbody>
+                    </table>
+                    <div class="my-2">
+                        <input type="file" class="form-control" id="img" placeholder="Upload an image.. " name="img">
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Upload</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
 <!-------------------Modal for share project--------------------->
 <div class="modal fade" id="shareProjectModal" tabindex="-1" aria-labelledby="shareProjectModalLabel" aria-hidden="true">
@@ -174,270 +174,251 @@
     </div>
 </div>
 
-    <div class="row g-4 mb-4">
-        <div class="col-xl-8 col-lg-12 ">
-            <div class="card h-100 data-card">
-                <div class="row">
-                    <div class="col-xl-8">
-                        <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
-                            <div class="carousel-inner">
-                            {% if project.images.all %}
-                                {% for image in project.images.all %}
-                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                  <img src="{{ image.project_img.url }}" class="d-block w-100 carousel-image border" alt="Project Image {{ forloop.counter }}">
-                                </div>
-                                {% endfor %}
-                            {% else %}
-                                <div class="carousel-item active">
-                                    <img src="{% static 'Dashboard/img/photos/default-baner.png' %}" class="d-block w-100 carousel-image border" alt="No image available">
-                                </div>
-                            {% endif %}
+<div class="row g-4 ">
+    <div class="col-xl-9 col-lg-12 ">
+        <div class="card data-card">
+            <div class="row">
+                <div class="col-xl-8">
+                    <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                        {% if project.images.all %}
+                            {% for image in project.images.all %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                              <img src="{{ image.project_img.url }}" class="d-block w-100 carousel-image border" alt="Project Image {{ forloop.counter }}">
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-4 col-lg-12 ">
-                        <div class="row h-100 m-0">
-                            <div class="col-12 card-header">
-                                <h3 class="lead"><strong>{{project.title}}</strong></h3>
+                            {% endfor %}
+                        {% else %}
+                            <div class="carousel-item active">
+                                <img src="{% static 'Dashboard/img/photos/default-banner.jpg' %}" class="d-block w-100 carousel-image border" alt="No image available">
                             </div>
-                            <div class="col-12 align-self-end">
-                                <table class="table m-0">
-                                    <tr>
-                                        <th class="p-1">Goal</th>
-                                        <td class="p-1 text-end">{{project.funding_goal}} Rs</td>
-                                    </tr>
-                                    <tr>
-                                        <th class="p-1">Current</th>
-                                        <td class="p-1 text-end">{{project.current_amount}} Rs</td>
-                                    </tr>
-                                    <tr>
-                                        <th class="p-1">Tile value</th>
-                                        <td class="p-1 text-end">{{project.tile_value}} Rs</td>
-                                    </tr>
-                                    <tr>
-                                        <th class="p-1">Available tiles</th>
-                                        <td class="p-1 text-end">{{available_tiles_count}}</td>
-                                    </tr>
-                                    <tr>
-                                        <th class="p-1">Status</th>
-                                        {% if project.current_amount == project.funding_goal %}
-                                        <td class="p-1">
-                                            <a class="btn btn-sm btn-success" style="width:70px;">
-                                                Success
-                                            </a>
-                                        </td>
-                                        {% elif project.validity == False %}
-                                        <td class="p-1">
-                                            <a class="btn btn-sm btn-danger" style="width:70px;">
-                                                Failed
-                                            </a>
-                                        </td>
-                                        {% else %}
-                                        <td class="p-1">
-                                            <form id="status-form-{{ project.id }}" action="/administrator/change-project-status/{{ project.id }}/" method="post" style="display: inline;">
-                                                {% csrf_token %}
-                                                <div class="form-check form-switch d-flex align-items-center">
-                                                    {% if not admin.is_superuser %}
-                                                    <input class="form-check-input status-switch" type="checkbox" role="switch" id="switchCheck-{{ project.id }}" {% if project.table_status %}checked{% endif %}>
-                                                    {% endif %}
-                                                    <label class="form-check-label ms-2" for="switchCheck-{{ project.id }}">
-                                                        {% if project.table_status %}
-                                                            <a class="btn btn-sm btn-warning text-black" style="width:70px;">Active</a>
-                                                        {% else %}
-                                                            <a class="btn btn-sm btn-secondary" style="width:70px;">closed</a>
-                                                        {% endif %}
-                                                    </label>
-                                                </div>
-                                            </form>
-                                        </td>
-                                        {% endif %}
-                                    </tr>
-                                </table>
-                            </div>
+                        {% endif %}
                         </div>
                     </div>
                 </div>
-                <div class="card-body pb-0">
-                    <p class="card-text lead">{{project.description}}</p>
-                    <p class="card-text">Created on: {{project.created_at}}<br> Close by: {{project.closing_date}} </p>
-                    <div class="text-end">
+                <div class="col-xl-4 col-lg-12 ">
+                    <div class="row h-100 m-0">
+                        <div class="col-12 card-header px-0">
+                            <h3 class="lead"><strong>{{project.title}}</strong></h3>
+                        </div>
+
+                        <ul class="list-group list-group-flush mb-auto">
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <strong>Goal</strong>
+                                <span>₹{{ project.funding_goal }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <strong>Current</strong>
+                                <span>₹{{ project.current_amount }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <strong>Tile value</strong>
+                                <span>₹{{ project.tile_value }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <strong>Available tiles</strong>
+                                <span>{{ available_tiles_count }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <strong>Status</strong>
+                                {% if project.current_amount == project.funding_goal %}
+                                    <span class="p-1 btn btn-sm btn-success" style="width:70px;">
+                                            Success
+                                    </span>
+                                    {% elif project.validity == False %}
+                                    <span class="p-1 btn btn-sm btn-danger" style="width:70px;">
+                                            Failed
+                                    </span>
+                                    {% else %}
+                                    <form id="status-form-{{ project.id }}" action="/administrator/change-project-status/{{ project.id }}/" method="post" class="d-flex align-items-center">
+                                        {% csrf_token %}
+                                         {% if not admin.is_superuser %}
+                                        <div class="form-check form-switch ">
+                                            <input class="form-check-input status-switch " type="checkbox" role="switch" id="switchCheck-{{ project.id }}" {% if project.table_status %}checked{% endif %}>
+                                        </div>
+                                        {% endif %}
+                                        {% if project.table_status %}
+                                            <span class="btn btn-sm btn-warning text-black">Active</span>
+                                        {% else %}
+                                            <span class="btn btn-sm btn-secondary">Closed</span>
+                                        {% endif %}
+                                    </form>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <p class=" mb-4">{{ project.description }}</p>
+                <div>
+                    <div class="progress" role="progressbar" aria-label="Project Progress" aria-valuenow="{{ project.progress }}" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
+                        <div class="progress-bar bg-success" style="width: {{ project.progress }}%;"></div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-1">
+                        <strong class="text-success">{{ project.progress }}%</strong>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-12 mb-3 mb-lg-0">
+                        <h5 class="mb-2"><strong>Project Timeline</strong></h5>
+                        <ul class="list-unstyled">
+                            <li>
+                                <i class="align-middle me-2 text-muted" data-feather="calendar"></i>
+                                <strong>Created on:</strong> {{ project.created_at }}
+                            </li>
+                            <li>
+                                <i class="align-middle me-2 text-muted" data-feather="clock"></i>
+                                <strong>Closes by:</strong> {{ project.closing_date }}
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-lg-6 col-12 d-flex flex-wrap justify-content-end align-items-center gap-2">
                         {% if not admin.is_superuser %}
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#projectModal">
-                            <i class="align-middle" data-feather="edit"></i>
-                            <span class="align-middle">Edit</span>
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#projectModal">
+                            <i class="align-middle" data-feather="edit"></i> Edit
                         </button>
-                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#imgModal" >
-                            <i class="align-middle" data-feather="image"></i>
-                            <span class="align-middle">Upload</span>
+                        <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#imgModal">
+                            <i class="align-middle" data-feather="image"></i> Upload
                         </button>
-                        <a href="/administrator/delete-project/{{project.id}}/" class="btn btn-danger">
-                            <i class="align-middle" data-feather="trash"></i>
-                            <span class="align-middle">Delete</span>
+                        <a href="/administrator/delete-project/{{project.id}}/" class="btn btn-outline-danger">
+                            <i class="align-middle" data-feather="trash"></i> Delete
                         </a>
                         {% endif %}
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#shareProjectModal">
-                            <i class="align-middle" data-feather="share"></i>
-                            <span class="align-middle">Share</span>
+                            <i class="align-middle" data-feather="share"></i> Share
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-xl-4 col-lg-12">
-            <div class="card h-100 data-card">
-                <div class="card-header">
-                    <h3 class="lead"><strong>Beneficiary Details</strong></h3>
-                </div>
-                <div class="card-body row">
-                    <div class="col-sm-6 col-xl-12">
-                        <form id="uploadForm" method="post" action="/administrator/bene_img/{{project.id}}/" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <input type="file" id="imgUpload" name="bene_img" style="display: none;">
+    <div class="col-xl-3 col-lg-12">
+        <div class="card data-card">
+            <div class="card-header">
+                <h3 class="lead"><strong>Beneficiary Details</strong></h3>
+            </div>
+            <div class="card-body text-center">
+                <form id="uploadForm" method="post" action="/administrator/bene_img/{{project.id}}/" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" id="imgUpload" name="bene_img" class="d-none" onchange="this.form.submit();">
+                    <label for="imgUpload" class="d-inline-block position-relative">
+                        <img
+                            {% if project.beneficiary.profile_pic %}
+                                src="{{ project.beneficiary.profile_pic.url }}"
+                            {% else %}
+                                src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
+                            {% endif %}
+                            alt="Click to upload an image"
+                            class="rounded-circle border border-primary img-fluid"
+                            style="width: 128px; height: 128px; object-fit: cover; cursor: pointer;">
+                        <span class="position-absolute bottom-0 end-0 p-1 bg-primary text-white rounded-circle">
+                            <i data-feather="camera"></i>
+                        </span>
+                    </label>
+                </form>
 
-                            <label for="imgUpload">
-                                <img
-                                    {% if project.beneficiary.profile_pic %}
-                                        src="{{ project.beneficiary.profile_pic.url }}"
-                                    {% else %}
-                                        src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
-                                    {% endif %}
-                                    alt="Click to upload an image"
-                                    style="cursor: pointer; width: 128px; height: 128px; display: block;"
-                                    class="border rounded-circle">
-                            </label>
-                        </form>
-                    </div>
-                    <div class="col-sm-6 col-xl-12">
-                        <h5 class="mb-3"><strong>{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</strong></h5>
-                        <table class="table">
-                            <tr>
-                                <th class="py-1 px-0">Age</th>
-                                <td class="py-1 px-0 text-end">{{project.beneficiary.age}}-years old</td>
-                            </tr>
-                            <tr>
-                                <th class="py-1 px-0">Phone number</th>
-                                <td class="py-1 px-0 text-end">+91-{{project.beneficiary.phone_number}}</td>
-                            </tr>
-                            <tr>
-                                <th class="py-1 px-0">Address</th>
-                                <td class="py-1 px-0 text-end">{{project.beneficiary.address}}</td>
-                            </tr>
-                        </table>
-                    </div>
+                <div class="mt-4">
+                    <h5 class="mb-1"><strong>{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</strong></h5>
+                    <small class="text-muted">{{ project.beneficiary.age }}-years old</small>
+                    <hr class="my-3">
+                    <ul class="list-unstyled text-start">
+                        <li class="d-flex justify-content-between py-1">
+                            <strong class="text-muted">Phone number:</strong>
+                            <span>+91-{{project.beneficiary.phone_number}}</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-1">
+                            <strong class="text-muted">Address:</strong>
+                            <span class="text-end">{{project.beneficiary.address}}</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="row g-4">
-        <div class="col-12">
-            <div class="card data-card">
-                <div class="card-body">
-                    <div class="pb-3 d-flex justify-content-end gap-3">
-                        <div class="d-flex align-items-center gap-1">
-                            <div class="booking-tile available">
-                                <span class="tile-number"></span>
-                            </div>
-                            <span>Available Tile</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-1">
-                            <div class="booking-tile processing">
-                                <span class="tile-number"></span>
-                            </div>
-                            <span>Processing Tile</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-1">
-                            <div class="booking-tile sold">
-                                <span class="tile-number"></span>
-                            </div>
-                            <span>Sold Tile</span>
-                        </div>
-                    </div>
-                    <div class="container-fluid bg-light border py-1 overflow-auto" style="height:250px;">
-                        <div class="tile-grid">
-                            {% for t in t_range %}
-                            <div id="T{{t}}" class="booking-tile m-1
-                                {% if t in sold_tiles_set %}
-                                    sold
-                                {% elif t in processing_tiles_set %}
-                                    processing
-                                {% else %}
-                                    available
-                                {% endif %}">
-                                <span class="tile-number">{{t}}</span>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12">
-            <div class="card h-100 data-card">
-                <div class="card-header">
-                    <h2><strong>Transactions</strong></h2>
-                </div>
-                <div class="card-body table-responsive pb-0">
-                    <table class="table table-hover my-0">
-                        <thead class="table-dark">
-                        <tr>
-                            <th>Sender</th>
-                            <th>No of Tiles</th>
-                            <th>Amount</th>
-                            <th>Time</th>
-                            <th>status</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for t in transaction %}
-                        <tr>
-                            <td>{{t.sender.first_name}} {{t.sender.last_name}}</td>
-                            <td>{{ t.num_tiles }} [{{t.tiles_bought.tiles}}]</td>
-                            <td>{{t.amount}}</td>
-                            <td>{{t.transaction_time}}</td>
-                            <td class="{% if t.status == 'Verified'%}
-                                        text-success
-                                    {% elif t.status == 'Rejected' %}
-                                        text-danger
-                                    {% elif t.status == 'Unverified' %}
-                                        text-dark-subtle
-                                    {% endif %}">
-                                <strong>{{t.status}}</strong>
-                            </td>
-                            <td>
-                                <a class="" href="/administrator/verify-transaction/{{t.id}}/">
-                                  <i class="align-middle" data-feather="eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
+<div class="card data-card">
+    <div class="card-header d-flex justify-content-end gap-3 align-items-center">
+        <span class="badge bg-success">Available Tile</span>
+        <span class="badge bg-primary">Processing Tile</span>
+        <span class="badge bg-secondary">Sold Tile</span>
     </div>
+    <div class="card-body">
+        <div class="container-fluid border border-2 py-3 rounded overflow-auto" style="height:250px;">
+            <div class="d-flex flex-wrap gap-2">
+                {% for t in total_tiles_count|ljust:total_tiles_count %}
+                    <div id="T{{ forloop.counter }}" class="p-2 border rounded text-white text-center fw-bold
+                         {% if forloop.counter in sold_tiles_set %} bg-secondary
+                         {% elif forloop.counter in processing_tiles_set %} bg-primary
+                         {% else %} bg-success {% endif %}"
+                         style="width: 50px; height: 30px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <span>{{ forloop.counter }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script>
-        {% if messages %}
-            {% for message in messages %}
-                Swal.fire({
-                    title: '{{ message.tags|title }}!',
-                    text: '{{ message }}',
-                    icon: '{{ message.tags }}',
-                    confirmButtonText: 'OK'
-                });
+<div class="card data-card ">
+    <div class="card-header">
+        <h2><strong>Transactions</strong></h2>
+    </div>
+    <div class="card-body table-responsive ">
+        <table class="table table-hover">
+            <thead class="table-dark">
+            <tr>
+                <th>Sl no</th>
+                <th>Sender</th>
+                <th>No of Tiles</th>
+                <th>Amount</th>
+                <th>Time</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for t in transactions %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td>{{t.sender.first_name}} {{t.sender.last_name}}</td>
+                <td>{{ t.num_tiles }} [{{t.tiles_bought.tiles}}]</td>
+                <td>₹{{t.amount}}</td>
+                <td>{{t.transaction_time|date:"M d, Y P"}}</td>
+                <td class="{% if t.status == 'Verified' %}text-success
+                            {% elif t.status == 'Rejected' %}text-danger
+                            {% else %}text-secondary{% endif %}">
+                    <strong>{{ t.status }}</strong>
+                </td>
+                <td class="text-center">
+                    <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-info btn-sm">
+                        <i class="align-middle" data-feather="info"></i> View
+                    </a>
+                </td>
+            </tr>
             {% endfor %}
-        {% endif %}
-    </script>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                title: '{{ message.tags|title }}!',
+                text: '{{ message }}',
+                icon: '{{ message.tags }}',
+                confirmButtonText: 'OK'
+            });
+        {% endfor %}
+    {% endif %}
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const shareModal = document.getElementById('shareProjectModal');

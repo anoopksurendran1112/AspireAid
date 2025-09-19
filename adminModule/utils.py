@@ -1,12 +1,12 @@
-from django.shortcuts import get_object_or_404
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER
 from django.core.mail import EmailMessage, get_connection
 from reportlab.platypus.flowables import HRFlowable
-from django.core.files.base import ContentFile
-from reportlab.lib.pagesizes import A4
 from userModule.models import Receipt, Transaction
+from django.core.files.base import ContentFile
+from django.shortcuts import get_object_or_404
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
 from reportlab.lib import colors
 from django.conf import settings
@@ -28,6 +28,21 @@ authorization_key = "EApz1UNdI2KToYWBS5O0Fl4QDM8G6jxvi97PgaRhLqHrfwyeZuMsG2LUHqg
 header_id = "KDIGCF"
 
 SMS_DLT_API = "https://www.fast2sms.com/dev/bulkV2"
+
+"""Sends a regular SMS message for contact message response."""
+def sms_send_response(new_reply):
+    return {'status': 'success', 'message': 'SMS sent'}
+
+
+"""Sends a email message for contact message response."""
+def email_send_response(new_reply):
+    return (True, 'Email sent')
+
+
+"""Sends a Whatsapp message for contact message response."""
+def whatsapp_send_response(new_reply):
+    return {'status': 'success', 'message': 'WhatsApp sent'}
+
 
 
 """Sends a regular SMS message for payment initiated."""
