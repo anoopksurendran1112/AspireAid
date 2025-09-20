@@ -685,7 +685,6 @@ def adminSingleProject(request, pid):
 
     project = get_object_or_404(Project, id=pid)
 
-    # Calculate project progress and validity
     project.progress = round((project.current_amount / project.funding_goal) * 100,
                              3) if project.funding_goal > 0 else 0
     project.validity = project.closing_date >= timezone.now()

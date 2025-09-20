@@ -2,85 +2,84 @@
 {% load static %}
 {% block content %}
 
-    <!-- Start About Area -->
-    <section class="about-area section-gap" id="about">
+<section class="about-page">
+    <div class="p-5 text-center bg-light">
+        <div class="container py-5">
+            <h1 class="display-4 fw-bold mb-4">Empowering the Future, Together</h1>
+            <p class="lead fw-normal text-muted mx-auto" >
+                Welcome to the official crowdfunding platform of <strong>{{ ins.institution_name }}</strong>. Our institution has a rich history of fostering innovation and academic excellence. We believe in creating an environment where ambitious ideas can flourish and make a tangible impact on the world.
+            </p>
+        </div>
+    </div>
+
+    <div class="py-5 bg-white">
         <div class="container">
             <div class="text-center mb-5">
-                <h1 class="display-4 text-white mb-5">Empowering the Future, Together</h1>
-                <p class="lead">
-                    Welcome to the official crowdfunding platform of <b class="text-white">{{ins.institution_name}}</b>. Our institution has a rich history of fostering innovation and academic excellence. We believe in creating an environment where ambitious ideas can flourish and make a tangible impact on the world.
+                <h2 class="h3 fw-bold mb-3">Our Purpose & Vision</h2>
+                <p class="text-muted mx-auto" style="max-width: 800px;">
+                    This platform provides a transparent way for our community to support the projects that matter most. We aim to build a sustainable network that fuels a culture of philanthropy and innovation.
                 </p>
             </div>
-        </div>
 
-        <hr class="border border-light my-5">
-
-        <div class="container">
-            <div class="mb-5 text-center">
-                <h3 class="lead text-white mb-4"><strong>Our Purpose</strong></h3>
-                <p class="text-light">
-                    This platform was created to provide a powerful and transparent way for our community to directly support the projects that matter most. From groundbreaking student research and scholarships to essential campus projects and community service initiatives, every campaign represents a step towards a brighter future. Our long-term goal is to build a sustainable network of support that fuels a culture of philanthropy and innovation.
-                </p>
-            </div>
-        </div>
-
-        <hr class="border border-light my-5">
-
-        <div class="container">
-            <div class="row mb-5 text-center">
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100 p-4 shadow-sm bg-dark text-light border-0">
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm p-4 text-center ">
                         <div class="card-body">
-                            <h4 class="card-title lead text-white">Our Mission</h4>
-                            <p class="card-text text-light">
-                                Our mission is to empower students, faculty, and alumni to collaborate in funding innovative projects that make a difference. We are committed to turning bold ideas into reality.
+                            <div class="text-info mb-3">
+                                <i class="fa fa-bullseye fa-3x text-dark"></i>
+                            </div>
+                            <h4 class="h5 fw-bold card-title mb-4">Mission</h4>
+                            <p class="card-text text-muted">
+                                Our mission is to empower students, faculty, and alumni to collaborate in funding innovative projects that make a difference and turn bold ideas into reality.
                             </p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100 p-4 shadow-sm bg-dark text-light border-0">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm p-4 text-center">
                         <div class="card-body">
-                            <h4 class="card-title lead text-white">Core Values</h4>
-                            <p class="card-text text-light">
-                                We operate on the principles of <b>transparency, accountability, inclusiveness, and innovation.</b> Every project is vetted, and all funds are managed with the highest standards of integrity.
+                            <div class="text-info mb-3">
+                                <i class="fa fa-thumbs-up fa-3x text-dark"></i>
+                            </div>
+                            <h4 class="h5 fw-bold card-title mb-4">Core Values</h4>
+                            <p class="card-text text-muted">
+                                We operate on the principles of <strong>transparency, accountability, and innovation</strong>. Every project is vetted, and all funds are managed with the highest standards of integrity.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <div class="card h-100 shadow-sm p-4 text-center ">
+                        <div class="card-body">
+                            <div class="text-info mb-3">
+                                <i class="fa fa-signal fa-3x text-dark"></i>
+                            </div>
+                            <h4 class="h5 fw-bold card-title mb-4">Impact</h4>
+                            <p class="card-text text-muted">
+                                Every campaign represents a step towards a brighter future. Your contribution directly supports groundbreaking student research, scholarships, and essential community projects.
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <hr class="border border-light my-5">
-
+    <div class="py-5 bg-dark">
         <div class="container">
-            <div class="mb-5 text-center">
-                <h3 class="lead text-white mb-4">Who Can Make an Impact?</h3>
-                <p class="text-light">
-                    This platform is open to all members of our community and beyond.
-                    Whether you are a student, alumni, faculty member, or a philanthropist who believes in the power of education, your contribution matters.
-                    All transactions are handled securely, and you will receive a detailed report on how your funds are utilized to ensure complete accountability.
+            <div class="text-center mb-4">
+                <h2 class="h3 text-white fw-bold mb-3">Join Our Community</h2>
+                <p class="text-white mx-auto" style="max-width: 800px;">
+                    This platform is open to all who believe in the power of education and community. Whether you are a student, alumni, faculty, or a philanthropist, your support matters.
                 </p>
             </div>
-        </div>
-
-        <hr class="border border-light my-5">
-
-        <div class="container">
-            <div class="mb-5 text-center">
-                <h3 class="lead text-white mb-4">Our Oversight</h3>
-                <p class="text-light">
-                    This crowdfunding platform is an official initiative of <b>{{ins.institution_name}}</b>.
-                    We ensure every campaign aligns with our institution's values and academic goals, providing secure and professional oversight.
-                </p>
-            </div>
-
             <div class="text-center">
-                <a href="/user/{{ins.id}}/all-project/" class="btn btn-lg primary-btn">Explore Current Campaigns</a>
+                <a href="/user/{{ ins.id }}/all-project/" class="btn btn-info btn-lg shadow-lg">
+                    Explore Current Campaigns
+                    <i class="fa fa-arrow-right ms-2 text-white"></i>
+                </a>
             </div>
-
         </div>
-    </section>
-    <!-- End About Area -->
-
+    </div>
+</section>
 {% endblock %}
