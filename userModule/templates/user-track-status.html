@@ -2,111 +2,111 @@
 {% load static %}
 {% block content %}
 
-    <!-- Start Track Status Area -->
-<section class="section-gap" id="track-status">
-    <div class="container-fluid px-5">
-        <h1 class="mb-4 text-center">Track your status</h1>
-        <p class="lead text-center text-muted mb-4">Enter your Tracking ID, Phone number or Email ID below to view your transaction history.</p>
-
-        <div class="d-flex justify-content-center">
-            <form method="post" class="text-center w-50 mx-auto" id="trackForm">
-                {% csrf_token %}
-                <div class="input-group mb-2 shadow-sm rounded">
-                    <input type="text" class="form-control" placeholder="Tracking ID, Phone number or Email ID" name="track" required>
-                    <button class="btn btn-primary" type="submit">
-                        <i class="fa fa-search me-2"></i> Track Status
-                    </button>
+    <section class="section-gap" id="track-status">
+        <div class="container">
+            <div class="row d-flex justify-content-center mb-5">
+                <div class="col-lg-8 col-md-10">
+                    <h1 class="mb-3 text-center display-4 fw-bold">Track Your Status</h1>
+                    <p class="lead text-center text-muted mb-5">
+                        Enter your Tracking ID, Phone number, or Email ID below to view your transaction history.
+                    </p>
+                    <form method="post" class="w-75 mx-auto" id="trackForm">
+                        {% csrf_token %}
+                        <div class="input-group  shadow-sm rounded">
+                            <input type="text" class="form-control" placeholder="Tracking ID, Phone number or Email ID" name="track" required>
+                            <button class="btn btn-info" type="submit">
+                                <i class="fa fa-search me-2 text-white"></i> Track Status
+                            </button>
+                        </div>
+                        <div id="validationMessage" class="text-danger mt-2" style="display: none;"></div>
+                    </form>
                 </div>
-                <div id="validationMessage" class="invalid-feedback d-block text-start mb-3" style="display: none;"></div>
-            </form>
-        </div>
-    </div>
-
-    <div class="container">
-        {% if tra %}
-        <div class="pt-5">
-            <h3 class="mb-3 text-center">Your Transactions from: {{search}}</h3>
-            <div class="table-responsive">
-                <table class="table table-hover my-0 ">
-                    <thead class="bg-dark text-white">
-                        <tr>
-                            <th>Sl no</th>
-                            <th>Project</th>
-                            <th>Tile Value</th>
-                            <th>Date</th>
-                            <th>Selected Tiles</th>
-                            <th>Quantity</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-dark">
-                        {% for t in tra %}
-                        <tr>
-                            <td>{{forloop.counter}}</td>
-                            <td><a href="/user/{{ins.id}}/single-project/{{t.project.id}}/">{{t.project.title}}</a></td>
-                            <td>₹{{t.project.tile_value}}</td>
-                            <td>{{t.transaction_time|date:"M d, Y"}}</td>
-                            <td>{{t.tiles_bought.tiles}}</td>
-                            <td>{{t.num_tiles}}</td>
-                            <td>₹{{t.amount}}</td>
-                            <td>
-                                {% if t.status == 'Unverified' %}
-                                    <h6 class="text-secondary"><strong>{{t.status}}</strong></h6>
-                                {% elif t.status == 'Verified' %}
-                                    <h6 class="text-success"><strong>{{t.status}}</strong></h6>
-                                {% else %}
-                                    <h6 class="text-danger"><strong>{{t.status}}</strong></h6>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
             </div>
-        </div>
 
-        {% else %}
-        <div class="py-5 text-center">
-            {% if request.method == 'POST' %}
-                <div class="alert alert-info" role="alert">
-                    <h4 class="alert-heading">No transactions found!</h4>
-                    <p>It seems we couldn't find any donations for the phone number you entered. Please double-check the number and try again.</p>
+            {% if tra %}
+            <div class="card shadow-sm border-0 my-5">
+                <div class="card-body p-4">
+                    <h3 class="card-title mb-4 text-center">Your Transactions from: {{ search }}</h3>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped my-0">
+                            <thead class="bg-dark text-white">
+                                <tr>
+                                    <th>Sl no</th>
+                                    <th>Project</th>
+                                    <th>Tile Value</th>
+                                    <th>Date</th>
+                                    <th>Selected Tiles</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for t in tra %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td><a href="/user/{{ ins.id }}/single-project/{{ t.project.id }}/" class="text-decoration-none">{{ t.project.title }}</a></td>
+                                    <td>₹{{ t.project.tile_value }}</td>
+                                    <td>{{ t.transaction_time|date:"M d, Y" }}</td>
+                                    <td>{{ t.tiles_bought.tiles }}</td>
+                                    <td>{{ t.num_tiles }}</td>
+                                    <td>₹{{ t.amount }}</td>
+                                    <td>
+                                        {% if t.status == 'Unverified' %}
+                                            <h6 class="text-warning text-dark">{{ t.status }}</h6>
+                                        {% elif t.status == 'Verified' %}
+                                            <h6 class="text-success">{{ t.status }}</h6>
+                                        {% else %}
+                                            <h6 class="text-danger">{{ t.status }}</h6>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+            </div>
+            {% else %}
+            <div class="py-5 text-center">
+                {% if request.method == 'POST' %}
+                    <div class="alert alert-info border-0 rounded-0" role="alert">
+                        <h4 class="alert-heading fw-bold">No transactions found!</h4>
+                        <p class="mb-0">It seems we couldn't find any donations for the information you entered. Please double-check the details and try again.</p>
+                    </div>
+                {% endif %}
+            </div>
             {% endif %}
         </div>
-        {% endif %}
-    </div>
-</section>
-<!-- End Track Status Area -->
+    </section>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('trackForm');
+            const trackInput = form.querySelector('[name="track"]');
+            const validationMessage = document.getElementById('validationMessage');
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.getElementById('trackForm');
-        const trackInput = form.querySelector('[name="track"]');
-        const validationMessage = document.getElementById('validationMessage');
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const inputValue = trackInput.value.trim();
 
-        form.addEventListener('submit', function (event) {
-            event.preventDefault();
+                // Clear previous validation messages
+                validationMessage.style.display = 'none';
+                trackInput.classList.remove('is-invalid');
 
-            const inputValue = trackInput.value.trim();
-
-            if (/^\d+$/.test(inputValue)) {
-                if (inputValue.length !== 10) {
-                    validationMessage.textContent = "Phone number must be exactly 10 digits.";
-                    validationMessage.style.display = 'block';
-                    trackInput.classList.add('is-invalid');
-                    return;
+                // Check for phone number and validate length
+                if (/^\d+$/.test(inputValue)) {
+                    if (inputValue.length !== 10) {
+                        validationMessage.textContent = "Phone number must be exactly 10 digits.";
+                        validationMessage.style.display = 'block';
+                        trackInput.classList.add('is-invalid');
+                        return;
+                    }
                 }
-            }
 
-            validationMessage.style.display = 'none'; // Hide the message if no error
-            trackInput.classList.remove('is-invalid'); // Remove invalid class
-
-            form.submit();
+                // Submit the form
+                form.submit();
+            });
         });
-    });
-</script>
+    </script>
 
 {% endblock %}
-

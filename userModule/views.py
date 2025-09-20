@@ -1,38 +1,54 @@
-import os
-
 from adminModule.utils import whatsapp_send_initiated, email_send_initiated, whatsapp_send_proof, email_send_proof, sms_send_initiated, sms_send_proof, get_unique_tracking_id
 from userModule.models import PersonalDetails, SelectedTile, Transaction, Screenshot, ContactMessage
 from django.shortcuts import render, redirect, get_object_or_404
 from adminModule.models import Project, Institution
 from django.db import transaction as db_transaction
+from django.db import transaction, IntegrityError
 from django.contrib import messages
 from django.utils import timezone
 from django.urls import reverse
 import urllib.parse
-
+import os
 
 
 # Create your views here.
 def userIndex(request, ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
+
     projects = Project.objects.filter(created_by__institution=ins, created_by__is_staff=True,closing_date__gte=timezone.now(),
         table_status=True).order_by('-created_at')[:3]
+    for p in projects:
+        p.progress = round((p.current_amount / p.funding_goal) * 100,
+                                 3) if p.funding_goal > 0 else 0
     return render(request, 'index.html',{'ins':ins, 'prj':projects})
-      
-      
-def contact_us(request,ins_id):
+
+
+def contact_us(request, ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
+
     if request.method == 'POST':
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        email = request.POST.get('email')
-        phone = request.POST.get('phone')
-        message = request.POST.get('message')
+        try:
+            with transaction.atomic():
+                first_name = request.POST.get('first_name')
+                last_name = request.POST.get('last_name')
+                email = request.POST.get('email')
+                phone = request.POST.get('phone')
+                message = request.POST.get('message')
 
-        ContactMessage.objects.create(first_name=first_name,last_name=last_name,email=email,phone=phone,message=message, ins=ins)
-        return redirect(f'/user/{ins.id}/contact-us/')
-    return render(request,'contact-us.html', {'ins':ins})
+                if not all([first_name, last_name, email, phone, message]):
+                    messages.error(request, 'All form fields must be filled out.')
+                    return redirect(f'/user/{ins.id}/contact-us/')
 
+                ContactMessage.objects.create(first_name=first_name,last_name=last_name,email=email,phone=phone,message=message,ins=ins)
+
+                messages.success(request, 'Your message has been sent successfully!')
+                return redirect(f'/user/{ins.id}/contact-us/')
+
+        except IntegrityError:
+            messages.error(request, 'An error occurred while saving your message. Please try again.')
+        except Exception as e:
+            messages.error(request, f'An unexpected error occurred: {e}')
+    return render(request, 'contact-us.html', {'ins': ins})
 
 
 def about(request, ins_id):
@@ -42,12 +58,11 @@ def about(request, ins_id):
 
 def userAllProject(request,ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
-    projects = Project.objects.filter(
-        created_by__institution=ins,
-        created_by__is_staff=True,
-        closing_date__gte=timezone.now(),
-        table_status=True
-    ).order_by('-created_at')
+    projects = Project.objects.filter(created_by__institution=ins,created_by__is_staff=True,closing_date__gte=timezone.now(),
+                                      table_status=True).order_by('-created_at')
+    for p in projects:
+        p.progress = round((p.current_amount / p.funding_goal) * 100,
+                                 3) if p.funding_goal > 0 else 0
     return render(request, 'user-projects.html',{'ins':ins, 'prj':projects})
 
 
