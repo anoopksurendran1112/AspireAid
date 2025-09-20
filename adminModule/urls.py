@@ -6,10 +6,17 @@ urlpatterns = [
     path('admin-dash/',views.adminDashboard),
     path('admin-log-out/',views.adminLogOut),
 
+    path('credits/',views.adminCredit),
+
+    path('contact-message/',views.adminContactMessage),
+    path('send-reply/<int:msg_id>/',views.adminMessageReply),
+
     path('profile/',views.adminProfile),
     path('update_account_details/',views.update_account_details),
     path('admin_profile_img/',views.adminProfilePicture),
     path('admin_inst_img/',views.adminInstitutionPicture),
+
+    path('update-bank/',views.adminUpdateBankDetails, name='update_bank'),
 
     path('all-institution/',views.adminAllInstitution),
     path('change-institution-status/<int:iid>/',views.AdminChangeInstitutionStatus),
@@ -20,11 +27,6 @@ urlpatterns = [
     path('change-admin-status/<int:aid>/',views.AdminChangeInstitutionAdminStatus),
     path('delete-insti-admin/<int:aid>/',views.adminDeletePermanent),
     path('update-institution-admin/<int:aid>/',views.adminUpdateInstitutionAdmin),
-
-    path('update-bank/',views.adminUpdateBankDetails, name='update_bank'),
-
-    path('contact-message/',views.adminContactMessage),
-    path('send-reply/<int:msg_id>/',views.adminMessageReply),
 
     path('all-project/',views.adminAllProject),
     path('add-project/', views.adminAddProject, name='admin_add_project'),

@@ -93,6 +93,10 @@ def adminLogOut(request):
     return redirect('/administrator/')
 
 
+def adminCredit(request):
+    return render(request, 'admin-credit.html',{'admin':request.user})
+
+
 # Profile page of the logged admin
 def adminProfile(request):
     if request.user.is_superuser:
