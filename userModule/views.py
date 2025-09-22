@@ -56,6 +56,11 @@ def about(request, ins_id):
     return render(request,'about.html', {'ins':ins})
 
 
+def credit(request, ins_id):
+    ins = get_object_or_404(Institution, id=ins_id, table_status=True)
+    return render(request,'user-credit.html', {'ins':ins})
+
+
 def userAllProject(request,ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
     projects = Project.objects.filter(created_by__institution=ins,created_by__is_staff=True,closing_date__gte=timezone.now(),

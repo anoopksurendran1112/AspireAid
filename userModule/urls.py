@@ -5,6 +5,7 @@ urlpatterns = [
     path('<int:ins_id>/',views.userIndex),
     path('<int:ins_id>/about/', views.about),
     path('<int:ins_id>/contact-us/', views.contact_us),
+    path('<int:ins_id>/credit/', views.credit),
     path('<int:ins_id>/track-status/', views.userTrackStatus),
     path('<int:ins_id>/all-project/',views.userAllProject),
 

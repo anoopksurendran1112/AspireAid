@@ -25,7 +25,7 @@ $(document).ready(function(){
 $(".menu-bar").on('click', function(e){
     e.preventDefault();
     $("nav").toggleClass('hide');
-    $("span", this).toggleClass("lnr-menu lnr-cross");
+    $("span", this).toggleClass("lnr-cross lnr-menu");
     $(".main-menu").addClass('mobile-menu');
 });
 
