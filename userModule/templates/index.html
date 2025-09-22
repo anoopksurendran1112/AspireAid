@@ -31,6 +31,7 @@
         <link rel="stylesheet" href="{% static 'frontend/css/main.css' %}">
     </head>
     <body>
+
         <header class="default-header">
             <div class="container-fluid px-5">
                 <div class="header-wrap">
@@ -46,14 +47,14 @@
                             </a>
                         </div>
                         <div class="main-menubar d-flex align-items-center">
-                            <nav class="hide">
+                            <nav >
                                 <a href="/user/{{ins.id}}/">Home</a>
                                 <a href="/user/{{ins.id}}/all-project/">Projects</a>
                                 <a href="/user/{{ins.id}}/track-status/">Track Status</a>
                                 <a href="/user/{{ins.id}}/about/">About</a>
                                 <a href="/user/{{ins.id}}/contact-us/">Contact Us</a>
                             </nav>
-                            <div class="menu-bar"><span class="lnr lnr-menu"></span></div>
+                            <div class="menu-bar"><span class="lnr lnr-cross"></span></div>
                         </div>
                     </div>
                 </div>
@@ -296,27 +297,34 @@
 
         {% endblock %}
 
-        <footer class="footer-area section-gap">
-            <div class="container-fluid px-5">
-                <div class="row d-flex flex-column justify-content-center">
-                    <ul class="footer-menu">
-                        <li><a href="/user/{{ins.id}}/">Home</a></li>
-                        <li><a href="/user/{{ins.id}}/all-project/">Projects</a></li>
-                        <li><a href="/user/{{ins.id}}/track-status/">Track Status</a></li>
-                        <li><a href="/user/{{ins.id}}/about/">About</a></li>
-                        <li><a href="/user/{{ins.id}}/contact-us/">Contact us</a></li>
-                    </ul>
-                    <div class="footer-social">
-                        <a href="#"><i class="fa fa-facebook"></i></a>
-                        <a href="#"><i class="fa fa-twitter"></i></a>
-                        <a href="#"><i class="fa fa-dribbble"></i></a>
-                        <a href="#"><i class="fa fa-behance"></i></a>
+        <footer class="footer-area section-gap border bg-light">
+            <div class="container">
+                <div class="row text-center">
+                    <div class="col-12 mb-4">
+                        <ul class="list-unstyled d-flex justify-content-center flex-wrap">
+                            <li class="mx-3"><a href="/user/{{ins.id}}/" class="text-dark"><strong>Home</strong></a></li>
+                            <li class="mx-3"><a href="/user/{{ins.id}}/all-project/" class="text-dark"><strong>Projects</strong></a></li>
+                            <li class="mx-3"><a href="/user/{{ins.id}}/track-status/" class="text-dark"><strong>Track Status</strong></a></li>
+                            <li class="mx-3"><a href="/user/{{ins.id}}/about/" class="text-dark"><strong>About</strong></a></li>
+                            <li class="mx-3"><a href="/user/{{ins.id}}/contact-us/" class="text-dark"><strong>Contact Us</strong></a></li>
+                        </ul>
                     </div>
-                    <p class="footer-text m-0">
-                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                        Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | <a href="https://kochi.digital/" target="_blank">Kochi Digital</a>
-                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                    </p>
+
+                    <div class="col-12 mb-4">
+                        <a href="#" class="mx-2"><i class="text-dark fa fa-2x fa-facebook"></i></a>
+                        <a href="#" class="mx-2"><i class="text-dark fa fa-2x fa-twitter"></i></a>
+                        <a href="#" class="mx-2"><i class="text-dark fa fa-2x fa-instagram"></i></a>
+                        <a href="#" class="mx-2"><i class="text-dark fa fa-2x fa-linkedin"></i></a>
+                    </div>
+
+                    <div class="col-12">
+                        <p class=" m-0 ">
+                            Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | Designed and Developed by <a href="https://kochi.digital/" target="_blank" class="text-info">Kochi Digital</a>
+                        </p>
+                        <p class=" m-0 mt-1">
+                            <a href="/user/{{ins.id}}/credit/" class="text-info ">Website Credits</a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </footer>
