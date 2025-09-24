@@ -7,60 +7,79 @@
 }
 .data-card{
         box-shadow: 0 0 .875rem 0 rgba(33, 37, 41, .175);
-}.tile-grid {
+}
+
+.carousel-image {
+    height: 500px;
+}
+
+.carousel-item {
+    height: 100%;
+}
+
+.carousel-item img {
+    object-fit: cover;
+}
+
+.modal.fullscreen-modal .modal-dialog {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  max-width: none;
+}
+.modal.fullscreen-modal .modal-content {
+  height: 100%;
+  border-radius: 0;
+}
+.modal.fullscreen-modal .modal-body {
+  overflow-y: auto;
+}
+
+/* Tile Grid Styling */
+.tile-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
     gap: 10px;
 }
 .booking-tile {
+    width: 50px;
     height: 30px;
-    width: 55px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-.booking-tile.available {
-    background-color: #6abbec54;
-    border-color: #58afe4;
+.available-tile {
+    /* Corrected to use the classes from HTML */
+    background-color: #54B4D3;
+    border: 1px solid #54B4D3;
     cursor: pointer;
+    color: white;
 }
-.booking-tile.processing {
-    background-color: #fff3cd;
-    border-color: #ffc107;
+.processing-tile {
+     background-color: #fe5f55;
+     color: white;
+     border: 1px solid #fe5f55;
+     cursor: not-allowed;
+}
+.sold-tile {
+    background-color: #9FA6B2;
+    color: white;
+    border: 1px solid black;
     cursor: not-allowed;
 }
-.booking-tile.available:hover {
-    background-color: #6abbec54;
+.available-tile:hover {
+    background-color: #6abbec8c;
+    border: 1px solid black;
+    color: black;
     transform: scale(1.05);
     box-shadow: 0 0 5px rgb(88, 175, 228);
 }
-.booking-tile.sold {
-    background-color: white;
-    border-color:#606060;
-    cursor: not-allowed;
-}
-.booking-tile.selected {
-    background-color: #58afe4;
-    border-color: #6abbec54;
-    color: black;
-    border: 1px solid black;
-    box-shadow: 0 0 10px rgba(33, 150, 243, 0.8);
+.selected {
+    background-color: #3B71CA;
+    border-color: black;
+    color: white;
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.6);
     transform: scale(1.1);
-}
-#tile-container {
-    height: 250px;
-    overflow: auto;
-}
-
-.carousel-image {
-  height: 300px; /* Set a fixed height for all images */
-  object-fit: cover; /* This is the key property */
-}
-
-/* Optional: You can make the image fill the carousel item */
-.carousel-item {
-  height: 300px; /* Match the image height to prevent jumping */
 }

@@ -2,278 +2,326 @@
 {% load static %}
 {% block content %}
 
-    <section class="project-area section-gap" id="project">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 mb-4">
-                    <div class="card data-card">
-                        <div class="card-body p-0">
-                            <div class="row">
 
-                                <div class="col-9">
-                                    <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
-                                        <div class="carousel-inner">
-                                            {% if project.images.all %}
-                                                {% for image in project.images.all %}
-                                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                                  <img src="{{ image.project_img.url }}" class="d-block w-100 carousel-image border" alt="Project Image {{ forloop.counter }}">
-                                                </div>
-                                                {% endfor %}
-                                            {% else %}
-                                                <div class="carousel-item active">
-                                                    <img src="{% static 'Dashboard/img/photos/default-banner.jpg' %}" class="d-block w-100 carousel-image border" alt="No image available">
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-3">
-                                    <div class="row h-100">
-                                        <div class="col-sm-6 col-xl-12 d-flex justify-content-start align-items-center g-1">
-                                           <img
-                                            {% if project.beneficiary.profile_pic %}
-                                                src="{{ project.beneficiary.profile_pic.url }}"
-                                            {% else %}
-                                                src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
-                                            {% endif %}
-                                            alt="Beneficiary image"
-                                            style="width: 100px; height: 100px; display: block;"
-                                            class="border rounded-circle">
-                                        </div>
-                                        <div class="col-sm-6 col-xl-12 align-self-end">
-                                            <h5 class="mb-2 lead"><strong>{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</strong></h5>
-                                            <table class="table">
-                                                <tr>
-                                                    <th class="py-1 ps-0">Age</th>
-                                                    <td class="py-1 ps-0">{{project.beneficiary.age}}-years old</td>
-                                                </tr>
-                                                <tr>
-                                                    <th class="py-1 ps-0">Phone</th>
-                                                    <td class="py-1 ps-0">+91-{{project.beneficiary.phone_number}}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th class="py-1 ps-0">Address</th>
-                                                    <td class="py-1 ps-0">{{project.beneficiary.address}}</td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 ">
-                                    <div class="card-body pb-0">
-                                        <h4 class="card-title fw-bold mb-0">{{ project.title }}</h4>
-                                        <p class=" text-muted">{{ project.description }}</p>
-
-                                        <div class="mb-4">
-                                            <div class="progress" role="progressbar" aria-label="Project Progress" aria-valuenow="{{ project.progress }}" aria-valuemin="0" aria-valuemax="100" style="height: 10px;">
-                                                <div class="progress-bar bg-primary" style="width: {{ project.progress }}%;"></div>
-                                            </div>
-                                            <div class="d-flex justify-content-end mt-1">
-                                                <strong class="text-primary">{{ project.progress }}%</strong>
-                                            </div>
-                                        </div>
-
-                                        <ul class="list-group list-group-flush mb-3">
-                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                                <strong class="text-muted">Status</strong>
-                                                <span>
-                                                    {% if project.current_amount >= project.funding_goal %}
-                                                        <span class="badge bg-secondary">No Tiles Available</span>
-                                                    {% elif project.closing_date < now %}
-                                                        <span class="badge bg-danger">Booking Closed</span>
-                                                    {% else %}
-                                                        <span class="badge bg-success">Available</span>
-                                                    {% endif %}
-                                                </span>
-                                            </li>
-                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                                <strong class="text-muted">Goal</strong>
-                                                <span>₹{{ project.funding_goal }}</span>
-                                            </li>
-                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                                <strong class="text-muted">Current</strong>
-                                                <span>₹{{ project.current_amount }}</span>
-                                            </li>
-                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                                <strong class="text-muted">Tile value</strong>
-                                                <span>₹{{ project.tile_value }}</span>
-                                            </li>
-                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                                <strong class="text-muted">Available tiles</strong>
-                                                <span>{{ available_tiles_count }}</span>
-                                            </li>
-                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                                <strong class="text-muted">Created on</strong>
-                                                <span>{{ project.created_at|date:"F d, Y" }}</span>
-                                            </li>
-                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                                <strong class="text-muted">Close by</strong>
-                                                <span>{{ project.closing_date|date:"F d, Y" }}</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                            </div>
+<div class="modal fade fullscreen-modal" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-4 fw-bold" id="exampleModalLabel">Book Your Tiles</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+            </div>
+            <div class="modal-body p-4 pt-0">
+                <div class="d-flex justify-content-between flex-wrap align-items-center mb-4">
+                    <div class="lead">
+                        <strong>Available Tiles: <span class="text-info">{{ available_tiles_count }}</span></strong>
+                    </div>
+                    <div class="d-flex justify-content-end flex-wrap gap-3">
+                        <div class="d-flex align-items-center" style="margin-right: 1rem;">
+                            <div class="booking-tile available-tile" style="margin-right: .5rem;"></div>
+                            <span class="small text-muted">Available</span>
+                        </div>
+                        <div class="d-flex align-items-center" style="margin-right: 1rem;">
+                            <div class="booking-tile processing-tile" style="margin-right: .5rem;"></div>
+                            <span class="small text-muted">Processing</span>
+                        </div>
+                        <div class="d-flex align-items-center" style="margin-right: 1rem;">
+                            <div class="booking-tile sold-tile" style="margin-right: .5rem;"></div>
+                            <span class="small text-muted">Sold</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-12">
-                    <div class="card data-card ">
-                        {% if project.status == 'Expired' %}
-                        <div class="card-header text-center p-4">
-                            <h2 class="display-4"><strong>Project Expired</strong></h2>
-                        </div>
-                        {% elif project.status == 'Completed' %}
-                        <div class="card-header text-center p-4">
-                            <h2 class="display-4"><strong>Project Fully Funded!</strong></h2>
-                        </div>
-                        {% elif project.status == 'Closed' %}
-                        <div class="card-header text-center p-4">
-                            <h2 class="display-4"><strong>Booking Closed</strong></h2>
-                        </div>
-                        {% else %}
-                            <div class="card-header">
-                                <h1 class="display-4"><strong>Book Your Tiles</strong></h1>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div class=" mb-3" id="summary-section">
-                                        <p class="mb-1 lead"><strong>Selected Tiles:</strong>
-                                            <span class="js-selected-tiles"></span>
-                                        </p>
-                                        <p class="mb-1">
-                                            <strong>
-                                                Total: <span class="js-selected-count">0</span> x <span data-tile-value="{{project.tile_value}}">{{project.tile_value}}</span> = <span class="js-selected-total">0</span>
-                                            </strong>
-                                        </p>
-                                    </div>
-                                    <div class="pb-3 d-flex justify-content-start">
-                                        <div class="d-flex align-items-center px-1">
-                                            <div class="booking-tile available">
-                                                <span class="tile-number"></span>
-                                            </div>
-                                            <span class="px-1">Available Tile</span>
-                                        </div>
-                                        <div class="d-flex align-items-center px-1">
-                                            <div class="booking-tile processing">
-                                                <span class="tile-number"></span>
-                                            </div>
-                                            <span class="px-1">Processing Tile</span>
-                                        </div>
-                                        <div class="d-flex align-items-center px-1">
-                                            <div class="booking-tile sold">
-                                                <span class="tile-number"></span>
-                                            </div>
-                                            <span class="px-1">Sold Tile</span>
-                                        </div>
-                                    </div>
-                                </div>
+                <hr>
 
-                                <div id="tile-container" class="container-fluid bg-light border py-1 overflow-auto">
-                                    <div class="tile-grid">
-                                        {% for t in t_range %}
-                                        <div id="{{t}}" class="booking-tile
-                                            {% if t in sold_tiles_set %}
-                                                sold
-                                            {% elif t in processing_tiles_set %}
-                                                processing
-                                            {% else %}
-                                                available
-                                            {% endif %}">
-                                            <span class="tile-number">{{t}}</span>
+                <div id="tile-container" class="bg-light rounded-3 p-3 overflow-auto shadow-sm" style="max-height: 70vh;">
+                    <div class="tile-grid">
+                        {% for t in t_range %}
+                        <div id="{{t}}" class="booking-tile p-2 rounded text-center fw-bold
+                            {% if t in sold_tiles_set %}
+                                sold-tile
+                            {% elif t in processing_tiles_set %}
+                                processing-tile
+                            {% else %}
+                                available-tile
+                            {% endif %}">
+                            <span class="tile-number">{{t}}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer d-flex flex-column flex-sm-row justify-content-between align-items-center p-4 border-0">
+                <div id="summary-section" class="text-start text-sm-start mb-3 mb-sm-0">
+                    <h5 class="fw-bold mb-1">
+                        Total:
+                        <span class="js-selected-count">0</span> x
+                        <span data-tile-value="{{project.tile_value}}">₹{{ project.tile_value }}</span> =
+                        <span class="text-primary">₹<span class="js-selected-total">0</span></span>
+                    </h5>
+                    <p class="mb-0 fw-bold text-dark">
+                        Selected Tiles: <span class="js-selected-tiles fs-6 text-muted">None</span>
+                    </p>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="margin-right: 1rem;">Close</button>
+                    <form method="post" class="">
+                        {% csrf_token %}
+                        <input type="hidden" id="selected-tiles-input" name="selected_tiles_input">
+                        <button type="submit" id="book-button" class="btn btn-primary btn-sm" disabled>Proceed to Checkout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade fullscreen-modal" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-end">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+            </div>
+            <div class="modal-body text-center d-flex align-items-center justify-content-center">
+                <img src="" id="modalImage" class="img-fluid" alt="Full-size Project Image">
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="project-area section-gap" id="project">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow-lg h-100 rounded-4 overflow-hidden">
+                    <div class="row g-0">
+                        <div class="col-12">
+<div id="projectImageCarousel" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        {% for image in project.images.all %}
+        <button type="button" data-bs-target="#projectImageCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-current="{% if forloop.first %}true{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
+        {% endfor %}
+    </div>
+    <div class="carousel-inner carousel-image">
+        {% if project.images.all %}
+            {% for image in project.images.all %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <img src="{{ image.project_img.url }}" class="d-block w-100 image-clickable" alt="Project Image {{ forloop.counter }}" data-bs-toggle="modal" data-bs-target="#imageModal" data-full-image-url="{{ image.project_img.url }}">
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="carousel-item active">
+                <img src="{% static 'Dashboard/img/photos/default-banner.jpg' %}" class="d-block w-100 image-clickable" alt="No image available" data-bs-toggle="modal" data-bs-target="#imageModal" data-full-image-url="{% static 'Dashboard/img/photos/default-banner.jpg' %}">
+            </div>
+        {% endif %}
+    </div>
+</div>
+                        </div>
+                        <div class="card-body p-5">
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                                <h3 class="fw-bold mb-2 mb-md-0">{{ project.title }}</h3>
+
+                                 {% if project.status == 'Expired' %}
+                                <button type="button" class="btn btn-warning btn-lg" disabled>
+                                    Project expired
+                                </button>
+                                {% elif project.status == 'Completed' %}
+                                <button type="button" class="btn btn-success btn-lg" disabled>
+                                    Successful
+                                </button>
+                                {% elif project.status == 'Closed' %}
+                                <button type="button" class="btn btn-secondary btn-lg" disabled>
+                                    Closed
+                                </button>
+                                {% else %}
+                                <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                    Donate Now
+                                </button>
+                                {% endif %}
+
+                            </div>
+
+                            <hr>
+
+                            <div class="row g-4 mb-4 text-center">
+                                <div class="col-md-4">
+                                    <div class="card h-100 shadow-sm border-info border-3">
+                                        <div class="card-body">
+                                            <h6 class="fw-bold text-info text-uppercase mb-2">Available Tiles</h6>
+                                            <h3 class="display-5 fw-bold mb-0">{{ available_tiles_count }}</h3>
                                         </div>
-                                        {% endfor %}
                                     </div>
                                 </div>
-                                <div class="py-4 text-end">
-                                    <form method="post">
-                                        {% csrf_token %}
-                                        <input type="hidden" id="selected-tiles-input" name="selected_tiles_input">
-                                        <button type="submit" id="book-button" class="btn btn-primary" disabled >Proceed to Checkout</button>
-                                    </form>
+                                <div class="col-md-4">
+                                    <div class="card h-100 shadow-sm border-secondary border-3">
+                                        <div class="card-body">
+                                            <h6 class="fw-bold text-muted text-uppercase mb-2">Tile Value</h6>
+                                            <h3 class="display-5 fw-bold mb-0">₹{{ project.tile_value }}</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card h-100 shadow-sm border-success border-3">
+                                        <div class="card-body">
+                                            <h6 class="fw-bold text-success text-uppercase mb-2">Closing Date</h6>
+                                            <h3 class="display-5 fw-bold mb-0">{{ project.closing_date|date:"F j, Y" }}</h3>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        {% endif %}
+
+                            <p class="text-muted">{{ project.description }}</p>
+
+                            <div class="my-4">
+                                <div class="progress" role="progressbar" aria-label="Project Progress" aria-valuenow="{{ project.progress }}" aria-valuemin="0" aria-valuemax="100" style="height: 10px;">
+                                    <div class="progress-bar bg-primary" style="width: {{ project.progress }}%;"></div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-2">
+                                    <span class=" text-muted">Raised: <strong class="text-success">₹{{ project.current_amount }}</strong> of <strong class="text-info">₹{{ project.funding_goal }}</strong></span>
+                                    <strong class="text-primary">{{ project.progress }}% Completed</strong>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="row g-4">
+                                <div class="col-12">
+                                    <div class="card shadow-sm border rounded-4 p-4">
+                                    <h5 class="fw-bold mb-4">Beneficiary Details</h5>
+                                        <div class="row g-4 align-items-center">
+                                            <div class="col-md-4 text-center">
+                                                <img
+                                                    {% if project.beneficiary.profile_pic %}
+                                                        src="{{ project.beneficiary.profile_pic.url }}"
+                                                    {% else %}
+                                                        src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
+                                                    {% endif %}
+                                                    alt="Beneficiary image"
+                                                    style="width: 150px; height: 150px;"
+                                                    class="rounded-circle border border-5 border-white shadow-lg mb-3">
+                                                <h5 class="fw-bold mb-0">{{ project.beneficiary.first_name }} {{ project.beneficiary.last_name }}</h5>
+                                                <p class="text-muted">{{ project.beneficiary.title }}</p>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="table-responsive">
+                                                    <table class="table table-borderless table-sm mb-0 text-start">
+                                                        <tbody>
+                                                            <tr>
+                                                                <th class="text-muted fw-bold ps-0" style="width: 120px;">Age</th>
+                                                                <td>{{ project.beneficiary.age }} years old</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th class="text-muted fw-bold ps-0">Phone</th>
+                                                                <td>+91-{{ project.beneficiary.phone_number }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th class="text-muted fw-bold ps-0">Address</th>
+                                                                <td>{{ project.beneficiary.address }}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 
-    <script>
-        {% if messages %}
-            {% for message in messages %}
-                Swal.fire({
-                    title: '{{ message.tags|title }}!',
-                    text: '{{ message }}',
-                    icon: '{{ message.tags }}',
-                    confirmButtonText: 'OK'
-                });
-            {% endfor %}
-        {% endif %}
-    </script>
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const tileGrid = document.querySelector('.tile-grid');
-            const bookButton = document.getElementById('book-button');
-            const selectedCountSpans = document.querySelectorAll('.js-selected-count');
-            const selectedTilesSpans = document.querySelectorAll('.js-selected-tiles');
-            const selectedTotalSpans = document.querySelectorAll('.js-selected-total');
-            const selectedTilesInput = document.getElementById('selected-tiles-input');
-
-            // Correctly get the tile value from the new location
-            const tileValueElement = document.querySelector('#summary-section span[data-tile-value]');
-            const tileValue = parseFloat(tileValueElement.dataset.tileValue);
-
-            let selectedTiles = new Set();
-
-            tileGrid.addEventListener('click', (event) => {
-                const clickedTile = event.target.closest('.booking-tile');
-
-                if (clickedTile && clickedTile.classList.contains('available')) {
-                    const tileId = clickedTile.id;
-
-                    if (clickedTile.classList.contains('selected')) {
-                        clickedTile.classList.remove('selected');
-                        selectedTiles.delete(tileId);
-                    } else {
-                        clickedTile.classList.add('selected');
-                        selectedTiles.add(tileId);
-                    }
-                    updateSummary();
-                }
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                title: '{{ message.tags|title }}!',
+                text: '{{ message }}',
+                icon: '{{ message.tags }}',
+                confirmButtonText: 'OK'
             });
+        {% endfor %}
+    {% endif %}
+</script>
 
-            function updateSummary() {
-                const selectedTilesString = Array.from(selectedTiles).join('-');
-                const totalValue = selectedTiles.size * tileValue;
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const imageModal = document.getElementById('imageModal');
+    imageModal.addEventListener('show.bs.modal', (event) => {
+        // Get the image that was clicked
+        const image = event.relatedTarget;
 
-                selectedCountSpans.forEach(span => {
-                    span.textContent = selectedTiles.size;
-                });
-                selectedTilesSpans.forEach(span => {
-                    span.textContent = selectedTilesString;
-                });
-                selectedTotalSpans.forEach(span => {
-                    span.textContent = totalValue.toFixed(2);
-                });
+        // Get the URL from the data attribute
+        const imageUrl = image.getAttribute('data-full-image-url');
 
-                selectedTilesInput.value = selectedTilesString;
+        // Set the source of the image inside the modal
+        const modalImage = document.getElementById('modalImage');
+        modalImage.src = imageUrl;
+    });
+});
 
-                if (selectedTiles.size > 0) {
-                    bookButton.disabled = false;
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tileGrid = document.querySelector('.tile-grid');
+        const bookButton = document.getElementById('book-button');
+        const selectedCountSpans = document.querySelectorAll('.js-selected-count');
+        const selectedTilesSpans = document.querySelectorAll('.js-selected-tiles');
+        const selectedTotalSpans = document.querySelectorAll('.js-selected-total');
+        const selectedTilesInput = document.getElementById('selected-tiles-input');
+
+        const tileValueElement = document.querySelector('#summary-section span[data-tile-value]');
+        const tileValue = parseFloat(tileValueElement.dataset.tileValue);
+
+        let selectedTiles = new Set();
+
+        tileGrid.addEventListener('click', (event) => {
+            const clickedTile = event.target.closest('.booking-tile');
+
+            // The key fix: check for 'available-tile'
+            if (clickedTile && clickedTile.classList.contains('available-tile')) {
+                const tileId = clickedTile.id;
+
+                if (clickedTile.classList.contains('selected')) {
+                    clickedTile.classList.remove('selected');
+                    selectedTiles.delete(tileId);
                 } else {
-                    bookButton.disabled = true;
+                    clickedTile.classList.add('selected');
+                    selectedTiles.add(tileId);
                 }
+                updateSummary();
             }
         });
-    </script>
+
+        function updateSummary() {
+            const selectedTilesString = Array.from(selectedTiles).join('-');
+            const totalValue = selectedTiles.size * tileValue;
+
+            selectedCountSpans.forEach(span => {
+                span.textContent = selectedTiles.size;
+            });
+            selectedTilesSpans.forEach(span => {
+                span.textContent = selectedTilesString;
+            });
+            selectedTotalSpans.forEach(span => {
+                span.textContent = totalValue.toFixed(2);
+            });
+
+            selectedTilesInput.value = selectedTilesString;
+
+            if (selectedTiles.size > 0) {
+                bookButton.disabled = false;
+            } else {
+                bookButton.disabled = true;
+            }
+        }
+    });
+</script>
 {% endblock %}

@@ -20,6 +20,29 @@ def userIndex(request, ins_id):
     for p in projects:
         p.progress = round((p.current_amount / p.funding_goal) * 100,
                                  3) if p.funding_goal > 0 else 0
+
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                first_name = request.POST.get('first_name')
+                last_name = request.POST.get('last_name')
+                email = request.POST.get('email')
+                phone = request.POST.get('phone')
+                message = request.POST.get('message')
+
+                if not all([first_name, last_name, email, phone, message]):
+                    messages.error(request, 'All form fields must be filled out.')
+                    return redirect(f'/user/{ins.id}/contact-us/')
+
+                ContactMessage.objects.create(first_name=first_name,last_name=last_name,email=email,phone=phone,message=message,ins=ins)
+
+                messages.success(request, 'Your message has been sent successfully!')
+                return redirect(f'/user/{ins.id}/')
+
+        except IntegrityError:
+            messages.error(request, 'An error occurred while saving your message. Please try again.')
+        except Exception as e:
+            messages.error(request, f'An unexpected error occurred: {e}')
     return render(request, 'index.html',{'ins':ins, 'prj':projects})
 
 
@@ -161,16 +184,16 @@ def userCheckoutView(request, ins_id):
 
             proof_upload_url = f'{ins_id}/proof/{transaction.id}'
 
-            # sms_result = sms_send_initiated(transaction, proof_upload_url)
+            sms_result = sms_send_initiated(transaction, proof_upload_url)
             whatsapp_result = whatsapp_send_initiated(transaction, proof_upload_url)
             email_success, email_message = email_send_initiated(transaction, request.build_absolute_uri(f'/user/{proof_upload_url}/'))
 
             all_notifications_sent = True
             notification_errors = []
 
-            # if sms_result['status'] == 'error':
-            #     all_notifications_sent = False
-            #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+            if sms_result['status'] == 'error':
+                all_notifications_sent = False
+                notification_errors.append(f"SMS sending failed: {sms_result['message']}")
 
             if whatsapp_result['status'] == 'error':
                 all_notifications_sent = False
@@ -220,16 +243,16 @@ def userProofUpload(request, ins_id, trans_id):
                 except Screenshot.DoesNotExist:
                     new_screenshot = Screenshot.objects.create(transaction=tra, screen_shot=proof)
 
-            # sms_result = sms_send_proof(tra)
+            sms_result = sms_send_proof(tra)
             whatsapp_result = whatsapp_send_proof(tra)
             email_success, email_message = email_send_proof(tra)
 
             all_notifications_sent = True
             notification_errors = []
 
-            # if sms_result['status'] == 'error':
-            #     all_notifications_sent = False
-            #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+            if sms_result['status'] == 'error':
+                all_notifications_sent = False
+                notification_errors.append(f"SMS sending failed: {sms_result['message']}")
 
             if whatsapp_result['status'] == 'error':
                 all_notifications_sent = False
