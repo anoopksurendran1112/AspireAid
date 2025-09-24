@@ -18,11 +18,11 @@ import io
 import os
 
 
-SMS_INITIATE_TEMPLATE_ID = "197975"
-SMS_PROOF_TEMPLATE_ID = "197977"
-SMS_APPROVE_TEMPLATE_ID = "197976"
-SMS_REJECT_TEMPLATE_ID = ""
-SMS_UNVERIFY_TEMPLATE_ID = ""
+SMS_INITIATE_TEMPLATE_ID = "198753"
+SMS_PROOF_TEMPLATE_ID = "198750"
+SMS_APPROVE_TEMPLATE_ID = "198751"
+SMS_REJECT_TEMPLATE_ID = "198752"
+SMS_UNVERIFY_TEMPLATE_ID = "198754"
 
 authorization_key = "EApz1UNdI2KToYWBS5O0Fl4QDM8G6jxvi97PgaRhLqHrfwyeZuMsG2LUHqg6ZQoCKhbwXBz71pi9vANV"
 header_id = "KDIGCF"
@@ -76,7 +76,7 @@ def sms_send_proof(transaction):
         project_title = transaction.project.title
         phone_number = transaction.sender.phone
 
-        variables_values = f"{user_full_name}|{tracking_id}|{project_title}|"
+        variables_values = f"{user_full_name}|{project_title}|{tracking_id}|"
         params = {
             "authorization": authorization_key, "route": "dlt", "sender_id": header_id,
             "message": SMS_PROOF_TEMPLATE_ID, "variables_values": variables_values,

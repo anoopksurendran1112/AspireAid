@@ -974,16 +974,16 @@ def adminApproveTransaction(request, tid):
             transaction.tiles_bought.save()
             project_instance.save()
 
+        sms_result = sms_send_approve(transaction)
         email_success, email_message = email_send_approve(transaction)
-        # sms_result = sms_send_approve(transaction)
         whatsapp_result = whatsapp_send_approve(transaction)
 
         all_notifications_sent = True
         notification_errors = []
 
-        # if sms_result['status'] == 'error':
-        #     all_notifications_sent = False
-        #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+        if sms_result['status'] == 'error':
+            all_notifications_sent = False
+            notification_errors.append(f"SMS sending failed: {sms_result['message']}")
 
         if whatsapp_result['status'] == 'error':
             all_notifications_sent = False
@@ -1031,16 +1031,16 @@ def adminRejectTransaction(request, tid):
             transaction_instance.tiles_bought.save()
             transaction_instance.save()
 
+        sms_result = sms_send_reject(transaction_instance)
         email_success, email_message = email_send_reject(transaction_instance)
-        # sms_result = sms_send_reject(transaction_instance)
         whatsapp_result = whatsapp_send_reject(transaction_instance)
 
         all_notifications_sent = True
         notification_errors = []
 
-        # if sms_result['status'] == 'error':
-        #     all_notifications_sent = False
-        #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+        if sms_result['status'] == 'error':
+            all_notifications_sent = False
+            notification_errors.append(f"SMS sending failed: {sms_result['message']}")
 
         if whatsapp_result['status'] == 'error':
             all_notifications_sent = False
@@ -1088,16 +1088,16 @@ def adminUnverifyTransaction(request, tid):
             transaction_instance.tiles_bought.save()
             transaction_instance.save()
 
+        sms_result = sms_send_unverify(transaction_instance)
         email_success, email_message = email_send_unverify(transaction_instance)
-        # sms_result = sms_send_unverify(transaction_instance)
         whatsapp_result = whatsapp_send_unverify(transaction_instance)
 
         all_notifications_sent = True
         notification_errors = []
 
-        # if sms_result['status'] == 'error':
-        #     all_notifications_sent = False
-        #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+        if sms_result['status'] == 'error':
+            all_notifications_sent = False
+            notification_errors.append(f"SMS sending failed: {sms_result['message']}")
 
         if whatsapp_result['status'] == 'error':
             all_notifications_sent = False
