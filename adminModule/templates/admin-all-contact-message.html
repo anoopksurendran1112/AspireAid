@@ -144,7 +144,7 @@
                         <td>{{ msg.first_name }} {{ msg.last_name }}</td>
                         <td>{{ msg.email }}</td>
                         <td>{{ msg.phone }}</td>
-                        <td>{{ msg.sent_time|date:"M d, Y P" }}</td>
+                        <td>{{ msg.sent_time|date:"d M, Y P" }}</td>
                         <td class="{% if msg.has_replied == True %} text-success {% else %}
                                     text-secondary {% endif %}">
                             <strong>{% if msg.has_replied == True %} Replied {% else %}

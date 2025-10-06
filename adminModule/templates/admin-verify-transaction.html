@@ -1,4 +1,5 @@
 {% extends 'admin-dashboard.html' %}
+{% load humanize %}
 {% block content %}
 
 <!---------------------- All Institution Table Details -------------------->
@@ -31,15 +32,15 @@
                             <table class="table table-borderless table-sm mb-0">
                                 <tr>
                                     <td class="fw-bold">Target</td>
-                                    <td>₹{{ transaction.project.funding_goal }}</td>
+                                    <td>₹{{ transaction.project.funding_goal|floatformat:2|intcomma }}</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold">Tile Value</td>
-                                    <td>₹{{ transaction.project.tile_value }}</td>
+                                    <td>₹{{ transaction.project.tile_value|floatformat:2|intcomma }}</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold">Closing Date</td>
-                                    <td>{{ transaction.project.closing_date|date:"Y-m-d" }}</td>
+                                    <td>{{ transaction.project.closing_date|date:"d-m-Y" }}</td>
                                 </tr>
                             </table>
                         </div>
@@ -107,12 +108,12 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <ul class="list-unstyled mb-0">
                             <li><strong>Tracking ID:</strong> {{ transaction.tracking_id }}</li>
-                            <li><strong>Transaction Time:</strong> {{ transaction.transaction_time|date:"F d, Y P" }}</li>
-                            <li><strong>Tiles Bought:</strong> {{ transaction.tiles_bought.tiles }}</li>
+                            <li><strong>Transaction Time:</strong> {{ transaction.transaction_time|date:"d M, Y P" }}</li>
+                            <li><strong>Tiles:</strong> {{ transaction.tiles_bought.tiles }}</li>
                         </ul>
                         <div class="text-end">
                             <h4 class="mb-0 fw-bold">{{ transaction.num_tiles }} Tiles</h4>
-                            <h2 class="mb-0 text-success fw-bold">₹{{ transaction.amount }}</h2>
+                            <h2 class="mb-0 text-success fw-bold">₹{{ transaction.amount|floatformat:2|intcomma }}</h2>
                         </div>
                     </div>
                 </div>

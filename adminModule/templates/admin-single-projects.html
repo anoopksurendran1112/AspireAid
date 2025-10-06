@@ -1,6 +1,7 @@
 {% extends 'admin-dashboard.html' %}
 {% load static %}
 {% block content %}
+{% load humanize %}
 
 <!-------------------Modal for updating project details--------------------->
 <div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -200,19 +201,18 @@
                         <div class="col-12 card-header px-0">
                             <h3 class="lead"><strong>{{project.title}}</strong></h3>
                         </div>
-
                         <ul class="list-group list-group-flush mb-auto">
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                 <strong>Goal</strong>
-                                <span>₹{{ project.funding_goal }}</span>
+                                <span>₹{{ project.funding_goal|floatformat:2|intcomma }}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                 <strong>Current</strong>
-                                <span>₹{{ project.current_amount }}</span>
+                                <span>₹{{ project.current_amount|floatformat:2|intcomma }}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                 <strong>Tile value</strong>
-                                <span>₹{{ project.tile_value }}</span>
+                                <span>₹{{ project.tile_value|floatformat:2|intcomma }}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                 <strong>Available tiles</strong>
@@ -266,11 +266,11 @@
                         <ul class="list-unstyled">
                             <li>
                                 <i class="align-middle me-2 text-muted" data-feather="calendar"></i>
-                                <strong>Created on:</strong> {{ project.created_at }}
+                                <strong>Created on:</strong> {{ project.created_at|date:"d M, Y P" }}
                             </li>
                             <li>
                                 <i class="align-middle me-2 text-muted" data-feather="clock"></i>
-                                <strong>Closes by:</strong> {{ project.closing_date }}
+                                <strong>Closes by:</strong> {{ project.closing_date|date:"d M, Y P"  }}
                             </li>
                         </ul>
                     </div>
@@ -387,8 +387,8 @@
                 <td>{{forloop.counter}}</td>
                 <td>{{t.sender.first_name}} {{t.sender.last_name}}</td>
                 <td>{{ t.num_tiles }} [{{t.tiles_bought.tiles}}]</td>
-                <td>₹{{t.amount}}</td>
-                <td>{{t.transaction_time|date:"M d, Y P"}}</td>
+                <td>₹{{t.amount|floatformat:2|intcomma }}</td>
+                <td>{{t.transaction_time|date:"d M, Y P"}}</td>
                 <td class="{% if t.status == 'Verified' %}text-success
                             {% elif t.status == 'Rejected' %}text-danger
                             {% else %}text-secondary{% endif %}">

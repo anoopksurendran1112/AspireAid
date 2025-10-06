@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load humanize %}
 {% block content %}
 
 <section class="project-area section-gap" id="project">
@@ -52,7 +53,7 @@
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                         <strong>Target:</strong>
-                                        <span>₹{{ tra.project.funding_goal }}</span>
+                                        <span>₹{{ tra.project.funding_goal|floatformat:2|intcomma }}</span>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                         <strong>Created on:</strong>
@@ -113,7 +114,7 @@
                                         <td>
                                             <h6 class="text-truncate font-size-14 mb-1">{{ tra.tiles_bought.tiles }}</h6>
                                         </td>
-                                        <td>₹{{ tra.project.tile_value }}</td>
+                                        <td>₹{{ tra.project.tile_value|floatformat:2|intcomma }}</td>
                                         <td>{{ count }}</td>
                                         <td class="text-end text-black">
                                             <strong><span id="calculated-total"></span></strong>

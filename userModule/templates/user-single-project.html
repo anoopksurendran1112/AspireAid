@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load humanize %}
 {% block content %}
 
 
@@ -96,54 +97,55 @@
                 <div class="card shadow-lg h-100 rounded-4 overflow-hidden">
                     <div class="row g-0">
                         <div class="col-12">
-<div id="projectImageCarousel" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-indicators">
-        {% for image in project.images.all %}
-        <button type="button" data-bs-target="#projectImageCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-current="{% if forloop.first %}true{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
-        {% endfor %}
-    </div>
-    <div class="carousel-inner carousel-image">
-        {% if project.images.all %}
-            {% for image in project.images.all %}
-            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                <img src="{{ image.project_img.url }}" class="d-block w-100 image-clickable" alt="Project Image {{ forloop.counter }}" data-bs-toggle="modal" data-bs-target="#imageModal" data-full-image-url="{{ image.project_img.url }}">
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="carousel-item active">
-                <img src="{% static 'Dashboard/img/photos/default-banner.jpg' %}" class="d-block w-100 image-clickable" alt="No image available" data-bs-toggle="modal" data-bs-target="#imageModal" data-full-image-url="{% static 'Dashboard/img/photos/default-banner.jpg' %}">
-            </div>
-        {% endif %}
-    </div>
-</div>
+                            <div id="projectImageCarousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-indicators">
+                                    {% for image in project.images.all %}
+                                    <button type="button" data-bs-target="#projectImageCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-current="{% if forloop.first %}true{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
+                                    {% endfor %}
+                                </div>
+                                <div class="carousel-inner carousel-image">
+                                    {% if project.images.all %}
+                                        {% for image in project.images.all %}
+                                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                            <img src="{{ image.project_img.url }}" class="d-block w-100 image-clickable" alt="Project Image {{ forloop.counter }}" data-bs-toggle="modal" data-bs-target="#imageModal" data-full-image-url="{{ image.project_img.url }}">
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="carousel-item active">
+                                            <img src="{% static 'Dashboard/img/photos/default-banner.jpg' %}" class="d-block w-100 image-clickable" alt="No image available" data-bs-toggle="modal" data-bs-target="#imageModal" data-full-image-url="{% static 'Dashboard/img/photos/default-banner.jpg' %}">
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                         <div class="card-body p-5">
                             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
                                 <h3 class="fw-bold mb-2 mb-md-0">{{ project.title }}</h3>
 
-                                 {% if project.status == 'Expired' %}
+                                 {% if project_status == 'Expired' %}
                                 <button type="button" class="btn btn-warning btn-lg" disabled>
-                                    Project expired
+                                    Project Expired
                                 </button>
-                                {% elif project.status == 'Completed' %}
+                            {% elif project_status == 'Completed' %}
                                 <button type="button" class="btn btn-success btn-lg" disabled>
-                                    Successful
+                                    Goal Successful
                                 </button>
-                                {% elif project.status == 'Closed' %}
-                                <button type="button" class="btn btn-secondary btn-lg" disabled>
-                                    Closed
+                            {% elif project_status == 'Closed' %}
+                                <button type="button" class="btn btn-danger btn-lg" disabled>
+                                    Project Closed
                                 </button>
-                                {% else %}
+                            {% else %}
                                 <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                     Donate Now
                                 </button>
-                                {% endif %}
+                            {% endif %}
 
                             </div>
 
                             <hr>
 
                             <div class="row g-4 mb-4 text-center">
+                                {% if project_status == Active %}
                                 <div class="col-md-4">
                                     <div class="card h-100 shadow-sm border-info border-3">
                                         <div class="card-body">
@@ -152,15 +154,16 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                {% endif %}
+                                <div class="{% if project_status == Active %} col-md-4 {% else %} col-md-6 {% endif %}">
                                     <div class="card h-100 shadow-sm border-secondary border-3">
                                         <div class="card-body">
                                             <h6 class="fw-bold text-muted text-uppercase mb-2">Tile Value</h6>
-                                            <h3 class="display-5 fw-bold mb-0">₹{{ project.tile_value }}</h3>
+                                            <h3 class="display-5 fw-bold mb-0">₹{{ project.tile_value|floatformat:2|intcomma }}</h3>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="{% if project_status == Active %} col-md-4 {% else %} col-md-6 {% endif %}">
                                     <div class="card h-100 shadow-sm border-success border-3">
                                         <div class="card-body">
                                             <h6 class="fw-bold text-success text-uppercase mb-2">Closing Date</h6>
@@ -177,7 +180,7 @@
                                     <div class="progress-bar bg-primary" style="width: {{ project.progress }}%;"></div>
                                 </div>
                                 <div class="d-flex justify-content-between mt-2">
-                                    <span class=" text-muted">Raised: <strong class="text-success">₹{{ project.current_amount }}</strong> of <strong class="text-info">₹{{ project.funding_goal }}</strong></span>
+                                    <span class=" text-muted">Raised: <strong class="text-success">₹{{ project.current_amount|floatformat:2|intcomma }}</strong> of <strong class="text-info">₹{{ project.funding_goal|floatformat:2|intcomma }}</strong></span>
                                     <strong class="text-primary">{{ project.progress }}% Completed</strong>
                                 </div>
                             </div>

@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load humanize %}
 {% block content %}
 
     <div class="modal fade" id="confirmCheckoutModal" tabindex="-1" aria-labelledby="confirmCheckoutModalLabel" aria-hidden="true">
@@ -37,7 +38,7 @@
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                     <strong>Goal:</strong>
-                                    <span>₹{{ project.funding_goal }}</span>
+                                    <span>₹{{ project.funding_goal|floatformat:2|intcomma }}</span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                     <strong>Created by:</strong>
@@ -96,7 +97,7 @@
                                             <td>
                                                 <h6 class="text-truncate font-size-14 mb-1">{{ selected_tiles }}</h6>
                                             </td>
-                                            <td>₹{{ project.tile_value }}</td>
+                                            <td>₹{{ project.tile_value|floatformat:2|intcomma }}</td>
                                             <td>{{ count }}</td>
                                             <td class="text-end">
                                                 <span id="calculated-total">₹0</span>

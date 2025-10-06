@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% load humanize %}
 <html lang="en">
 
 <head>
@@ -66,6 +67,7 @@
         </div>
     </div>
 </div>
+
 <!---------------------- Modal for Adding or Updating Bank Details -------------------->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog ">
@@ -213,8 +215,7 @@
                     <ul class="navbar-nav ms-auto">
                         {% if not admin.is_superuser %}
                         <li class="nav-item me-2">
-                            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal"
-                                    {% if not admin.default_bank %} disabled {% endif %} >
+                            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                 <i class="align-middle" data-feather="globe"></i>
                                 Bank
                             </button>
@@ -392,11 +393,11 @@
                                             {% for p in context.lst_prj %}
                                             <tr>
                                                 <td>{{ p.title }}</td>
-                                                <td>${{ p.funding_goal }}</td>
-                                                <td>${{ p.tile_value }}</td>
-                                                <td>${{ p.current_amount }}</td>
-                                                <td>{{ p.created_at|date:"Y-m-d" }}</td>
-                                                <td>{{ p.closing_date|date:"Y-m-d" }}</td>
+                                                <td>₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
+                                                <td>₹{{ p.tile_value|floatformat:2|intcomma }}</td>
+                                                <td>₹{{ p.current_amount|floatformat:2|intcomma }}</td>
+                                                <td>{{ p.created_at|date:"d M, Y" }}</td>
+                                                <td>{{ p.closing_date|date:"d M, Y" }}</td>
                                                 <td class="{% if p.current_amount >= p.funding_goal %}text-success
                                                             {% elif not p.table_status %}text-danger
                                                             {% elif p.table_status %}text-primary

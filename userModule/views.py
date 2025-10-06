@@ -96,7 +96,7 @@ def userAllProject(request,ins_id):
 
 def userSingleProject(request, prj_id, ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
-    prj = get_object_or_404(Project, id=prj_id, table_status=True)
+    prj = get_object_or_404(Project, id=prj_id)
 
     prj.progress = round((prj.current_amount / prj.funding_goal) * 100,
                              3) if prj.funding_goal > 0 else 0
@@ -112,14 +112,16 @@ def userSingleProject(request, prj_id, ins_id):
         return redirect(f"{checkout_url}?{query_string}")
 
     else:
-        project_status = 'Open'
-        if prj.funding_goal == prj.current_amount:
+        project_status = 'Active'
+        if prj.funding_goal <= prj.current_amount:
             project_status = 'Completed'
         elif prj.closing_date < timezone.now():
             project_status = 'Expired'
+        if not prj.table_status:
+            project_status = 'Closed'
 
-        if project_status in ['Completed', 'Expired']:
-            return render(request, 'user-single-project.html',{'ins': ins, 'project': prj, 'status': project_status, 'now': timezone.now()})
+        if project_status in ['Completed', 'Expired', 'Closed']:
+            return render(request, 'user-single-project.html',{'ins': ins, 'project': prj, 'project_status': project_status,})
         else:
             tile_range = range(1, total_tiles + 1)
             all_tiles_str_list = SelectedTile.objects.filter(project=prj,table_status=True).values_list('tiles', flat=True)
@@ -139,8 +141,7 @@ def userSingleProject(request, prj_id, ins_id):
             available_tiles_count = total_tiles - unavailable_tiles_count
 
             return render(request, 'user-single-project.html',{'ins': ins, 'project': prj, 'total_tiles': total_tiles,
-                           'available_tiles_count': available_tiles_count, 't_range': tile_range,'sold_tiles_set': sold_tiles, 'processing_tiles_set': processing_tiles,
-                           'now': timezone.now()})
+                           'available_tiles_count': available_tiles_count, 't_range': tile_range,'sold_tiles_set': sold_tiles, 'processing_tiles_set': processing_tiles,})
 
 def userCheckoutView(request, ins_id):
     institution = get_object_or_404(Institution, id=ins_id)

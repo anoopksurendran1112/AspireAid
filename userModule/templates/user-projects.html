@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load humanize %}
 {% block content %}
 
 <section class="project-area section-gap" id="project">
@@ -36,8 +37,8 @@
                                 <div class="progress-bar bg-success rounded-pill" style="width: {{ p.progress }}%;"></div>
                             </div>
                             <div class="d-flex justify-content-between mt-2 small text-muted">
-                                <span class="fw-bold">Raised: <span class="text-success">₹{{ p.current_amount }}</span></span>
-                                <span>Goal: <span class="text-dark">₹{{ p.funding_goal }}</span></span>
+                                <span class="fw-bold">Raised: <span class="text-success">₹{{ p.current_amount|floatformat:2|intcomma }}</span></span>
+                                <span>Goal: <span class="text-dark">₹{{ p.funding_goal|floatformat:2|intcomma }}</span></span>
                             </div>
                         </div>
                         <div class="mt-4 text-center">

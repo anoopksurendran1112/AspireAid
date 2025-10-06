@@ -1,5 +1,6 @@
 {% extends 'admin-dashboard.html' %}
 {% load static %}
+{% load humanize %}
 {% block content %}
 
     <div class="row">
@@ -89,8 +90,8 @@
                             <td><a href="/administrator/single-project/{{ t.project.id }}/">{{ t.project.title }}</a></td>
                             <td>{{ t.sender.first_name }} {{ t.sender.last_name }}</td>
                             <td>{{ t.num_tiles }}</td>
-                            <td>₹{{ t.amount }}</td>
-                            <td>{{ t.transaction_time|date:"M d, Y P" }}</td>
+                            <td>₹{{ t.amount|floatformat:2|intcomma }}</td>
+                            <td>{{ t.transaction_time|date:"d M, Y P" }}</td>
                             <td>
                                 {% if not admin.is_superuser %}
                                     {% if t.status == 'Verified' %}

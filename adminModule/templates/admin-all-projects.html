@@ -1,5 +1,6 @@
 {% extends 'admin-dashboard.html' %}
 {% block content %}
+{% load humanize %}
 
 <!---------------------- Modal for Adding new Institution -------------------->
     <div class="modal fade" id="ModalAddProject" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -202,18 +203,24 @@
                     <tr>
                         <td>{{ forloop.counter }}</td>
                         <td>{{ p.title }}</td>
-                        <td>₹{{ p.funding_goal }}</td>
-                        <td>₹{{ p.current_amount }}</td>
-                        <td>{{ p.created_at|date:"M d, Y" }}</td>
-                        <td>{{ p.closing_date|date:"M d, Y" }}</td>
+                        <td>₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
+                        <td>₹{{ p.current_amount|floatformat:2|intcomma }}</td>
+                        <td>{{ p.created_at|date:"d M, Y" }}</td>
+                        <td>{{ p.closing_date|date:"d M, Y" }}</td>
                         <td class="{% if p.current_amount >= p.funding_goal %}text-success
-                                    {% elif not p.table_status %}text-danger
-                                    {% elif p.table_status %}text-primary
+                                    {% elif not p.validity %}text-danger
+                                    {% elif not p.table_status %}text-secondary
+                                    {% else %}text-primary
                                     {% endif %}">
                             <strong>
-                                {% if p.current_amount >= p.funding_goal %}Success
-                                {% elif not p.table_status %}Failed
-                                {% elif p.table_status %}Active
+                                {% if p.current_amount >= p.funding_goal %}
+                                    Success
+                                {% elif not p.validity %}
+                                    Expired
+                                {% elif not p.table_status %}
+                                    Closed
+                                {% else %}
+                                    Active
                                 {% endif %}
                             </strong>
                         </td>
