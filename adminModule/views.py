@@ -61,17 +61,17 @@ def adminDashboard(request):
             messages.error(request, "Your account or institution has been deactivated by the superuser.")
             return redirect('/administrator/logout/')
 
-        all_prj = Project.objects.filter(created_by=request.user).count()
-        closed_prj = Project.objects.filter(created_by=request.user, closing_date__lte=timezone.now()).count()
-        completed_prj = Project.objects.filter(created_by=request.user, current_amount__gte=F('funding_goal')).count()
-        failed_prj = Project.objects.filter(created_by=request.user, closing_date__lte=timezone.now(),current_amount__lt=F('funding_goal')).count()
+        all_prj = Project.objects.filter(created_by=request.user.institution).count()
+        closed_prj = Project.objects.filter(created_by=request.user.institution, closing_date__lte=timezone.now()).count()
+        completed_prj = Project.objects.filter(created_by=request.user.institution, current_amount__gte=F('funding_goal')).count()
+        failed_prj = Project.objects.filter(created_by=request.user.institution, closing_date__lte=timezone.now(),current_amount__lt=F('funding_goal')).count()
 
-        all_tra = Transaction.objects.filter(project__created_by=request.user).count()
-        ver_tra = Transaction.objects.filter(project__created_by=request.user, status='Verified').count()
-        unver_tra = Transaction.objects.filter(project__created_by=request.user, status='Unverified').count()
-        rej_tra = Transaction.objects.filter(project__created_by=request.user, status='Rejected').count()
+        all_tra = Transaction.objects.filter(project__created_by=request.user.institution).count()
+        ver_tra = Transaction.objects.filter(project__created_by=request.user.institution, status='Verified').count()
+        unver_tra = Transaction.objects.filter(project__created_by=request.user.institution, status='Unverified').count()
+        rej_tra = Transaction.objects.filter(project__created_by=request.user.institution, status='Rejected').count()
 
-        latest_projects = Project.objects.filter(created_by=request.user, closing_date__gte=timezone.now(), current_amount__lt=F('funding_goal')).order_by('-created_at')[:5]
+        latest_projects = Project.objects.filter(created_by=request.user.institution, closing_date__gte=timezone.now(), current_amount__lt=F('funding_goal')).order_by('-created_at')[:5]
 
     else:
         return redirect('/administrator/')
@@ -579,7 +579,7 @@ def adminAllProject(request):
         if not request.user.table_status or not request.user.institution.table_status:
             messages.error(request, "Your account or institution has been deactivated by a superuser.")
             return redirect('/administrator/logout/')
-        projects = Project.objects.filter(created_by=request.user)
+        projects = Project.objects.filter(created_by=request.user.institution)
     else:
         messages.error(request, "Your Don't have permission to acces this page.")
         return redirect('/administrator/')
@@ -869,7 +869,7 @@ def adminAllTransactions(request):
         if not request.user.table_status or not request.user.institution.table_status:
             messages.error(request, "Your account or institution has been deactivated by a superuser.")
             return redirect('/administrator/logout/')
-        transactions = Transaction.objects.filter(project__created_by=request.user)
+        transactions = Transaction.objects.filter(project__created_by=request.user.institution)
     else:
         messages.error(request, "Your Don't have permission to access this page.")
         return redirect('/administrator/')
@@ -1154,7 +1154,7 @@ def adminAllReceipts(request):
         if not request.user.table_status or not request.user.institution.table_status:
             messages.error(request, "Your account or institution has been deactivated by a superuser.")
             return redirect('/administrator/logout/')
-        receipts = Receipt.objects.filter(transaction__project__created_by=request.user)
+        receipts = Receipt.objects.filter(transaction__project__created_by=request.user.institution)
     else:
         messages.error(request, "Your Don't have permission to access this page.")
         return redirect('/administrator/')

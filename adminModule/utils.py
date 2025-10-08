@@ -293,8 +293,8 @@ def whatsapp_send_unverify(transaction):
 """Start connecting SMTP server"""
 def get_email_connection(institution):
     try:
-        connection = get_connection(host='smtp.gmail.com',port=465,username=institution.email,
-                                    password=institution.email_app_password,use_tls=False,use_ssl=True)
+        connection = get_connection(host='smtp.gmail.com',port=587,username=institution.email,
+                                    password=institution.email_app_password,use_tls=True,use_ssl=False)
         return True, connection
     except Exception as e:
         error_message = f"Could not establish email connection. Please check the SMTP credentials. Error: {e}"
