@@ -25,25 +25,18 @@
                                             <span class="text-danger" id="projectTitle-error"></span>
                                         </div>
                                     </div>
-                                    <div class="col-lg-6">
+                                    <div class="col-lg-12">
                                         <div class="form-floating mb-2">
                                             <input type="number" class="form-control" id="fundingGoal" placeholder="Enter the funding goal.. " name="goal" required>
                                             <label for="fundingGoal">Funding Goal</label>
                                             <span class="text-danger" id="fundingGoal-error"></span>
                                         </div>
                                     </div>
-                                    <div class="col-lg-6">
+                                    <div class="col-lg-12">
                                         <div class="form-floating mb-2">
                                             <input type="number" class="form-control" id="tileValue" placeholder="Enter tile value " name="tvalue" required>
                                             <label for="tileValue">Single Tile Value</label>
                                             <span class="text-danger" id="tileValue-error"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <input type="datetime-local" class="form-control" id="closingDate" placeholder="Enter Closing Date " name="clsdate" required>
-                                            <label for="closingDate">Closing Date</label>
-                                            <span class="text-danger" id="closingDate-error"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-12">
@@ -115,7 +108,7 @@
             <div class="card-header d-flex justify-content-end align-items-center">
                 {% if not admin.is_superuser %}
                     <button type="button" class="btn btn-info btn-sm me-2" data-bs-toggle="modal" data-bs-target="#ModalAddProject"
-                            {% if not admin.default_bank %} disabled {% endif %} >
+                            {% if not admin.institution.default_bank %} disabled {% endif %} >
                         <i class="align-middle me-1" data-feather="folder-plus"></i> Add New Project
                     </button>
                 {% endif %}
@@ -193,7 +186,6 @@
                         <th>Target</th>
                         <th>Current</th>
                         <th>Created At</th>
-                        <th>Closing Date</th>
                         <th>Status</th>
                         <th class="text-center">Action</th>
                     </tr>
@@ -205,20 +197,19 @@
                         <td>{{ p.title }}</td>
                         <td>₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
                         <td>₹{{ p.current_amount|floatformat:2|intcomma }}</td>
-                        <td>{{ p.created_at|date:"d M, Y" }}</td>
-                        <td>{{ p.closing_date|date:"d M, Y" }}</td>
-                        <td class="{% if p.current_amount >= p.funding_goal %}text-success
-                                    {% elif not p.validity %}text-danger
-                                    {% elif not p.table_status %}text-secondary
-                                    {% else %}text-primary
+                        <td>{{ p.started_at|date:"d M, Y" }}</td>
+                        <td class="{% if p.table_status == False %}
+                                        text-danger
+                                    {% elif not p.validity %}
+                                        text-primary
+                                    {% else %}
+                                        text-success
                                     {% endif %}">
                             <strong>
-                                {% if p.current_amount >= p.funding_goal %}
-                                    Success
-                                {% elif not p.validity %}
-                                    Expired
-                                {% elif not p.table_status %}
+                                {% if p.table_status == False %}
                                     Closed
+                                {% elif not p.validity %}
+                                    Open
                                 {% else %}
                                     Active
                                 {% endif %}

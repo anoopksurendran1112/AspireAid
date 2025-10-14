@@ -26,21 +26,16 @@
                                         <label for="projectTitle">Project Title</label>
                                     </div>
                                 </div>
-                                <div class="col-lg-6">
+                                <div class="col-lg-12">
                                     <div class="form-floating mb-2">
                                         <input type="text" class="form-control" id="fundingGoal" placeholder="Enter the funding goal.. " name="goal" value="{{project.funding_goal}}">
                                         <label for="fundingGoal">Funding Goal</label>
                                     </div>
                                 </div>
-                                <div class="col-lg-6">
+                                <div class="col-lg-12">
                                     <div class="form-floating mb-2">
                                         <input type="text" class="form-control" id="tileValue" placeholder="Enter tile value " name="tvalue" value="{{project.tile_value}}">
                                         <label for="tileValue">Single Tile Value</label>
-                                    </div>
-                                </div>
-                                <div class="col-lg-12">
-                                    <div class="form-floating mb-2">
-                                        <input type="date" class="form-control" id="closingDate" placeholder="Enter Closing Date " name="clsdate" value="{{ project.closing_date|date:'Y-m-d' }}">                                        <label for="closingDate">Closing Date</label>
                                     </div>
                                 </div>
                                 <div class="col-lg-12">
@@ -266,11 +261,26 @@
                         <ul class="list-unstyled">
                             <li>
                                 <i class="align-middle me-2 text-muted" data-feather="calendar"></i>
-                                <strong>Created on:</strong> {{ project.created_at|date:"d M, Y P" }}
+                                <strong>Created on:</strong> {{ project.started_at|date:"d M, Y P" }}
                             </li>
                             <li>
                                 <i class="align-middle me-2 text-muted" data-feather="clock"></i>
-                                <strong>Closes by:</strong> {{ project.closing_date|date:"d M, Y P"  }}
+                                <strong>Closes by:</strong>
+                                <span class="{% if project.closed_by %}
+                                                text-success
+                                            {% elif not project.table_status %}
+                                                text-danger
+                                            {% else %}
+                                                text-primary
+                                            {% endif %}">
+                                    {% if project.closed_by %}
+                                        {{ project.closed_by|date:"d M, Y P"  }}
+                                    {% elif not project.table_status %}
+                                        Closed
+                                    {% else %}
+                                        Ongoing
+                                    {% endif %}
+                                </span>
                             </li>
                         </ul>
                     </div>
@@ -422,11 +432,11 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const shareModal = document.getElementById('shareProjectModal');
-        const customUrl = `${window.location.protocol}//${window.location.host}/user/{{project.created_by.institution.id}}/single-project/{{project.id}}/`;
+        const customUrl = `${window.location.protocol}//${window.location.host}/user/{{project.created_by.id}}/single-project/{{project.id}}/`;
 
         // This is a multiline message using a template literal
         const shareText = `Check out this amazing project: {{ project.title }}!
-From {{ project.created_by.institution.institution_name }}.
+From {{ project.created_by.institution_name }}.
 You can contribute to this project and help them reach their goal.`;
 
         // Function to copy the URL to the clipboard

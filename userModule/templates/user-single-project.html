@@ -69,7 +69,7 @@
                     <form method="post" class="">
                         {% csrf_token %}
                         <input type="hidden" id="selected-tiles-input" name="selected_tiles_input">
-                        <button type="submit" id="book-button" class="btn btn-primary btn-sm" disabled>Proceed to Checkout</button>
+                        <button type="submit" id="book-button" class="btn btn-primary btn-sm" disabled>Proceed to Payment</button>
                     </form>
                 </div>
             </div>
@@ -121,25 +121,19 @@
                         <div class="card-body p-5">
                             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
                                 <h3 class="fw-bold mb-2 mb-md-0">{{ project.title }}</h3>
-
-                                 {% if project_status == 'Expired' %}
-                                <button type="button" class="btn btn-warning btn-lg" disabled>
-                                    Project Expired
-                                </button>
-                            {% elif project_status == 'Completed' %}
-                                <button type="button" class="btn btn-success btn-lg" disabled>
-                                    Goal Successful
-                                </button>
-                            {% elif project_status == 'Closed' %}
-                                <button type="button" class="btn btn-danger btn-lg" disabled>
-                                    Project Closed
-                                </button>
-                            {% else %}
-                                <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                    Donate Now
-                                </button>
-                            {% endif %}
-
+                                 {% if project_status == 'Completed' %}
+                                    <button type="button" class="btn btn-success btn-lg" disabled>
+                                        Donation Completed
+                                    </button>
+                                {% elif project_status == 'Closed' %}
+                                    <button type="button" class="btn btn-danger btn-lg" disabled>
+                                        Project Closed
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                        Donate Now
+                                    </button>
+                                {% endif %}
                             </div>
 
                             <hr>
@@ -155,7 +149,7 @@
                                     </div>
                                 </div>
                                 {% endif %}
-                                <div class="{% if project_status == Active %} col-md-4 {% else %} col-md-6 {% endif %}">
+                                <div class="col-md-4">
                                     <div class="card h-100 shadow-sm border-secondary border-3">
                                         <div class="card-body">
                                             <h6 class="fw-bold text-muted text-uppercase mb-2">Tile Value</h6>
@@ -163,11 +157,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="{% if project_status == Active %} col-md-4 {% else %} col-md-6 {% endif %}">
+                                <div class="col-md-4">
                                     <div class="card h-100 shadow-sm border-success border-3">
                                         <div class="card-body">
-                                            <h6 class="fw-bold text-success text-uppercase mb-2">Closing Date</h6>
-                                            <h3 class="display-5 fw-bold mb-0">{{ project.closing_date|date:"F j, Y" }}</h3>
+                                            <h6 class="fw-bold {% if project.closed_by %} text-danger {% else %} text-success {% endif %} text-uppercase mb-2">{% if project.closed_by %} Closed on {% else %} Opened on {% endif %}</h6>
+                                            <h3 class="display-5 fw-bold mb-0">{% if project.closed_by %} {{ project.closed_by|date:"F j, Y" }} {% else %} {{ project.started_at|date:"F j, Y" }} {% endif %}</h3>
                                         </div>
                                     </div>
                                 </div>

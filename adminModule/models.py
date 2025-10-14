@@ -1,23 +1,9 @@
-from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models import CharField
 
 
 # Create your models here.
-class Institution(models.Model):
-    institution_name = models.CharField(max_length=255,)
-    address = models.TextField()
-    phn = models.CharField(max_length=20)
-    email = models.EmailField(unique=True)
-    email_app_password = CharField(max_length=255, blank=True, null=True)
-    institution_img = models.ImageField(upload_to='institution_img/', blank=True, null=True)
-    table_status = models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.institution_name
-
-
 class BankDetails(models.Model):
     account_holder_first_name = models.CharField(max_length=100,null=True)
     account_holder_last_name = models.CharField(max_length=100,null=True)
@@ -34,11 +20,25 @@ class BankDetails(models.Model):
         return f"Bank details for {self.account_holder_first_name}  {self.account_holder_last_name}"
 
 
+
+class Institution(models.Model):
+    institution_name = models.CharField(max_length=255,)
+    address = models.TextField()
+    phn = models.CharField(max_length=20)
+    email = models.EmailField(unique=True)
+    email_app_password = CharField(max_length=255, blank=True, null=True)
+    default_bank = models.ForeignKey(BankDetails, on_delete=models.SET_NULL, null=True, blank=True,)
+    institution_img = models.ImageField(upload_to='institution_img/', blank=True, null=True)
+    table_status = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.institution_name
+
+
 class CustomUser(AbstractUser):
     email = models.EmailField(null=False, blank=False)
     institution = models.ForeignKey(Institution, on_delete=models.SET_NULL, null=True)
     phn_no = models.CharField(max_length=15, blank=True, null=True)
-    default_bank = models.ForeignKey(BankDetails, on_delete=models.SET_NULL, null=True, blank=True,)
     profile_pic = models.ImageField(upload_to='user_profile_pics/', blank=True, null=True)
     table_status = models.BooleanField(default=True)
 
@@ -64,12 +64,11 @@ class Project(models.Model):
     description = models.TextField()
     beneficiary = models.ForeignKey(Beneficial, on_delete=models.CASCADE)
     funding_goal = models.DecimalField(max_digits=19, decimal_places=2)
-    current_amount = models.DecimalField(max_digits=19, decimal_places=2, default=0, null=True)
+    current_amount = models.DecimalField(max_digits=19, decimal_places=2, default=0)
     tile_value = models.DecimalField(max_digits=19, decimal_places=2)
-    bank_details = models.ForeignKey(BankDetails, on_delete=models.SET_NULL, null=True, blank=True)
-    created_by =  models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    closing_date = models.DateTimeField()
+    created_by =  models.ForeignKey(Institution, on_delete=models.SET_NULL, null=True, blank=True)
+    started_at = models.DateTimeField(auto_now_add=True)
+    closed_by = models.DateTimeField(null=True)
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
     table_status = models.BooleanField(default=True)
 

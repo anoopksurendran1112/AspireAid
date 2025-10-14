@@ -1,3 +1,5 @@
+from django.db.models import F
+
 from adminModule.utils import whatsapp_send_initiated, email_send_initiated, whatsapp_send_proof, email_send_proof, sms_send_initiated, sms_send_proof, get_unique_tracking_id
 from userModule.models import PersonalDetails, SelectedTile, Transaction, Screenshot, ContactMessage
 from django.shortcuts import render, redirect, get_object_or_404
@@ -15,8 +17,8 @@ import os
 def userIndex(request, ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
 
-    projects = Project.objects.filter(created_by__institution=ins, created_by__is_staff=True,closing_date__gte=timezone.now(),
-        table_status=True).order_by('-created_at')[:3]
+    projects = Project.objects.filter(created_by=ins, current_amount__lt=F('funding_goal'),
+        table_status=True).order_by('-created_by')[:3]
     for p in projects:
         p.progress = round((p.current_amount / p.funding_goal) * 100,
                                  3) if p.funding_goal > 0 else 0
@@ -86,8 +88,8 @@ def credit(request, ins_id):
 
 def userAllProject(request,ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
-    projects = Project.objects.filter(created_by__institution=ins,created_by__is_staff=True,closing_date__gte=timezone.now(),
-                                      table_status=True).order_by('-created_at')
+    projects = Project.objects.filter(created_by=ins, current_amount__lt=F('funding_goal'),
+                                      table_status=True).order_by('-created_by')[:3]
     for p in projects:
         p.progress = round((p.current_amount / p.funding_goal) * 100,
                                  3) if p.funding_goal > 0 else 0
@@ -113,10 +115,8 @@ def userSingleProject(request, prj_id, ins_id):
 
     else:
         project_status = 'Active'
-        if prj.funding_goal <= prj.current_amount:
+        if prj.funding_goal <= prj.current_amount or prj.closed_by:
             project_status = 'Completed'
-        elif prj.closing_date < timezone.now():
-            project_status = 'Expired'
         if not prj.table_status:
             project_status = 'Closed'
 
@@ -158,7 +158,6 @@ def userCheckoutView(request, ins_id):
         project_id = request.POST.get("project_id")
         selected_tiles_str = request.POST.get("selected_tiles")
         fname = request.POST.get("fname")
-        lname = request.POST.get("lname")
         email = request.POST.get("email")
         phn = request.POST.get("phn")
         addr = request.POST.get("addr")
@@ -167,8 +166,8 @@ def userCheckoutView(request, ins_id):
         project = get_object_or_404(Project, id=project_id)
         total_amount = len(selected_tiles_str.split('-')) * project.tile_value
 
-        if project.closing_date <= timezone.now():
-            messages.error(request, "This project is closed for contributions.")
+        if project.funding_goal <= project.current_amount or project.closed_by:
+            messages.error(request, "This project has been completed.")
             return redirect(f'/user/{ins_id}/single-project/{project_id}/')
         if not project.table_status:
             messages.error(request, "This project is no longer active for contributions.")
@@ -179,7 +178,7 @@ def userCheckoutView(request, ins_id):
 
         try:
             with db_transaction.atomic():
-                sender = PersonalDetails.objects.create(email=email,first_name=fname,last_name=lname,phone=phn,address=addr)
+                sender = PersonalDetails.objects.create(email=email,full_name=fname,phone=phn,address=addr)
                 selected_tile_instance = SelectedTile.objects.create(project=project,sender=sender,tiles=selected_tiles_str)
                 transaction = Transaction.objects.create(tiles_bought=selected_tile_instance,sender=sender,project=project,amount=total_amount,currency="INR",status="Unverified",tracking_id=get_unique_tracking_id(),message=message_text)
 

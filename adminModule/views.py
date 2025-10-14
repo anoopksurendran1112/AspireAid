@@ -45,39 +45,39 @@ def adminLogin(request):
 def adminDashboard(request):
     if request.user.is_superuser:
         all_prj = Project.objects.all().count()
-        closed_prj = Project.objects.filter(closing_date__lte=timezone.now()).count()
+        closed_prj = Project.objects.filter(closed_by__lte=timezone.now()).count()
         completed_prj = Project.objects.filter(current_amount__gte=F('funding_goal')).count()
-        failed_prj = Project.objects.filter(closing_date__lte=timezone.now(), current_amount__lt=F('funding_goal')).count()
+        failed_prj = Project.objects.filter(closed_by__lte=timezone.now(), current_amount__lt=F('funding_goal')).count()
 
         all_tra = Transaction.objects.all().count()
         ver_tra = Transaction.objects.filter(status='Verified').count()
         unver_tra = Transaction.objects.filter(status='Unverified').count()
         rej_tra = Transaction.objects.filter(status='Rejected').count()
 
-        latest_projects = Project.objects.filter(closing_date__gte=timezone.now(),current_amount__lt=F('funding_goal')).order_by('-created_at')[:5]
+        latest_projects = Project.objects.filter(closed_by__gte=timezone.now(),current_amount__lt=F('funding_goal')).order_by('-started_at')[:5]
 
     elif request.user.is_staff:
         if not request.user.table_status or not request.user.institution.table_status:
             messages.error(request, "Your account or institution has been deactivated by the superuser.")
             return redirect('/administrator/logout/')
 
-        all_prj = Project.objects.filter(created_by=request.user).count()
-        closed_prj = Project.objects.filter(created_by=request.user, closing_date__lte=timezone.now()).count()
-        completed_prj = Project.objects.filter(created_by=request.user, current_amount__gte=F('funding_goal')).count()
-        failed_prj = Project.objects.filter(created_by=request.user, closing_date__lte=timezone.now(),current_amount__lt=F('funding_goal')).count()
+        all_prj = Project.objects.filter(created_by=request.user.institution).count()
+        closed_prj = Project.objects.filter(created_by=request.user.institution, closed_by__lte=timezone.now()).count()
+        completed_prj = Project.objects.filter(created_by=request.user.institution, current_amount__gte=F('funding_goal')).count()
+        failed_prj = Project.objects.filter(created_by=request.user.institution, closed_by__lte=timezone.now(),current_amount__lt=F('funding_goal')).count()
 
-        all_tra = Transaction.objects.filter(project__created_by=request.user).count()
-        ver_tra = Transaction.objects.filter(project__created_by=request.user, status='Verified').count()
-        unver_tra = Transaction.objects.filter(project__created_by=request.user, status='Unverified').count()
-        rej_tra = Transaction.objects.filter(project__created_by=request.user, status='Rejected').count()
+        all_tra = Transaction.objects.filter(project__created_by=request.user.institution).count()
+        ver_tra = Transaction.objects.filter(project__created_by=request.user.institution, status='Verified').count()
+        unver_tra = Transaction.objects.filter(project__created_by=request.user.institution, status='Unverified').count()
+        rej_tra = Transaction.objects.filter(project__created_by=request.user.institution, status='Rejected').count()
 
-        latest_projects = Project.objects.filter(created_by=request.user, closing_date__gte=timezone.now(), current_amount__lt=F('funding_goal')).order_by('-created_at')[:5]
+        latest_projects = Project.objects.filter(created_by=request.user.institution, closed_by__gte=timezone.now(), current_amount__lt=F('funding_goal')).order_by('-started_at')[:5]
 
     else:
         return redirect('/administrator/')
 
     for p in latest_projects:
-        if p.closing_date < timezone.now():
+        if p.closed_by < timezone.now():
             p.validity = False
 
     context = {
@@ -579,7 +579,7 @@ def adminAllProject(request):
         if not request.user.table_status or not request.user.institution.table_status:
             messages.error(request, "Your account or institution has been deactivated by a superuser.")
             return redirect('/administrator/logout/')
-        projects = Project.objects.filter(created_by=request.user)
+        projects = Project.objects.filter(created_by=request.user.institution)
     else:
         messages.error(request, "Your Don't have permission to acces this page.")
         return redirect('/administrator/')
@@ -597,18 +597,18 @@ def adminAllProject(request):
 
     if project_status:
         if project_status == 'active':
-            projects = projects.filter(table_status=True, closing_date__gt=timezone.now())
+            projects = projects.filter(table_status=True, closed_by__gt=timezone.now())
         elif project_status == 'closed':
             projects = projects.filter(table_status=False)
         elif project_status == 'success':
             projects = projects.filter(current_amount__gte=F('funding_goal'))
         elif project_status == 'failed':
-            projects = projects.filter(Q(table_status=False) | Q(closing_date__lte=timezone.now()))
+            projects = projects.filter(Q(table_status=False) | Q(closed_by__lte=timezone.now()))
 
     if start_date:
-        projects = projects.filter(created_at__date__gte=start_date)
+        projects = projects.filter(started_at__date__gte=start_date)
     if end_date:
-        projects = projects.filter(created_at__date__lte=end_date)
+        projects = projects.filter(started_at__date__lte=end_date)
 
     if amount_order == 'asc':
         projects = projects.order_by('current_amount')
@@ -619,14 +619,14 @@ def adminAllProject(request):
     elif target_order == 'desc':
         projects = projects.order_by('-funding_goal')
     elif date_order == 'asc':
-        projects = projects.order_by('closing_date')
+        projects = projects.order_by('closed_by')
     elif date_order == 'desc':
-        projects = projects.order_by('-closing_date')
+        projects = projects.order_by('-closed_by')
     else:
-        projects = projects.order_by('-created_at')
+        projects = projects.order_by('-started_at')
 
     for p in projects:
-        p.validity = p.closing_date >= timezone.now()
+        p.validity = p.current_amount >= p.funding_goal
     return render(request, "admin-all-projects.html", {'prj': projects, 'admin': request.user})
 
 
@@ -638,7 +638,6 @@ def adminAddProject(request):
     goal = request.POST.get("goal")
     tval = request.POST.get("tvalue")
     desc = request.POST.get("desc")
-    clsdate_str = request.POST.get("clsdate")
     ben_fname = request.POST.get("fname")
     ben_lname = request.POST.get("lname")
     ben_phn = request.POST.get("phn")
@@ -646,18 +645,16 @@ def adminAddProject(request):
     ben_addr = request.POST.get("addr")
 
     try:
-        naive_clsdate = datetime.datetime.strptime(clsdate_str, '%Y-%m-%dT%H:%M')
-        aware_clsdate = timezone.make_aware(naive_clsdate)
         funding_goal = Decimal(goal) if goal else Decimal(0)
         tile_value = Decimal(tval) if tval else Decimal(0)
-        bank_details = request.user.default_bank
+        bank_details = request.user.institution.default_bank
 
         with db_transaction.atomic():
             beneficiar, created = Beneficial.objects.get_or_create(first_name=ben_fname, last_name=ben_lname, phone_number=ben_phn,
                                                                    defaults={'address': ben_addr, 'age': ben_age, })
 
-            new_project = Project(title=title, description=desc, beneficiary=beneficiar, created_by=request.user,
-                                  funding_goal=funding_goal, tile_value=tile_value, closing_date=aware_clsdate,bank_details=bank_details)
+            new_project = Project(title=title, description=desc, beneficiary=beneficiar, created_by=request.user.institution,
+                                  funding_goal=funding_goal, tile_value=tile_value)
             new_project.save()
 
             if bank_details and bank_details.upi_id:
@@ -691,7 +688,7 @@ def adminSingleProject(request, pid):
 
     project.progress = round((project.current_amount / project.funding_goal) * 100,
                              3) if project.funding_goal > 0 else 0
-    project.validity = project.closing_date >= timezone.now()
+    # project.validity = project.closed_by >= timezone.now()
 
     total_tiles_count = int(project.funding_goal // project.tile_value)
 
@@ -741,7 +738,6 @@ def adminUpdateProject(request, pid):
             project.funding_goal = request.POST.get("goal")
             project.tile_value = request.POST.get("tvalue")
             project.description = request.POST.get("desc")
-            project.closing_date = request.POST.get("clsdate")
 
             beneficiary_instance = project.beneficiary
             beneficiary_instance.first_name = request.POST.get("fname")
@@ -827,7 +823,7 @@ def upload_beneficiary_image(request, prj_id):
 
 
 def adminUpdateBankDetails(request):
-    if request.user.is_superuser or request.user.is_staff:
+    if request.user.is_staff:
         if request.method == "POST":
             fname = request.POST.get('account_holder_first_name')
             lname = request.POST.get('account_holder_last_name')
@@ -838,22 +834,22 @@ def adminUpdateBankDetails(request):
             ifcs = request.POST.get('ifsc_code')
             accno = request.POST.get('account_no')
             upi = request.POST.get('upi_id')
-            if request.user.default_bank:
-                request.user.default_bank.account_holder_first_name = fname
-                request.user.default_bank.account_holder_last_name = lname
-                request.user.default_bank.account_holder_address = addr
-                request.user.default_bank.account_holder_phn_no = phn
-                request.user.default_bank.bank_name = bname
-                request.user.default_bank.branch_name = brname
-                request.user.default_bank.ifsc_code = ifcs
-                request.user.default_bank.account_no = accno
-                request.user.default_bank.upi_id = upi
-                request.user.default_bank.save()
+            if request.user.institution.default_bank:
+                request.user.institution.default_bank.account_holder_first_name = fname
+                request.user.institution.default_bank.account_holder_last_name = lname
+                request.user.institution.default_bank.account_holder_address = addr
+                request.user.institution.default_bank.account_holder_phn_no = phn
+                request.user.institution.default_bank.bank_name = bname
+                request.user.institution.default_bank.branch_name = brname
+                request.user.institution.default_bank.ifsc_code = ifcs
+                request.user.institution.default_bank.account_no = accno
+                request.user.institution.default_bank.upi_id = upi
+                request.user.institution.default_bank.save()
             else:
                 bank_details = BankDetails.objects.create(account_holder_first_name=fname, account_holder_last_name=lname, account_holder_address=addr,
                     account_holder_phn_no=phn, bank_name=bname, branch_name=brname, ifsc_code=ifcs, account_no=accno, upi_id=upi,)
-                request.user.default_bank = bank_details
-                request.user.save()
+                request.user.institution.default_bank = bank_details
+                request.user.institution.save()
             return redirect(request.META.get('HTTP_REFERER', '/'))
     else:
         return redirect('/administrator/')
@@ -869,7 +865,7 @@ def adminAllTransactions(request):
         if not request.user.table_status or not request.user.institution.table_status:
             messages.error(request, "Your account or institution has been deactivated by a superuser.")
             return redirect('/administrator/logout/')
-        transactions = Transaction.objects.filter(project__created_by=request.user)
+        transactions = Transaction.objects.filter(project__created_by=request.user.institution)
     else:
         messages.error(request, "Your Don't have permission to access this page.")
         return redirect('/administrator/')
@@ -968,6 +964,7 @@ def adminApproveTransaction(request, tid):
             project_instance = transaction.project
             project_instance.current_amount += transaction.amount
             if project_instance.funding_goal <= project_instance.current_amount:
+                project_instance.closed_by = datetime.datetime.now()
                 project_instance.table_status = False
 
             transaction.save()
@@ -1015,6 +1012,7 @@ def adminRejectTransaction(request, tid):
         with db_transaction.atomic():
             if transaction_instance.status == "Verified":
                 transaction_instance.project.current_amount -= transaction_instance.amount
+                transaction_instance.project.closed_by = None
 
             transaction_instance.status = "Rejected"
             transaction_instance.table_status = False
@@ -1154,7 +1152,7 @@ def adminAllReceipts(request):
         if not request.user.table_status or not request.user.institution.table_status:
             messages.error(request, "Your account or institution has been deactivated by a superuser.")
             return redirect('/administrator/logout/')
-        receipts = Receipt.objects.filter(transaction__project__created_by=request.user)
+        receipts = Receipt.objects.filter(transaction__project__created_by=request.user.institution)
     else:
         messages.error(request, "Your Don't have permission to access this page.")
         return redirect('/administrator/')
