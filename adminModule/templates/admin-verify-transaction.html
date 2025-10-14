@@ -38,10 +38,6 @@
                                     <td class="fw-bold">Tile Value</td>
                                     <td>₹{{ transaction.project.tile_value|floatformat:2|intcomma }}</td>
                                 </tr>
-                                <tr>
-                                    <td class="fw-bold">Closing Date</td>
-                                    <td>{{ transaction.project.closing_date|date:"d-m-Y" }}</td>
-                                </tr>
                             </table>
                         </div>
                     </div>
@@ -55,7 +51,7 @@
                         <div class="card-body">
                             <table class="table table-borderless table-sm mb-0">
                                 <tr>
-                                    <td class="fw-bold">Full Name</td>
+                                    <td class="fw-bold">Name</td>
                                     <td>{{ transaction.project.beneficiary.first_name }} {{ transaction.project.beneficiary.last_name }}</td>
                                 </tr>
                                 <tr>
@@ -79,13 +75,15 @@
                         <div class="card-body">
                             <table class="table table-borderless table-sm mb-0">
                                 <tr>
-                                    <td class="fw-bold">Full Name</td>
-                                    <td>{{ transaction.sender.first_name }} {{ transaction.sender.last_name }}</td>
+                                    <td class="fw-bold">Name</td>
+                                    <td>{{ transaction.sender.full_name }}</td>
                                 </tr>
+                                {% if transaction.sender.email %}
                                 <tr>
                                     <td class="fw-bold">Email</td>
                                     <td>{{ transaction.sender.email }}</td>
                                 </tr>
+                                {% endif %}
                                 <tr>
                                     <td class="fw-bold">Phone</td>
                                     <td>{{ transaction.sender.phone }}</td>

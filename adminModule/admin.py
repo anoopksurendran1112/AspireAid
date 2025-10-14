@@ -69,12 +69,12 @@ class ProjectAdmin(admin.ModelAdmin):
         'current_amount',
         'tile_value',
         'created_by',
-        'closing_date',
+        'closed_by',
         'table_status'
     )
-    list_filter = ('created_by', 'beneficiary', 'closing_date', 'table_status')
+    list_filter = ('created_by', 'beneficiary', 'closed_by', 'table_status')
     search_fields = ('title', 'beneficiary__first_name', 'created_by__institution_name')
-    date_hierarchy = 'created_at'
+    date_hierarchy = 'started_at'
 
 
 class BankDetailsAdmin(admin.ModelAdmin):

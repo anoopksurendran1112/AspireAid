@@ -88,7 +88,7 @@
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td><a href="/administrator/single-project/{{ t.project.id }}/">{{ t.project.title }}</a></td>
-                            <td>{{ t.sender.first_name }} {{ t.sender.last_name }}</td>
+                            <td>{{ t.sender.full_name }}</td>
                             <td>{{ t.num_tiles }}</td>
                             <td>₹{{ t.amount|floatformat:2|intcomma }}</td>
                             <td>{{ t.transaction_time|date:"d M, Y P" }}</td>

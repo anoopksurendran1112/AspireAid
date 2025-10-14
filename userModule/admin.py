@@ -6,7 +6,7 @@ from .models import SelectedTile, Transaction, Screenshot, Receipt, PersonalDeta
 
 
 class PersonalDetailsAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'email', 'phone', 'address')
+    list_display = ('full_name', 'email', 'phone', 'address')
 
 
 class SelectedTileAdmin(admin.ModelAdmin):

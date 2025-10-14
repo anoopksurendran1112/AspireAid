@@ -12,6 +12,7 @@
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to proceed? Your selected tiles will be reserved, and you will be redirected to the project page.</p>
+                    <h4>Total: <span class="text-success" id="modal-total">₹0.00</span></h4>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -24,92 +25,48 @@
     <section class="project-area section-gap" id="project">
         <div class="container">
             <div class="card data-card">
-                <div class="card-header text-center">
-                    <h1 class="my-2"><strong>Checkout</strong></h1>
+                <div class="card-header text-center bg-info">
+                    <h1 class="text-white"><strong>Checkout</strong></h1>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <h4 class="mb-3">Project Details</h4>
+                        <div class="col-12">
+                            <h4 class="mb-3">{{ project.title }}</h4>
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <strong>Title:</strong>
-                                    <span>{{ project.title }}</span>
+                                    <strong>Beneficiary:</strong>
+                                    <span>{{ project.beneficiary.first_name }} {{ project.beneficiary.last_name }}</span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                     <strong>Goal:</strong>
                                     <span>₹{{ project.funding_goal|floatformat:2|intcomma }}</span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <strong>Created by:</strong>
-                                    <span>{{ project.created_by.email }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <strong>Created on:</strong>
-                                    <span>{{ project.created_at|date:"F d, Y" }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <strong>Closing by:</strong>
-                                    <span>{{ project.closing_date|date:"F d, Y" }}</span>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <h4 class="mb-3">Beneficiary Details</h4>
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <strong>Name:</strong>
-                                    <span>{{ project.beneficiary.first_name }} {{ project.beneficiary.last_name }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <strong>Age:</strong>
-                                    <span>{{ project.beneficiary.age }} years old</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <strong>Phone:</strong>
-                                    <span>+91-{{ project.beneficiary.phone_number }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <strong>Address:</strong>
-                                    <span>{{ project.beneficiary.address }}</span>
+                                    <strong>Tile value:</strong>
+                                    <span>₹{{ project.tile_value|floatformat:2|intcomma }}</span>
                                 </li>
                             </ul>
                         </div>
                     </div>
 
-                    <hr class="my-4">
+                    <hr class="mt-0 mb-5">
 
-                    <div class="row">
+                    <div class="row mb-4">
                         <div class="col-lg-12">
                             <h4 class="mb-3">Order Summary</h4>
-                            <div class="table-responsive mb-4">
-                                <table class="table table-striped align-middle mb-0">
-                                    <thead class="bg-dark text-white">
-                                        <tr>
-                                            <th>Selected Tiles</th>
-                                            <th>Tile Value</th>
-                                            <th>Quantity</th>
-                                            <th class="text-end">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody data-tile-value="{{ project.tile_value }}" data-count="{{ count }}">
-                                        <tr>
-                                            <td>
-                                                <h6 class="text-truncate font-size-14 mb-1">{{ selected_tiles }}</h6>
-                                            </td>
-                                            <td>₹{{ project.tile_value|floatformat:2|intcomma }}</td>
-                                            <td>{{ count }}</td>
-                                            <td class="text-end">
-                                                <span id="calculated-total">₹0</span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div class="bg-light p-3 rounded mb-4">
+                                <h5 class="mb-3">Your Order ({{ count }} Tiles)</h5>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-light border-top pt-2">
+                                        <strong class="h4 mb-0 text-dark">TOTAL AMOUNT:</strong>
+                                        <span class="h3 mb-0 text-success">
+                                            <span id="summary-total">₹0.00</span>
+                                        </span>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
-
-                    <hr class="my-4">
 
                     <form method="post" id="checkout-form">
                         {% csrf_token %}
@@ -117,20 +74,14 @@
                         <input type="hidden" name="selected_tiles" value="{{ selected_tiles }}">
 
                         <div class="row g-4">
-                            <div class="col-xl-8 col-lg-12">
+                            <div class="col-lg-8 col-md-12">
                                 <h4 class="mb-3">Your Details</h4>
                                 <div class="row g-3">
-                                    <div class="col-md-6 mb-2">
+                                    <div class="col-12 mb-2">
                                         <div class="form-floating">
-                                            <input type="text" class="form-control" id="firstName" name="fname" placeholder="First Name" required>
+                                            <input type="text" class="form-control" id="fullName" name="fname" placeholder="Full Name" required>
                                         </div>
-                                        <span class="validation-error text-danger d-block" id="firstName-error"></span>
-                                    </div>
-                                    <div class="col-md-6 mb-2">
-                                        <div class="form-floating">
-                                            <input type="text" class="form-control" id="lastName" name="lname" placeholder="Last Name" required>
-                                        </div>
-                                        <span class="validation-error text-danger d-block" id="lastName-error"></span>
+                                        <span class="validation-error text-danger d-block" id="fullName-error"></span>
                                     </div>
                                     <div class="col-md-6 mb-2">
                                         <div class="form-floating">
@@ -160,11 +111,31 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="col-xl-4 col-lg-12 text-center d-flex flex-column align-items-center justify-content-center">
-                                <h4 class="mb-3">Scan to Pay</h4>
-                                <img src="{{ project.qr_code.url }}" class="img-fluid border rounded" alt="QR Code for payment">
-                                <div class="alert alert-info mt-3" role="alert">
-                                    Scan the QR code with your UPI app to complete the payment.
+                            <div class="col-lg-4 col-md-12 text-center d-flex flex-column align-items-center justify-content-center">
+                                <h4 class="mb-1">Scan to Pay</h4>
+                                <p class="mb-3">
+                                    upi id: <strong class="text-dark">{{ ins.default_bank.upi_id }}</strong>
+                                </p>
+                                <img src="{{ project.qr_code.url }}" class="img-fluid border rounded" alt="QR Code for payment" style="max-width: 200px; height: auto;">
+                                <div class="alert alert-info d-grid gap-1 w-100 mt-3" role="alert">
+                                    <a id="gpay-link"
+                                       href="gpay://upi/pay?pa={{ ins.default_bank.upi_id }}&pn={{ ins.default_bank.account_holder_first_name }} {{ ins.default_bank.account_holder_last_name }}&am=0.00&cu=INR"
+                                       class="btn btn-outline-success btn-sm"
+                                       target="_blank">
+                                        <i class="fab fa-google-pay me-1"></i>Google Pay
+                                    </a>
+                                    <a id="phonepe-link"
+                                       href="phonepe://pay?pa={{ ins.default_bank.upi_id }}&pn={{ payee_name }}&am=0.00&cu=INR"
+                                       class="btn btn-outline-primary btn-sm"
+                                       target="_blank">
+                                        <i class="fas fa-mobile-alt me-1"></i>PhonePe
+                                    </a>
+                                    <a id="generic-upi-link"
+                                       href="upi://pay?pa={{ ins.default_bank.upi_id }}&pn={{ payee_name }}&am=0.00&cu=INR"
+                                       class="btn btn-outline-secondary btn-sm mt-1"
+                                       target="_blank">
+                                        Other UPI Apps
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -176,100 +147,186 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- Total Calculation Logic ---
-        const totalSpan = document.getElementById('calculated-total');
-        const tbody = document.querySelector('tbody');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Total Calculation Logic (Unchanged but cleaned up) ---
+            const summaryTotalSpan = document.getElementById('summary-total');
+            const modalTotalSpan = document.getElementById('modal-total');
 
-        // Read the data attributes and convert them to numbers
-        const tileValue = parseFloat(tbody.dataset.tileValue);
-        const count = parseInt(tbody.dataset.count);
+            const tileValue = parseFloat("{{ project.tile_value }}"); // Use unlocalize if necessary to prevent comma issues
+            const count = parseInt("{{ count }}");
 
-        // Calculate the total and update the span
-        const total = tileValue * count;
-        if (totalSpan) {
-            totalSpan.textContent = `₹${total.toFixed(2)}`;
-        }
+            const total = tileValue * count;
 
-        // --- Form Validation & Submission Logic ---
-        const form = document.getElementById('checkout-form');
-        const confirmButton = document.getElementById('confirm-button');
-        const finalSubmitButton = document.getElementById('final-submit-button');
+            const formattedTotal = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 2,
+            }).format(total);
 
-        // Modal instance
-        const confirmModal = new bootstrap.Modal(document.getElementById('confirmCheckoutModal'));
-
-        // Input elements and their corresponding error spans
-        const firstNameInput = document.getElementById('firstName');
-        const lastNameInput = document.getElementById('lastName');
-        const phnInput = document.getElementById('phn');
-        const firstNameError = document.getElementById('firstName-error');
-        const lastNameError = document.getElementById('lastName-error');
-        const phnError = document.getElementById('phn-error');
-        const formInputs = document.querySelectorAll('#checkout-form input[required], #checkout-form textarea[required]');
-
-        // Regex for validation
-        const nameRegex = /^[A-Za-z\s]+$/;
-        const phoneRegex = /^\d{10}$/;
-
-        // Function to validate a single input
-        function validateInput(input, regex, errorSpan, errorMessage) {
-            const trimmedValue = input.value.trim();
-            const isValid = regex.test(trimmedValue);
-
-            if (trimmedValue === '') {
-                errorSpan.textContent = 'This field is required.';
-                input.classList.remove('is-valid');
-                input.classList.add('is-invalid');
-                return false;
-            } else if (!isValid) {
-                errorSpan.textContent = errorMessage;
-                input.classList.remove('is-valid');
-                input.classList.add('is-invalid');
-                return false;
-            } else {
-                errorSpan.textContent = '';
-                input.classList.remove('is-invalid');
-                input.classList.add('is-valid');
-                return true;
+            if (summaryTotalSpan) {
+                summaryTotalSpan.textContent = formattedTotal;
             }
-        }
+            if (modalTotalSpan) {
+                modalTotalSpan.textContent = formattedTotal;
+            }
 
-        // Function to validate all fields and update the main button
-        function validateForm() {
-            let isValid = true;
-            isValid = validateInput(firstNameInput, nameRegex, firstNameError, 'First name can only contain letters.') && isValid;
-            isValid = validateInput(lastNameInput, nameRegex, lastNameError, 'Last name can only contain letters.') && isValid;
-            isValid = validateInput(phnInput, phoneRegex, phnError, 'Phone number must be a 10-digit number.') && isValid;
+            // --- UPI Link Update Logic (Unchanged) ---
+            const gpayLink = document.getElementById('gpay-link');
+            const phonepeLink = document.getElementById('phonepe-link');
+            const genericUpiLink = document.getElementById('generic-upi-link');
 
-            // Check if all required fields (including textarea) are filled
-            const allFieldsFilled = Array.from(formInputs).every(input => input.value.trim() !== '');
+            const updateLinkAmount = (linkElement) => {
+                if (linkElement) {
+                    const currentHref = linkElement.href;
+                    // Regex globally replaces 'am=any.number' with 'am=new.number'
+                    linkElement.href = currentHref.replace(/&am=[\d\.]+/g, `&am=${total.toFixed(2)}`); // Ensure 2 decimal places
+                }
+            };
 
-            return isValid && allFieldsFilled;
-        }
+            updateLinkAmount(gpayLink);
+            updateLinkAmount(phonepeLink);
+            updateLinkAmount(genericUpiLink);
 
-        // Listen for input on all required fields
-        formInputs.forEach(input => {
-            input.addEventListener('input', () => {
-                const isFormValid = validateForm();
-                confirmButton.disabled = !isFormValid;
+
+            // --- Form Validation & Submission Logic ---
+            const form = document.getElementById('checkout-form');
+            const confirmButton = document.getElementById('confirm-button');
+            const finalSubmitButton = document.getElementById('final-submit-button');
+
+            // Modal instance (already correctly defined)
+            // const confirmModal = new bootstrap.Modal(document.getElementById('confirmCheckoutModal'));
+
+            // Input elements and their corresponding error spans
+            const fullNameInput = document.getElementById('fullName');
+            const phnInput = document.getElementById('phn');
+            const addressInput = document.getElementById('address'); // Added address for explicit check
+            const fullNameError = document.getElementById('fullName-error');
+            // const lastNameError = document.getElementById('lastName-error'); // Removed: Does not exist in HTML
+            const phnError = document.getElementById('phn-error');
+
+            // All required fields for general blank check
+            const formInputs = document.querySelectorAll('#checkout-form input[required], #checkout-form textarea[required]');
+
+            // Regex for validation
+            // Updated name regex to allow spaces, hyphens, and apostrophes
+            const nameRegex = /^[A-Za-z\s.'-]+$/;
+            const phoneRegex = /^\d{10}$/;
+
+            // Function to validate a single input with regex (for name and phone)
+            function validateInput(input, regex, errorSpan, errorMessage) {
+                const trimmedValue = input.value.trim();
+                const isValid = regex.test(trimmedValue);
+
+                if (trimmedValue === '') {
+                    // Let the generic blank check handle this, or keep for specific feedback
+                    errorSpan.textContent = 'This field is required.';
+                    input.classList.remove('is-valid');
+                    input.classList.add('is-invalid');
+                    return false;
+                } else if (!isValid) {
+                    errorSpan.textContent = errorMessage;
+                    input.classList.remove('is-valid');
+                    input.classList.add('is-invalid');
+                    return false;
+                } else {
+                    errorSpan.textContent = '';
+                    input.classList.remove('is-invalid');
+                    input.classList.add('is-valid');
+                    return true;
+                }
+            }
+
+            // Function to validate a field only for being non-blank (e.g., address)
+            function validateRequired(input) {
+                const trimmedValue = input.value.trim();
+                const errorSpan = document.getElementById(input.id + '-error');
+
+                if (trimmedValue === '') {
+                    if (errorSpan) {
+                         errorSpan.textContent = 'This field is required.';
+                    }
+                    input.classList.remove('is-valid');
+                    input.classList.add('is-invalid');
+                    return false;
+                } else {
+                     if (errorSpan) {
+                        errorSpan.textContent = '';
+                    }
+                    input.classList.remove('is-invalid');
+                    input.classList.add('is-valid');
+                    return true;
+                }
+            }
+
+
+            // Function to validate all fields and update the main button
+            function validateForm() {
+                let isValid = true;
+
+                // 1. Specific Regex Validation
+                // CORRECTED MESSAGE: reflects full name validation
+                isValid = validateInput(fullNameInput, nameRegex, fullNameError, 'Name can only contain letters, spaces, hyphens, or apostrophes.') && isValid;
+                isValid = validateInput(phnInput, phoneRegex, phnError, 'Phone number must be a 10-digit number.') && isValid;
+
+                // 2. Generic Blank Validation for all required fields (Address, Email, etc.)
+                formInputs.forEach(input => {
+                    if (input.id !== 'fullName' && input.id !== 'phn') { // Skip fields already checked by validateInput
+                        // Check required status of other fields and update classes
+                        if (input.value.trim() === '') {
+                            input.classList.remove('is-valid');
+                            input.classList.add('is-invalid');
+                            isValid = false;
+                        } else {
+                            input.classList.remove('is-invalid');
+                            input.classList.add('is-valid');
+                        }
+                    }
+                });
+
+                // Re-check for address separately, as it had no specific error span in HTML
+                // If you want an error message for address, you need to add an error span for it in the HTML
+
+                return isValid;
+            }
+
+            // Listen for input on all required fields
+            formInputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    const isFormValid = validateForm();
+                    // Enable/Disable the confirm button based on current validation state
+                    confirmButton.disabled = !isFormValid;
+                });
+            });
+
+            // Set the initial state of the button
+            confirmButton.disabled = !validateForm();
+
+            // Prevent form submission if the button is clicked but validation fails (a final safeguard)
+            confirmButton.addEventListener('click', function(e) {
+                if (!validateForm()) {
+                    e.preventDefault();
+                    // Optionally scroll to the first error
+                    const firstInvalid = document.querySelector('.is-invalid');
+                    if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+
+
+            // Event listener for the final submit button in the modal
+            finalSubmitButton.addEventListener('click', function() {
+                // Re-validate just before final submission (security check)
+                if (validateForm()) {
+                    finalSubmitButton.disabled = true;
+                    finalSubmitButton.textContent = 'Submitting...';
+                    form.submit();
+                } else {
+                    // Should not happen if confirmButton is disabled correctly, but safe to check
+                    alert("Please correct the validation errors before proceeding.");
+                    confirmModal.hide();
+                }
             });
         });
-
-        // Set the initial state of the button
-        confirmButton.disabled = !validateForm();
-
-        // Event listener for the final submit button in the modal
-        finalSubmitButton.addEventListener('click', function() {
-            // Disable the button to prevent double-submission
-            finalSubmitButton.disabled = true;
-            finalSubmitButton.textContent = 'Submitting...';
-
-            // Submit the form
-            form.submit();
-        });
-    });
-</script>
+    </script>
 
 {% endblock %}

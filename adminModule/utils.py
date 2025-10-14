@@ -48,7 +48,7 @@ def whatsapp_send_response(new_reply):
 """Sends a regular SMS message for payment initiated."""
 def sms_send_initiated(transaction, url):
     try:
-        user_full_name = f"{transaction.sender.first_name} {transaction.sender.last_name}"
+        user_full_name = f"{transaction.sender.full_name}"
         project_title = transaction.project.title
         phone_number = transaction.sender.phone
 
@@ -71,7 +71,7 @@ def sms_send_initiated(transaction, url):
 """Sends a regular SMS message for proof upload."""
 def sms_send_proof(transaction):
     try:
-        user_full_name = f"{transaction.sender.first_name} {transaction.sender.last_name}"
+        user_full_name = f"{transaction.sender.full_name}"
         tracking_id = transaction.tracking_id
         project_title = transaction.project.title
         phone_number = transaction.sender.phone
@@ -96,7 +96,7 @@ def sms_send_approve(transaction):
     try:
         receipt = get_object_or_404(Receipt, transaction=transaction)
 
-        user_full_name = f"{transaction.sender.first_name} {transaction.sender.last_name}"
+        user_full_name = f"{transaction.sender.full_name}"
         project_title = transaction.project.title
 
         if receipt.receipt_pdf:
@@ -123,7 +123,7 @@ def sms_send_approve(transaction):
 """Sends a regular SMS message for rejected verification."""
 def sms_send_reject(transaction):
     try:
-        user_full_name = f"{transaction.sender.first_name} {transaction.sender.last_name}"
+        user_full_name = f"{transaction.sender.full_name}"
         project_title = transaction.project.title
         phone_number = transaction.sender.phone
 
@@ -146,7 +146,7 @@ def sms_send_reject(transaction):
 """Sends a regular SMS message for unverified verification."""
 def sms_send_unverify(transaction):
     try:
-        user_full_name = f"{transaction.sender.first_name} {transaction.sender.last_name}"
+        user_full_name = f"{transaction.sender.full_name}"
         project_title = transaction.project.title
         phone_number = transaction.sender.phone
 
@@ -169,7 +169,7 @@ def sms_send_unverify(transaction):
 """Sends a Whatsapp message for payment initiated."""
 def whatsapp_send_initiated(transaction, url):
     try:
-        params_string = f"{transaction.sender.first_name} {transaction.sender.last_name},{transaction.project.title},{transaction.tracking_id},{url}"
+        params_string = f"{transaction.sender.full_name},{transaction.project.title},{transaction.tracking_id},{url}"
         api_params = {
             'user': settings.BHASHSMS_API_USER,'pass': settings.BHASHSMS_API_PASS,'sender': settings.BHASHSMS_API_SENDER,
             'phone': transaction.sender.phone,'text': 'cf_payment_initiated_v2','priority': settings.BHASHSMS_API_PRIORITY,
@@ -189,7 +189,7 @@ def whatsapp_send_initiated(transaction, url):
 """Sends a WhatsApp message for proof upload."""
 def whatsapp_send_proof(transaction):
     try:
-        params_string = f"{transaction.sender.first_name} {transaction.sender.last_name}, {transaction.tracking_id},{transaction.project.title}"
+        params_string = f"{transaction.sender.full_name}, {transaction.tracking_id},{transaction.project.title}"
         api_params = {
             'user': settings.BHASHSMS_API_USER,
             'pass': settings.BHASHSMS_API_PASS,
@@ -218,7 +218,7 @@ def whatsapp_send_approve(transaction):
         if receipt.receipt_pdf:
             receipt.filename = os.path.basename(receipt.receipt_pdf.name)
 
-        params_string = f"{transaction.sender.first_name} {transaction.sender.last_name}, {transaction.project.title}, {receipt.filename}"
+        params_string = f"{transaction.sender.full_name}, {transaction.project.title}, {receipt.filename}"
         api_params = {
             'user': settings.BHASHSMS_API_USER,
             'pass': settings.BHASHSMS_API_PASS,
@@ -243,7 +243,7 @@ def whatsapp_send_approve(transaction):
 """Sends a WhatsApp message for rejected verification."""
 def whatsapp_send_reject(transaction):
     try:
-        params_string = f"{transaction.sender.first_name} {transaction.sender.last_name}, {transaction.project.title}"
+        params_string = f"{transaction.sender.full_name}, {transaction.project.title}"
         api_params = {
             'user': settings.BHASHSMS_API_USER,
             'pass': settings.BHASHSMS_API_PASS,
@@ -268,7 +268,7 @@ def whatsapp_send_reject(transaction):
 """Sends a WhatsApp message for unverified verification."""
 def whatsapp_send_unverify(transaction):
     try:
-        params_string = f"{transaction.sender.first_name} {transaction.sender.last_name}, {transaction.project.title}"
+        params_string = f"{transaction.sender.full_name}, {transaction.project.title}"
         api_params = {
             'user': settings.BHASHSMS_API_USER,
             'pass': settings.BHASHSMS_API_PASS,
@@ -304,7 +304,7 @@ def get_email_connection(institution):
 """Sends an email for payment initiated."""
 def email_send_initiated(transaction, url):
     try:
-        institution = transaction.project.created_by.institution
+        institution = transaction.project.created_by
 
         success, connection = get_email_connection(institution)
         if not success:
@@ -312,12 +312,12 @@ def email_send_initiated(transaction, url):
 
         subject = f'Payment Initiated for "{transaction.project.title}"'
         plain_text_message = (
-            f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n\n'
+            f'Dear {transaction.sender.full_name},\n\n'
             f'Your donation for the project "{transaction.project.title}" has been successfully recorded with tracking id: {transaction.tracking_id}. You can track the status using your mobile number.\n'
             f'You can upload proof or track the status here: {url}\n\n'
             f'- Team {transaction.project.created_by.institution.institution_name}')
 
-        sender_email = transaction.project.created_by.institution.email
+        sender_email = transaction.project.created_by.email
         receiver_email = transaction.sender.email
 
         email_message = EmailMessage(subject=subject, body=plain_text_message, from_email=sender_email,
@@ -333,7 +333,7 @@ def email_send_initiated(transaction, url):
 """Sends an email for proof upload."""
 def email_send_proof(transaction):
     try:
-        institution = transaction.project.created_by.institution
+        institution = transaction.project.created_by
 
         success, connection = get_email_connection(institution)
         if not success:
@@ -341,12 +341,12 @@ def email_send_proof(transaction):
 
         subject = f'Proof upload for "{transaction.project.title}"'
         plain_text_message = (
-            f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n'
+            f'Dear {transaction.sender.full_name},\n'
             f'Thank you for submitting your donation proof for the project "{transaction.project.title}. Your tracking ID is {transaction.tracking_id}.\n'
             f'Verification is in progress, and you will be notified once it is completed.\n\n'
             f'- Team {transaction.project.created_by.institution.institution_name}')
 
-        sender_email = transaction.project.created_by.institution.email
+        sender_email = transaction.project.created_by.email
         receiver_email = transaction.sender.email
 
         email_message = EmailMessage(subject=subject, body=plain_text_message, from_email=sender_email,
@@ -363,20 +363,20 @@ def email_send_proof(transaction):
 """Sends an email for successful verification with receipt."""
 def email_send_approve(transaction):
     try:
-        institution = transaction.project.created_by.institution
+        institution = transaction.project.created_by
 
-        connection = get_connection(
-            host='smtp.gmail.com',port=587,username=institution.email,
-            password=institution.email_app_password,use_tls=True,use_ssl=False)
+        success, connection = get_email_connection(institution)
+        if not success:
+            return False, connection
 
         subject = f'Payment successfully verified for "{transaction.project.title}"'
         plain_text_message = (
-            f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n\n'
+            f'Dear {transaction.sender.full_name},\n\n'
             f'Your donation for the project "{transaction.project.title}" has been successfully verified, and the transaction is now complete.\n'
             f'Your receipt is attached below.\n\n'
             f'- Team {institution.institution_name}')
 
-        sender_email = transaction.project.created_by.institution.email
+        sender_email = transaction.project.created_by.email
         receiver_email = transaction.sender.email
 
         email_message = EmailMessage(subject=subject,body=plain_text_message,from_email=sender_email,
@@ -399,19 +399,20 @@ def email_send_approve(transaction):
 """Sends an email for rejected verification."""
 def email_send_reject(transaction):
     try:
-        institution = transaction.project.created_by.institution
-        connection = get_connection(
-            host='smtp.gmail.com',port=587,username=institution.email,
-            password=institution.email_app_password,use_tls=True,use_ssl=False)
+        institution = transaction.project.created_by
+
+        success, connection = get_email_connection(institution)
+        if not success:
+            return False, connection
 
         subject = f'Payment Verification Rejected for "{transaction.project.title}"'
         plain_text_message = (
-            f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n\n'
+            f'Dear {transaction.sender.full_name},\n\n'
             f'We regret to inform you that, your donation proof for the project "{transaction.project.title}" has been rejected.\n'
             f'Please contact the admin to resolve the issue and submit a valid proof to complete the transaction.\n\n'
             f'- Team {institution.institution_name}')
 
-        sender_email = transaction.project.created_by.institution.email
+        sender_email = transaction.project.created_by.email
         receiver_email = transaction.sender.email
 
         email_message = EmailMessage(subject=subject,body=plain_text_message,from_email=sender_email,
@@ -427,20 +428,20 @@ def email_send_reject(transaction):
 """Sends an email for unverified verification."""
 def email_send_unverify(transaction):
     try:
-        institution = transaction.project.created_by.institution
+        institution = transaction.project.created_by
 
-        connection = get_connection(
-            host='smtp.gmail.com',port=587,username=institution.email,
-            password=institution.email_app_password,use_tls=True,use_ssl=False)
+        success, connection = get_email_connection(institution)
+        if not success:
+            return False, connection
 
         subject = f'Payment Status Unverified for "{transaction.project.title}"'
         plain_text_message = (
-            f'Dear {transaction.sender.first_name} {transaction.sender.last_name},\n\n'
+            f'Dear {transaction.sender.full_name},\n\n'
             f'Your donation for the project "{transaction.project.title}" remains unverified. Use your registered number to track the current status.\n'
             f'Our team is reviewing it and will verify soon.\n\n'
             f'- Team {institution.institution_name}')
 
-        sender_email = transaction.project.created_by.institution.email
+        sender_email = transaction.project.created_by.email
         receiver_email = transaction.sender.email
 
         email_message = EmailMessage(subject=subject,body=plain_text_message,from_email=sender_email,
@@ -491,7 +492,7 @@ def generate_receipt_pdf(transaction):
 
     # --- Header Section (Logo, Invoice Number, Date) ---
     header_data = [
-        [Paragraph(transaction.project.created_by.institution.institution_name, styles['TitleStyle']), ""],
+        [Paragraph(transaction.project.created_by.institution_name, styles['TitleStyle']), ""],
         '',
         [Paragraph(f"NO: {transaction.tracking_id}", styles['BoldStyle']),  # Fixed hardcoded invoice number
          Paragraph(f"DATE: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['RightAlignNormal'])]
@@ -513,9 +514,8 @@ def generate_receipt_pdf(transaction):
         ],
         [
             Paragraph(f"<b>Title:</b> {transaction.project.title}<br/>"
-                      f"<b>Starting date:</b> {transaction.project.created_at.strftime('%Y-%m-%d %H:%M:%S')}<br/>"  # Formatted the date
-                      f"<b>Closing date:</b> {transaction.project.closing_date.strftime('%Y-%m-%d %H:%M:%S')}<br/>"  # Formatted the date
-                      f"<b>Created by:</b> {transaction.project.created_by.first_name} {transaction.project.created_by.last_name}<br/>",
+                      f"<b>Starting date:</b> {transaction.project.started_at.strftime('%Y-%m-%d %H:%M:%S')}<br/>"  # Formatted the date
+                      f"<b>Created by:</b> {transaction.project.created_by.institution_name}<br/>",
                       # Fixed this bug
                       styles['NormalStyle']),
             Paragraph(
@@ -544,7 +544,7 @@ def generate_receipt_pdf(transaction):
             Paragraph(f"<b>Selected Tiles:</b> {transaction.tiles_bought.tiles}<br/>"
                       f"<b>Quantity:</b> {transaction.num_tiles}<br/>"
                       f"<b>Amount:</b> {transaction.amount}<br/>", styles['NormalStyle']),
-            Paragraph(f"<b>Name:</b> {transaction.sender.first_name} {transaction.sender.last_name}<br/>"
+            Paragraph(f"<b>Name:</b> {transaction.sender.full_name}<br/>"
                       f"<b>Phone:</b> {transaction.sender.phone}<br/>"
                       f"<b>Email:</b> {transaction.sender.email}<br/>"
                       f"<b>Address:</b> {transaction.sender.address}<br/>", styles['NormalStyle'])

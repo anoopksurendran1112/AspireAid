@@ -67,8 +67,8 @@ class Project(models.Model):
     current_amount = models.DecimalField(max_digits=19, decimal_places=2, default=0)
     tile_value = models.DecimalField(max_digits=19, decimal_places=2)
     created_by =  models.ForeignKey(Institution, on_delete=models.SET_NULL, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    closing_date = models.DateTimeField()
+    started_at = models.DateTimeField(auto_now_add=True)
+    closed_by = models.DateTimeField(null=True)
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
     table_status = models.BooleanField(default=True)
 
