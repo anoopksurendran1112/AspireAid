@@ -47,4 +47,7 @@ urlpatterns = [
     path('generate-receipt/<int:t_id>/', views.adminGenerateReceipts),
     path('all-receipts/',views.adminAllReceipts),
     path('send-receipt/<int:r_id>/',views.adminSendReciept),
+
+    path('all-reports/',views.adminAllReports),
+    path('generate-report/<int:p_id>/',views.adminGenerateReports),
 ]

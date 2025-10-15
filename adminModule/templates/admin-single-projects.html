@@ -383,11 +383,11 @@
             <thead class="table-dark">
             <tr>
                 <th>Sl no</th>
-                <th>Sender</th>
+                <th>Buyer</th>
                 <th>No of Tiles</th>
                 <th>Amount</th>
-                <th>Time</th>
-                <th class="text-center">Status</th>
+                <th>Transaction Time</th>
+                <th>Status</th>
                 <th class="text-center">Action</th>
             </tr>
             </thead>
@@ -395,7 +395,7 @@
             {% for t in transactions %}
             <tr>
                 <td>{{forloop.counter}}</td>
-                <td>{{t.sender.first_name}} {{t.sender.last_name}}</td>
+                <td>{{t.sender.full_name}}</td>
                 <td>{{ t.num_tiles }} [{{t.tiles_bought.tiles}}]</td>
                 <td>₹{{t.amount|floatformat:2|intcomma }}</td>
                 <td>{{t.transaction_time|date:"d M, Y P"}}</td>

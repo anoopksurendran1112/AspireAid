@@ -83,3 +83,12 @@ class ProjectImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.project.title}"
+
+
+class Reports(models.Model):
+    project = models.ForeignKey(Project,on_delete=models.CASCADE,)
+    report_pdf = models.FileField(upload_to='reports/')
+    table_status = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Report for Project {self.project.title}"

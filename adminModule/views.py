@@ -1,7 +1,7 @@
 from adminModule.utils import generate_receipt_pdf, whatsapp_send_approve, email_send_approve, sms_send_approve, \
     email_send_reject, sms_send_reject, whatsapp_send_reject, email_send_unverify, sms_send_unverify, \
-    whatsapp_send_unverify, sms_send_response, email_send_response, whatsapp_send_response
-from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser
+    whatsapp_send_unverify, sms_send_response, email_send_response, whatsapp_send_response, generate_report_pdf
+from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser, Reports
 from userModule.models import Transaction, Receipt, Screenshot, ContactMessage, MessageReply
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
@@ -12,7 +12,7 @@ from decimal import Decimal, InvalidOperation
 from django.db import IntegrityError
 from django.contrib import messages
 from django.utils import timezone
-from django.db.models import F, Q
+from django.db.models import F, Q, Count
 from io import BytesIO
 import datetime
 import qrcode
@@ -626,7 +626,8 @@ def adminAllProject(request):
         projects = projects.order_by('-started_at')
 
     for p in projects:
-        p.validity = p.current_amount >= p.funding_goal
+        if p.current_amount >= p.funding_goal:
+            p.validity = 'Completed'
     return render(request, "admin-all-projects.html", {'prj': projects, 'admin': request.user})
 
 
@@ -971,31 +972,31 @@ def adminApproveTransaction(request, tid):
             transaction.tiles_bought.save()
             project_instance.save()
 
-        sms_result = sms_send_approve(transaction)
-        email_success, email_message = email_send_approve(transaction)
-        whatsapp_result = whatsapp_send_approve(transaction)
-
-        all_notifications_sent = True
-        notification_errors = []
-
-        if sms_result['status'] == 'error':
-            all_notifications_sent = False
-            notification_errors.append(f"SMS sending failed: {sms_result['message']}")
-
-        if whatsapp_result['status'] == 'error':
-            all_notifications_sent = False
-            notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
-
-        if not email_success:
-            all_notifications_sent = False
-            notification_errors.append(f"Email sending failed: {email_message}")
-
-        if all_notifications_sent:
-            messages.success(request,f'The transaction: {transaction.tracking_id} has been approved and a receipt has been generated.')
-        else:
-            base_msg = "The transaction has been approved, but there were issues with some notifications."
-            details_msg = " ".join(notification_errors)
-            messages.warning(request, f"{base_msg} Details: {details_msg}")
+        # sms_result = sms_send_approve(transaction)
+        # email_success, email_message = email_send_approve(transaction)
+        # whatsapp_result = whatsapp_send_approve(transaction)
+        #
+        # all_notifications_sent = True
+        # notification_errors = []
+        #
+        # if sms_result['status'] == 'error':
+        #     all_notifications_sent = False
+        #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+        #
+        # if whatsapp_result['status'] == 'error':
+        #     all_notifications_sent = False
+        #     notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
+        #
+        # if not email_success:
+        #     all_notifications_sent = False
+        #     notification_errors.append(f"Email sending failed: {email_message}")
+        #
+        # if all_notifications_sent:
+        #     messages.success(request,f'The transaction: {transaction.tracking_id} has been approved and a receipt has been generated.')
+        # else:
+        #     base_msg = "The transaction has been approved, but there were issues with some notifications."
+        #     details_msg = " ".join(notification_errors)
+        #     messages.warning(request, f"{base_msg} Details: {details_msg}")
     except Exception as e:
         messages.error(request, f"Failed to approve transaction: {e}")
     return redirect('/administrator/all-transactions/')
@@ -1210,16 +1211,16 @@ def adminSendReciept(request, r_id):
     try:
         receipt = get_object_or_404(Receipt, id=r_id)
 
-        # sms_result = sms_send_approve(receipt.transaction)
+        sms_result = sms_send_approve(receipt.transaction)
         email_success, email_message = email_send_approve(receipt.transaction)
         whatsapp_result = whatsapp_send_approve(receipt.transaction)
 
         all_notifications_sent = True
         notification_errors = []
 
-        # if sms_result['status'] == 'error':
-        #     all_notifications_sent = False
-        #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+        if sms_result['status'] == 'error':
+            all_notifications_sent = False
+            notification_errors.append(f"SMS sending failed: {sms_result['message']}")
 
         if whatsapp_result['status'] == 'error':
             all_notifications_sent = False
@@ -1238,6 +1239,61 @@ def adminSendReciept(request, r_id):
     except Exception as e:
         messages.error(request, f"An unexpected error occurred while sending the receipt: {e}.")
     return redirect('/administrator/all-receipts/')
+
+
+def adminAllReports(request):
+    completion_conditions = Q(closed_by__isnull=False) & Q(current_amount__gte=F('funding_goal'))
+
+    if request.user.is_superuser:
+        if not request.user.table_status:
+            messages.error(request, "Your account has been deactivated by another superuser.")
+            return redirect('/administrator/logout/')
+        project = (Project.objects.filter(completion_conditions)
+                   .annotate(tra=Count('transaction', distinct=True)).order_by('-closed_by'))
+        reports = Reports.objects.all().select_related('project')
+
+    elif request.user.is_staff:
+        if not request.user.table_status or not request.user.institution.table_status:
+            messages.error(request, "Your account or institution has been deactivated by a superuser.")
+            return redirect('/administrator/logout/')
+        project = (Project.objects.filter(completion_conditions, created_by=request.user.institution,)
+                   .annotate(tra=Count('transaction', distinct=True)).order_by('-closed_by'))
+        reports = Reports.objects.filter(project__created_by=request.user.institution).select_related('project')
+
+    else:
+        messages.error(request, "You don't have permission to access this page.")
+        return redirect('/administrator/')
+
+    for p in project:
+        p.tiles = (p.funding_goal / p.tile_value)
+        p.tra = Transaction.objects.filter(project = p).count()
+    return render(request, 'admin-all-reports.html', {'admin': request.user, 'project': project, 'reports': reports})
+
+
+def adminGenerateReports(request, p_id):
+    if not (request.user.is_superuser or request.user.is_staff):
+        return redirect('/administrator/')
+    project_instance = get_object_or_404(Project, id=p_id)
+    # try:
+    with db_transaction.atomic():
+        old_report = None
+        try:
+            old_report = Reports.objects.get(project=project_instance)
+        except Reports.DoesNotExist:
+            pass
+
+        new_pdf_data = generate_report_pdf(project_instance)
+        report, created = Reports.objects.update_or_create(project=project_instance,defaults={'report_pdf': new_pdf_data})
+
+        if not created and old_report and old_report.report_pdf:
+            old_file_path = old_report.report_pdf.path
+            if os.path.exists(old_file_path):
+                os.remove(old_file_path)
+
+    messages.success(request,f'A report for the project: {project_instance.title} has been created.')
+    # except Exception as e:
+    #     messages.error(request, f"Failed to generate report: {e}")
+    return redirect('/administrator/all-reports/')
 
 
 def adminContactMessage(request):
