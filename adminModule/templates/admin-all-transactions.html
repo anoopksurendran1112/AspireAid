@@ -79,7 +79,7 @@
                             <th>Buyer</th>
                             <th>No of Tiles</th>
                             <th>Amount</th>
-                            <th>Time</th>
+                            <th>Transaction Time</th>
                             <th class="{% if not admin.is_superuser %}text-center{% endif %}">Action</th>
                         </tr>
                         </thead>
@@ -95,38 +95,42 @@
                             <td>
                                 {% if not admin.is_superuser %}
                                     {% if t.status == 'Verified' %}
-                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-success btn-sm" style="width: 85px;">
-                                            <i class="align-middle" data-feather="check-circle"></i> Verified
+                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-success btn-sm me-1">
+                                            <i class="align-middle" data-feather="check-circle"></i>
                                         </a>
-                                        <a href="/administrator/generate-receipt/{{ t.id }}/" class="btn btn-success btn-sm my-1" style="width: 85px;">
-                                            <i class="align-middle" data-feather="file-text"></i> Receipt
+                                        <a href="/administrator/generate-receipt/{{ t.id }}/" class="btn btn-info btn-sm me-1">
+                                            <i class="align-middle" data-feather="file-plus"></i>
                                         </a>
                                     {% elif t.status == 'Unverified' %}
-                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-primary btn-sm" style="width: 85px;">
-                                            <i class="align-middle" data-feather="info"></i> Verify
+                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-primary btn-sm me-1">
+                                            <i class="align-middle" data-feather="info"></i>
                                         </a>
                                     {% elif t.status == 'Rejected' %}
-                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-danger btn-sm" style="width: 85px;">
-                                            <i class="align-middle" data-feather="x-circle"></i> Rejected
+                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-danger btn-sm me-1">
+                                            <i class="align-middle" data-feather="x-circle"></i>
                                         </a>
                                     {% endif %}
                                 {% else %}
                                     {% if t.status == 'Verified' %}
-                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-success btn-sm" style="width: 85px;">
-                                            <i class="align-middle" data-feather="check-circle"></i> Verified
+                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-success btn-sm me-1">
+                                            <i class="align-middle" data-feather="check-circle"></i>
                                         </a>
                                     {% elif t.status == 'Unverified' %}
-                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-primary btn-sm" style="width: 85px;">
-                                            <i class="align-middle" data-feather="info"></i> Verify
+                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-primary btn-sm me-1">
+                                            <i class="align-middle" data-feather="info"></i>
                                         </a>
                                     {% elif t.status == 'Rejected' %}
-                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-danger btn-sm" style="width: 85px;">
-                                            <i class="align-middle" data-feather="x-circle"></i> Rejected
+                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-danger btn-sm me-1">
+                                            <i class="align-middle" data-feather="x-circle"></i>
                                         </a>
                                     {% endif %}
                                 {% endif %}
                             </td>
                         </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center p-4">No Transactions found matching the criteria.</td>
+                    </tr>
                         {% endfor %}
                         </tbody>
                     </table>

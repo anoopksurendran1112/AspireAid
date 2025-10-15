@@ -184,31 +184,31 @@ def userCheckoutView(request, ins_id):
 
             proof_upload_url = f'{ins_id}/proof/{transaction.id}'
 
-            sms_result = sms_send_initiated(transaction, proof_upload_url)
-            whatsapp_result = whatsapp_send_initiated(transaction, proof_upload_url)
-            email_success, email_message = email_send_initiated(transaction, request.build_absolute_uri(f'/user/{proof_upload_url}/'))
-
-            all_notifications_sent = True
-            notification_errors = []
-
-            if sms_result['status'] == 'error':
-                all_notifications_sent = False
-                notification_errors.append(f"SMS sending failed: {sms_result['message']}")
-
-            if whatsapp_result['status'] == 'error':
-                all_notifications_sent = False
-                notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
-
-            if not email_success:
-                all_notifications_sent = False
-                notification_errors.append(f"Email sending failed: {email_message}")
-
-            if all_notifications_sent:
-                messages.success(request,f'Payment for the tiles {selected_tiles_str} has been initiated and a confirmation has been sent via SMS, WhatsApp, and Email.')
-            else:
-                base_message = "Your payment has been successfully initiated, but we encountered issues with some of the notification services."
-                detailed_errors = " ".join(notification_errors)
-                messages.warning(request, f"{base_message} Details: {detailed_errors}")
+            # sms_result = sms_send_initiated(transaction, proof_upload_url)
+            # whatsapp_result = whatsapp_send_initiated(transaction, proof_upload_url)
+            # email_success, email_message = email_send_initiated(transaction, request.build_absolute_uri(f'/user/{proof_upload_url}/'))
+            #
+            # all_notifications_sent = True
+            # notification_errors = []
+            #
+            # if sms_result['status'] == 'error':
+            #     all_notifications_sent = False
+            #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+            #
+            # if whatsapp_result['status'] == 'error':
+            #     all_notifications_sent = False
+            #     notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
+            #
+            # if not email_success:
+            #     all_notifications_sent = False
+            #     notification_errors.append(f"Email sending failed: {email_message}")
+            #
+            # if all_notifications_sent:
+            #     messages.success(request,f'Payment for the tiles {selected_tiles_str} has been initiated and a confirmation has been sent via SMS, WhatsApp, and Email.')
+            # else:
+            #     base_message = "Your payment has been successfully initiated, but we encountered issues with some of the notification services."
+            #     detailed_errors = " ".join(notification_errors)
+            #     messages.warning(request, f"{base_message} Details: {detailed_errors}")
 
         except Exception as e:
             messages.error(request, f"Failed to perform checkout: {e}")
