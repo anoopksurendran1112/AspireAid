@@ -85,6 +85,16 @@ class ProjectImage(models.Model):
         return f"Image for {self.project.title}"
 
 
+class NotificationPreference(models.Model):
+    institution = models.OneToOneField(Institution,on_delete=models.CASCADE,primary_key=True,related_name='notification_prefs',verbose_name="Institution")
+    sms_enabled = models.BooleanField(default=True,verbose_name="SMS Notifications")
+    whatsapp_enabled = models.BooleanField(default=True,verbose_name="WhatsApp Notifications",)
+    email_enabled = models.BooleanField(default=True,verbose_name="Email Notifications")
+
+    def __str__(self):
+        return f"Preferences for {self.institution.institution_name}"
+
+
 class Reports(models.Model):
     project = models.ForeignKey(Project,on_delete=models.CASCADE,)
     report_pdf = models.FileField(upload_to='reports/')

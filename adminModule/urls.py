@@ -16,6 +16,9 @@ urlpatterns = [
     path('admin_profile_img/',views.adminProfilePicture),
     path('admin_inst_img/',views.adminInstitutionPicture),
 
+    path('default-notification/',views.adminDefaultNotification),
+    path('update_notification_preference/',views.adminUpdateNotification),
+
     path('update-bank/',views.adminUpdateBankDetails, name='update_bank'),
 
     path('all-institution/',views.adminAllInstitution),

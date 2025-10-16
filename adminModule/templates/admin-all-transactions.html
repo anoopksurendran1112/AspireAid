@@ -16,33 +16,32 @@
                 <div class="collapse" id="advancedFilterCollapse">
                     <div class="card-body">
                         <form method="get" class="row g-3">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <input type="text" class="form-control" id="tracking_id" name="tracking_id" placeholder="Enter Tracking ID">
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <input type="text" class="form-control" id="project_title" name="project_title" placeholder="Enter Project Title">
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <input type="text" class="form-control" id="sender_name" name="sender_name" placeholder="Enter Buyer name">
                             </div>
-                            <div class="col-md-4">
-                                <label for="status_filter" class="form-label">Status</label>
+                            <div class="col-md-3">
                                 <select id="status_filter" name="status" class="form-select">
-                                    <option value="">All</option>
-                                    <option value="Unverified">Unverified</option>
-                                    <option value="Verified">Verified</option>
-                                    <option value="Rejected">Rejected</option>
+                                    <option value="">All Transactions</option>
+                                    <option value="Unverified">Unverified Transactions</option>
+                                    <option value="Verified">Verified Transactions</option>
+                                    <option value="Rejected">Rejected Transactions</option>
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label for="start_date" class="form-label">From Date</label>
                                 <input type="date" class="form-control" id="start_date" name="start_date">
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label for="end_date" class="form-label">To Date</label>
                                 <input type="date" class="form-control" id="end_date" name="end_date">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <label for="order_by_amount" class="form-label">Amount</label>
                                 <select id="order_by_amount" name="amount_order" class="form-select">
                                     <option value="">None</option>
@@ -50,7 +49,7 @@
                                     <option value="desc">Descending</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <label for="order_by_tiles" class="form-label">Bought Tiles</label>
                                 <select id="order_by_tiles" name="tiles_order" class="form-select">
                                     <option value="">None</option>
@@ -77,6 +76,7 @@
                             <th>Sl no.</th>
                             <th>Project Title</th>
                             <th>Buyer</th>
+                            <th>Tracking ID</th>
                             <th>No of Tiles</th>
                             <th>Amount</th>
                             <th>Transaction Time</th>
@@ -89,6 +89,7 @@
                             <td>{{ forloop.counter }}</td>
                             <td><a href="/administrator/single-project/{{ t.project.id }}/">{{ t.project.title }}</a></td>
                             <td>{{ t.sender.full_name }}</td>
+                            <td>{{ t.tracking_id }}</td>
                             <td>{{ t.num_tiles }}</td>
                             <td>₹{{ t.amount|floatformat:2|intcomma }}</td>
                             <td>{{ t.transaction_time|date:"d M, Y P" }}</td>

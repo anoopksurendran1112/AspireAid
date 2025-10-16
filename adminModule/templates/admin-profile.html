@@ -5,49 +5,49 @@
 <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-light">
-                <h1 class="modal-title fs-5" id="profileModalLabel"><strong>Update Your Profile Details</strong></h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-primary ">
+                <h1 class="modal-title fs-5 text-white" id="profileModalLabel"><strong>Update Profile Details</strong></h1>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <form method="post">
                 {% csrf_token %}
                 <div class="modal-body p-4">
-                    <h5 class="mb-3">User Details</h5>
+                    <h5 class="mb-3 text-primary">User Details</h5>
                     <div class="row gx-3 gy-3">
                         <div class="col-md-6 form-floating">
-                            <input type="text" class="form-control" id="userFirstName" placeholder="User's Firstname" value="{{ admin.first_name }}" name="first_name">
-                            <label for="userFirstName" class="ms-2 text-muted">First Name</label>
+                            <input type="text" class="form-control" id="userFirstName" placeholder="Firstname" value="{{ admin.first_name }}" name="first_name">
+                            <label for="userFirstName" class="ms-2">First Name</label>
                         </div>
                         <div class="col-md-6 form-floating">
-                            <input type="text" class="form-control" id="userLastName" placeholder="User's Lastname" value="{{ admin.last_name }}" name="last_name">
-                            <label for="userLastName" class="ms-2 text-muted">Last Name</label>
+                            <input type="text" class="form-control" id="userLastName" placeholder="Lastname" value="{{ admin.last_name }}" name="last_name">
+                            <label for="userLastName" class="ms-2">Last Name</label>
                         </div>
                         <div class="col-md-6 form-floating">
-                            <input type="email" class="form-control" id="userEmail" placeholder="User's Email ID" value="{{ admin.email }}" name="email">
-                            <label for="userEmail" class="ms-2 text-muted">Email ID</label>
+                            <input type="email" class="form-control" id="userEmail" placeholder="Email ID" value="{{ admin.email }}" name="email">
+                            <label for="userEmail" class="ms-2">Email ID</label>
                         </div>
                         <div class="col-md-6 form-floating">
-                            <input type="tel" class="form-control" id="userPhn" placeholder="User's Phone number" value="{{ admin.phn_no }}" name="phn_no">
-                            <label for="userPhn" class="ms-2 text-muted">Phone Number</label>
+                            <input type="tel" class="form-control" id="userPhn" placeholder="Phone number" value="{{ admin.phn_no }}" name="phn_no">
+                            <label for="userPhn" class="ms-2">Phone Number</label>
                         </div>
                     </div>
 
                     {% if not admin.is_superuser %}
                     <hr class="my-4">
-                    <h5 class="mb-3">Institution Details</h5>
+                    <h5 class="mb-3 text-primary">Institution Details</h5>
                     <div class="row gx-3 gy-3">
                         <div class="col-md-6 form-floating">
                             <input type="text" class="form-control" id="instName" placeholder="Institution Name" value="{{ admin.institution.institution_name }}" name="institution_name">
-                            <label for="instName" class="ms-2 text-muted">Institution Name</label>
+                            <label for="instName" class="ms-2">Institution Name</label>
                         </div>
                         <div class="col-md-6 form-floating">
                             <input type="tel" class="form-control" id="instPhn" placeholder="Institution Phone" value="{{ admin.institution.phn }}" name="institution_phn">
-                            <label for="instPhn" class="ms-2 text-muted">Institution Phone</label>
+                            <label for="instPhn" class="ms-2">Institution Phone</label>
                         </div>
                         <div class="col-md-12 form-floating">
                             <textarea class="form-control" id="instAddress" placeholder="Institution Address" name="institution_address" style="height: 100px;">{{ admin.institution.address }}</textarea>
-                            <label for="instAddress" class="ms-2 text-muted">Institution Address</label>
+                            <label for="instAddress" class="ms-2">Institution Address</label>
                         </div>
                     </div>
                     {% endif %}
@@ -64,8 +64,8 @@
 <div class="modal fade" id="updateDataModal" tabindex="-1" aria-labelledby="updateDataModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-light">
-                <h1 class="modal-title fs-5" id="updateDataModalLabel"><strong>Update Your Account Details</strong></h1>
+            <div class="modal-header bg-danger ">
+                <h1 class="modal-title fs-5 text-white" id="updateDataModalLabel"><strong>Change Credentials</strong></h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -73,18 +73,18 @@
                 {% csrf_token %}
                 <div class="modal-body p-4">
 
-                    {% if not admin.is_superuser %}
-                    <fieldset class="mb-4">
-                        <legend class="h5">Institution Email Credentials</legend>
-                        <p class="text-muted small">Update these credentials to manage automated email notifications for your institution.</p>
+                    {% if not admin.is_superuser and preference.email_enabled %}
+                    <fieldset class="mb-4 p-3 border rounded-3 bg-light">
+                        <legend class="h6 text-primary">Institution Email Credentials</legend>
+                        <p class="text-muted small mb-3">Update credentials for automated email notifications.</p>
                         <div class="row gx-3 gy-3">
                             <div class="col-md-6 form-floating">
                                 <input type="email" class="form-control" id="instEmail" placeholder="Institution Email" value="{{ admin.institution.email }}" name="institution_email" required>
-                                <label for="instEmail" class="ms-2 text-muted">Institution Email</label>
+                                <label for="instEmail" class="ms-2">Institution Email</label>
                             </div>
                             <div class="col-md-6 form-floating">
                                 <input type="password" class="form-control" id="instAppPassword" placeholder="Email App Password" name="institution_app_password" value="{{ admin.institution.email_app_password }}" required>
-                                <label for="instAppPassword" class="ms-2 text-muted">Email App Password</label>
+                                <label for="instAppPassword" class="ms-2">Email App Password</label>
                             </div>
                         </div>
                     </fieldset>
@@ -92,31 +92,29 @@
                     {% endif %}
 
                     <fieldset>
-                        <legend class="h5">User Account Credentials</legend>
-                        <p class="text-muted small">Enter your current password to confirm your identity before making changes.</p>
-                        <div class="row gx-3 gy-3">
+                        <legend class="h5 text-danger">User Account Credentials</legend>
+                        <p class="text-muted small">Enter your **current password** to confirm your identity.</p>
+                        <div class="row gx-3 gy-3 mb-4">
                             <div class="col-md-6 form-floating">
                                 <input type="text" class="form-control" id="newUsername" placeholder="New Username" value="{{ admin.username }}" name="new_username" required>
-                                <label for="newUsername" class="ms-2 text-muted">New Username</label>
+                                <label for="newUsername" class="ms-2">New Username</label>
                             </div>
-
                             <div class="col-md-6 form-floating">
                                 <input type="password" class="form-control" id="oldPassword" placeholder="Current Password" name="old_password" required>
-                                <label for="oldPassword" class="ms-2 text-muted">Current Password</label>
+                                <label for="oldPassword" class="ms-2">Current Password</label>
                             </div>
-                            <div class="mt-3 text-sm">
-                                <a class="text-info" href="">Forgot Password..?</a>
-                            </div>
-                            <hr class="mt-4 mb-2">
+                        </div>
 
-                            <p class="text-muted small">Change your password by entering it in the fields below. Leave these fields blank to keep your current password.</p>
+                        <hr class="mt-4 mb-2">
+                        <p class="text-muted small">Change password fields. **Leave blank to keep current password.**</p>
+                        <div class="row gx-3 gy-3">
                             <div class="col-md-6 form-floating">
                                 <input type="password" class="form-control" id="newPassword" placeholder="New Password" name="new_password">
-                                <label for="newPassword" class="ms-2 text-muted">New Password</label>
+                                <label for="newPassword" class="ms-2">New Password</label>
                             </div>
                             <div class="col-md-6 form-floating">
                                 <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password" name="confirm_password">
-                                <label for="confirmPassword" class="ms-2 text-muted">Confirm Password</label>
+                                <label for="confirmPassword" class="ms-2">Confirm Password</label>
                             </div>
                         </div>
                     </fieldset>
@@ -130,161 +128,200 @@
     </div>
 </div>
 
-<div>
-    <h1 class="mb-4"><strong>{{admin.username}}'s Profile</strong></h1>
-    <div class="card data-card container">
-        <div class="card-body table-responsive">
+<div class="container-fluid p-0">
+    <h1 class="mb-4"><strong>{{ admin.username }}'s Profile</strong></h1>
 
-            <fieldset class="mb-4">
-                <legend class="h2">
-                    <strong>{% if admin.is_superuser %} Superuser {% else %} User {% endif %} Details</strong>
-                </legend>
-                <div class="row mb-3">
-                    <div class="col-md-8 mb-3">
-                        <table class="table text-start">
-                            <tbody>
-                                <tr>
-                                    <td>Full name</td>
-                                    <td>{{admin.first_name}} {{admin.last_name}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Username</td>
-                                    <td>{{admin.username}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Email Address</td>
-                                    <td>{{admin.email}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Contact No</td>
-                                    <td>{{admin.phn_no}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="col-md-4 d-flex justify-content-center align-items-center mb-3">
-                        <form id="uploadAdminImgForm" method="post" action="/administrator/admin_profile_img/" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <input type="file" id="adminImgUpload" name="admin_img" style="display: none;">
-                            <label for="adminImgUpload">
-                                <img
-                                    {% if admin.profile_pic %}
-                                        src="{{ admin.profile_pic.url }}"
-                                    {% else %}
-                                        src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
-                                    {% endif %}
-                                    alt="Click to upload an image"
-                                    style="cursor: pointer; width: 200px; height: 200px;"
-                                    class="border rounded-circle">
-                            </label>
-                        </form>
+    <div class="row g-4">
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-dark">
+                    <h4 class="mb-0 text-white">{% if admin.is_superuser %} Superuser {% else %} User {% endif %} Profile</h4>
+                </div>
+                <div class="card-body text-center">
+
+                    <form id="uploadAdminImgForm" method="post" action="/administrator/admin_profile_img/" enctype="multipart/form-data" class="mb-4">
+                        {% csrf_token %}
+                        <input type="file" id="adminImgUpload" name="admin_img" style="display: none;">
+                        <label for="adminImgUpload">
+                            <img
+                                {% if admin.profile_pic %}
+                                    src="{{ admin.profile_pic.url }}"
+                                {% else %}
+                                    src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
+                                {% endif %}
+                                alt="Click to upload an image"
+                                style="cursor: pointer; width: 150px; height: 150px; object-fit: cover;"
+                                class="border border-3 border-primary rounded-circle shadow-lg">
+                        </label>
+                    </form>
+
+                    <h4 class="fw-bold">{{ admin.first_name }} {{ admin.last_name }}</h4>
+                    <span class="text-muted d-block mb-3">@{{ admin.username }}</span>
+
+                    <ul class="list-group list-group-flush text-start">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Email: <span class="fw-bold">{{ admin.email }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Contact: <span class="fw-bold">{{ admin.phn_no|default:'N/A' }}</span>
+                        </li>
+                    </ul>
+
+                    <div class="mt-4 mb-0 d-flex justify-content-between">
+                        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#profileModal">
+                            <i class="align-middle me-1" data-feather="edit"></i>Profile Details
+                        </button>
+                        <button type="button" class="btn btn-danger text-white" data-bs-toggle="modal" data-bs-target="#updateDataModal">
+                            <i class="align-middle me-1" data-feather="lock"></i>
+                            Credentials
+                        </button>
                     </div>
                 </div>
-            </fieldset>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
 
             {% if admin.institution %}
-            <fieldset class="mb-4">
-                <legend class="h2"><strong>Institution Details</strong></legend>
-                <div class="row mb-1">
-                    <div class="col-md-8 mb-3">
-                        <table class="table text-start">
-                            <tbody>
-                                <tr>
-                                    <td>Institution Name</td>
-                                    <td>{{admin.institution.institution_name}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Institution Address</td>
-                                    <td>{{admin.institution.address}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Phone No</td>
-                                    <td>{{admin.institution.phn}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Email Address</td>
-                                    <td>{{admin.institution.email}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="col-md-4 d-flex justify-content-center align-items-center mb-3">
-                        <form id="uploadInstitutionImgForm" method="post" action="/administrator/admin_inst_img/" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <input type="file" id="instImgUpload" name="inst_img" style="display: none;">
-                            <label for="instImgUpload">
-                                <img
-                                    {% if admin.institution.institution_img %}
-                                        src="{{ admin.institution.institution_img.url }}"
-                                    {% else %}
-                                        src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
-                                    {% endif %}
-                                    alt="Click to upload an image"
-                                    style="cursor: pointer; width: 200px; height: 200px;"
-                                    class="border rounded-circle">
-                            </label>
-                        </form>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark">
+                    <h4 class="mb-0 text-white">Institution Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <ul class="list-group list-group-flush text-start">
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    Name: <span class="fw-bold">{{ admin.institution.institution_name }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    Email: <span class="fw-bold">{{ admin.institution.email }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    Phone: <span class="fw-bold">{{ admin.institution.phn }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    Address: <span class="fw-bold text-end">{{ admin.institution.address }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4 d-flex justify-content-center align-items-center">
+                            <form id="uploadInstitutionImgForm" method="post" action="/administrator/admin_inst_img/" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="file" id="instImgUpload" name="inst_img" style="display: none;">
+                                <label for="instImgUpload">
+                                    <img
+                                        {% if admin.institution.institution_img %}
+                                            src="{{ admin.institution.institution_img.url }}"
+                                        {% else %}
+                                            src="{% static 'frontend/img/default_logo.jpg' %}"
+                                        {% endif %}
+                                        alt="Click to upload logo"
+                                        style="cursor: pointer; width: 100px; height: 100px; object-fit: cover;"
+                                        class="border border-2 border-secondary rounded-circle shadow-sm">
+                                </label>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </fieldset>
-            {% endif %}
-
-            {% if admin.default_bank %}
-            <fieldset class="mb-4">
-                <legend class="h2"><strong>Bank Details</strong></legend>
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <table class="table text-start">
-                            <tbody>
-                                <tr>
-                                    <td>A/c Holder Name</td>
-                                    <td>{{admin.default_bank.account_holder_first_name}} {{admin.default_bank.account_holder_last_name}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Bank Name</td>
-                                    <td>{{admin.default_bank.bank_name}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Branch Name</td>
-                                    <td>{{admin.default_bank.branch_name}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Account Number</td>
-                                    <td>{{admin.default_bank.account_no}}</td>
-                                </tr>
-                                <tr>
-                                    <td>IFSC Code</td>
-                                    <td>{{admin.default_bank.ifsc_code}}</td>
-                                </tr>
-                                <tr>
-                                    <td>UPI ID</td>
-                                    <td>{{admin.default_bank.upi_id}}</td>
-                                </tr>
-                                <tr>
-                                    <td>A/c Holder's Phone No</td>
-                                    <td>{{admin.default_bank.account_holder_phn_no}}</td>
-                                </tr>
-                                <tr>
-                                    <td>A/c Holder's Address</td>
-                                    <td>{{admin.default_bank.account_holder_address}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </fieldset>
-            {% endif %}
-
-            <div class="my-3 text-start">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#profileModal">
-                    <i class="align-middle" data-feather="edit"></i>
-                    Edit Details
-                </button>
-                <button type="button" class="btn btn-warning text-black" data-bs-toggle="modal" data-bs-target="#updateDataModal">
-                    <i class="align-middle" data-feather="edit"></i>
-                    Change Username or Password
-                </button>
             </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark">
+                    <h4 class="mb-0 text-white">Notification Preference</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="/administrator/update_notification_preference/" class="row g-3 align-items-center">
+                        {% csrf_token %}
+                        <div class="col-12 d-flex justify-content-start gap-5 align-items-center flex-wrap">
+
+                            <div class="d-flex align-items-center">
+                                <span class="fw-bold me-3">Email Service:</span>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" name="email_enabled" id="email_toggle"
+                                           {% if preference.email_enabled %}checked{% endif %}>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+                                <span class="fw-bold me-3">Whatsapp Service:</span>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" name="whatsapp_enabled" id="whatsapp_toggle"
+                                           {% if preference.whatsapp_enabled %}checked{% endif %}>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+                                <span class="fw-bold me-3">SMS Service:</span>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" name="sms_enabled" id="sms_toggle"
+                                           {% if preference.sms_enabled %}checked{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 d-flex justify-content-end gap-2 mt-4">
+                            <button type="submit" class="btn btn-info btn-sm text-white">
+                                <i class="align-middle me-1" data-feather="save"></i> Update Preferences
+                            </button>
+                            <a href="/administrator/default-notification/" class="btn btn-outline-secondary btn-sm">
+                                <i class="align-middle me-1" data-feather="refresh-cw"></i> Reset to Default
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% endif %}
+        </div>
+
+        <div class="col-lg-12">
+
+            {% if admin.institution and admin.institution.default_bank %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark ">
+                    <h4 class="mb-0 text-white">Bank Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-group list-group-flush text-start">
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    A/c Holder Name: <span class="fw-bold">{{admin.institution.default_bank.account_holder_first_name}} {{admin.institution.default_bank.account_holder_last_name}}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    A/c Holder Phn: <span class="fw-bold">{{admin.institution.default_bank.account_holder_phn_no}}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    A/c Holder Address: <span class="fw-bold text-end">{{admin.institution.default_bank.account_holder_address}}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    Bank Name: <span class="fw-bold">{{admin.institution.default_bank.bank_name}}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-group list-group-flush text-start">
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    Branch Name: <span class="fw-bold">{{admin.institution.default_bank.branch_name}}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    IFSC Code: <span class="fw-bold">{{admin.institution.default_bank.ifsc_code}}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    Account Number: <span class="fw-bold">{{admin.institution.default_bank.account_no}}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    UPI ID: <span class="fw-bold">{{admin.institution.default_bank.upi_id}}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
