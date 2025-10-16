@@ -1,7 +1,8 @@
 from adminModule.utils import generate_receipt_pdf, whatsapp_send_approve, email_send_approve, sms_send_approve, \
     email_send_reject, sms_send_reject, whatsapp_send_reject, email_send_unverify, sms_send_unverify, \
     whatsapp_send_unverify, sms_send_response, email_send_response, whatsapp_send_response, generate_report_pdf
-from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser, Reports
+from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser, Reports, \
+    NotificationPreference
 from userModule.models import Transaction, Receipt, Screenshot, ContactMessage, MessageReply
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
@@ -54,7 +55,7 @@ def adminDashboard(request):
         unver_tra = Transaction.objects.filter(status='Unverified').count()
         rej_tra = Transaction.objects.filter(status='Rejected').count()
 
-        latest_projects = Project.objects.filter(closed_by__gte=timezone.now(),current_amount__lt=F('funding_goal')).order_by('-started_at')[:5]
+        latest_projects = Project.objects.filter(Q(closed_by__isnull=True), table_status=True).order_by('-started_at')[:5]
 
     elif request.user.is_staff:
         if not request.user.table_status or not request.user.institution.table_status:
@@ -71,14 +72,10 @@ def adminDashboard(request):
         unver_tra = Transaction.objects.filter(project__created_by=request.user.institution, status='Unverified').count()
         rej_tra = Transaction.objects.filter(project__created_by=request.user.institution, status='Rejected').count()
 
-        latest_projects = Project.objects.filter(created_by=request.user.institution, closed_by__gte=timezone.now(), current_amount__lt=F('funding_goal')).order_by('-started_at')[:5]
+        latest_projects = Project.objects.filter(Q(closed_by__isnull=True),created_by=request.user.institution, table_status=True).order_by('-started_at')[:5]
 
     else:
         return redirect('/administrator/')
-
-    for p in latest_projects:
-        if p.closed_by < timezone.now():
-            p.validity = False
 
     context = {
         'all_prj': all_prj, 'cls_prj': closed_prj, 'lst_prj': latest_projects, 'cmp_prj': completed_prj, 'fail_prj': failed_prj,
@@ -103,10 +100,12 @@ def adminProfile(request):
         if not request.user.table_status:
             messages.error(request, "Your account has been deactivated by another superuser.")
             return redirect('/administrator/logout/')
+        preference = None
     elif request.user.is_staff:
         if not request.user.table_status or not request.user.institution.table_status:
             messages.error(request, "Your account or institution has been deactivated by a superuser.")
             return redirect('/administrator/logout/')
+        preference = NotificationPreference.objects.get(institution= request.user.institution)
     else:
         messages.error(request, "Your Don't have permission to access this page.")
         return redirect('/administrator/')
@@ -144,7 +143,7 @@ def adminProfile(request):
         except Exception as e:
             messages.error(request, f"An unexpected error occurred: {e}")
             return redirect('/administrator/profile/')
-    return render(request, 'admin-profile.html', {'admin': request.user})
+    return render(request, 'admin-profile.html', {'admin': request.user, 'preference':preference})
 
 
 def update_account_details(request):
@@ -259,6 +258,46 @@ def adminInstitutionPicture(request):
         return redirect('/administrator/profile/')
     else:
         return redirect('/administrator/')
+
+
+def adminUpdateNotification(request):
+    if request.user.is_staff and request.user.institution:
+        if not request.user.table_status or not request.user.institution.table_status:
+            messages.error(request, "Your account or institution has been deactivated.")
+            return redirect('/administrator/logout/')
+
+        prefs= NotificationPreference.objects.get(institution=request.user.institution)
+
+        if request.method == 'POST':
+            prefs.email_enabled = 'email_enabled' in request.POST
+            prefs.whatsapp_enabled = 'whatsapp_enabled' in request.POST
+            prefs.sms_enabled = 'sms_enabled' in request.POST
+            prefs.save()
+
+            messages.success(request, "Notification preferences have been updated.")
+        return redirect('/administrator/profile/')
+    messages.error(request, "You do not have the required permissions for this action.")
+    return redirect('/administrator/profile/')
+
+
+def adminDefaultNotification(request):
+    if request.user.is_staff and request.user.institution:
+        if not request.user.table_status or not request.user.institution.table_status:
+            messages.error(request, "Your account or institution has been deactivated.")
+            return redirect('/administrator/logout/')
+
+        prefs, created = NotificationPreference.objects.get_or_create(institution=request.user.institution,
+                                                                      defaults={'sms_enabled': True, 'whatsapp_enabled': True, 'email_enabled': True})
+        if not created:
+            prefs.sms_enabled = True
+            prefs.whatsapp_enabled = True
+            prefs.email_enabled = True
+            prefs.save()
+
+        messages.success(request, "Notification preferences have been reset to default (all services enabled).")
+        return redirect('/administrator/profile/')
+    messages.error(request, "You do not have the required permissions for this action.")
+    return redirect('/administrator/profile/')
 
 
 # Superuser listing all Institutions and adding new Institutions
@@ -597,13 +636,11 @@ def adminAllProject(request):
 
     if project_status:
         if project_status == 'active':
-            projects = projects.filter(table_status=True, closed_by__gt=timezone.now())
+            projects = projects.filter(table_status=True)
         elif project_status == 'closed':
             projects = projects.filter(table_status=False)
         elif project_status == 'success':
             projects = projects.filter(current_amount__gte=F('funding_goal'))
-        elif project_status == 'failed':
-            projects = projects.filter(Q(table_status=False) | Q(closed_by__lte=timezone.now()))
 
     if start_date:
         projects = projects.filter(started_at__date__gte=start_date)
@@ -972,31 +1009,35 @@ def adminApproveTransaction(request, tid):
             transaction.tiles_bought.save()
             project_instance.save()
 
-        # sms_result = sms_send_approve(transaction)
-        # email_success, email_message = email_send_approve(transaction)
-        # whatsapp_result = whatsapp_send_approve(transaction)
-        #
-        # all_notifications_sent = True
-        # notification_errors = []
-        #
-        # if sms_result['status'] == 'error':
-        #     all_notifications_sent = False
-        #     notification_errors.append(f"SMS sending failed: {sms_result['message']}")
-        #
-        # if whatsapp_result['status'] == 'error':
-        #     all_notifications_sent = False
-        #     notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
-        #
-        # if not email_success:
-        #     all_notifications_sent = False
-        #     notification_errors.append(f"Email sending failed: {email_message}")
-        #
-        # if all_notifications_sent:
-        #     messages.success(request,f'The transaction: {transaction.tracking_id} has been approved and a receipt has been generated.')
-        # else:
-        #     base_msg = "The transaction has been approved, but there were issues with some notifications."
-        #     details_msg = " ".join(notification_errors)
-        #     messages.warning(request, f"{base_msg} Details: {details_msg}")
+        all_notifications_sent = True
+        notification_errors = []
+
+        noti_pref = NotificationPreference.objects.get(institution=request.user.institution)
+
+        if noti_pref.sms_enabled:
+            sms_result = sms_send_approve(transaction)
+            if sms_result['status'] == 'error':
+                all_notifications_sent = False
+                notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+
+        if noti_pref.whatsapp_enabled:
+            whatsapp_result = whatsapp_send_approve(transaction)
+            if whatsapp_result['status'] == 'error':
+                all_notifications_sent = False
+                notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
+
+        if noti_pref.email_enabled:
+            email_success, email_message = email_send_approve(transaction)
+            if not email_success:
+                all_notifications_sent = False
+                notification_errors.append(f"Email sending failed: {email_message}")
+
+        if all_notifications_sent:
+            messages.success(request,f'The transaction: {transaction.tracking_id} has been approved and a receipt has been generated.')
+        else:
+            base_msg = "The transaction has been approved, but there were issues with some notifications."
+            details_msg = " ".join(notification_errors)
+            messages.warning(request, f"{base_msg} Details: {details_msg}")
     except Exception as e:
         messages.error(request, f"Failed to approve transaction: {e}")
     return redirect('/administrator/all-transactions/')
@@ -1030,24 +1071,27 @@ def adminRejectTransaction(request, tid):
             transaction_instance.tiles_bought.save()
             transaction_instance.save()
 
-        sms_result = sms_send_reject(transaction_instance)
-        email_success, email_message = email_send_reject(transaction_instance)
-        whatsapp_result = whatsapp_send_reject(transaction_instance)
-
         all_notifications_sent = True
         notification_errors = []
+        noti_pref = NotificationPreference.objects.get(institution=request.user.institution)
 
-        if sms_result['status'] == 'error':
-            all_notifications_sent = False
-            notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+        if noti_pref.sms_enabled:
+            sms_result = sms_send_reject(transaction_instance)
+            if sms_result['status'] == 'error':
+                all_notifications_sent = False
+                notification_errors.append(f"SMS sending failed: {sms_result['message']}")
 
-        if whatsapp_result['status'] == 'error':
-            all_notifications_sent = False
-            notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
+        if noti_pref.whatsapp_enabled:
+            whatsapp_result = whatsapp_send_reject(transaction_instance)
+            if whatsapp_result['status'] == 'error':
+                all_notifications_sent = False
+                notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
 
-        if not email_success:
-            all_notifications_sent = False
-            notification_errors.append(f"Email sending failed: {email_message}")
+        if noti_pref.email_enabled:
+            email_success, email_message = email_send_reject(transaction_instance)
+            if not email_success:
+                all_notifications_sent = False
+                notification_errors.append(f"Email sending failed: {email_message}")
 
         if all_notifications_sent:
             messages.success(request, f'The transaction: {transaction_instance.tracking_id} has been rejected and a notification has been sent to the user.')
@@ -1087,24 +1131,27 @@ def adminUnverifyTransaction(request, tid):
             transaction_instance.tiles_bought.save()
             transaction_instance.save()
 
-        sms_result = sms_send_unverify(transaction_instance)
-        email_success, email_message = email_send_unverify(transaction_instance)
-        whatsapp_result = whatsapp_send_unverify(transaction_instance)
-
         all_notifications_sent = True
         notification_errors = []
+        noti_pref = NotificationPreference.objects.get(institution=request.user.institution)
 
-        if sms_result['status'] == 'error':
-            all_notifications_sent = False
-            notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+        if noti_pref.sms_enabled:
+            sms_result = sms_send_unverify(transaction_instance)
+            if sms_result['status'] == 'error':
+                all_notifications_sent = False
+                notification_errors.append(f"SMS sending failed: {sms_result['message']}")
 
-        if whatsapp_result['status'] == 'error':
-            all_notifications_sent = False
-            notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
+        if noti_pref.whatsapp_enabled:
+            whatsapp_result = whatsapp_send_unverify(transaction_instance)
+            if whatsapp_result['status'] == 'error':
+                all_notifications_sent = False
+                notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
 
-        if not email_success:
-            all_notifications_sent = False
-            notification_errors.append(f"Email sending failed: {email_message}")
+        if noti_pref.whatsapp_enabled:
+            email_success, email_message = email_send_unverify(transaction_instance)
+            if not email_success:
+                all_notifications_sent = False
+                notification_errors.append(f"Email sending failed: {email_message}")
 
         if all_notifications_sent:
             messages.success(request, f'The transaction: {transaction_instance.tracking_id} has been unverified and a notification has been sent to the user.')
@@ -1211,24 +1258,27 @@ def adminSendReciept(request, r_id):
     try:
         receipt = get_object_or_404(Receipt, id=r_id)
 
-        sms_result = sms_send_approve(receipt.transaction)
-        email_success, email_message = email_send_approve(receipt.transaction)
-        whatsapp_result = whatsapp_send_approve(receipt.transaction)
-
         all_notifications_sent = True
         notification_errors = []
+        noti_pref = NotificationPreference.objects.get(institution=request.user.institution)
 
-        if sms_result['status'] == 'error':
-            all_notifications_sent = False
-            notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+        if noti_pref.sms_enabled:
+            sms_result = sms_send_approve(receipt.transaction)
+            if sms_result['status'] == 'error':
+                all_notifications_sent = False
+                notification_errors.append(f"SMS sending failed: {sms_result['message']}")
 
-        if whatsapp_result['status'] == 'error':
-            all_notifications_sent = False
-            notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
+        if noti_pref.whatsapp_enabled:
+            whatsapp_result = whatsapp_send_approve(receipt.transaction)
+            if whatsapp_result['status'] == 'error':
+                all_notifications_sent = False
+                notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
 
-        if not email_success:
-            all_notifications_sent = False
-            notification_errors.append(f"Email sending failed: {email_message}")
+        if noti_pref.email_enabled:
+            email_success, email_message = email_send_approve(receipt.transaction)
+            if not email_success:
+                all_notifications_sent = False
+                notification_errors.append(f"Email sending failed: {email_message}")
 
         if all_notifications_sent:
             messages.success(request,f'A receipt has been successfully sent to {receipt.transaction.sender.first_name} {receipt.transaction.sender.last_name}.')
@@ -1274,25 +1324,25 @@ def adminGenerateReports(request, p_id):
     if not (request.user.is_superuser or request.user.is_staff):
         return redirect('/administrator/')
     project_instance = get_object_or_404(Project, id=p_id)
-    # try:
-    with db_transaction.atomic():
-        old_report = None
-        try:
-            old_report = Reports.objects.get(project=project_instance)
-        except Reports.DoesNotExist:
-            pass
+    try:
+        with db_transaction.atomic():
+            old_report = None
+            try:
+                old_report = Reports.objects.get(project=project_instance)
+            except Reports.DoesNotExist:
+                pass
 
-        new_pdf_data = generate_report_pdf(project_instance)
-        report, created = Reports.objects.update_or_create(project=project_instance,defaults={'report_pdf': new_pdf_data})
+            new_pdf_data = generate_report_pdf(project_instance)
+            report, created = Reports.objects.update_or_create(project=project_instance,defaults={'report_pdf': new_pdf_data})
 
-        if not created and old_report and old_report.report_pdf:
-            old_file_path = old_report.report_pdf.path
-            if os.path.exists(old_file_path):
-                os.remove(old_file_path)
+            if not created and old_report and old_report.report_pdf:
+                old_file_path = old_report.report_pdf.path
+                if os.path.exists(old_file_path):
+                    os.remove(old_file_path)
 
-    messages.success(request,f'A report for the project: {project_instance.title} has been created.')
-    # except Exception as e:
-    #     messages.error(request, f"Failed to generate report: {e}")
+        messages.success(request,f'A report for the project: {project_instance.title} has been created.')
+    except Exception as e:
+        messages.error(request, f"Failed to generate report: {e}")
     return redirect('/administrator/all-reports/')
 
 
@@ -1326,19 +1376,21 @@ def adminMessageReply(request, msg_id):
 
                 all_notifications_sent = True
                 notification_errors = []
+                noti_pref = NotificationPreference.objects.get(institution=request.user.institution)
 
-                sms_result = sms_send_response(new_reply)
+                if noti_pref.sms_enabled:
+                    sms_result = sms_send_response(new_reply)
+                    if sms_result['status'] == 'error':
+                        all_notifications_sent = False
+                        notification_errors.append(f"SMS sending failed: {sms_result['message']}")
+
+                if noti_pref.sms_enabled:
+                    whatsapp_result = whatsapp_send_response(new_reply)
+                    if whatsapp_result['status'] == 'error':
+                        all_notifications_sent = False
+                        notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
+
                 email_success, email_message = email_send_response(new_reply)
-                whatsapp_result = whatsapp_send_response(new_reply)
-
-                if sms_result['status'] == 'error':
-                    all_notifications_sent = False
-                    notification_errors.append(f"SMS sending failed: {sms_result['message']}")
-
-                if whatsapp_result['status'] == 'error':
-                    all_notifications_sent = False
-                    notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
-
                 if not email_success:
                     all_notifications_sent = False
                     notification_errors.append(f"Email sending failed: {email_message}")

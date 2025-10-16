@@ -120,28 +120,27 @@
             <div class="collapse" id="advancedFilterCollapse">
                 <div class="card-body">
                     <form method="get" class="row g-3">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <input type="text" class="form-control" id="project_title" name="project_title" placeholder="Enter Project Name">
                         </div>
-                        <div class="col-md-4">
-                            <label for="project_status" class="form-label">Status</label>
+                        <div class="col-md-6">
                             <select id="project_status" name="project_status" class="form-select">
-                                <option value="">All</option>
-                                <option value="active">Active</option>
-                                <option value="closed">Closed</option>
-                                <option value="success">Success</option>
-                                <option value="failed">Failed</option>
+                                <option value="">All Projects</option>
+                                <option value="active">Active Projects</option>
+                                <option value="closed">Closed Projects</option>
+                                <option value="success">Successful Projects</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
+
+                        <div class="col-md-3">
                             <label for="start_date" class="form-label">Created From Date</label>
                             <input type="date" class="form-control" id="start_date" name="start_date">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="end_date" class="form-label">Created To Date</label>
                             <input type="date" class="form-control" id="end_date" name="end_date">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="order_by_target" class="form-label">Target Amount</label>
                             <select id="order_by_target" name="target_order" class="form-select">
                                 <option value="">None</option>
@@ -149,17 +148,9 @@
                                 <option value="desc">Descending</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="order_by_current_amount" class="form-label">Current Amount</label>
                             <select id="order_by_current_amount" name="amount_order" class="form-select">
-                                <option value="">None</option>
-                                <option value="asc">Ascending</option>
-                                <option value="desc">Descending</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="order_by_date" class="form-label">Closing Date</label>
-                            <select id="order_by_date" name="date_order" class="form-select">
                                 <option value="">None</option>
                                 <option value="asc">Ascending</option>
                                 <option value="desc">Descending</option>
@@ -217,7 +208,7 @@
                         </td>
                         <td class="text-center">
                             <a class="btn btn-info btn-sm" href="/administrator/single-project/{{ p.id }}/">
-                                <i class="align-middle" data-feather="info"></i> View
+                                <i class="align-middle" data-feather="info"></i>
                             </a>
                         </td>
                     </tr>
