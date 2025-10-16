@@ -353,8 +353,11 @@ def adminAllInstitution(request):
 
         try:
             with db_transaction.atomic():
-                new_inst = Institution(institution_name=inst_name, address=inst_address, phn=inst_phn, email=inst_email, email_app_password=inst_app_pwd)
+                new_inst = Institution(institution_name=inst_name, address=inst_address, phn=inst_phn, email=inst_email,
+                                       email_app_password=inst_app_pwd)
                 new_inst.save()
+                inst_noti_pref = NotificationPreference(institution=new_inst)
+                inst_noti_pref.save()
             messages.success(request, f'Registered {inst_name} Successfully.')
         except IntegrityError as e:
             if 'email' in str(e).lower():
