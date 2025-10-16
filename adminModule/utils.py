@@ -630,6 +630,7 @@ def generate_report_pdf(project):
     right_margin = 0.75 * inch
     available_width = page_width - left_margin - right_margin
 
+
     # Use an in-memory buffer to build the PDF
     buffer = io.BytesIO()
 
@@ -654,10 +655,14 @@ def generate_report_pdf(project):
                                      spaceAfter=12, alignment=1)
 
     # Metric styles
+    metric_label_row_height = 20
+    metric_value_row_height = 30
     key_metric_label_style = ParagraphStyle(name='KeyMetricLabel', fontName='Helvetica-Bold', fontSize=11,
                                             textColor=colors.HexColor("#666666"), alignment=1)
     key_metric_value_style = ParagraphStyle(name='KeyMetricValue', fontName='Helvetica-Bold', fontSize=22,
-                                            textColor=colors.HexColor("#197438"), alignment=1)
+                                            textColor=colors.HexColor("#197438"), alignment=1,leading=metric_value_row_height)
+
+
 
     # --- PAGE 1: PROJECT DETAILS (Improved Spacing) ---
 
@@ -686,7 +691,8 @@ def generate_report_pdf(project):
             Paragraph(current_amount_formatted, key_metric_value_style),
         ]
     ]
-    funding_metrics_table = Table(funding_metrics_data, colWidths=[available_width / 2] * 2)
+
+    funding_metrics_table = Table(funding_metrics_data, colWidths=[available_width / 2] * 2, rowHeights = [metric_label_row_height, metric_value_row_height])
     funding_metrics_table.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -713,7 +719,7 @@ def generate_report_pdf(project):
     ]
 
     # Create the summary table
-    summary_table = Table(summary_data, colWidths=[available_width * 0.4, available_width * 0.6])
+    summary_table = Table(summary_data, colWidths=[available_width * 0.5, available_width * 0.5])
     summary_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
         ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
@@ -723,7 +729,7 @@ def generate_report_pdf(project):
         ('TOPPADDING', (0, 0), (-1, -1), 3),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ('LEFTPADDING', (0, 0), (-1, -1), 10),
-        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.HexColor("#eeeeee")),
+        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.HexColor("#cccccc")),
         ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor("#cccccc")),
     ]))
     elements.append(summary_table)
@@ -755,7 +761,7 @@ def generate_report_pdf(project):
         ]
     ]
 
-    details_table = Table(details_data, colWidths=[available_width / 2] * 2, rowHeights=[15, 60])
+    details_table = Table(details_data, colWidths=[available_width / 2] * 2, rowHeights=[20, 70])
     details_table.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#e6f7e9")),  # Light green header
