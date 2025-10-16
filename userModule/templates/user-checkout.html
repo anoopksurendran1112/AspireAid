@@ -74,7 +74,7 @@
                         <input type="hidden" name="selected_tiles" value="{{ selected_tiles }}">
 
                         <div class="row g-4">
-                            <div class="col-lg-8 col-md-12">
+                            <div class="col-lg-7 col-md-12 my-2">
                                 <h4 class="mb-3">Your Details</h4>
                                 <div class="row g-3">
                                     <div class="col-12 mb-2">
@@ -87,6 +87,7 @@
                                         <div class="form-floating">
                                             <input type="email" class="form-control" id="email" name="email" placeholder="Email Address">
                                         </div>
+                                        <span class="validation-error text-secondary d-block">*Optional</span>
                                     </div>
                                     <div class="col-md-6 mb-2">
                                         <div class="form-floating">
@@ -99,19 +100,14 @@
                                             <textarea class="form-control" id="address" style="height: 100px; resize: none;" name="addr" placeholder="Address" required></textarea>
                                         </div>
                                     </div>
-                                    <div class="col-md-12 mb-2">
-                                        <div class="form-floating">
-                                            <textarea class="form-control" id="message" style="height: 100px; resize: none;" name="message" placeholder="Message"></textarea>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="d-flex justify-content-start my-2">
                                     <button type="button" id="confirm-button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmCheckoutModal">
-                                        Proceed to Confirmation
+                                        Confirm Payment
                                     </button>
                                 </div>
                             </div>
-                            <div class="col-lg-4 col-md-12 text-center d-flex flex-column align-items-center justify-content-center">
+                            <div class="col-lg-5 col-md-12 my-2 text-center d-flex flex-column align-items-center justify-content-center">
                                 <h4 class="mb-1">Scan to Pay</h4>
                                 <p class="mb-3">
                                     upi id: <strong class="text-dark">{{ ins.default_bank.upi_id }}</strong>
@@ -267,7 +263,7 @@
                 // 1. Specific Regex Validation
                 // CORRECTED MESSAGE: reflects full name validation
                 isValid = validateInput(fullNameInput, nameRegex, fullNameError, 'Name can only contain letters, spaces, hyphens, or apostrophes.') && isValid;
-                isValid = validateInput(phnInput, phoneRegex, phnError, 'Phone number must be a 10-digit number.') && isValid;
+                isValid = validateInput(phnInput, phoneRegex, phnError, 'Phone number must be 10-digit.') && isValid;
 
                 // 2. Generic Blank Validation for all required fields (Address, Email, etc.)
                 formInputs.forEach(input => {

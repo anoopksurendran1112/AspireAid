@@ -161,7 +161,6 @@ def userCheckoutView(request, ins_id):
         email = request.POST.get("email")
         phn = request.POST.get("phn")
         addr = request.POST.get("addr")
-        message_text = request.POST.get("message")
 
         project = get_object_or_404(Project, id=project_id)
         total_amount = len(selected_tiles_str.split('-')) * project.tile_value
@@ -180,7 +179,7 @@ def userCheckoutView(request, ins_id):
             with db_transaction.atomic():
                 sender = PersonalDetails.objects.create(email=email,full_name=fname,phone=phn,address=addr)
                 selected_tile_instance = SelectedTile.objects.create(project=project,sender=sender,tiles=selected_tiles_str)
-                transaction = Transaction.objects.create(tiles_bought=selected_tile_instance,sender=sender,project=project,amount=total_amount,currency="INR",status="Unverified",tracking_id=get_unique_tracking_id(),message=message_text)
+                transaction = Transaction.objects.create(tiles_bought=selected_tile_instance,sender=sender,project=project,amount=total_amount,currency="INR",status="Unverified",tracking_id=get_unique_tracking_id())
 
             proof_upload_url = f'{ins_id}/proof/{transaction.id}'
 
