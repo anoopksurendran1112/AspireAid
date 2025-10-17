@@ -13,3 +13,6 @@ media/*
 
 # But don't ignore the .gitkeep file
 !media/.gitkeep
+
+# Security files
+.env

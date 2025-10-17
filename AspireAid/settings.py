@@ -11,10 +11,13 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from .env file
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -76,27 +79,21 @@ WSGI_APPLICATION = 'AspireAid.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.environ.get('DB_ENGINE'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        }
     }
 }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'aid',
-#         'USER': 'lion',
-#         'PASSWORD': 'db@7300gt',
-#         'HOST': 'db.kochi.digital',
-#         'PORT': '3306',
-#         'OPTIONS': {
-#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-#             'charset': 'utf8mb4',
-#         }
-#     }
-# }
 
 
 AUTH_USER_MODEL = 'adminModule.CustomUser'
@@ -134,12 +131,12 @@ USE_TZ = True
 
 
 # WHATSAPP Setups
-BHASHSMS_API = "http://bhashsms.com/api/sendmsg.php"
-BHASHSMS_API_PASS = "123456"
-BHASHSMS_API_USER = "kochidigital_bw"
-BHASHSMS_API_SENDER = "BUZWAP"
-BHASHSMS_API_PRIORITY = "wa"
-BHASHSMS_API_STYPE= "normal"
+WHATSAPP_BHASHSMS_API = os.environ.get("BHASHSMS_API")
+WHATSAPP_BHASHSMS_API_PASS = os.environ.get("BHASHSMS_API_PASS")
+WHATSAPP_BHASHSMS_API_USER = os.environ.get("BHASHSMS_API_USER")
+WHATSAPP_BHASHSMS_API_SENDER = os.environ.get("BHASHSMS_API_SENDER")
+WHATSAPP_BHASHSMS_API_PRIORITY = os.environ.get("BHASHSMS_API_PRIORITY")
+WHATSAPP_BHASHSMS_API_STYPE = os.environ.get("BHASHSMS_API_STYPE")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -152,8 +149,8 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+MEDIA_ROOT = BASE_DIR.parent / 'aid_media_storage'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 
 CSRF_TRUSTED_ORIGINS = [

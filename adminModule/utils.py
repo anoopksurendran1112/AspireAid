@@ -171,11 +171,11 @@ def whatsapp_send_initiated(transaction, url):
     try:
         params_string = f"{transaction.sender.full_name},{transaction.project.title},{transaction.tracking_id},{url}"
         api_params = {
-            'user': settings.BHASHSMS_API_USER,'pass': settings.BHASHSMS_API_PASS,'sender': settings.BHASHSMS_API_SENDER,
-            'phone': transaction.sender.phone,'text': 'cf_payment_initiated_v2','priority': settings.BHASHSMS_API_PRIORITY,
-            'stype': settings.BHASHSMS_API_STYPE,'Params': params_string}
+            'user': settings.WHATSAPP_BHASHSMS_API_USER,'pass': settings.WHATSAPP_BHASHSMS_API_PASS,'sender': settings.WHATSAPP_BHASHSMS_API_SENDER,
+            'phone': transaction.sender.phone,'text': 'cf_payment_initiated_v2','priority': settings.WHATSAPP_BHASHSMS_API_PRIORITY,
+            'stype': settings.WHATSAPP_BHASHSMS_API_STYPE,'Params': params_string}
 
-        response = requests.get(settings.BHASHSMS_API, params=api_params)
+        response = requests.get(settings.WHATSAPP_BHASHSMS_API, params=api_params)
         if response.status_code == 200:
             return {"status": "success", "response": response.text}
         else:
@@ -191,16 +191,16 @@ def whatsapp_send_proof(transaction):
     try:
         params_string = f"{transaction.sender.full_name}, {transaction.tracking_id},{transaction.project.title}"
         api_params = {
-            'user': settings.BHASHSMS_API_USER,
-            'pass': settings.BHASHSMS_API_PASS,
-            'sender': settings.BHASHSMS_API_SENDER,
+            'user': settings.WHATSAPP_BHASHSMS_API_USER,
+            'pass': settings.WHATSAPP_BHASHSMS_API_PASS,
+            'sender': settings.WHATSAPP_BHASHSMS_API_SENDER,
             'phone': transaction.sender.phone,
             'text': 'cf_successful_proof',
-            'priority': settings.BHASHSMS_API_PRIORITY,
-            'stype': settings.BHASHSMS_API_STYPE,
+            'priority': settings.WHATSAPP_BHASHSMS_API_PRIORITY,
+            'stype': settings.WHATSAPP_BHASHSMS_API_STYPE,
             'Params': params_string,}
 
-        response = requests.get(settings.BHASHSMS_API, params=api_params)
+        response = requests.get(settings.WHATSAPP_BHASHSMS_API, params=api_params)
         if response.status_code == 200:
             return {"status": "success", "response": response.text}
         else:
@@ -220,16 +220,16 @@ def whatsapp_send_approve(transaction):
 
         params_string = f"{transaction.sender.full_name}, {transaction.project.title}, {receipt.filename}"
         api_params = {
-            'user': settings.BHASHSMS_API_USER,
-            'pass': settings.BHASHSMS_API_PASS,
-            'sender': settings.BHASHSMS_API_SENDER,
+            'user': settings.WHATSAPP_BHASHSMS_API_USER,
+            'pass': settings.WHATSAPP_BHASHSMS_API_PASS,
+            'sender': settings.WHATSAPP_BHASHSMS_API_SENDER,
             'phone': transaction.sender.phone,
             'text': 'cf_transaction_approved',
-            'priority': settings.BHASHSMS_API_PRIORITY,
-            'stype': settings.BHASHSMS_API_STYPE,
+            'priority': settings.WHATSAPP_BHASHSMS_API_PRIORITY,
+            'stype': settings.WHATSAPP_BHASHSMS_API_STYPE,
             'Params': params_string}
 
-        response = requests.get(settings.BHASHSMS_API, params=api_params)
+        response = requests.get(settings.WHATSAPP_BHASHSMS_API, params=api_params)
         if response.status_code == 200:
             return {"status": "success", "response": response.text}
         else:
@@ -245,16 +245,16 @@ def whatsapp_send_reject(transaction):
     try:
         params_string = f"{transaction.sender.full_name}, {transaction.project.title}"
         api_params = {
-            'user': settings.BHASHSMS_API_USER,
-            'pass': settings.BHASHSMS_API_PASS,
-            'sender': settings.BHASHSMS_API_SENDER,
+            'user': settings.WHATSAPP_BHASHSMS_API_USER,
+            'pass': settings.WHATSAPP_BHASHSMS_API_PASS,
+            'sender': settings.WHATSAPP_BHASHSMS_API_SENDER,
             'phone': transaction.sender.phone,
             'text': 'cf_transaction_rejected',
-            'priority': settings.BHASHSMS_API_PRIORITY,
-            'stype': settings.BHASHSMS_API_STYPE,
+            'priority': settings.WHATSAPP_BHASHSMS_API_PRIORITY,
+            'stype': settings.WHATSAPP_BHASHSMS_API_STYPE,
             'Params': params_string}
 
-        response = requests.get(settings.BHASHSMS_API, params=api_params)
+        response = requests.get(settings.WHATSAPP_BHASHSMS_API, params=api_params)
         if response.status_code == 200:
             return {"status": "success", "response": response.text}
         else:
@@ -270,16 +270,16 @@ def whatsapp_send_unverify(transaction):
     try:
         params_string = f"{transaction.sender.full_name}, {transaction.project.title}"
         api_params = {
-            'user': settings.BHASHSMS_API_USER,
-            'pass': settings.BHASHSMS_API_PASS,
-            'sender': settings.BHASHSMS_API_SENDER,
+            'user': settings.WHATSAPP_BHASHSMS_API_USER,
+            'pass': settings.WHATSAPP_BHASHSMS_API_PASS,
+            'sender': settings.WHATSAPP_BHASHSMS_API_SENDER,
             'phone': transaction.sender.phone,
             'text': 'cf_transaction_unverified',
-            'priority': settings.BHASHSMS_API_PRIORITY,
-            'stype': settings.BHASHSMS_API_STYPE,
+            'priority': settings.WHATSAPP_BHASHSMS_API_PRIORITY,
+            'stype': settings.WHATSAPP_BHASHSMS_API_STYPE,
             'Params': params_string}
 
-        response = requests.get(settings.BHASHSMS_API, params=api_params)
+        response = requests.get(settings.WHATSAPP_BHASHSMS_API, params=api_params)
         if response.status_code == 200:
             return {"status": "success", "response": response.text}
         else:
@@ -642,7 +642,7 @@ def generate_report_pdf(project, request):
 
     # --- STYLE DEFINITIONS (Refined) ---
     report_header_style = ParagraphStyle(name='ReportHeader', fontName='Helvetica-Bold', fontSize=16,
-                                         textColor=colors.HexColor("#13491e"), alignment=0, spaceAfter=20)
+                                         textColor=colors.black, alignment=0, spaceAfter=20)
     project_title_style = ParagraphStyle(name='ProjectTitle', fontName='Helvetica-Bold', fontSize=20,
                                          textColor=colors.black, alignment=1, spaceAfter=20)
     section_heading_style = ParagraphStyle(name='SectionHeading', fontName='Helvetica-Bold', fontSize=12,
@@ -660,7 +660,7 @@ def generate_report_pdf(project, request):
     key_metric_label_style = ParagraphStyle(name='KeyMetricLabel', fontName='Helvetica-Bold', fontSize=11,
                                             textColor=colors.HexColor("#666666"), alignment=1)
     key_metric_value_style = ParagraphStyle(name='KeyMetricValue', fontName='Helvetica-Bold', fontSize=22,
-                                            textColor=colors.HexColor("#197438"), alignment=1,leading=metric_value_row_height)
+                                            textColor=colors.black, alignment=1,leading=metric_value_row_height)
 
 
 
@@ -764,8 +764,8 @@ def generate_report_pdf(project, request):
     details_table = Table(details_data, colWidths=[available_width / 2] * 2, rowHeights=[20, 70])
     details_table.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#e6f7e9")),  # Light green header
-        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.HexColor("#dddddd")),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#666666")),  # Light green header
+        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
         ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor("#cccccc")),
         ('TOPPADDING', (0, 0), (-1, -1), 5),
     ]))
@@ -812,7 +812,6 @@ def generate_report_pdf(project, request):
                 img = Image(path, width=img_width, height=img_height)
                 image_elements.append(img)
             except Exception as e:
-                # Add placeholder text if image fails to load
                 image_elements.append(Paragraph(f"[Image failed to load: {path}]", normal_style))
 
         # Organize images into a table for grid layout (2 columns)
