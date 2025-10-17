@@ -623,10 +623,10 @@ def generate_receipt_pdf(transaction):
 
 
 """generate report pdf."""
-def generate_report_pdf(project):
+def generate_report_pdf(project, request):
     # A4 page dimensions and margins
     page_width, page_height = A4
-    left_margin = 0.75 * inch  # Increased margin for better spacing
+    left_margin = 0.75 * inch
     right_margin = 0.75 * inch
     available_width = page_width - left_margin - right_margin
 
@@ -637,16 +637,16 @@ def generate_report_pdf(project):
     # Create the PDF document
     doc = SimpleDocTemplate(buffer, pagesize=A4,
                             leftMargin=left_margin, rightMargin=right_margin,
-                            topMargin=0.75 * inch, bottomMargin=0.75 * inch)
+                            topMargin=0.5 * inch, bottomMargin=0.5 * inch)
     elements = []
 
     # --- STYLE DEFINITIONS (Refined) ---
-    report_header_style = ParagraphStyle(name='ReportHeader', fontName='Helvetica-Bold', fontSize=18,
-                                         textColor=colors.HexColor("#13491e"), alignment=1, spaceAfter=8)
-    project_title_style = ParagraphStyle(name='ProjectTitle', fontName='Helvetica-Bold', fontSize=26,
-                                         textColor=colors.black, alignment=1, spaceAfter=15)
-    section_heading_style = ParagraphStyle(name='SectionHeading', fontName='Helvetica-Bold', fontSize=14,
-                                           textColor=colors.HexColor("#444444"), spaceAfter=6, alignment=0)
+    report_header_style = ParagraphStyle(name='ReportHeader', fontName='Helvetica-Bold', fontSize=16,
+                                         textColor=colors.HexColor("#13491e"), alignment=0, spaceAfter=20)
+    project_title_style = ParagraphStyle(name='ProjectTitle', fontName='Helvetica-Bold', fontSize=20,
+                                         textColor=colors.black, alignment=1, spaceAfter=20)
+    section_heading_style = ParagraphStyle(name='SectionHeading', fontName='Helvetica-Bold', fontSize=12,
+                                           textColor=colors.HexColor("#444444"), spaceAfter=8, alignment=0,)
 
     # Text styles
     normal_style = ParagraphStyle(name='Normal', fontName='Helvetica', fontSize=10, leading=14, spaceAfter=8,
@@ -667,7 +667,7 @@ def generate_report_pdf(project):
     # --- PAGE 1: PROJECT DETAILS (Improved Spacing) ---
 
     # Header and Title Block
-    elements.append(Paragraph("Project Completion Report", report_header_style))
+    elements.append(Paragraph(project.created_by.institution_name, report_header_style))
     elements.append(Paragraph(project.title, project_title_style))
     elements.append(Spacer(1, 10))
 
@@ -678,8 +678,8 @@ def generate_report_pdf(project):
 
     # --- KEY METRICS TABLE ---
     # Retrieve dynamic data (using placeholders for demo)
-    funding_goal_formatted = f"₹{project.funding_goal:,.2f}"
-    current_amount_formatted = f"₹{project.current_amount:,.2f}"
+    funding_goal_formatted = f"Rs.{project.funding_goal}"
+    current_amount_formatted = f"Rs.{project.current_amount}"
 
     funding_metrics_data = [
         [
@@ -712,7 +712,7 @@ def generate_report_pdf(project):
     summary_data = [
         ["Funding Started:", project.started_at.strftime("%Y-%m-%d")],
         ["Funding Closed:", project.closed_by.strftime("%Y-%m-%d") if project.closed_by else "N/A"],
-        ["Tile Value:", f"₹{project.tile_value:,.2f}"],
+        ["Tile Value:", f"Rs.{project.tile_value:,.2f}"],
         ["Required Tiles to Goal:", f"{total_required_tiles} tiles"],
         ["Funding Status:",
          f"Closed - {'Exceeded Goal' if project.current_amount >= project.funding_goal else 'Goal Not Met'}"],
@@ -753,10 +753,10 @@ def generate_report_pdf(project):
                 f'Phone: {beneficiary.phone_number or "N/A"}<br/>'
                 f'Address: {beneficiary.address}', normal_style),
             Paragraph(
+                f'Acc Holder: {inst_bank.account_holder_first_name} {inst_bank.account_holder_last_name}'
                 f'Bank Name: {inst_bank.bank_name}<br/>'
-                f'Acc No: {inst_bank.account_no}<br/>'
                 f'IFSC: {inst_bank.ifsc_code or "N/A"}<br/>'
-                f'Acc Holder: {inst_bank.account_holder_first_name} {inst_bank.account_holder_last_name}',
+                f'Acc No: {inst_bank.account_no}<br/>',
                 normal_style),
         ]
     ]
@@ -774,6 +774,10 @@ def generate_report_pdf(project):
 
     # Footer
     elements.append(Paragraph(
+        f'<b>Report Approved by:</b> {request.user.first_name} {request.user.last_name}',
+        normal_style
+    ))
+    elements.append(Paragraph(
         f'<b>Report Generated:</b> {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}',
         normal_style
     ))
@@ -788,46 +792,53 @@ def generate_report_pdf(project):
     elements.append(Paragraph(f"Visual Documentation for: {project.title}", section_heading_style))
     elements.append(Spacer(1, 10))
 
-    # image_paths = get_placeholder_project_images(project)
-    #
-    # if image_paths:
-    #     image_elements = []
-    #     # Calculate image width to fit two images side-by-side with padding
-    #     img_width = (available_width / 2) - (0.1 * inch)
-    #     img_height = img_width * (3 / 4)  # Assume 4:3 aspect ratio
-    #
-    #     for path in image_paths:
-    #         try:
-    #             img = Image(path, width=img_width, height=img_height)
-    #             image_elements.append(img)
-    #         except Exception as e:
-    #             # Add placeholder text if image fails to load
-    #             image_elements.append(Paragraph(f"[Image failed to load: {path}]", normal_style))
-    #
-    #     # Organize images into a table for grid layout (2 columns)
-    #     image_data = []
-    #     for i in range(0, len(image_elements), 2):
-    #         row = image_elements[i:i + 2]
-    #         # Ensure the row has two elements (add spacer if needed for alignment)
-    #         if len(row) == 1:
-    #             row.append(Spacer(1, 1))
-    #         image_data.append(row)
-    #
-    #     image_table = Table(image_data, colWidths=[available_width / 2] * 2)
-    #     image_table.setStyle(TableStyle([
-    #         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-    #         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-    #         ('LEFTPADDING', (0, 0), (-1, -1), 5),
-    #         ('RIGHTPADDING', (0, 0), (-1, -1), 5),
-    #         ('BOTTOMPADDING', (0, 0), (-1, -1), 15),
-    #     ]))
-    #     elements.append(image_table)
-    #
-    # else:
-    #     elements.append(Paragraph(
-    #         "**No Project Images Available.**",
-    #         centered_normal
-    #     ))
+    image_paths = []
+    for project_image in project.images.filter(table_status=True).all():
+        try:
+            if project_image.project_img:
+                image_paths.append(project_image.project_img.path)
+        except Exception as e:
+            print(f"Error accessing file path for image {project_image.pk}: {e}")
+            continue
+
+    if image_paths:
+        image_elements = []
+        # Calculate image width to fit two images side-by-side with padding
+        img_width = (available_width / 2) - (0.1 * inch)
+        img_height = img_width * (3 / 4)  # Assume 4:3 aspect ratio
+
+        for path in image_paths:
+            try:
+                img = Image(path, width=img_width, height=img_height)
+                image_elements.append(img)
+            except Exception as e:
+                # Add placeholder text if image fails to load
+                image_elements.append(Paragraph(f"[Image failed to load: {path}]", normal_style))
+
+        # Organize images into a table for grid layout (2 columns)
+        image_data = []
+        for i in range(0, len(image_elements), 2):
+            row = image_elements[i:i + 2]
+            # Ensure the row has two elements (add spacer if needed for alignment)
+            if len(row) == 1:
+                row.append(Spacer(1, 1))
+            image_data.append(row)
+
+        image_table = Table(image_data, colWidths=[available_width / 2] * 2)
+        image_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 5),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 15),
+        ]))
+        elements.append(image_table)
+
+    else:
+        elements.append(Paragraph(
+            "**No Project Images Available.**",
+            centered_normal
+        ))
 
     # ------------------------------------------------------------------------------------------------
     elements.append(PageBreak())
@@ -851,12 +862,12 @@ def generate_report_pdf(project):
                                         spaceAfter=0)
 
     header = [
-        Paragraph("S.No", table_header_style),
+        Paragraph("Sl.No", table_header_style),
         Paragraph("Donor Name", table_header_style),
         Paragraph("Tracking ID", table_header_style),
         Paragraph("Date/Time", table_header_style),
         Paragraph("Tiles Qty", table_header_style),
-        Paragraph("Amount (₹)", table_header_style)
+        Paragraph("Amount (Rs.)", table_header_style)
     ]
     transaction_table_data.append(header)
 
@@ -869,9 +880,9 @@ def generate_report_pdf(project):
             Paragraph('1', centered_normal),
             Paragraph(txn.sender.full_name, normal_style),
             Paragraph(txn.tracking_id, normal_style),
-            Paragraph(txn.tracking_id, centered_normal),
-            Paragraph(txn.tiles_bought.tiles, centered_normal),
-            Paragraph(f"₹{amount_val:,.2f}", normal_style),
+            Paragraph(txn.transaction_time.strftime("%Y-%m-%d %H:%M"), centered_normal),
+            Paragraph(str(len(txn.tiles_bought.tiles.split('-'))), centered_normal),
+            Paragraph(f"Rs.{amount_val:,.2f}", normal_style),
         ]
         transaction_table_data.append(row)
 
@@ -883,7 +894,7 @@ def generate_report_pdf(project):
         100,  # Tracking ID
         85,  # Date/Time
         60,  # Tiles Qty
-        90  # Amount (₹)
+        90  # Amount (Rs.)
     ]
 
     # 3. Create Table Object

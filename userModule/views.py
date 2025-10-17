@@ -199,7 +199,7 @@ def userCheckoutView(request, ins_id):
                     all_notifications_sent = False
                     notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
 
-            if noti_pref.email_enabled:
+            if noti_pref.email_enabled and email:
                 email_success, email_message = email_send_initiated(transaction, request.build_absolute_uri(f'/user/{proof_upload_url}/'))
                 if not email_success:
                     all_notifications_sent = False
@@ -260,7 +260,7 @@ def userProofUpload(request, ins_id, trans_id):
                     all_notifications_sent = False
                     notification_errors.append(f"WhatsApp message failed to send: {whatsapp_result['message']}")
 
-            if noti_pref.email_enabled:
+            if noti_pref.email_enabled and tra.sender.email:
                 email_success, email_message = email_send_proof(tra)
                 if not email_success:
                     all_notifications_sent = False
