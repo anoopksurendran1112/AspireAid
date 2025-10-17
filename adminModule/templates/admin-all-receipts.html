@@ -1,4 +1,5 @@
 {% extends 'admin-dashboard.html' %}
+{% load humanize %}
 {% block content %}
 <!---------------------- All Institution Table Details -------------------->
 <div class="row">
@@ -84,7 +85,7 @@
                         <td>{{ r.transaction.transaction_time|date:"d M, Y P" }}</td>
                         <td>{{ r.transaction.tiles_bought.tiles }}</td>
                         <td>{{ r.tile_count }}</td>
-                        <td>₹{{ r.transaction.amount }}</td>
+                        <td>₹{{ r.transaction.amount|floatformat:2|intcomma  }}</td>
                         <td class="text-center">
                             <a class="btn btn-info btn-sm me-1" href="/administrator/verify-transaction/{{ r.transaction.id }}/">
                                 <i class="align-middle" data-feather="info"></i>

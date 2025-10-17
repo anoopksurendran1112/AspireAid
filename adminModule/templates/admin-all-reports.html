@@ -14,21 +14,20 @@
             <div class="collapse" id="advancedFilterCollapse">
                 <div class="card-body">
                     <form method="get" class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <input type="text" class="form-control" id="project_title" name="project_title" placeholder="Enter Project Title">
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <input type="text" class="form-control" id="beneficiary_name" name="beneficiary_name" placeholder="Enter Beneficiary Name">
                         </div>
-                        <div class="col-md-6">
-                            <label for="order_by_goal" class="form-label">Funding Goal</label>
+                        <div class="col-md-4">
                             <select id="order_by_goal" name="goal_order" class="form-select">
-                                <option value="">None</option>
+                                <option value="">Default</option>
                                 <option value="asc">Goal Ascending</option>
                                 <option value="desc">Goal Descending</option>
                             </select>
                         </div>
-                        <div class="col-12 text-end mt-3">
+                        <div class="col-12 text-end mt-4">
                             <button type="submit" class="btn btn-primary me-2">
                                 <i class="align-middle me-1" data-feather="check"></i> Apply Filters
                             </button>

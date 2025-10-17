@@ -1301,26 +1301,48 @@ def adminAllReports(request):
         if not request.user.table_status:
             messages.error(request, "Your account has been deactivated by another superuser.")
             return redirect('/administrator/logout/')
-        project = (Project.objects.filter(completion_conditions)
-                   .annotate(tra=Count('transaction', distinct=True)).order_by('-closed_by'))
-        reports = Reports.objects.all().select_related('project')
+        project_queryset = Project.objects.filter(completion_conditions)
+        reports_queryset = Reports.objects.all().select_related('project')
 
     elif request.user.is_staff:
         if not request.user.table_status or not request.user.institution.table_status:
             messages.error(request, "Your account or institution has been deactivated by a superuser.")
             return redirect('/administrator/logout/')
-        project = (Project.objects.filter(completion_conditions, created_by=request.user.institution,)
-                   .annotate(tra=Count('transaction', distinct=True)).order_by('-closed_by'))
-        reports = Reports.objects.filter(project__created_by=request.user.institution).select_related('project')
+        project_queryset = Project.objects.filter(completion_conditions,created_by=request.user.institution,)
+        reports_queryset = Reports.objects.filter(project__created_by=request.user.institution).select_related('project')
 
     else:
         messages.error(request, "You don't have permission to access this page.")
         return redirect('/administrator/')
 
-    for p in project:
-        p.tiles = (p.funding_goal / p.tile_value)
-        p.tra = Transaction.objects.filter(project = p).count()
-    return render(request, 'admin-all-reports.html', {'admin': request.user, 'project': project, 'reports': reports})
+    project_title = request.GET.get('project_title')
+    beneficiary_name = request.GET.get('beneficiary_name')
+    goal_order = request.GET.get('goal_order')
+
+    filter_conditions = Q()
+
+    if project_title:
+        filter_conditions &= Q(title__icontains=project_title)
+
+    if beneficiary_name:
+        filter_conditions &= (Q(beneficiary__first_name__icontains=beneficiary_name) | Q(beneficiary__last_name__icontains=beneficiary_name))
+
+    if filter_conditions:
+        project_queryset = project_queryset.filter(filter_conditions)
+    if goal_order:
+        if goal_order == 'asc':
+            project_queryset = project_queryset.order_by('funding_goal')
+        elif goal_order == 'desc':
+            project_queryset = project_queryset.order_by('-funding_goal')
+    else:
+        project_queryset = project_queryset.order_by('-closed_by')
+
+    project_queryset = project_queryset.annotate(tra=Count('transaction', distinct=True))
+    for p in project_queryset:
+        p.tiles = int(p.funding_goal / p.tile_value) if p.tile_value and p.tile_value > 0 else 0
+        p.has_report = reports_queryset.filter(project=p).exists()
+
+    return render(request, 'admin-all-reports.html', {'admin': request.user,'project': project_queryset,'reports': reports_queryset})
 
 
 def adminGenerateReports(request, p_id):
@@ -1335,7 +1357,7 @@ def adminGenerateReports(request, p_id):
             except Reports.DoesNotExist:
                 pass
 
-            new_pdf_data = generate_report_pdf(project_instance)
+            new_pdf_data = generate_report_pdf(project_instance, request)
             report, created = Reports.objects.update_or_create(project=project_instance,defaults={'report_pdf': new_pdf_data})
 
             if not created and old_report and old_report.report_pdf:
