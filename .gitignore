@@ -2,14 +2,14 @@
 __pycache__/
 *.pyc
 
+# Virtual Environment (standard practice to ignore)
+.venv/
+
 # IDE files (e.g., PyCharm, IntelliJ)
 .idea/
 
 # Database file
 db.sqlite3
 
-# Ignore all files inside the media directory
-media/*
-
-# But don't ignore the .gitkeep file
-!media/.gitkeep
+# Security files (CRITICAL: Keeps secrets out of the repository)
+.env
