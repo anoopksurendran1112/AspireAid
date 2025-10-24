@@ -169,53 +169,59 @@
             </div>
 
             <div class="card-body table-responsive">
-                <table class="table table-hover my-0">
+                <table class="table table-hover my-0 align-middle">
                     <thead class="table-dark">
-                    <tr>
-                        <th>Sl no.</th>
-                        <th>Project Title</th>
-                        <th>Target</th>
-                        <th>Current</th>
-                        <th>Created At</th>
-                        <th>Status</th>
-                        <th class="text-center">Action</th>
-                    </tr>
+                        <tr>
+                            <th>#</th>
+                            <th>Project Title</th>
+                            <th class="d-none d-lg-table-cell">Target</th>
+                            <th>Current Amount</th>
+                            <th class="d-none d-md-table-cell">Created</th>
+                            <th>Status</th>
+                            <th class="text-center">Action</th>
+                        </tr>
                     </thead>
                     <tbody>
                     {% for p in prj %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ p.title }}</td>
-                        <td>₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
-                        <td>₹{{ p.current_amount|floatformat:2|intcomma }}</td>
-                        <td>{{ p.started_at|date:"d M, Y" }}</td>
-                        <td class="{% if p.validity %}
-                                    text-success
-                                {% elif p.table_status == False %}
-                                    text-danger
-                                {% else %}
-                                    text-primary
-                                {% endif %}">
-                            <strong>
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+
+                            <td>
+                                <span class="fw-medium">{{ p.title|truncatechars:35 }}</span>
+                            </td>
+
+                            <td class="d-none d-lg-table-cell text-nowrap">₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
+
+                            <td class="fw-bold text-nowrap">₹{{ p.current_amount|floatformat:2|intcomma }}</td>
+
+                            <td class="d-none d-md-table-cell">{{ p.started_at|date:"P, d M Y" }}</td>
+
+                            <td>
                                 {% if p.validity %}
-                                    Completed at <br> {{p.closed_by|date:"d M, Y" }}
+                                    <span class="badge bg-success">Completed</span>
+                                    <small class="d-block text-muted">On {{ p.closed_by|date:"d M, Y" }}</small>
                                 {% elif p.table_status == False %}
-                                    Closed
+                                    <span class="badge bg-danger">Closed</span>
+                                    <small class="d-block text-muted">Manually stopped</small>
                                 {% else %}
-                                    Active
+                                    <span class="badge bg-primary">Ongoing</span>
                                 {% endif %}
-                            </strong>
-                        </td>
-                        <td class="text-center">
-                            <a class="btn btn-info btn-sm" href="/administrator/single-project/{{ p.id }}/">
-                                <i class="align-middle" data-feather="info"></i>
-                            </a>
-                        </td>
-                    </tr>
+                            </td>
+
+                            <td class="text-center">
+                                <a class="btn btn-info btn-sm text-white" href="/administrator/single-project/{{ p.id }}/" title="View Project Details">
+                                    <i class="align-middle" data-feather="info"></i>
+                                </a>
+                            </td>
+                        </tr>
                     {% empty %}
-                    <tr>
-                        <td colspan="8" class="text-center p-4">No Projects found matching the criteria.</td>
-                    </tr>
+                        <tr>
+                            <td colspan="7" class="text-center p-4">
+                                <div class="alert alert-warning m-0" role="alert">
+                                    No projects were found matching the criteria.
+                                </div>
+                            </td>
+                        </tr>
                     {% endfor %}
                     </tbody>
                 </table>

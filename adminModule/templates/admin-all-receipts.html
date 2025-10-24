@@ -63,38 +63,47 @@
             <div class="card-body table-responsive">
                 <table class="table table-hover my-0">
                     <thead class="table-dark">
-                    <tr>
-                        <th>Sl no.</th>
-                        <th>Project</th>
-                        <th>Sender</th>
-                        <th>Tracking ID</th>
-                        <th>Transaction Time</th>
-                        <th>Selected Tiles</th>
-                        <th>Quantity</th>
-                        <th>Amount</th>
-                        <th class="text-center">Transaction & Receipts</th>
-                    </tr>
+                        <tr>
+                            <th>#</th>
+                            <th>Project</th>
+                            <th class="d-none d-md-table-cell">Sender</th>
+                            <th>Tracking ID</th>
+                            <th class="d-none d-lg-table-cell">Time</th>
+                            <th class="d-none d-md-table-cell">Qty</th>
+                            <th>Amount</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
                     </thead>
                     <tbody>
                     {% for r in rec %}
                     <tr>
                         <td>{{ forloop.counter }}</td>
-                        <td><a href="/administrator/single-project/{{ r.transaction.project.id }}/">{{ r.transaction.project.title }}</a></td>
-                        <td>{{ r.transaction.sender.full_name }}</td>
-                        <td>{{ r.transaction.tracking_id }}</td>
-                        <td>{{ r.transaction.transaction_time|date:"d M, Y P" }}</td>
-                        <td>{{ r.transaction.tiles_bought.tiles }}</td>
-                        <td>{{ r.tile_count }}</td>
-                        <td>₹{{ r.transaction.amount|floatformat:2|intcomma  }}</td>
-                        <td class="text-center">
-                            <a class="btn btn-info btn-sm me-1" href="/administrator/verify-transaction/{{ r.transaction.id }}/">
+
+                        <td>
+                            <a href="/administrator/single-project/{{ r.transaction.project.id }}/">
+                                {{ r.transaction.project.title|truncatechars:30 }}
+                            </a>
+                        </td>
+
+                        <td class="d-none d-md-table-cell">{{ r.transaction.sender.full_name|truncatechars:20 }}</td>
+
+                        <td class="fw-bold">{{ r.transaction.tracking_id }}</td>
+
+                        <td class="d-none d-lg-table-cell">{{ r.transaction.transaction_time|date:"P ,d M Y" }}</td>
+
+                        <td class="d-none d-md-table-cell">{{ r.tile_count }} Tiles</td>
+
+                        <td class="fw-bold text-nowrap">₹{{ r.transaction.amount|floatformat:2|intcomma }}</td>
+
+                        <td class=" text-nowrap">
+                            <a class="btn btn-info btn-sm me-1 mb-1" href="/administrator/verify-transaction/{{ r.transaction.id }}/" title="Transaction Details">
                                 <i class="align-middle" data-feather="info"></i>
                             </a>
-                            <a class="btn btn-primary btn-sm me-1" href="{{ r.receipt_pdf.url }}" target="_blank" rel="noopener noreferrer">
+                            <a class="btn btn-primary btn-sm me-1 mb-1" href="{{ r.receipt_pdf.url }}" target="_blank" rel="noopener noreferrer" title="View Receipt">
                                 <i class="align-middle" data-feather="file-text"></i>
                             </a>
                             {% if not admin.is_superuser %}
-                                <a href="/administrator/send-receipt/{{ r.id }}/" class="btn btn-success btn-sm me-1">
+                                <a href="/administrator/send-receipt/{{ r.id }}/" class="btn btn-success btn-sm me-1 mb-1" title="Send Receipt">
                                     <i class="align-middle" data-feather="send"></i>
                                 </a>
                             {% endif %}
@@ -102,7 +111,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="8" class="text-center p-4">No Receipts found matching the criteria.</td>
+                        <td colspan="9" class="text-center p-4">No Receipts found matching the criteria.</td>
                     </tr>
                     {% endfor %}
                     </tbody>
