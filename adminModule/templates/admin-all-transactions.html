@@ -70,68 +70,73 @@
                 </div>
 
                 <div class="card-body table-responsive">
-                    <table class="table table-hover text-start">
+                    <table class="table table-hover my-0">
                         <thead class="table-dark">
-                        <tr>
-                            <th>Sl no.</th>
-                            <th>Project Title</th>
-                            <th>Buyer</th>
-                            <th>Tracking ID</th>
-                            <th>No of Tiles</th>
-                            <th>Amount</th>
-                            <th>Transaction Time</th>
-                            <th class="{% if not admin.is_superuser %}text-center{% endif %}">Action</th>
-                        </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>Project</th>
+                                <th class="d-none d-lg-table-cell">Buyer</th>
+                                <th>Tracking ID</th>
+                                <th class="d-none d-lg-table-cell">Transaction Time</th>
+                                <th class="d-none d-md-table-cell">Qty</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
                         </thead>
                         <tbody>
                         {% for t in transaction %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td><a href="/administrator/single-project/{{ t.project.id }}/">{{ t.project.title }}</a></td>
-                            <td>{{ t.sender.full_name }}</td>
-                            <td>{{ t.tracking_id }}</td>
-                            <td>{{ t.num_tiles }}</td>
-                            <td>₹{{ t.amount|floatformat:2|intcomma }}</td>
-                            <td>{{ t.transaction_time|date:"d M, Y P" }}</td>
-                            <td>
-                                {% if not admin.is_superuser %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+
+                                <td>
+                                    <a href="/administrator/single-project/{{ t.project.id }}/" class="text-decoration-none fw-medium">
+                                        {{ t.project.title|truncatechars:30 }}
+                                    </a>
+                                </td>
+
+                                <td class="d-none d-lg-table-cell">{{ t.sender.full_name|truncatechars:20 }}</td>
+
+                                <td class="fw-bold">{{ t.tracking_id }}</td>
+
+                                <td class="d-none d-lg-table-cell">{{ t.transaction_time|date:"P ,d M Y" }}</td>
+
+                                <td class="d-none d-md-table-cell">{{ t.num_tiles }} Tiles</td>
+
+                                <td class="text-nowrap fw-bold">₹{{ t.amount|floatformat:2|intcomma }}</td>
+                                <td>
                                     {% if t.status == 'Verified' %}
-                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-success btn-sm me-1">
-                                            <i class="align-middle" data-feather="check-circle"></i>
-                                        </a>
-                                        <a href="/administrator/generate-receipt/{{ t.id }}/" class="btn btn-info btn-sm me-1">
-                                            <i class="align-middle" data-feather="file-plus"></i>
-                                        </a>
+                                        <span class="badge bg-success">Verified</span>
                                     {% elif t.status == 'Unverified' %}
-                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-primary btn-sm me-1">
+                                        <span class="badge bg-warning text-dark">Unverified</span>
+                                    {% elif t.status == 'Rejected' %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class=" text-nowrap">
+
+                                    <div class="d-inline-block ms-2">
+                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-primary btn-sm" title="View Transaction Details">
                                             <i class="align-middle" data-feather="info"></i>
                                         </a>
-                                    {% elif t.status == 'Rejected' %}
-                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-danger btn-sm me-1">
-                                            <i class="align-middle" data-feather="x-circle"></i>
-                                        </a>
-                                    {% endif %}
-                                {% else %}
-                                    {% if t.status == 'Verified' %}
-                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-success btn-sm me-1">
-                                            <i class="align-middle" data-feather="check-circle"></i>
-                                        </a>
-                                    {% elif t.status == 'Unverified' %}
-                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-primary btn-sm me-1">
-                                            <i class="align-middle" data-feather="info"></i>
-                                        </a>
-                                    {% elif t.status == 'Rejected' %}
-                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-danger btn-sm me-1">
-                                            <i class="align-middle" data-feather="x-circle"></i>
-                                        </a>
-                                    {% endif %}
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="8" class="text-center p-4">No Transactions found matching the criteria.</td>
-                    </tr>
+
+                                        {% if t.status == 'Verified' and not admin.is_superuser %}
+                                            <a href="/administrator/generate-receipt/{{ t.id }}/" class="btn btn-info btn-sm" title="Generate Receipt">
+                                                <i class="align-middle" data-feather="file-plus"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center p-4">
+                                    <div class="alert alert-warning m-0">
+                                        No transactions found matching the criteria.
+                                    </div>
+                                </td>
+                            </tr>
                         {% endfor %}
                         </tbody>
                     </table>

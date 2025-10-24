@@ -1284,9 +1284,9 @@ def adminSendReciept(request, r_id):
                 notification_errors.append(f"Email sending failed: {email_message}")
 
         if all_notifications_sent:
-            messages.success(request,f'A receipt has been successfully sent to {receipt.transaction.sender.first_name} {receipt.transaction.sender.last_name}.')
+            messages.success(request,f'A receipt has been successfully sent to {receipt.transaction.sender.full_name}.')
         else:
-            base_msg = f"Failed to send all confirmation messages for the receipt to {receipt.transaction.sender.first_name} {receipt.transaction.sender.last_name}."
+            base_msg = f"Failed to send all confirmation messages for the receipt to {receipt.transaction.sender.full_name}."
             details_msg = " ".join(notification_errors)
             messages.warning(request, f"{base_msg} Details: {details_msg}")
     except Exception as e:
