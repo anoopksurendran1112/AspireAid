@@ -1,5 +1,3 @@
-from django.db.models import F
-
 from adminModule.utils import whatsapp_send_initiated, email_send_initiated, whatsapp_send_proof, email_send_proof, sms_send_initiated, sms_send_proof, get_unique_tracking_id
 from userModule.models import PersonalDetails, SelectedTile, Transaction, Screenshot, ContactMessage
 from django.shortcuts import render, redirect, get_object_or_404
@@ -7,8 +5,8 @@ from adminModule.models import Project, Institution, NotificationPreference
 from django.db import transaction as db_transaction
 from django.db import transaction, IntegrityError
 from django.contrib import messages
-from django.utils import timezone
 from django.urls import reverse
+from django.db.models import F
 import urllib.parse
 import os
 
@@ -305,3 +303,12 @@ def userTrackStatus(request, ins_id):
 
 
 
+def Test(request,ins_id):
+    ins = get_object_or_404(Institution, id=ins_id, table_status=True)
+
+    projects = Project.objects.filter(created_by=ins, current_amount__lt=F('funding_goal'),
+                                      table_status=True).order_by('-created_by')[:3]
+    for p in projects:
+        p.progress = round((p.current_amount / p.funding_goal) * 100,
+                           3) if p.funding_goal > 0 else 0
+    return render(request, 'Test.html',{'ins':ins, 'prj':projects})
