@@ -1,0 +1,41 @@
+
+.hero-section {
+    position: relative;
+    background-image: url(../img/about-img.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.35);
+    z-index: 1;
+}
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.project-img-container{
+    height: 300px;
+}
+
+/* Custom CSS for the Floating Action Button (FAB) styled as a pill */
+.contact-fab-pill {
+    position: fixed;
+    bottom: 25px; /* Distance from the bottom of the screen */
+    right: 25px; /* Distance from the right edge of the screen */
+    z-index: 1050; /* Ensures it floats above most other content */
+    padding: 1rem 1.5rem; /* Adjust padding for a slightly larger, prominent look */
+    transition: transform 0.3s ease;
+}
+
+.contact-fab-pill:hover {
+    transform: translateY(-2px); /* Subtle lift on hover */
+}
