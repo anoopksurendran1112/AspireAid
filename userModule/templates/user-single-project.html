@@ -3,48 +3,44 @@
 {% load humanize %}
 {% block content %}
 
-
-<div class="modal fade fullscreen-modal" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-4 fw-bold" id="exampleModalLabel">Book Your Tiles</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog  modal-xl">
+        <div class="modal-content rounded-1 shadow-lg">
+            <div class="modal-header border-bottom-0 p-4 pb-2">
+                <h1 class="modal-title fs-4 fw-bold text-dark" id="bookingModalLabel">Book Your Tiles</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4 pt-0">
-                <div class="d-flex justify-content-between flex-wrap align-items-center mb-4">
-                    <div class="lead">
-                        <strong>Available Tiles: <span class="text-info">{{ available_tiles_count }}</span></strong>
-                    </div>
-                    <div class="d-flex justify-content-end flex-wrap gap-3">
-                        <div class="d-flex align-items-center" style="margin-right: 1rem;">
-                            <div class="booking-tile available-tile" style="margin-right: .5rem;"></div>
+
+                <div class="d-flex justify-content-end flex-wrap align-items-center mb-4 border-bottom pb-3">
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <div class="booking-tile available-tile rounded me-2" style="width:30px; height:30px;"></div>
                             <span class="small text-muted">Available</span>
                         </div>
-                        <div class="d-flex align-items-center" style="margin-right: 1rem;">
-                            <div class="booking-tile processing-tile" style="margin-right: .5rem;"></div>
+                        <div class="d-flex align-items-center">
+                            <div class="booking-tile processing-tile rounded me-2" style="width:30px; height:30px;"></div>
                             <span class="small text-muted">Processing</span>
                         </div>
-                        <div class="d-flex align-items-center" style="margin-right: 1rem;">
-                            <div class="booking-tile sold-tile" style="margin-right: .5rem;"></div>
+                        <div class="d-flex align-items-center">
+                            <div class="booking-tile sold-tile rounded me-2" style="width:30px; height:30px;"></div>
                             <span class="small text-muted">Sold</span>
                         </div>
                     </div>
                 </div>
 
-                <hr>
-
-                <div id="tile-container" class="bg-light rounded-3 p-3 overflow-auto shadow-sm" style="max-height: 70vh;">
+                <div id="tile-container" class="bg-light rounded-3 p-3 overflow-auto shadow-sm border" style="max-height: 50vh;">
                     <div class="tile-grid">
                         {% for t in t_range %}
-                        <div id="{{t}}" class="booking-tile p-2 rounded text-center fw-bold
-                            {% if t in sold_tiles_set %}
-                                sold-tile
-                            {% elif t in processing_tiles_set %}
-                                processing-tile
-                            {% else %}
-                                available-tile
-                            {% endif %}">
+                        <div id="tile-{{t}}" data-tile-id="{{ t }}"
+                            class="booking-tile p-2 rounded text-center fw-bold tile-item
+                                {% if t in sold_tiles_set %}
+                                    sold-tile
+                                {% elif t in processing_tiles_set %}
+                                    processing-tile
+                                {% else %}
+                                    available-tile
+                                {% endif %}" >
                             <span class="tile-number">{{t}}</span>
                         </div>
                         {% endfor %}
@@ -52,24 +48,24 @@
                 </div>
             </div>
 
-            <div class="modal-footer d-flex flex-column flex-sm-row justify-content-between align-items-center p-4 border-0">
-                <div id="summary-section" class="text-start text-sm-start mb-3 mb-sm-0">
+            <div class="modal-footer d-flex flex-column flex-sm-row justify-content-between align-items-center p-4 border-top">
+                <div id="summary-section" class="text-start mb-3 mb-sm-0">
                     <h5 class="fw-bold mb-1">
                         Total:
-                        <span class="js-selected-count">0</span> x
-                        <span data-tile-value="{{project.tile_value}}">₹{{ project.tile_value }}</span> =
-                        <span class="text-primary">₹<span class="js-selected-total">0</span></span>
+                        <span class="js-selected-count text-primary">0</span> x
+                        <span data-tile-value="{{project.tile_value}}">₹{{ project.tile_value|floatformat:0|intcomma }}</span> =
+                        <span class="text-success fs-4">₹<span class="js-selected-total">0</span></span>
                     </h5>
-                    <p class="mb-0 fw-bold text-dark">
-                        Selected Tiles: <span class="js-selected-tiles fs-6 text-muted">None</span>
+                    <p class="mb-0 fw-semibold text-dark">
+                        Selected Tiles: <span class="js-selected-tiles small text-muted">None</span>
                     </p>
                 </div>
-                <div class="d-flex justify-content-center">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="margin-right: 1rem;">Close</button>
-                    <form method="post" class="">
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-secondary reset-selection-btn">Reset</button>
+                    <form method="post">
                         {% csrf_token %}
                         <input type="hidden" id="selected-tiles-input" name="selected_tiles_input">
-                        <button type="submit" id="book-button" class="btn btn-primary btn-sm" disabled>Proceed to Payment</button>
+                        <button type="submit" id="book-button" class="btn btn-primary fw-bold" disabled>Proceed to Payment</button>
                     </form>
                 </div>
             </div>
@@ -77,196 +73,129 @@
     </div>
 </div>
 
-<div class="modal fade fullscreen-modal" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header d-flex justify-content-end">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-header border-0 d-flex justify-content-end p-2">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center d-flex align-items-center justify-content-center">
-                <img src="" id="modalImage" class="img-fluid" alt="Full-size Project Image">
+            <div class="modal-body p-0 text-center">
+                <img src="" id="modalImage" class="img-fluid rounded-4 shadow-lg" alt="Full-size Project Image">
             </div>
         </div>
     </div>
 </div>
 
-<section class="project-area section-gap" id="project">
-    <div class="container">
+<section class="mt-5 py-5">
+    <div class="container py-lg-5">
         <div class="row">
-            <div class="col-lg-12">
-                <div class="card shadow-lg h-100 rounded-4 overflow-hidden">
-                    <div class="row g-0">
-                        <div class="col-12">
-                            <div id="projectImageCarousel" class="carousel slide" data-bs-ride="carousel">
-                                <div class="carousel-indicators">
-                                    {% for image in project.images.all %}
-                                    <button type="button" data-bs-target="#projectImageCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-current="{% if forloop.first %}true{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
-                                    {% endfor %}
-                                </div>
-                                <div class="carousel-inner carousel-image">
-                                    {% if project.images.all %}
-                                        {% for image in project.images.all %}
-                                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                            <img src="{{ image.project_img.url }}" class="d-block w-100 image-clickable" alt="Project Image {{ forloop.counter }}" data-bs-toggle="modal" data-bs-target="#imageModal" data-full-image-url="{{ image.project_img.url }}">
-                                        </div>
-                                        {% endfor %}
-                                    {% else %}
-                                        <div class="carousel-item active">
-                                            <img src="{% static 'Dashboard/img/photos/default-banner.jpg' %}" class="d-block w-100 image-clickable" alt="No image available" data-bs-toggle="modal" data-bs-target="#imageModal" data-full-image-url="{% static 'Dashboard/img/photos/default-banner.jpg' %}">
-                                        </div>
-                                    {% endif %}
-                                </div>
+            <h1 class="display-5 fw-bolder text-dark mb-4">{{ project.title }}</h1>
+
+            <div class="col-lg-8 mb-5 mb-lg-0">
+                <div id="projectCarousel" class="carousel slide shadow-lg rounded-4 overflow-hidden mb-5" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for image in project.images.all %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <img src="{{ image.project_img.url }}"
+                                 class="d-block w-100 object-fit-cover cursor-pointer"
+                                 data-bs-toggle="modal"
+                                 data-bs-target="#imageModal"
+                                 data-full-image-url="{{ image.project_img.url }}"
+                                 alt="{{ project.title }} image {{ forloop.counter }}"
+                                 style="height: 450px;">
+                        </div>
+                        {% empty %}
+                        <div class="carousel-item active">
+                            <img src="{% static 'frontend/img/placeholder.jpg' %}" class="d-block w-100 object-fit-cover" alt="No image provided" style="height: 450px;">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if project.images.count > 1 %}
+                    <button class="carousel-control-prev" type="button" data-bs-target="#projectCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#projectCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                    {% endif %}
+                </div>
+
+                <h2 class="fw-bold text-dark mb-3 border-bottom pb-2">Our Story</h2>
+                <div class="text-secondary project-description">
+                    {{ project.description|safe }}
+                </div>
+
+                <div class="card shadow-sm border-0 rounded-4 mt-5 p-4 bg-light">
+                    <h3 class="fw-bold text-primary mb-3">Meet the Beneficiary</h3>
+                    <div class="d-flex align-items-center">
+                        <img src="{% static 'Custom-styles/Frontend/img/default-avatar.jpg' %}" alt="Beneficiary Photo" class="rounded-circle me-3 object-fit-cover" style="width: 80px; height: 80px;">
+                        <div>
+                            <p class="mb-0 fw-bold text-dark fs-5 mb-2">{{ project.beneficiary.first_name }} {{ project.beneficiary.last_name }}</p>
+                            <p class="mb-0 small text-muted">A project initiated by: {{ project.initiator_name }}</p>
+                        </div>
+                    </div>
+                    <p class="mt-3 text-secondary">{{ project.beneficiary_story }}</p>
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-lg border-0 rounded-4 sticky-top donation-summary-card" style="top: 20px;">
+                    <div class="card-body p-4 p-md-5">
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between small mb-2">
+                                <span class="text-success fw-bolder fs-5">₹{{ project.current_amount|floatformat:2|intcomma }}</span>
+                                <span class="text-muted fw-bold">of ₹{{ project.funding_goal|floatformat:2|intcomma }} Goal</span>
+                            </div>
+                            <div class="progress mb-2" role="progressbar" aria-label="Project Progress" aria-valuenow="{{ project.progress }}" aria-valuemin="0" aria-valuemax="100" style="height: 12px;">
+                                <div class="progress-bar bg-success" style="width: {{ project.progress }}%;"></div>
+                            </div>
+                            <p class="text-center small text-muted fw-semibold">{{ project.progress|floatformat:0 }}% Funded</p>
+                        </div>
+
+                        <div class="d-flex justify-content-between text-center mb-4 border-bottom pb-3">
+                            <div>
+                                <h6 class="fw-bolder mb-0 text-dark">{{ project.contributors_count }}</h6>
+                                <p class="small text-muted mb-0">Donors</p>
+                            </div>
+                            <div>
+                                <h6 class="fw-bolder mb-0 text-dark">{{ available_tiles_count }}</h6>
+                                <p class="small text-muted mb-0">Available Tiles</p>
+                            </div>
+                            <div>
+                                <h6 class="fw-bolder mb-0 text-dark">₹{{ project.tile_value|floatformat:0|intcomma }}</h6>
+                                <p class="small text-muted mb-0">Tile Value</p>
                             </div>
                         </div>
-                        <div class="card-body p-5">
-                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
-                                <h3 class="fw-bold mb-2 mb-md-0">{{ project.title }}</h3>
-                                 {% if project_status == 'Completed' %}
-                                    <button type="button" class="btn btn-success btn-lg" disabled>
-                                        Donation Completed
-                                    </button>
-                                {% elif project_status == 'Closed' %}
-                                    <button type="button" class="btn btn-danger btn-lg" disabled>
-                                        Project Closed
-                                    </button>
-                                {% else %}
-                                    <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                        Donate Now
-                                    </button>
-                                {% endif %}
-                            </div>
 
-                            <hr>
-
-                            <div class="row g-4 mb-4 text-center">
-                                {% if project_status == Active %}
-                                <div class="col-md-4">
-                                    <div class="card h-100 shadow-sm border-info border-3">
-                                        <div class="card-body">
-                                            <h6 class="fw-bold text-info text-uppercase mb-2">Available Tiles</h6>
-                                            <h3 class="display-5 fw-bold mb-0">{{ available_tiles_count }}</h3>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endif %}
-                                <div class="col-md-4">
-                                    <div class="card h-100 shadow-sm border-secondary border-3">
-                                        <div class="card-body">
-                                            <h6 class="fw-bold text-muted text-uppercase mb-2">Tile Value</h6>
-                                            <h3 class="display-5 fw-bold mb-0">₹{{ project.tile_value|floatformat:2|intcomma }}</h3>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card h-100 shadow-sm border-success border-3">
-                                        <div class="card-body">
-                                            <h6 class="fw-bold {% if project.closed_by %} text-danger {% else %} text-success {% endif %} text-uppercase mb-2">{% if project.closed_by %} Closed on {% else %} Opened on {% endif %}</h6>
-                                            <h3 class="display-5 fw-bold mb-0">{% if project.closed_by %} {{ project.closed_by|date:"F j, Y" }} {% else %} {{ project.started_at|date:"F j, Y" }} {% endif %}</h3>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <p class="text-muted">{{ project.description }}</p>
-
-                            <div class="my-4">
-                                <div class="progress" role="progressbar" aria-label="Project Progress" aria-valuenow="{{ project.progress }}" aria-valuemin="0" aria-valuemax="100" style="height: 10px;">
-                                    <div class="progress-bar bg-primary" style="width: {{ project.progress }}%;"></div>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <span class=" text-muted">Raised: <strong class="text-success">₹{{ project.current_amount|floatformat:2|intcomma }}</strong> of <strong class="text-info">₹{{ project.funding_goal|floatformat:2|intcomma }}</strong></span>
-                                    <strong class="text-primary">{{ project.progress }}% Completed</strong>
-                                </div>
-                            </div>
-
-                            <hr>
-
-                            <div class="row g-4">
-                                <div class="col-12">
-                                    <div class="card shadow-sm border rounded-4 p-4">
-                                    <h5 class="fw-bold mb-4">Beneficiary Details</h5>
-                                        <div class="row g-4 align-items-center">
-                                            <div class="col-md-4 text-center">
-                                                <img
-                                                    {% if project.beneficiary.profile_pic %}
-                                                        src="{{ project.beneficiary.profile_pic.url }}"
-                                                    {% else %}
-                                                        src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
-                                                    {% endif %}
-                                                    alt="Beneficiary image"
-                                                    style="width: 150px; height: 150px;"
-                                                    class="rounded-circle border border-5 border-white shadow-lg mb-3">
-                                                <h5 class="fw-bold mb-0">{{ project.beneficiary.first_name }} {{ project.beneficiary.last_name }}</h5>
-                                                <p class="text-muted">{{ project.beneficiary.title }}</p>
-                                            </div>
-                                            <div class="col-md-8">
-                                                <div class="table-responsive">
-                                                    <table class="table table-borderless table-sm mb-0 text-start">
-                                                        <tbody>
-                                                            <tr>
-                                                                <th class="text-muted fw-bold ps-0" style="width: 120px;">Age</th>
-                                                                <td>{{ project.beneficiary.age }} years old</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th class="text-muted fw-bold ps-0">Phone</th>
-                                                                <td>+91-{{ project.beneficiary.phone_number }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th class="text-muted fw-bold ps-0">Address</th>
-                                                                <td>{{ project.beneficiary.address }}</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="d-grid mt-4">
+                            <button type="button" class="btn btn-primary btn-lg fw-bold py-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#bookingModal">
+                                Donate Now
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-
-<script>
-    {% if messages %}
-        {% for message in messages %}
-            Swal.fire({
-                title: '{{ message.tags|title }}!',
-                text: '{{ message }}',
-                icon: '{{ message.tags }}',
-                confirmButtonText: 'OK'
-            });
-        {% endfor %}
-    {% endif %}
-</script>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const imageModal = document.getElementById('imageModal');
-    imageModal.addEventListener('show.bs.modal', (event) => {
-        // Get the image that was clicked
-        const image = event.relatedTarget;
-
-        // Get the URL from the data attribute
-        const imageUrl = image.getAttribute('data-full-image-url');
-
-        // Set the source of the image inside the modal
-        const modalImage = document.getElementById('modalImage');
-        modalImage.src = imageUrl;
-    });
-});
-
-</script>
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // --- Image Modal Logic ---
+        const imageModal = document.getElementById('imageModal');
+        imageModal.addEventListener('show.bs.modal', (event) => {
+            const image = event.relatedTarget;
+            const imageUrl = image.getAttribute('data-full-image-url');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = imageUrl;
+        });
+
+        // --- Tile Booking Logic ---
         const tileGrid = document.querySelector('.tile-grid');
         const bookButton = document.getElementById('book-button');
         const selectedCountSpans = document.querySelectorAll('.js-selected-count');
@@ -275,16 +204,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedTilesInput = document.getElementById('selected-tiles-input');
 
         const tileValueElement = document.querySelector('#summary-section span[data-tile-value]');
+        // Ensure the tile value is treated as a number
         const tileValue = parseFloat(tileValueElement.dataset.tileValue);
 
         let selectedTiles = new Set();
 
         tileGrid.addEventListener('click', (event) => {
-            const clickedTile = event.target.closest('.booking-tile');
+            // Use currentTarget for better event delegation
+            const clickedTile = event.target.closest('.tile-item');
 
-            // The key fix: check for 'available-tile'
+            // Check if a tile was clicked AND it is available
             if (clickedTile && clickedTile.classList.contains('available-tile')) {
-                const tileId = clickedTile.id;
+                // Get the unique ID from the data attribute (safer than element ID)
+                const tileId = clickedTile.dataset.tileId;
 
                 if (clickedTile.classList.contains('selected')) {
                     clickedTile.classList.remove('selected');
@@ -297,28 +229,47 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        const resetButton = document.querySelector('.reset-selection-btn');
+
+        // Function to reset all selected states
+        function resetSelection() {
+            selectedTiles.clear();
+            document.querySelectorAll('.booking-tile.selected').forEach(tile => {
+                tile.classList.remove('selected');
+            });
+            updateSummary();
+        }
+
+        // Add event listener to the Reset button
+        resetButton.addEventListener('click', resetSelection);
+
+        // Also reset when the modal is fully closed
+        const bookingModal = document.getElementById('bookingModal');
+        bookingModal.addEventListener('hidden.bs.modal', resetSelection);
+
         function updateSummary() {
-            const selectedTilesString = Array.from(selectedTiles).join('-');
+            // Sort the tiles numerically for a cleaner display
+            const sortedTiles = Array.from(selectedTiles).map(Number).sort((a, b) => a - b);
+            const selectedTilesString = sortedTiles.join('-');
             const totalValue = selectedTiles.size * tileValue;
 
             selectedCountSpans.forEach(span => {
                 span.textContent = selectedTiles.size;
             });
             selectedTilesSpans.forEach(span => {
-                span.textContent = selectedTilesString;
+                span.textContent = selectedTiles.size > 0 ? selectedTilesString : 'None';
             });
             selectedTotalSpans.forEach(span => {
-                span.textContent = totalValue.toFixed(2);
+                // Format the total value with two decimal places
+                span.textContent = totalValue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             });
 
             selectedTilesInput.value = selectedTilesString;
 
-            if (selectedTiles.size > 0) {
-                bookButton.disabled = false;
-            } else {
-                bookButton.disabled = true;
-            }
+            // Enable or disable the button
+            bookButton.disabled = selectedTiles.size === 0;
         }
     });
 </script>
+
 {% endblock %}

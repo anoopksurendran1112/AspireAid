@@ -26,6 +26,14 @@
     height: 300px;
 }
 
+/* Custom CSS for the Call-to-Action Button Width */
+.cta-wide-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 300px; /* Limits the button width on large screens for better aesthetics */
+}
+
 /* Custom CSS for the Floating Action Button (FAB) styled as a pill */
 .contact-fab-pill {
     position: fixed;
@@ -38,4 +46,118 @@
 
 .contact-fab-pill:hover {
     transform: translateY(-2px); /* Subtle lift on hover */
+}
+
+
+/* --- 1. General Tile Grid and Container Styling --- */
+
+/* Defines the grid structure for the tile container */
+.tile-grid {
+    display: grid;
+    /* Use 'auto-fit' for responsiveness, showing as many columns as possible */
+    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+    gap: 8px; /* Spacing between tiles */
+    padding: 5px;
+    user-select: none; /* Prevents text selection when rapidly clicking tiles */
+}
+
+/* Base style for all tile blocks */
+.booking-tile {
+    /* Fixed size for uniformity, the minmax in tile-grid handles column size */
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: transform 0.1s ease, box-shadow 0.2s ease, border 0.2s ease;
+    border: 2px solid transparent; /* Base border for visual clarity */
+    cursor: default;
+}
+
+
+/* --- 2. Tile Status Styles (Colors & Feedback) --- */
+
+/* AVAILABLE Tiles (Default clickable state) */
+.available-tile {
+    background-color: #e9ecef; /* Light gray base */
+    color: #495057; /* Dark text */
+    cursor: pointer;
+}
+
+.available-tile:hover {
+    background-color: #dee2e6;
+    border-color: #ced4da;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* SOLD Tiles (Unclickable, final state) */
+.sold-tile {
+    background-color: #dc3545; /* Red/Danger color */
+    color: #fff;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* PROCESSING Tiles (Reserved, temporarily unavailable) */
+.processing-tile {
+    background-color: #ffc107; /* Yellow/Warning color */
+    color: #212529; /* Dark text for contrast */
+    cursor: not-allowed;
+    opacity: 0.9;
+}
+
+
+/* --- 3. SELECTED Tile Style (Click Feedback) --- */
+
+/* Style applied when an AVAILABLE tile is clicked */
+.booking-tile.selected {
+    background-color: #007bff; /* Primary brand color (Bootstrap's blue) */
+    color: #fff;
+    transform: scale(1.05); /* Slight visual bump */
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
+}
+
+/* Disable hover effect on selected tiles */
+.booking-tile.selected:hover {
+    background-color: #007bff;
+    border-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* --- 4. Modal Specific Adjustments --- */
+
+/* Ensures the modal legend tiles are styled correctly but don't look clickable */
+.modal-body .booking-tile.available-tile:not(.tile-item) {
+    cursor: default;
+    transform: none;
+    box-shadow: none;
+}
+
+
+/* Custom CSS for Icon UPI Buttons */
+
+/* Define a fixed width and height to make the buttons perfectly square and large */
+.upi-icon-btn {
+    width: 60px;
+    border-radius: 50%; /* Make them perfectly circular */
+    display: flex; /* Use Flexbox to center the icon inside */
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem; /* Increase icon size */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.upi-icon-btn:hover {
+    transform: translateY(-2px); /* Slight lift on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Ensure the row is centered on the page */
+.upi-icon-row {
+    max-width: 250px; /* Limit the width of the row itself */
+    margin: 0 auto;
+    margin-top: 20px; /* Add some space above the icons */
 }

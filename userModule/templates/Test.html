@@ -1,394 +1,266 @@
-<!DOCTYPE html>
+{% extends 'index.html' %}
 {% load static %}
 {% load humanize %}
-<html lang="eng" class="no-js">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="author" content="Kochi Digital">
-    <meta name="description" content="AspireAid is a community-driven platform for charitable crowdfunding. Donate tiles to support projects and transform lives.">
-    <meta name="keywords" content="crowdfunding, charity, donation, social good, projects, philanthropy, community support, tiles, AspireAid">
-    <meta name="robots" content="index, follow">
-    <meta name="googlebot" content="index, follow">
+{% block content %}
 
-    <title>Aid | {{ ins.institution_name }}</title>
+<div class="modal fade fullscreen-modal" id="bookingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-4 fw-bold" id="exampleModalLabel">Book Your Tiles</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+            </div>
+            <div class="modal-body p-4 pt-0">
+                <div class="d-flex justify-content-between flex-wrap align-items-center mb-4">
+                    <div class="lead">
+                        <strong>Available Tiles: <span class="text-info">{{ available_tiles_count }}</span></strong>
+                    </div>
+                    <div class="d-flex justify-content-end flex-wrap gap-3">
+                        <div class="d-flex align-items-center" style="margin-right: 1rem;">
+                            <div class="booking-tile available-tile" style="margin-right: .5rem;"></div>
+                            <span class="small text-muted">Available</span>
+                        </div>
+                        <div class="d-flex align-items-center" style="margin-right: 1rem;">
+                            <div class="booking-tile processing-tile" style="margin-right: .5rem;"></div>
+                            <span class="small text-muted">Processing</span>
+                        </div>
+                        <div class="d-flex align-items-center" style="margin-right: 1rem;">
+                            <div class="booking-tile sold-tile" style="margin-right: .5rem;"></div>
+                            <span class="small text-muted">Sold</span>
+                        </div>
+                    </div>
+                </div>
 
-    {% if ins.institution_img %}
-    <link rel="shortcut icon" href="{{ ins.institution_img.url}}">
-    {% else %}
-    <link rel="shortcut icon" href="{% static 'Custom-styles/frontend/img/default_logo.jpg' %}">
-    {% endif %}
+                <hr>
 
-    <link rel="stylesheet" href="{% static 'Custom-styles/frontend/styles/styles.css' %}">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="{% static 'Custom-styles/frontend/img' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
-<body>
-
-
-<!--Starting Navigation-bar Section-->
-<nav class="navbar navbar-expand-lg bg-white fixed-top shadow-sm py-2">
-    <div class="container">
-        <a class="navbar-brand " href="/user/{{ins.id}}/">
-            {% if ins.institution_img %}
-            <img src="{{ ins.institution_img.url}}" alt="Logo" width="30" height="24" class="d-inline-block align-text-top me-2">
-            {% else %}
-            <img src="{% static 'frontend/img/default_logo.jpg' %}" alt="Logo" width="30" height="24" class="d-inline-block align-text-top me-2">
-            {% endif %}
-            Aid | {{ins.institution_name}}
-        </a>
-
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-            <div class="offcanvas-header border-bottom">
-              <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                <div id="tile-container" class="bg-light rounded-3 p-3 overflow-auto shadow-sm" style="max-height: 70vh;">
+                    <div class="tile-grid">
+                        {% for t in t_range %}
+                        <div id="{{t}}" class="booking-tile p-2 rounded text-center fw-bold
+                            {% if t in sold_tiles_set %}
+                                sold-tile
+                            {% elif t in processing_tiles_set %}
+                                processing-tile
+                            {% else %}
+                                available-tile
+                            {% endif %}">
+                            <span class="tile-number">{{t}}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
 
-            <div class="offcanvas-body">
-                <ul class="navbar-nav justify-content-end flex-grow-1 ps-lg-3">
-                    <li class="nav-item">
-                        <a class="nav-link custom-nav-link active" aria-current="page" href="/user/{{ins.id}}/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link custom-nav-link" href="/user/{{ins.id}}/all-project/">ExploreProjects</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link custom-nav-link" href="/user/{{ins.id}}/track-status/">Track Your Status</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link custom-nav-link" href="/user/{{ins.id}}/about/">About Us</a>
-                    </li>
-                </ul>
+            <div class="modal-footer d-flex flex-column flex-sm-row justify-content-between align-items-center p-4 border-0">
+                <div id="summary-section" class="text-start text-sm-start mb-3 mb-sm-0">
+                    <h5 class="fw-bold mb-1">
+                        Total:
+                        <span class="js-selected-count">0</span> x
+                        <span data-tile-value="{{project.tile_value}}">₹{{ project.tile_value }}</span> =
+                        <span class="text-primary">₹<span class="js-selected-total">0</span></span>
+                    </h5>
+                    <p class="mb-0 fw-bold text-dark">
+                        Selected Tiles: <span class="js-selected-tiles fs-6 text-muted">None</span>
+                    </p>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="margin-right: 1rem;">Close</button>
+                    <form method="post" class="">
+                        {% csrf_token %}
+                        <input type="hidden" id="selected-tiles-input" name="selected_tiles_input">
+                        <button type="submit" id="book-button" class="btn btn-primary btn-sm" disabled>Proceed to Payment</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</nav>
+</div>
 
-<!--Ending Navigation-bar Section-->
-
-
-<!--Starting Hero Section-->
-    <section class="hero-section vh-100 d-flex align-items-end pb-5 text-white">
-        <div class="container pb-5">
-            <div class="row">
-                <div class="col-lg-7 col-md-10">
-                    <h1 class="display-4 fw-bold">Your Donation is <br>Others' Inspiration</h1>
-                    <p class=" my-4">
-                        Every tile you donate becomes a building block for a brighter future. Join our community and support meaningful projects that shape lives.
-                    </p>
-                    <a href="/user/{{ins.id}}/all-project/" class="btn btn-success btn-lg text-white rounded-1 my-4">Start Donating</a>
-                </div>
+<div class="modal fade fullscreen-modal" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-end">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+            </div>
+            <div class="modal-body text-center d-flex align-items-center justify-content-center">
+                <img src="" id="modalImage" class="img-fluid" alt="Full-size Project Image">
             </div>
         </div>
-    </section>
-<!--Ending Hero Section-->
-
-
-<!--Starting Project Section-->
-    <section id="featured-projects" class="py-5 bg-light border-bottom">
-        <div class="container">
-            <div class="row d-flex justify-content-center mb-5">
-                <div class="col-lg-8 text-center">
-                    <h1 class="display-1 mb-4">Waiting for Help</h1>
-                    <p class="text-muted mx-auto ">
-                        Your support connects hearts to dreams that need a chance. Every contribution brings smiles, hope, and brighter tomorrows. Stay close to the journey of the lives you touch.
-                    </p>
-                </div>
-            </div>
-
-            <div class="row g-4 justify-content-center">
-                {% for p in prj %}
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden project-card-custom">
-                        <div class="position-relative project-img-container">
-                            <a href="/user/{{ ins.id }}/single-project/{{ p.id }}/">
-                                {% if p.images.first %}
-                                <img class="card-img-top w-100 h-100 object-fit-cover project-img-zoom"
-                                     src="{{ p.images.first.project_img.url }}"
-                                     alt="{{ p.title }}">
-                                {% else %}
-                                <img class="card-img-top w-100 h-100 object-fit-cover project-img-zoom"
-                                     src="{% static 'frontend/img/p1.jpg' %}"
-                                     alt="Project Image ">
-                                {% endif %}
-                            </a>
-                        </div>
-
-                        <div class="card-body d-flex flex-column p-4">
-                            <a href="/user/{{ ins.id }}/single-project/{{ p.id }}/" class="text-decoration-none text-dark project-title-link">
-                                <h5 class="fw-bolder mb-2 text-truncate">{{ p.title }}</h5>
-                            </a>
-                            <p class="card-text text-secondary small mb-3 line-clamp-2">{{ p.description|truncatechars:100 }}</p>
-
-                            <div class="mt-auto pt-3 border-top">
-                                <div class="d-flex justify-content-between small mb-1">
-                                    <span class="text-success fw-bold">Raised: ₹50,000</span>
-                                    <span class="text-muted">Goal: <span class="fw-bold text-dark">₹1,00,000</span></span>
-                                </div>
-                                <div class="progress" role="progressbar" aria-label="Project Progress" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="height: 10px;">
-                                    <div class="progress-bar bg-success" style="width: 50%;"></div>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center mt-2 pt-3">
-                                <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1 border">
-                                    <p class="mb-0 small fw-semibold text-muted">
-                                        <span class="text-dark fw-bolder">42</span> Contributors
-                                    </p>
-                                </div>
-
-                                <a href="/user/{{ ins.id }}/single-project/{{ p.id }}/" class="btn btn-success text-white rounded-1 fw-bold py-2 px-4">
-                                    Donate Now
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-
-            <div class="text-center mt-5 pt-3">
-                <a class="btn btn-outline-secondary btn-lg rounded-1 px-5" href="/user/{{ins.id}}/all-project/">Explore More Projects</a>
-            </div>
-        </div>
-    </section>
-<!--Ending Project Section-->
-
-
-<!--Starting Mission Section-->
-    <section class="container my-5 py-5 ">
-        <div class="row align-items-center">
-            <div class="col-lg-6 mb-4 mb-lg-0 order-md-1 order-2 mb-5">
-                <img src="{% static 'frontend/img/about-img.jpg' %}"
-                     class="img-fluid rounded-4 shadow-lg"
-                     alt="Students learning or collaborating"
-                     style="max-height: 450px; width: 100%; object-fit: cover;">
-            </div>
-
-            <div class="col-lg-6 ps-lg-5 order-md-2 order-1 mb-5">
-                <h2 class="display-6 fw-bolder mb-4 text-dark">
-                    Our Unified Mission
-                </h2>
-                <p class="lead text-secondary mb-4">
-                    Join hands with us to support meaningful projects that shape young minds. Every contribution strengthens student welfare, promotes academic innovation, and enhances the institution’s community initiatives.
-                </p>
-                <p class="text-secondary mb-5">
-                    Whether you are a well-wisher, partner, or esteemed alumnus, your support creates opportunities, fosters growth, and leaves a lasting impact on future generations.
-                </p>
-
-                <a href="/user/{{ins.id}}/about/" class="btn btn-info text-white btn-lg rounded-1 fw-bold px-4 py-2 shadow-sm">
-                    Learn More...
-                </a>
-            </div>
-        </div>
-    </section>
-<!--Ending Mission Section-->
-
-
-<!--Starting Core Feature Section-->
-    <section class="bg-dark text-white py-5 ">
-        <div class="container my-5">
-            <div class="text-center mb-5">
-                <h2 class="display-5 fw-bolder mb-4">Our Core Features</h2>
-                <p class="lead text-light opacity-75 mx-auto" style="max-width: 800px;">
-                    We are committed to providing a secure and transparent platform that empowers our community. Here’s what makes us different.
-                </p>
-            </div>
-
-            <div class="row g-4 justify-content-center">
-                <div class="col-lg-4">
-                    <div class="card bg-dark h-100 border border-secondary rounded-4 p-4 text-center">
-                        <div class="card-body">
-                            <div class="text-secondary mb-lg-4 mb-3">
-                                <span class="material-icons">visibility</span>
-                            </div>
-                            <h4 class="h5 fw-bold card-title text-white">Transparency</h4>
-                            <p class="card-text text-light opacity-75">
-                                Every project's progress is tracked in real-time. You can see how your contribution is making a difference.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card bg-dark h-100 border border-secondary rounded-4 p-4 text-center">
-                        <div class="card-body">
-                            <div class="text-secondary mb-lg-4 mb-3">
-                                <span class="material-icons">security</span>
-                            </div>
-                            <h4 class="h5 fw-bold card-title text-white">Security</h4>
-                            <p class="card-text text-light opacity-75">
-                                Your data and donations are protected with industry-leading security protocols to ensure peace of mind.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card bg-dark h-100 border border-secondary rounded-4 p-4 text-center">
-                        <div class="card-body">
-                            <div class="text-secondary mb-3">
-                                <span class="material-icons">groups</span>
-                            </div>
-                            <h4 class="h5 fw-bold card-title text-white">Community Focus</h4>
-                            <p class="card-text text-light opacity-75">
-                                We are dedicated to building a sustainable network that fuels a culture of philanthropy and innovation.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-<!--Ending Core Feature Section-->
-
-
-<!--Starting Request Call Section-->
-    <section class="bg-secondary text-white py-5">
-        <div class="container text-center">
-            <h2 class="display-6 fw-bolder mb-4">Need to setup your fundraiser?</h2>
-            <a class="btn btn-light btn-lg rounded-1 px-5" href="tel:{{ins.phn}}">
-                <span class="material-icons">call</span>
-                Request a Call
-            </a>
-        </div>
-    </section>
-<!--Ending Request Call Section-->
-
-
-<!--Starting Contact us Section-->
-    <button type="button" title="Send Message" class="btn btn-warning shadow-lg contact-fab-pill text-white"
-            data-bs-toggle="offcanvas" data-bs-target="#contactOffcanvas" aria-controls="contactOffcanvas" aria-label="Open Contact Form">
-        <span class="material-icons">message</span>
-    </button>
-
-    <div class="offcanvas offcanvas-end " tabindex="-1" id="contactOffcanvas" aria-labelledby="contactOffcanvasLabel">
-        <div class="offcanvas-header shadow-sm border-bottom">
-            <h5 class="offcanvas-title fw-bold " id="contactOffcanvasLabel">Send a Message</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-
-        <div class="offcanvas-body p-4">
-            <p class="text-secondary mb-4">
-                Have a question about a project or need support? Fill out the form below and we'll get back to you shortly!
-            </p>
-
-            <form method="post" action="" class="needs-validation" novalidate>
-                {% csrf_token %}
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="firstName" name="first_name" placeholder="First Name" pattern="[A-Za-z\s]+" required>
-                            <label for="firstName">First Name</label>
-                            <div class="invalid-feedback text-danger fw-semibold">
-                                Please enter your first name (letters only).
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="lastName" name="last_name" placeholder="Last Name" pattern="[A-Za-z\s]+" required>
-                            <label for="lastName">Last Name</label>
-                            <div class="invalid-feedback text-danger fw-semibold">
-                                Please enter your last name (letters only).
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-floating mb-3">
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" required>
-                            <label for="email">Email Address</label>
-                            <div class="invalid-feedback text-danger fw-semibold">
-                                Please enter a valid email address.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-floating mb-3">
-                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="Phone Number" pattern="[0-9]{10}" required>
-                            <label for="phone">Phone Number</label>
-                            <div class="invalid-feedback text-danger fw-semibold">
-                                Please enter a valid 10-digit phone number.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-floating mb-4">
-                            <textarea class="form-control" id="message" name="message" placeholder="Your Message" style="height: 120px;" required></textarea>
-                            <label for="message">Your Message</label>
-                            <div class="invalid-feedback text-danger fw-semibold">
-                                Please enter a message.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 d-grid">
-                        <button type="submit" class="btn btn-info rounded-1 text-white fw-bold py-2 ">
-                            Send Message
-                        </button>
-                    </div>
-                </div>
-            </form>
-            </div>
     </div>
-<!--Ending Contact us Section-->
+</div>
 
-
-<!--Starting Footer Section-->
-<footer class="bg-white border-top footer-custom">
+<section class="mt-5 py-5">
     <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6 text-center">
-                <ul class="list-unstyled d-flex justify-content-center flex-wrap gap-3">
-                    <li class="mb-2">
-                        <a href="#" class="mx-3 text-secondary footer-social-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-facebook" viewBox="0 0 16 16"><path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.008 1.182-3.14 3.036-3.14.889 0 1.848.158 1.848.158v1.956h-1.006c-.994 0-1.305.623-1.305 1.268v1.516h2.15l-.348 2.149H9.328V16c3.824-.604 6.75-3.934 6.75-7.951"/></svg>
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="#" class="mx-3 text-secondary footer-social-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-twitter" viewBox="0 0 16 16"><path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.341 0-.142 0-.283-.007-.424A6.52 6.52 0 0 0 16 3.542a6.3 6.3 0 0 1-1.87.514 3.328 3.328 0 0 0 1.455-1.8A7.03 7.03 0 0 1 13.06 2.8c-1.282-1.36-3.111-1.868-4.97-1.393A4.5 4.5 0 0 0 4.632 6.43c-3.193-.158-5.992-1.688-7.956-4.008A2.8 2.8 0 0 0 2.9 8.358a3.328 3.328 0 0 1-1.5-.417v.065c0 3.63 2.5 5.76 5.8 6.002-.635.172-1.3.243-1.996.236A4.588 4.588 0 0 1 0 14.737a6.57 6.57 0 0 0 3.57 1.034"/></svg>
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="#" class="mx-3 text-secondary footer-social-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-instagram" viewBox="0 0 16 16"><path d="M8 0C5.147 0 4.857.01 4.354.073L3.84 0.222A4.2 4.2 0 0 0 1.956 1.956L.222 3.84A4.2 4.2 0 0 0 .073 4.354L.01 4.857A8.1 8.1 0 0 0 0 8a8.1 8.1 0 0 0 .01 3.143l.063.503A4.2 4.2 0 0 0 1.956 14.044l1.884 1.884A4.2 4.2 0 0 0 4.354 15.927l.503.063A8.1 8.1 0 0 0 8 16a8.1 8.1 0 0 0 3.143-.01l.503-.063A4.2 4.2 0 0 0 14.044 14.044l1.884-1.884A4.2 4.2 0 0 0 15.927 11.646l.063-.503A8.1 8.1 0 0 0 16 8a8.1 8.1 0 0 0-.01-3.143l-.063-.503A4.2 4.2 0 0 0 14.044 1.956L12.16 0.222A4.2 4.2 0 0 0 11.646.073L11.143.01A8.1 8.1 0 0 0 8 0zM8 2.835c2.868 0 3.238.01 4.363.076a2.183 2.183 0 0 1 2.376 2.376c.066 1.125.076 1.495.076 4.363s-.01 3.238-.076 4.363a2.183 2.183 0 0 1-2.376 2.376c-1.125.066-1.495.076-4.363.076s-3.238-.01-4.363-.076a2.183 2.183 0 0 1-2.376-2.376c-.066-1.125-.076-1.495-.076-4.363s.01-3.238.076-4.363a2.183 2.183 0 0 1 2.376-2.376c1.125-.066 1.495-.076 4.363-.076zm0 1.766a3.407 3.407 0 1 0 0 6.814 3.407 3.407 0 0 0 0-6.814zM8 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="#" class="mx-3 text-secondary footer-social-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-linkedin" viewBox="0 0 16 16"><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.247V8.756h2.24l.01 1.092c.328-.593.753-1.077 1.62-1.077 2.174 0 2.583 1.444 2.583 3.324v3.234h2.213V8.756c0-2.404-1.272-3.874-3.69-3.874-1.63 0-2.58.918-3.048 1.644V5.539h-2.19v7.854zM2.5 4.375a1.875 1.875 0 1 0 0-3.75 1.875 1.875 0 0 0 0 3.75z"/></svg>
-                        </a>
-                    </li>
-                </ul>
-                <ul class="list-unstyled d-flex justify-content-center flex-wrap gap-4">
-                    <li class="mb-2"><a href="/user/{{ins.id}}/" class="text-secondary text-decoration-none footer-nav-link">Home</a></li>
-                    <li class="mb-2"><a href="/user/{{ins.id}}/all-project/" class="text-secondary text-decoration-none footer-nav-link">Explore Projects</a></li>
-                    <li class="mb-2"><a href="/user/{{ins.id}}/track-status/" class="text-secondary text-decoration-none footer-nav-link">Track Your Status</a></li>
-                    <li class="mb-2"><a href="/user/{{ins.id}}/about/" class="text-secondary text-decoration-none footer-nav-link">About Us</a></li>
-                </ul>
+        <div class="row">
+            <h1 class="display-6 fw-bolder text-dark mb-4 ">Hospital treatment cost for Sreevidhya</h1>
+
+            <div class="col-lg-8 mb-5 mb-lg-0">
+                <div id="projectCarousel" class="carousel slide shadow-lg rounded-4 overflow-hidden mb-5" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for image in project.images.all %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <img src="{{ image.project_img.url }}" class="d-block w-100 object-fit-cover" alt="{{ project.title }} image {{ forloop.counter }}" style="height: 450px;">
+                        </div>
+                        {% empty %}
+                        <div class="carousel-item active">
+                            <img src="{% static 'frontend/img/placeholder.jpg' %}" class="d-block w-100 object-fit-cover" alt="No image provided" style="height: 450px;">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if project.images.count > 1 %}
+                    <button class="carousel-control-prev" type="button" data-bs-target="#projectCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#projectCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                    {% endif %}
+                </div>
+
+                <h2 class="fw-bold text-dark mb-3 border-bottom pb-2">Our Story & Need</h2>
+                <div class="text-secondary project-description">
+                    {{ project.long_description|safe }}
+                    <p>That's an exciting step! Creating the single project page is where the design truly comes together, allowing users to dive deep and commit to a donation.
+
+I'll generate a comprehensive template for a Single Project Page using your established Bootstrap and Django template syntax. It will feature:
+                        {{ project.description }}</p>
+                    </div>
+
+                <div class="card shadow-sm border-0 rounded-4 mt-5 p-4 bg-light">
+                    <h3 class="fw-bold text-primary mb-3">Meet the Beneficiary</h3>
+                    <div class="d-flex align-items-center">
+                        <img src="{% static 'frontend/img/beneficiary-avatar.png' %}" alt="Beneficiary Photo" class="rounded-circle me-3 object-fit-cover" style="width: 80px; height: 80px;">
+                        <div>
+                            <p class="mb-0 fw-bold text-dark fs-5">Sreevidhya Bhasker{{ project.beneficiary_name }}</p>
+                            <p class="mb-0 small text-muted">A project initiated by: {{ project.initiator_name }}</p>
+                        </div>
+                    </div>
+                    <p class="mt-3 text-secondary">{{ project.beneficiary_story }}</p>
+                </div>
+
             </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-lg border-0 rounded-4 sticky-top donation-summary-card" style="top: 20px;">
+                    <div class="card-body p-4 p-md-5">
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between small mb-2">
+                                <span class="text-success fw-bolder fs-5">₹105.00{{ project.current_amount|floatformat:2|intcomma }}</span>
+                                <span class="text-muted fw-bold">of ₹3,555.00{{ project.funding_goal|floatformat:2|intcomma }} Goal</span>
+                            </div>
+                            <div class="progress mb-2" role="progressbar" aria-label="Project Progress" aria-valuenow="2.954{{ project.progress }}" aria-valuemin="0" aria-valuemax="100" style="height: 12px;">
+                                <div class="progress-bar bg-success" style="width: 2.954{{ project.progress }}%;"></div>
+                            </div>
+                            <p class="text-center small text-muted fw-semibold">{{ project.progress|floatformat:0 }}2.954% Funded</p>
+                        </div>
+
+                        <div class="d-flex justify-content-between text-center mb-4 border-bottom pb-3">
+                            <div>
+                                <h6 class="fw-bolder mb-0 text-dark">42 {{ project.contributors_count }}</h6>
+                                <p class="small text-muted mb-0">Donors</p>
+                            </div>
+                            <div>
+                                <h6 class="fw-bolder mb-0 text-dark">95 {{ project.days_left }}</h6>
+                                <p class="small text-muted mb-0">Available Tile</p>
+                            </div>
+                            <div>
+                                <h6 class="fw-bolder mb-0 text-dark">₹35.00{{ project.tile_value|floatformat:0|intcomma }}</h6>
+                                <p class="small text-muted mb-0">Tile Value</p>
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="button" class="btn btn-primary btn-lg fw-bold py-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#bookingModal">
+                                Donate Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
+</section>
 
-    <div class="bg-light py-4 border-top ">
-        <div class="container text-center">
-            <p class="small text-muted m-0">
-                Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | Designed and Developed by
-                <a href="https://kochi.digital/" target="_blank" class="text-dark text-decoration-none fw-semibold footer-credit-link">Kochi Digital</a>
-            </p>
-            <p class="small m-0 mt-1">
-                <a href="/user/{{ins.id}}/credit/" class="text-dark text-decoration-none footer-credit-link">Website Credits</a>
-            </p>
-        </div>
-    </div>
-</footer>
-<!--Ending Footer Section-->
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-</body>
-</html>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const imageModal = document.getElementById('imageModal');
+    imageModal.addEventListener('show.bs.modal', (event) => {
+        // Get the image that was clicked
+        const image = event.relatedTarget;
+
+        // Get the URL from the data attribute
+        const imageUrl = image.getAttribute('data-full-image-url');
+
+        // Set the source of the image inside the modal
+        const modalImage = document.getElementById('modalImage');
+        modalImage.src = imageUrl;
+    });
+});
+
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tileGrid = document.querySelector('.tile-grid');
+        const bookButton = document.getElementById('book-button');
+        const selectedCountSpans = document.querySelectorAll('.js-selected-count');
+        const selectedTilesSpans = document.querySelectorAll('.js-selected-tiles');
+        const selectedTotalSpans = document.querySelectorAll('.js-selected-total');
+        const selectedTilesInput = document.getElementById('selected-tiles-input');
+
+        const tileValueElement = document.querySelector('#summary-section span[data-tile-value]');
+        const tileValue = parseFloat(tileValueElement.dataset.tileValue);
+
+        let selectedTiles = new Set();
+
+        tileGrid.addEventListener('click', (event) => {
+            const clickedTile = event.target.closest('.booking-tile');
+
+            // The key fix: check for 'available-tile'
+            if (clickedTile && clickedTile.classList.contains('available-tile')) {
+                const tileId = clickedTile.id;
+
+                if (clickedTile.classList.contains('selected')) {
+                    clickedTile.classList.remove('selected');
+                    selectedTiles.delete(tileId);
+                } else {
+                    clickedTile.classList.add('selected');
+                    selectedTiles.add(tileId);
+                }
+                updateSummary();
+            }
+        });
+
+        function updateSummary() {
+            const selectedTilesString = Array.from(selectedTiles).join('-');
+            const totalValue = selectedTiles.size * tileValue;
+
+            selectedCountSpans.forEach(span => {
+                span.textContent = selectedTiles.size;
+            });
+            selectedTilesSpans.forEach(span => {
+                span.textContent = selectedTilesString;
+            });
+            selectedTotalSpans.forEach(span => {
+                span.textContent = totalValue.toFixed(2);
+            });
+
+            selectedTilesInput.value = selectedTilesString;
+
+            if (selectedTiles.size > 0) {
+                bookButton.disabled = false;
+            } else {
+                bookButton.disabled = true;
+            }
+        }
+    });
+</script>
+
+{% endblock %}
