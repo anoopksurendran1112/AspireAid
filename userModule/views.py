@@ -16,7 +16,7 @@ def userIndex(request, ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
 
     projects = Project.objects.filter(created_by=ins, current_amount__lt=F('funding_goal'),
-        table_status=True).order_by('-created_by')[:3]
+        table_status=True).order_by('-started_at')[:3]
     for p in projects:
         p.progress = round((p.current_amount / p.funding_goal) * 100,
                                  3) if p.funding_goal > 0 else 0
@@ -87,7 +87,7 @@ def credit(request, ins_id):
 def userAllProject(request,ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
     projects = Project.objects.filter(created_by=ins, current_amount__lt=F('funding_goal'),
-                                      table_status=True).order_by('-created_by')[:3]
+                                      table_status=True).order_by('-started_at')
     for p in projects:
         p.progress = round((p.current_amount / p.funding_goal) * 100,
                                  3) if p.funding_goal > 0 else 0

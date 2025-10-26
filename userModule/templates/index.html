@@ -130,11 +130,11 @@
 
                             <div class="mt-auto pt-3 border-top">
                                 <div class="d-flex justify-content-between small mb-1">
-                                    <span class="text-success fw-bold">Raised: ₹50,000</span>
-                                    <span class="text-muted">Goal: <span class="fw-bold text-dark">₹1,00,000</span></span>
+                                    <span class="text-success fw-bold">Raised: ₹{{p.current_amount|floatformat:2|intcomma}}</span>
+                                    <span class="text-muted">Goal: <span class="fw-bold text-dark">₹{{p.funding_goal|floatformat:2|intcomma}}</span></span>
                                 </div>
-                                <div class="progress" role="progressbar" aria-label="Project Progress" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="height: 10px;">
-                                    <div class="progress-bar bg-success" style="width: 50%;"></div>
+                                <div class="progress" role="progressbar" aria-label="Project Progress" aria-valuenow="{{ p.progress }}" aria-valuemin="0" aria-valuemax="100" style="height: 10px;">
+                                    <div class="progress-bar bg-success" style="width: {{ p.progress }}%;"></div>
                                 </div>
                             </div>
 
@@ -184,8 +184,8 @@
                     Whether you are a well-wisher, partner, or esteemed alumnus, your support creates opportunities, fosters growth, and leaves a lasting impact on future generations.
                 </p>
 
-                <a href="/user/{{ins.id}}/about/" class="btn btn-info text-white btn-lg rounded-1 fw-bold px-4 py-2 shadow-sm">
-                    Learn More...
+                <a href="/user/{{ins.id}}/about/" class="btn btn-primary text-white btn-lg rounded-1 fw-bold px-4 py-2 shadow-sm">
+                    Learn More About us...
                 </a>
             </div>
         </div>
@@ -252,12 +252,13 @@
 
 
 <!--Starting Request Call Section-->
-    <section class="bg-secondary text-white py-5">
+    <section class="bg-primary text-white py-5">
         <div class="container text-center">
-            <h4 class="display-6 fw-bolder mb-4">Setup your Fundraiser?</h4>
-            <a class="btn btn-light btn-lg rounded-1 px-5" href="tel:{{ins.phn}}">
-                <span class="material-icons">call</span>
-                Request a Call
+            <h4 class="display-6 fw-bolder mb-5">Ready to Setup Your Fundraiser?</h4>
+
+            <a class="btn btn-light fw-bold px-5 py-3 rounded-pill cta-wide-button mx-auto d-flex align-items-center justify-content-center" href="tel:{{ins.phn}}">
+                <span class="material-icons me-3">call</span>
+                Request a Call Now
             </a>
         </div>
     </section>
@@ -268,8 +269,8 @@
 
 
 <!--Starting Contact us Section-->
-    <button type="button" title="Send Message" class="btn btn-warning shadow-lg contact-fab-pill text-white"
-            data-bs-toggle="offcanvas" data-bs-target="#contactOffcanvas" aria-controls="contactOffcanvas" aria-label="Open Contact Form">
+    <button type="button" title="Send Message" class="btn btn-warning shadow-lg contact-fab-pill text-white d-flex align-items-center justify-content-center"
+        data-bs-toggle="offcanvas" data-bs-target="#contactOffcanvas" aria-controls="contactOffcanvas" aria-label="Open Contact Form">
         <span class="material-icons">message</span>
     </button>
 
@@ -333,7 +334,7 @@
                         </div>
                     </div>
                     <div class="col-12 d-grid">
-                        <button type="submit" class="btn btn-info rounded-1 text-white fw-bold py-2 ">
+                        <button type="submit" class="btn btn-primary rounded-1 text-white fw-bold py-2 ">
                             Send Message
                         </button>
                     </div>
