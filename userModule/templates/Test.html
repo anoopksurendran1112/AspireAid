@@ -3,264 +3,132 @@
 {% load humanize %}
 {% block content %}
 
-<div class="modal fade fullscreen-modal" id="bookingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-4 fw-bold" id="exampleModalLabel">Book Your Tiles</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
-            </div>
-            <div class="modal-body p-4 pt-0">
-                <div class="d-flex justify-content-between flex-wrap align-items-center mb-4">
-                    <div class="lead">
-                        <strong>Available Tiles: <span class="text-info">{{ available_tiles_count }}</span></strong>
-                    </div>
-                    <div class="d-flex justify-content-end flex-wrap gap-3">
-                        <div class="d-flex align-items-center" style="margin-right: 1rem;">
-                            <div class="booking-tile available-tile" style="margin-right: .5rem;"></div>
-                            <span class="small text-muted">Available</span>
-                        </div>
-                        <div class="d-flex align-items-center" style="margin-right: 1rem;">
-                            <div class="booking-tile processing-tile" style="margin-right: .5rem;"></div>
-                            <span class="small text-muted">Processing</span>
-                        </div>
-                        <div class="d-flex align-items-center" style="margin-right: 1rem;">
-                            <div class="booking-tile sold-tile" style="margin-right: .5rem;"></div>
-                            <span class="small text-muted">Sold</span>
-                        </div>
-                    </div>
-                </div>
-
-                <hr>
-
-                <div id="tile-container" class="bg-light rounded-3 p-3 overflow-auto shadow-sm" style="max-height: 70vh;">
-                    <div class="tile-grid">
-                        {% for t in t_range %}
-                        <div id="{{t}}" class="booking-tile p-2 rounded text-center fw-bold
-                            {% if t in sold_tiles_set %}
-                                sold-tile
-                            {% elif t in processing_tiles_set %}
-                                processing-tile
-                            {% else %}
-                                available-tile
-                            {% endif %}">
-                            <span class="tile-number">{{t}}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer d-flex flex-column flex-sm-row justify-content-between align-items-center p-4 border-0">
-                <div id="summary-section" class="text-start text-sm-start mb-3 mb-sm-0">
-                    <h5 class="fw-bold mb-1">
-                        Total:
-                        <span class="js-selected-count">0</span> x
-                        <span data-tile-value="{{project.tile_value}}">₹{{ project.tile_value }}</span> =
-                        <span class="text-primary">₹<span class="js-selected-total">0</span></span>
-                    </h5>
-                    <p class="mb-0 fw-bold text-dark">
-                        Selected Tiles: <span class="js-selected-tiles fs-6 text-muted">None</span>
-                    </p>
-                </div>
-                <div class="d-flex justify-content-center">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="margin-right: 1rem;">Close</button>
-                    <form method="post" class="">
-                        {% csrf_token %}
-                        <input type="hidden" id="selected-tiles-input" name="selected_tiles_input">
-                        <button type="submit" id="book-button" class="btn btn-primary btn-sm" disabled>Proceed to Payment</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade fullscreen-modal" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header d-flex justify-content-end">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
-            </div>
-            <div class="modal-body text-center d-flex align-items-center justify-content-center">
-                <img src="" id="modalImage" class="img-fluid" alt="Full-size Project Image">
-            </div>
-        </div>
-    </div>
-</div>
-
-<section class="mt-5 py-5">
+<section class="py-5 mt-5">
     <div class="container py-5">
-        <div class="row">
-            <h1 class="display-6 fw-bolder text-dark mb-4 ">Hospital treatment cost for Sreevidhya</h1>
+        <div class="row justify-content-center">
+            <div class="col-12">
 
-            <div class="col-lg-8 mb-5 mb-lg-0">
-                <div id="projectCarousel" class="carousel slide shadow-lg rounded-4 overflow-hidden mb-5" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                        {% for image in project.images.all %}
-                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                            <img src="{{ image.project_img.url }}" class="d-block w-100 object-fit-cover" alt="{{ project.title }} image {{ forloop.counter }}" style="height: 450px;">
-                        </div>
-                        {% empty %}
-                        <div class="carousel-item active">
-                            <img src="{% static 'frontend/img/placeholder.jpg' %}" class="d-block w-100 object-fit-cover" alt="No image provided" style="height: 450px;">
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% if project.images.count > 1 %}
-                    <button class="carousel-control-prev" type="button" data-bs-target="#projectCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#projectCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
-                    {% endif %}
-                </div>
+                <div class="card border-0 rounded-4 shadow-lg">
 
-                <h2 class="fw-bold text-dark mb-3 border-bottom pb-2">Our Story & Need</h2>
-                <div class="text-secondary project-description">
-                    {{ project.long_description|safe }}
-                    <p>That's an exciting step! Creating the single project page is where the design truly comes together, allowing users to dive deep and commit to a donation.
-
-I'll generate a comprehensive template for a Single Project Page using your established Bootstrap and Django template syntax. It will feature:
-                        {{ project.description }}</p>
+                    <div class="card-header text-center bg-dark text-white rounded-top-4 py-3">
+                        <h1 class="h3 mb-0 fw-bolder">Transaction Proof Upload</h1>
+                        <p class="mb-0 small opacity-75">Securely upload your payment receipt to complete your tile booking for **{{ tra.project.title }}**.</p>
                     </div>
 
-                <div class="card shadow-sm border-0 rounded-4 mt-5 p-4 bg-light">
-                    <h3 class="fw-bold text-primary mb-3">Meet the Beneficiary</h3>
-                    <div class="d-flex align-items-center">
-                        <img src="{% static 'frontend/img/beneficiary-avatar.png' %}" alt="Beneficiary Photo" class="rounded-circle me-3 object-fit-cover" style="width: 80px; height: 80px;">
-                        <div>
-                            <p class="mb-0 fw-bold text-dark fs-5">Sreevidhya Bhasker{{ project.beneficiary_name }}</p>
-                            <p class="mb-0 small text-muted">A project initiated by: {{ project.initiator_name }}</p>
-                        </div>
-                    </div>
-                    <p class="mt-3 text-secondary">{{ project.beneficiary_story }}</p>
-                </div>
-
-            </div>
-
-            <div class="col-lg-4">
-                <div class="card shadow-lg border-0 rounded-4 sticky-top donation-summary-card" style="top: 20px;">
                     <div class="card-body p-4 p-md-5">
 
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between small mb-2">
-                                <span class="text-success fw-bolder fs-5">₹105.00{{ project.current_amount|floatformat:2|intcomma }}</span>
-                                <span class="text-muted fw-bold">of ₹3,555.00{{ project.funding_goal|floatformat:2|intcomma }} Goal</span>
+                        <div class="card mb-5 border-0 rounded-4 shadow-sm bg-light">
+                            <div class="card-body p-4">
+                                <h4 class="card-title mb-3 fw-bold text-dark border-bottom pb-2"><i class="bi bi-receipt me-2 text-primary"></i> Order & Payment Details</h4>
+
+                                <ul class="list-group list-group-flush small">
+                                     <li class="list-group-item d-flex justify-content-between px-0 bg-light">
+                                        <strong class="text-muted">Tracking ID:</strong>
+                                        <strong class="text-dark">{{ tra.tracking_id }}</strong>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between px-0 bg-light">
+                                        <strong class="text-muted">Tiles Booked:</strong>
+                                        <span class="fw-semibold text-primary">{{ count }} ({{ tra.tiles_bought.tiles }})</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between px-0 bg-light">
+                                        <strong class="text-muted">Total Amount Paid:</strong>
+                                        <strong class="fs-5 text-success"><span id="calculated-total"></span></strong>
+                                    </li>
+                                     <li class="list-group-item d-flex justify-content-between px-0 bg-light">
+                                        <strong class="text-muted">Transaction Time:</strong>
+                                        <span class="fw-semibold">{{ tra.transaction_time|date:"F d, Y, h:i A" }}</span>
+                                    </li>
+                                </ul>
                             </div>
-                            <div class="progress mb-2" role="progressbar" aria-label="Project Progress" aria-valuenow="2.954{{ project.progress }}" aria-valuemin="0" aria-valuemax="100" style="height: 12px;">
-                                <div class="progress-bar bg-success" style="width: 2.954{{ project.progress }}%;"></div>
-                            </div>
-                            <p class="text-center small text-muted fw-semibold">{{ project.progress|floatformat:0 }}2.954% Funded</p>
+
+                            <div id="total-details" data-tile-value="{{ tra.project.tile_value }}" data-count="{{ count }}" style="display: none;"></div>
                         </div>
 
-                        <div class="d-flex justify-content-between text-center mb-4 border-bottom pb-3">
-                            <div>
-                                <h6 class="fw-bolder mb-0 text-dark">42 {{ project.contributors_count }}</h6>
-                                <p class="small text-muted mb-0">Donors</p>
-                            </div>
-                            <div>
-                                <h6 class="fw-bolder mb-0 text-dark">95 {{ project.days_left }}</h6>
-                                <p class="small text-muted mb-0">Available Tile</p>
-                            </div>
-                            <div>
-                                <h6 class="fw-bolder mb-0 text-dark">₹35.00{{ project.tile_value|floatformat:0|intcomma }}</h6>
-                                <p class="small text-muted mb-0">Tile Value</p>
-                            </div>
-                        </div>
+                        <div class="card border-0 rounded-4 shadow-sm bg-white">
+                            <div class="card-body p-4">
+                                <h4 class="card-title mb-3 fw-bold text-dark border-bottom pb-2"><i class="bi bi-upload me-2 text-primary"></i> Upload Proof of Payment</h4>
+                                <p class="small text-secondary">Please upload a clear screenshot or PDF of your payment confirmation.</p>
 
-                        <div class="d-grid mt-4">
-                            <button type="button" class="btn btn-primary btn-lg fw-bold py-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#bookingModal">
-                                Donate Now
-                            </button>
+                                <form id="upload-form" method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="proof-file" class="form-label fw-semibold">Choose File (Image or PDF)</label>
+                                        <input type="file" class="form-control form-control-lg rounded-3" id="proof-file" name="proof_of_payment" accept="image/*,application/pdf" required>
+                                        <div class="form-text">Max file size 5MB.</div>
+                                    </div>
+
+
+                                    <div class="d-grid d-md-block text-md-end mt-4">
+                                        <button type="submit" id="upload-button" class="btn btn-primary btn-lg fw-bold rounded-pill px-5" disabled>
+                                            Submit Proof
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </section>
 
-
-
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const imageModal = document.getElementById('imageModal');
-    imageModal.addEventListener('show.bs.modal', (event) => {
-        // Get the image that was clicked
-        const image = event.relatedTarget;
-
-        // Get the URL from the data attribute
-        const imageUrl = image.getAttribute('data-full-image-url');
-
-        // Set the source of the image inside the modal
-        const modalImage = document.getElementById('modalImage');
-        modalImage.src = imageUrl;
-    });
-});
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const tileGrid = document.querySelector('.tile-grid');
-        const bookButton = document.getElementById('book-button');
-        const selectedCountSpans = document.querySelectorAll('.js-selected-count');
-        const selectedTilesSpans = document.querySelectorAll('.js-selected-tiles');
-        const selectedTotalSpans = document.querySelectorAll('.js-selected-total');
-        const selectedTilesInput = document.getElementById('selected-tiles-input');
+        // --- Total Calculation Logic ---
+        const totalSpan = document.getElementById('calculated-total');
+        const hiddenData = document.getElementById('total-details');
 
-        const tileValueElement = document.querySelector('#summary-section span[data-tile-value]');
-        const tileValue = parseFloat(tileValueElement.dataset.tileValue);
+        if (hiddenData && totalSpan) {
+            const tileValue = parseFloat(hiddenData.dataset.tileValue);
+            const count = parseInt(hiddenData.dataset.count);
+            const total = tileValue * count;
 
-        let selectedTiles = new Set();
+            // Format the total with INR currency
+            const formattedTotal = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 2,
+            }).format(total);
 
-        tileGrid.addEventListener('click', (event) => {
-            const clickedTile = event.target.closest('.booking-tile');
-
-            // The key fix: check for 'available-tile'
-            if (clickedTile && clickedTile.classList.contains('available-tile')) {
-                const tileId = clickedTile.id;
-
-                if (clickedTile.classList.contains('selected')) {
-                    clickedTile.classList.remove('selected');
-                    selectedTiles.delete(tileId);
-                } else {
-                    clickedTile.classList.add('selected');
-                    selectedTiles.add(tileId);
-                }
-                updateSummary();
-            }
-        });
-
-        function updateSummary() {
-            const selectedTilesString = Array.from(selectedTiles).join('-');
-            const totalValue = selectedTiles.size * tileValue;
-
-            selectedCountSpans.forEach(span => {
-                span.textContent = selectedTiles.size;
-            });
-            selectedTilesSpans.forEach(span => {
-                span.textContent = selectedTilesString;
-            });
-            selectedTotalSpans.forEach(span => {
-                span.textContent = totalValue.toFixed(2);
-            });
-
-            selectedTilesInput.value = selectedTilesString;
-
-            if (selectedTiles.size > 0) {
-                bookButton.disabled = false;
-            } else {
-                bookButton.disabled = true;
-            }
+            totalSpan.textContent = formattedTotal;
         }
+
+        // --- Form Validation & Resubmission Prevention ---
+        const uploadForm = document.getElementById('upload-form');
+        const uploadButton = document.getElementById('upload-button');
+        const proofFile = document.getElementById('proof-file');
+
+        function checkFileSelected() {
+            uploadButton.disabled = proofFile.files.length === 0;
+        }
+
+        proofFile.addEventListener('change', checkFileSelected);
+
+        uploadForm.addEventListener('submit', () => {
+            // Add a small delay to ensure the form submits before disabling button
+            setTimeout(() => {
+                uploadButton.disabled = true;
+                uploadButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...`;
+            }, 50);
+        });
     });
+
+    // --- SweetAlert Messages ---
+    {% if messages %}
+        {% for message in messages %}
+            const tags = '{{ message.tags }}'.toLowerCase();
+            Swal.fire({
+                title: '{{ message.tags|title }}!',
+                text: '{{ message }}',
+                icon: tags === 'error' ? 'error' : (tags === 'success' ? 'success' : 'info'),
+                confirmButtonText: 'OK'
+            });
+        {% endfor %}
+    {% endif %}
 </script>
 
 {% endblock %}

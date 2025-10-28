@@ -3,161 +3,69 @@
 {% load humanize %}
 {% block content %}
 
-<section class="project-area section-gap" id="project">
-    <div class="container">
-        <div class="card data-card">
-            <div class="card-header text-center">
-                <h1 class="my-2"><strong>Upload Proof</strong></h1>
-            </div>
-            <div class="card-body p-4">
+<section class="py-5 mt-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-12">
 
-                <div class="row g-4 mb-4">
-                    <div class="col-md-12">
-                        <div class="card h-100 border-0">
-                            <div class="card-body">
-                                <h4 class="card-title mb-3">Buyer Details</h4>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <strong>Full name:</strong>
-                                        <span>{{ tra.sender.first_name }} {{ tra.sender.last_name }}</span>
+                <div class="card border-0 rounded-4 shadow-lg">
+
+                    <div class="card-header text-center bg-dark text-white rounded-top-4 py-3">
+                        <h1 class="h3 mb-0 fw-bolder">Transaction Proof Upload</h1>
+                        <p class="mb-0 small opacity-75">Securely upload your payment receipt to complete your tile booking for **{{ tra.project.title }}**.</p>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+
+                        <div class="card mb-5 border-0 rounded-4 shadow-sm bg-light">
+                            <div class="card-body p-4">
+                                <h4 class="card-title mb-3 fw-bold text-dark border-bottom pb-2"><i class="bi bi-receipt me-2 text-primary"></i> Order & Payment Details</h4>
+
+                                <ul class="list-group list-group-flush small">
+                                     <li class="list-group-item d-flex justify-content-between px-0 bg-light">
+                                        <strong class="text-muted">Tracking ID:</strong>
+                                        <strong class="text-dark">{{ tra.tracking_id }}</strong>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <strong>Email:</strong>
-                                        <span>{{ tra.sender.email }}</span>
+                                    <li class="list-group-item d-flex justify-content-between px-0 bg-light">
+                                        <strong class="text-muted">Tiles Booked:</strong>
+                                        <span class="fw-semibold text-primary">{{ count }} ({{ tra.tiles_bought.tiles }})</span>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <strong>Phone:</strong>
-                                        <span>{{ tra.sender.phone }}</span>
+                                    <li class="list-group-item d-flex justify-content-between px-0 bg-light">
+                                        <strong class="text-muted">Total Amount Paid:</strong>
+                                        <strong class="fs-5 text-success"><span id="calculated-total"></span></strong>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <strong>Address:</strong>
-                                        <span>{{ tra.sender.address }}</span>
+                                     <li class="list-group-item d-flex justify-content-between px-0 bg-light">
+                                        <strong class="text-muted">Transaction Time:</strong>
+                                        <span class="fw-semibold">{{ tra.transaction_time|date:"F d, Y, h:i A" }}</span>
                                     </li>
                                 </ul>
                             </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="row g-4 mb-4">
-                    <div class="col-md-6">
-                        <div class="card h-100">
-                            <div class="card-header bg-dark ">
-                                <h4 class="card-title text-white">Project Details</h4>
-                            </div>
-                            <div class="card-body">
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <strong>Project:</strong>
-                                        <span>{{ tra.project.title }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <strong>Target:</strong>
-                                        <span>₹{{ tra.project.funding_goal|floatformat:2|intcomma }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <strong>Created on:</strong>
-                                        <span>{{ tra.project.created_at|date:"F d, Y" }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <strong>Closing by:</strong>
-                                        <span>{{ tra.project.closing_date|date:"F d, Y" }}</span>
-                                    </li>
-                                </ul>
+                            <div id="total-details" data-tile-value="{{ tra.project.tile_value }}" data-count="{{ count }}" style="display: none;"></div>
+                        </div>
+
+                        <div class="card border-0 rounded-4 shadow-sm bg-white">
+                            <div class="card-body p-4">
+                                <h4 class="card-title mb-3 fw-bold text-dark border-bottom pb-2"><i class="bi bi-upload me-2 text-primary"></i> Upload Proof of Payment</h4>
+                                <p class="small text-secondary">Please upload a clear screenshot or PDF of your payment confirmation.</p>
+
+                                <form id="upload-form" method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="proof-file" class="form-label fw-semibold">Choose File (Image or PDF)</label>
+                                        <input type="file" class="form-control form-control-lg rounded-3" id="proof-file" name="proof_of_payment" accept="image/*,application/pdf" required>
+                                        <div class="form-text">Max file size 5MB.</div>
+                                    </div>
+
+
+                                    <div class="d-grid d-md-block text-md-end mt-4">
+                                        <button type="submit" id="upload-button" class="btn btn-primary btn-lg fw-bold rounded-pill px-5" disabled>
+                                            Submit Proof
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card h-100">
-                            <div class="card-header bg-dark ">
-                                <h4 class="card-title text-white">Beneficiary Details</h4>
-                            </div>
-                            <div class="card-body">
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <strong>Name:</strong>
-                                        <span>{{ tra.project.beneficiary.first_name }} {{ tra.project.beneficiary.last_name }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <strong>Age:</strong>
-                                        <span>{{ tra.project.beneficiary.age }} years old</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <strong>Phone:</strong>
-                                        <span>+91-{{ tra.project.beneficiary.phone_number }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <strong>Address:</strong>
-                                        <span>{{ tra.project.beneficiary.address }}</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h4 class="card-title mb-3">Transaction Summary</h4>
-                        <div class="table-responsive">
-                            <table class="table table-striped align-middle table-nowrap table-centered mb-0">
-                                <thead class="bg-dark text-white">
-                                    <tr>
-                                        <th>Selected Tiles</th>
-                                        <th>Tile Value</th>
-                                        <th>Quantity</th>
-                                        <th class="text-end">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="total-details" data-tile-value="{{ tra.project.tile_value }}" data-count="{{ count }}">
-                                    <tr>
-                                        <td>
-                                            <h6 class="text-truncate font-size-14 mb-1">{{ tra.tiles_bought.tiles }}</h6>
-                                        </td>
-                                        <td>₹{{ tra.project.tile_value|floatformat:2|intcomma }}</td>
-                                        <td>{{ count }}</td>
-                                        <td class="text-end text-black">
-                                            <strong><span id="calculated-total"></span></strong>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h4 class="card-title mb-3">Payment Details</h4>
-                        <ul class="list-group list-group-flush">
-                             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                <strong>Tracking ID:</strong>
-                                <strong><span>{{ tra.tracking_id }}</span></strong>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                <strong>Transaction Time:</strong>
-                                <span>{{ tra.transaction_time|date:"F d, Y, h:i A" }}</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title mb-3">Upload Proof of Payment</h4>
-                        <form id="upload-form" method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label for="proof-file" class="form-label">Choose File</label>
-                                <input type="file" class="form-control" id="proof-file" name="proof_of_payment" accept="image/*,application/pdf" required>
-                                <div class="form-text">Accepted formats: images (.jpg, .png, etc.) and PDFs.</div>
-                            </div>
-                            <div class="text-end">
-                                <button type="submit" id="upload-button" class="btn btn-primary" disabled>
-                                    Submit Proof
-                                </button>
-                            </div>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -172,13 +80,21 @@
     document.addEventListener('DOMContentLoaded', () => {
         // --- Total Calculation Logic ---
         const totalSpan = document.getElementById('calculated-total');
-        const tbody = document.getElementById('total-details');
+        const hiddenData = document.getElementById('total-details');
 
-        if (tbody && totalSpan) {
-            const tileValue = parseFloat(tbody.dataset.tileValue);
-            const count = parseInt(tbody.dataset.count);
+        if (hiddenData && totalSpan) {
+            const tileValue = parseFloat(hiddenData.dataset.tileValue);
+            const count = parseInt(hiddenData.dataset.count);
             const total = tileValue * count;
-            totalSpan.textContent = `₹${total.toFixed(2)}`;
+
+            // Format the total with INR currency
+            const formattedTotal = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 2,
+            }).format(total);
+
+            totalSpan.textContent = formattedTotal;
         }
 
         // --- Form Validation & Resubmission Prevention ---
@@ -193,18 +109,22 @@
         proofFile.addEventListener('change', checkFileSelected);
 
         uploadForm.addEventListener('submit', () => {
-            uploadButton.disabled = true;
-            uploadButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...`;
+            // Add a small delay to ensure the form submits before disabling button
+            setTimeout(() => {
+                uploadButton.disabled = true;
+                uploadButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...`;
+            }, 50);
         });
     });
 
     // --- SweetAlert Messages ---
     {% if messages %}
         {% for message in messages %}
+            const tags = '{{ message.tags }}'.toLowerCase();
             Swal.fire({
                 title: '{{ message.tags|title }}!',
                 text: '{{ message }}',
-                icon: '{{ message.tags }}',
+                icon: tags === 'error' ? 'error' : (tags === 'success' ? 'success' : 'info'),
                 confirmButtonText: 'OK'
             });
         {% endfor %}
