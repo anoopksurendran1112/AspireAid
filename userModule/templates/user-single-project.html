@@ -134,19 +134,18 @@
                     {% endif %}
                 </div>
 
-
-                <ul class="nav nav-pills mb-4 justify-content-start project-tabs" id="projectDetailTab" role="tablist">
-                    <li class="nav-item" role="presentation">
+                <ul class="nav nav-pills mb-4 justify-content-start project-tabs border-bottom pb-3" id="projectDetailTab" role="tablist">
+                    <li class="nav-item me-2" role="presentation">
                         <button class="nav-link active fw-bold rounded-pill px-4" id="story-tab" data-bs-toggle="tab" data-bs-target="#story-tab-pane" type="button" role="tab" aria-controls="story-tab-pane" aria-selected="true">
                             <i class="bi bi-book me-2"></i> Our Story
                         </button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item me-2" role="presentation">
                         <button class="nav-link fw-bold rounded-pill px-4" id="beneficiary-tab" data-bs-toggle="tab" data-bs-target="#beneficiary-tab-pane" type="button" role="tab" aria-controls="beneficiary-tab-pane" aria-selected="false">
                             <i class="bi bi-person-heart me-2"></i> Beneficiary
                         </button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item me-2" role="presentation">
                         <button class="nav-link fw-bold rounded-pill px-4" id="updates-tab" data-bs-toggle="tab" data-bs-target="#updates-tab-pane" type="button" role="tab" aria-controls="updates-tab-pane" aria-selected="false">
                             <i class="bi bi-bell me-2"></i> Updates
                         </button>
@@ -154,16 +153,15 @@
                 </ul>
 
                 <div class="tab-content" id="projectDetailTabContent">
-
                     <div class="tab-pane fade show active p-4 border rounded-4 shadow-sm" id="story-tab-pane" role="tabpanel" aria-labelledby="story-tab" tabindex="0">
-                        <h3 class="fw-bold text-dark mb-3">Our Story & Need</h3>
+                        <h3 class="fw-bold text-dark mb-4 border-bottom pb-2">Our Story & Need</h3>
                         <div class="text-secondary project-description">
                             {{ project.description|safe }}
-                            </div>
+                        </div>
                     </div>
 
                     <div class="tab-pane fade p-4 border rounded-4 shadow-sm" id="beneficiary-tab-pane" role="tabpanel" aria-labelledby="beneficiary-tab" tabindex="0">
-                        <h3 class="fw-bold text-primary mb-4 border-bottom pb-2">Meet the Beneficiary</h3>
+                        <h3 class="fw-bold text-dark mb-4 border-bottom pb-2">Meet the Beneficiary</h3>
 
                         <div class="card border-0 p-4 bg-light shadow-sm">
                             <div class="row align-items-center">
@@ -171,7 +169,7 @@
                                 <div class="col-lg-4 col-md-4 text-center border-end">
                                     <img src="{% if project.beneficiary.profile_pic %}{{ project.beneficiary.profile_pic.url }}{% else %}{% static 'Custom-styles/Frontend/img/default-avatar.jpg' %}{% endif %}"
                                          alt="{{ project.beneficiary.first_name }}'s Photo"
-                                         class="rounded-circle object-fit-cover shadow-sm mb-3"
+                                         class="rounded-circle object-fit-cover bg-white border shadow-sm mb-3"
                                          style="width: 120px; height: 120px;">
 
                                     <h4 class="fw-bold text-dark mb-1">
@@ -182,19 +180,19 @@
 
                                 <div class="col-lg-8 col-md-8 pt-3 pt-md-0">
                                     <ul class="list-group list-group-flush beneficiary-details-list">
-                                        <li class="list-group-item d-flex justify-content-between align-items-start px-0">
+                                        <li class="list-group-item d-flex justify-content-between align-items-start px-0 bg-light">
                                             <span class="text-dark fw-semibold me-2"><i class="bi bi-geo-alt-fill me-2 text-primary"></i> Address:</span>
-                                            <span class="text-secondary text-end">{{ project.beneficiary.address }}</span>
+                                            <span class="text-dark text-end">{{ project.beneficiary.address }}</span>
                                         </li>
                                         {% if project.beneficiary.phone_number %}
-                                        <li class="list-group-item d-flex justify-content-between align-items-start px-0">
+                                        <li class="list-group-item d-flex justify-content-between align-items-start px-0 bg-light">
                                             <span class="text-dark fw-semibold me-2"><i class="bi bi-telephone-fill me-2 text-primary"></i> Phone:</span>
-                                            <span class="text-secondary text-end">{{ project.beneficiary.phone_number }}</span>
+                                            <span class="text-dark text-end">{{ project.beneficiary.phone_number }}</span>
                                         </li>
                                         {% endif %}
-                                        <li class="list-group-item d-flex justify-content-between align-items-start px-0">
+                                        <li class="list-group-item d-flex justify-content-between align-items-start px-0 bg-light">
                                             <span class="text-dark fw-semibold me-2"><i class="bi bi-info-circle-fill me-2 text-primary"></i> Initiated By:</span>
-                                            <span class="text-secondary text-end">{{ project.initiator_name }}</span>
+                                            <span class="text-dark text-end">{{ project.created_by.institution_name }}</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -203,7 +201,7 @@
                     </div>
 
                     <div class="tab-pane fade p-4 border rounded-4 shadow-sm" id="updates-tab-pane" role="tabpanel" aria-labelledby="updates-tab" tabindex="0">
-                        <h3 class="fw-bold text-dark mb-3">Latest Project Updates</h3>
+                        <h3 class="fw-bold text-dark mb-4 border-bottom pb-2">Latest Project Updates</h3>
                         <p class="text-secondary">No updates have been posted for this project yet. Check back soon!</p>
                         </div>
                 </div>
@@ -211,8 +209,8 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card shadow-lg border-0 rounded-4 sticky-top " style="top: 20px;">
-                    <div class="card-body p-4 p-md-5">
+                <div class="card shadow-lg border-0 rounded-4 sticky-top bg-light" style="top: 20px;">
+                    <div class="card-body p-4 p-md-5 bg-white rounded-4 shadow-sm">
 
                         <div class="mb-4">
                             <div class="d-flex justify-content-between small mb-2">
@@ -241,9 +239,40 @@
                         </div>
 
                         <div class="d-grid mt-4">
-                            <button type="button" class="btn btn-primary btn-lg fw-bold py-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#bookingModal">
-                                Donate Now
-                            </button>
+                            <div class="btn-group w-100" role="group" aria-label="Donation and Share actions">
+
+                                <button type="button"
+                                        class="btn btn-success btn-lg text-white fw-bold py-3 rounded-end-0 rounded-start-pill"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#bookingModal">
+                                    Donate Now
+                                </button>
+
+                                <div class="btn-group" role="group">
+                                    <button type="button"
+                                            class="btn btn-outline-primary btn-lg py-3 share-button rounded-start-0 rounded-end-pill"
+                                            id="share-dropdown-button"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
+                                            data-project-title="{{ project.title }}"
+                                            data-project-url="{{ request.build_absolute_uri }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share-fill" viewBox="0 0 16 16">
+                                            <path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5"/>
+                                        </svg>
+                                    </button>
+
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 p-2" aria-labelledby="share-dropdown-button">
+                                        <li><h6 class="dropdown-header text-primary">Share this Project</h6></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item fw-semibold" href="#" id="share-whatsapp"><i class="bi bi-whatsapp me-2 text-success"></i> WhatsApp</a></li>
+                                        <li><a class="dropdown-item fw-semibold" href="#" id="share-twitter"><i class="bi bi-twitter-x me-2 text-dark"></i> X (Twitter)</a></li>
+                                        <li><a class="dropdown-item fw-semibold" href="#" id="share-facebook"><i class="bi bi-facebook me-2 text-primary"></i> Facebook</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item fw-semibold" href="#" id="share-copy-link"><i class="bi bi-link-45deg me-2"></i> Copy Link</a></li>
+                                        <li><a class="dropdown-item fw-semibold" href="#" id="share-native" style="display: none;"><i class="bi bi-box-arrow-up-right me-2"></i> Share via System...</a></li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -337,6 +366,84 @@
 
             // Enable or disable the button
             bookButton.disabled = selectedTiles.size === 0;
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const shareButton = document.getElementById('share-dropdown-button');
+        const projectTitle = shareButton.getAttribute('data-project-title');
+        const projectUrl = shareButton.getAttribute('data-project-url');
+        const shareText = `Support this wonderful cause: "${projectTitle}". Donate today!`;
+
+        // Check for Web Share API support (for better mobile experience)
+        const nativeShareItem = document.getElementById('share-native');
+        if (navigator.share) {
+            // Show the native share option
+            nativeShareItem.style.display = 'block';
+
+            // Hide the default dropdown on small screens where native share is better
+            // You might want to adjust this logic based on screen size if you prefer.
+            if (window.innerWidth < 768) {
+                // Remove dropdown functionality and use the main button for native share
+                shareButton.removeAttribute('data-bs-toggle');
+                shareButton.setAttribute('onclick', 'handleNativeShare()');
+            }
+        }
+
+        // --- Share Handlers ---
+
+        function handleNativeShare() {
+            if (navigator.share) {
+                navigator.share({
+                    title: projectTitle,
+                    text: shareText,
+                    url: projectUrl,
+                }).catch((error) => console.log('Error sharing:', error));
+            }
+        }
+
+        document.getElementById('share-native').addEventListener('click', function(e) {
+            e.preventDefault();
+            handleNativeShare();
+        });
+
+        // WhatsApp Share
+        document.getElementById('share-whatsapp').addEventListener('click', function(e) {
+            e.preventDefault();
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + projectUrl)}`;
+            window.open(whatsappUrl, '_blank');
+        });
+
+        // X (Twitter) Share
+        document.getElementById('share-twitter').addEventListener('click', function(e) {
+            e.preventDefault();
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(projectUrl)}`;
+            window.open(twitterUrl, '_blank');
+        });
+
+        // Facebook Share
+        document.getElementById('share-facebook').addEventListener('click', function(e) {
+            e.preventDefault();
+            const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(projectUrl)}&quote=${encodeURIComponent(shareText)}`;
+            window.open(facebookUrl, '_blank');
+        });
+
+        // Copy Link
+        document.getElementById('share-copy-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            navigator.clipboard.writeText(projectUrl).then(() => {
+                // Provide visual feedback (using Bootstrap classes for a simple alert)
+                alert('Link copied to clipboard!');
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+            });
+        });
+
+        // Ensure the main button triggers native share if the dropdown is removed
+        if (!shareButton.hasAttribute('data-bs-toggle')) {
+            shareButton.addEventListener('click', handleNativeShare);
         }
     });
 </script>

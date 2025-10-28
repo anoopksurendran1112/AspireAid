@@ -129,16 +129,16 @@
 </div>
 
 <div class="container-fluid p-0">
-    <h1 class="mb-4"><strong>{{ admin.username }}'s Profile</strong></h1>
+    <h1 class="mb-4 fw-bold">{{ admin.username }}'s Profile</h1>
 
     <div class="row g-4">
 
         <div class="col-lg-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-dark">
-                    <h4 class="mb-0 text-white">{% if admin.is_superuser %} Superuser {% else %} User {% endif %} Profile</h4>
-                </div>
-                <div class="card-body text-center">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+                <div class="card-body p-4 text-center">
+
+                    <h4 class="fw-bold text-dark mb-1">{% if admin.is_superuser %} Superuser {% else %} User {% endif %} Profile</h4>
+                    <p class="text-muted small mb-4">Account Type</p>
 
                     <form id="uploadAdminImgForm" method="post" action="/administrator/admin_profile_img/" enctype="multipart/form-data" class="mb-4">
                         {% csrf_token %}
@@ -151,30 +151,29 @@
                                     src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
                                 {% endif %}
                                 alt="Click to upload an image"
-                                style="cursor: pointer; width: 150px; height: 150px; object-fit: cover;"
-                                class="border border-3 border-primary rounded-circle shadow-lg">
+                                style="cursor: pointer; width: 150px; height: 150px; object-fit: cover; transition: transform 0.2s;"
+                                class="border border-4 border-primary rounded-circle shadow-lg profile-img-hover">
                         </label>
                     </form>
 
-                    <h4 class="fw-bold">{{ admin.first_name }} {{ admin.last_name }}</h4>
-                    <span class="text-muted d-block mb-3">@{{ admin.username }}</span>
+                    <h3 class="fw-bolder text-primary">{{ admin.first_name }} {{ admin.last_name }}</h3>
+                    <span class="text-secondary d-block mb-3">@{{ admin.username }}</span>
 
-                    <ul class="list-group list-group-flush text-start">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Email: <span class="fw-bold">{{ admin.email }}</span>
+                    <ul class="list-group list-group-flush text-start border-top pt-3">
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span class="text-muted">Email:</span> <span class="fw-bold">{{ admin.email }}</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Contact: <span class="fw-bold">{{ admin.phn_no|default:'N/A' }}</span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span class="text-muted">Contact:</span> <span class="fw-bold">{{ admin.phn_no|default:'N/A' }}</span>
                         </li>
                     </ul>
 
-                    <div class="mt-4 mb-0 d-flex justify-content-between">
-                        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#profileModal">
-                            <i class="align-middle me-1" data-feather="edit"></i>Profile Details
+                    <div class="mt-4 pt-3 d-grid gap-2">
+                        <button type="button" class="btn btn-primary fw-semibold rounded-pill py-2" data-bs-toggle="modal" data-bs-target="#profileModal">
+                            <i class="align-middle me-1" data-feather="edit"></i> Update Profile Details
                         </button>
-                        <button type="button" class="btn btn-danger text-white" data-bs-toggle="modal" data-bs-target="#updateDataModal">
-                            <i class="align-middle me-1" data-feather="lock"></i>
-                            Credentials
+                        <button type="button" class="btn btn-outline-danger fw-semibold rounded-pill py-2" data-bs-toggle="modal" data-bs-target="#updateDataModal">
+                            <i class="align-middle me-1" data-feather="lock"></i> Update Credentials
                         </button>
                     </div>
                 </div>
@@ -185,25 +184,23 @@
 
             {% if admin.institution %}
 
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-dark">
-                    <h4 class="mb-0 text-white">Institution Details</h4>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
+            <div class="card border-0 shadow-lg rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold text-dark mb-4 border-bottom pb-2">Institution Details</h4>
+                    <div class="row g-3 align-items-center">
                         <div class="col-md-8">
                             <ul class="list-group list-group-flush text-start">
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    Name: <span class="fw-bold">{{ admin.institution.institution_name }}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted">Name:</span> <span class="fw-bold text-end">{{ admin.institution.institution_name }}</span>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    Email: <span class="fw-bold">{{ admin.institution.email }}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted">Email:</span> <span class="fw-bold text-end">{{ admin.institution.email }}</span>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    Phone: <span class="fw-bold">{{ admin.institution.phn }}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted">Phone:</span> <span class="fw-bold text-end">{{ admin.institution.phn }}</span>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    Address: <span class="fw-bold text-end">{{ admin.institution.address }}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-start px-0 py-2">
+                                    <span class="text-muted me-3">Address:</span> <span class="fw-bold text-end">{{ admin.institution.address }}</span>
                                 </li>
                             </ul>
                         </div>
@@ -211,7 +208,8 @@
                             <form id="uploadInstitutionImgForm" method="post" action="/administrator/admin_inst_img/" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <input type="file" id="instImgUpload" name="inst_img" style="display: none;">
-                                <label for="instImgUpload">
+                                <label for="instImgUpload" class="text-center">
+                                    <span class="d-block small text-muted mb-2">Institution Logo</span>
                                     <img
                                         {% if admin.institution.institution_img %}
                                             src="{{ admin.institution.institution_img.url }}"
@@ -219,8 +217,8 @@
                                             src="{% static 'frontend/img/default_logo.jpg' %}"
                                         {% endif %}
                                         alt="Click to upload logo"
-                                        style="cursor: pointer; width: 100px; height: 100px; object-fit: cover;"
-                                        class="border border-2 border-secondary rounded-circle shadow-sm">
+                                        style="cursor: pointer; width: 120px; height: 120px; object-fit: cover;"
+                                        class="border border-3 border-secondary rounded-3 shadow-sm">
                                 </label>
                             </form>
                         </div>
@@ -228,45 +226,43 @@
                 </div>
             </div>
 
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-dark">
-                    <h4 class="mb-0 text-white">Notification Preference</h4>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="/administrator/update_notification_preference/" class="row g-3 align-items-center">
+            <div class="card border-0 shadow-lg rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold text-dark mb-4 border-bottom pb-2">Notification Preference</h4>
+                    <form method="POST" action="/administrator/update_notification_preference/" class="row g-3">
                         {% csrf_token %}
                         <div class="col-12 d-flex justify-content-start gap-5 align-items-center flex-wrap">
 
                             <div class="d-flex align-items-center">
-                                <span class="fw-bold me-3">Email Service:</span>
-                                <div class="form-check form-switch">
+                                <span class="fw-bold me-3 text-muted">Email Service:</span>
+                                <div class="form-check form-switch form-check-lg">
                                     <input class="form-check-input" type="checkbox" role="switch" name="email_enabled" id="email_toggle"
                                            {% if preference.email_enabled %}checked{% endif %}>
                                 </div>
                             </div>
 
                             <div class="d-flex align-items-center">
-                                <span class="fw-bold me-3">Whatsapp Service:</span>
-                                <div class="form-check form-switch">
+                                <span class="fw-bold me-3 text-muted">Whatsapp Service:</span>
+                                <div class="form-check form-switch form-check-lg">
                                     <input class="form-check-input" type="checkbox" role="switch" name="whatsapp_enabled" id="whatsapp_toggle"
                                            {% if preference.whatsapp_enabled %}checked{% endif %}>
                                 </div>
                             </div>
 
                             <div class="d-flex align-items-center">
-                                <span class="fw-bold me-3">SMS Service:</span>
-                                <div class="form-check form-switch">
+                                <span class="fw-bold me-3 text-muted">SMS Service:</span>
+                                <div class="form-check form-switch form-check-lg">
                                     <input class="form-check-input" type="checkbox" role="switch" name="sms_enabled" id="sms_toggle"
                                            {% if preference.sms_enabled %}checked{% endif %}>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-12 d-flex justify-content-end gap-2 mt-4">
-                            <button type="submit" class="btn btn-info btn-sm text-white">
+                        <div class="col-12 d-flex justify-content-end gap-3 mt-4">
+                            <button type="submit" class="btn btn-primary fw-semibold rounded-pill py-2 px-3">
                                 <i class="align-middle me-1" data-feather="save"></i> Update Preferences
                             </button>
-                            <a href="/administrator/default-notification/" class="btn btn-outline-secondary btn-sm">
+                            <a href="/administrator/default-notification/" class="btn btn-outline-secondary fw-semibold rounded-pill py-2 px-3">
                                 <i class="align-middle me-1" data-feather="refresh-cw"></i> Reset to Default
                             </a>
                         </div>
@@ -278,43 +274,40 @@
         </div>
 
         <div class="col-lg-12">
-
             {% if admin.institution and admin.institution.default_bank %}
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-dark ">
-                    <h4 class="mb-0 text-white">Bank Details</h4>
-                </div>
-                <div class="card-body">
-                    <div class="row">
+            <div class="card border-0 shadow-lg rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold text-dark mb-4 border-bottom pb-2">Default Bank Details</h4>
+                    <div class="row g-4">
                         <div class="col-md-6">
                             <ul class="list-group list-group-flush text-start">
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    A/c Holder Name: <span class="fw-bold">{{admin.institution.default_bank.account_holder_first_name}} {{admin.institution.default_bank.account_holder_last_name}}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted">A/c Holder Name:</span> <span class="fw-bold text-end">{{admin.institution.default_bank.account_holder_first_name}} {{admin.institution.default_bank.account_holder_last_name}}</span>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    A/c Holder Phn: <span class="fw-bold">{{admin.institution.default_bank.account_holder_phn_no}}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted">A/c Holder Phn:</span> <span class="fw-bold text-end">{{admin.institution.default_bank.account_holder_phn_no}}</span>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    A/c Holder Address: <span class="fw-bold text-end">{{admin.institution.default_bank.account_holder_address}}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted">Bank Name:</span> <span class="fw-bold text-end">{{admin.institution.default_bank.bank_name}}</span>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    Bank Name: <span class="fw-bold">{{admin.institution.default_bank.bank_name}}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-start px-0 py-2">
+                                    <span class="text-muted me-3">A/c Holder Address:</span> <span class="fw-bold text-end">{{admin.institution.default_bank.account_holder_address}}</span>
                                 </li>
                             </ul>
                         </div>
                         <div class="col-md-6">
                             <ul class="list-group list-group-flush text-start">
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    Branch Name: <span class="fw-bold">{{admin.institution.default_bank.branch_name}}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted">Branch Name:</span> <span class="fw-bold text-end">{{admin.institution.default_bank.branch_name}}</span>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    IFSC Code: <span class="fw-bold">{{admin.institution.default_bank.ifsc_code}}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted">IFSC Code:</span> <span class="fw-bold text-end">{{admin.institution.default_bank.ifsc_code}}</span>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    Account Number: <span class="fw-bold">{{admin.institution.default_bank.account_no}}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted">Account Number:</span> <span class="fw-bold text-end">{{admin.institution.default_bank.account_no}}</span>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    UPI ID: <span class="fw-bold">{{admin.institution.default_bank.upi_id}}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted">UPI ID:</span> <span class="fw-bold text-end">{{admin.institution.default_bank.upi_id}}</span>
                                 </li>
                             </ul>
                         </div>

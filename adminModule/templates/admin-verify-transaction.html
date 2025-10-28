@@ -4,93 +4,99 @@
 
 <!---------------------- All Institution Table Details -------------------->
 <div>
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0"><strong>Transaction</strong> Details</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h1 class="mb-0 fw-bold">Transaction Details</h1>
+
         {% if transaction.status != 'Unverified' %}
-            <span class="badge
-                {% if transaction.status == 'Verified' %}bg-success
-                {% elif transaction.status == 'Rejected' %}bg-danger
+            <span class="badge fs-5 py-2 px-3 fw-bold rounded-pill
+                {% if transaction.status == 'Verified' %}bg-success bg-opacity-10 text-success
+                {% elif transaction.status == 'Rejected' %}bg-danger bg-opacity-10 text-danger
+                {% endif %}">
+                {% if transaction.status == 'Verified' %}
+                    <i class="align-middle me-1" data-feather="check-circle"></i> {{ transaction.status }}
+                {% elif transaction.status == 'Rejected' %}
+                    <i class="align-middle me-1" data-feather="x-circle"></i> {{ transaction.status }}
                 {% endif %}
-                fs-4 py-2 px-3">
-                {{ transaction.status }}
+            </span>
+        {% else %}
+            <span class="badge fs-5 py-2 px-3 fw-bold rounded-pill bg-warning bg-opacity-10 text-warning">
+                <i class="align-middle me-1" data-feather="alert-circle"></i> Unverified
             </span>
         {% endif %}
     </div>
 
-    <div class="card data-card p-3">
-        <div class="card-body">
-            <h2 class="mb-3"><strong>{{ transaction.project.title }}</strong></h2>
-            <hr>
+    <div class="card border-0 shadow-lg rounded-4 p-4">
+        <div class="card-body p-0">
+            <h2 class="mb-4 fw-bolder text-primary">{{ transaction.project.title }}</h2>
 
-            <div class="row mb-4">
-                <div class="col-md-4 mb-3">
-                    <div class="card data-card h-100">
-                        <div class="card-header bg-dark">
-                            <h4 class="text-light mb-0"><strong>Project Details</strong></h4>
-                        </div>
-                        <div class="card-body">
+            <div class="row g-4 mb-4">
+
+                <div class="col-md-4">
+                    <div class="card bg-light border-0 shadow-sm h-100 rounded-3">
+                        <div class="card-body p-4">
+                            <h4 class="fw-bold text-dark mb-3 border-bottom pb-2">Project Details</h4>
                             <table class="table table-borderless table-sm mb-0">
                                 <tr>
-                                    <td class="fw-bold">Target</td>
-                                    <td>₹{{ transaction.project.funding_goal|floatformat:2|intcomma }}</td>
+                                    <td class="text-muted w-50">Project ID:</td>
+                                    <td class="fw-bold text-end">{{ transaction.project.id }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-bold">Tile Value</td>
-                                    <td>₹{{ transaction.project.tile_value|floatformat:2|intcomma }}</td>
+                                    <td class="text-muted w-50">Target:</td>
+                                    <td class="fw-bold text-end">₹{{ transaction.project.funding_goal|floatformat:2|intcomma }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted w-50">Tile Value:</td>
+                                    <td class="fw-bold text-end">₹{{ transaction.project.tile_value|floatformat:2|intcomma }}</td>
                                 </tr>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-4 mb-3">
-                    <div class="card data-card h-100">
-                        <div class="card-header bg-dark">
-                            <h4 class="text-white mb-0"><strong>Beneficiary Details</strong></h4>
-                        </div>
-                        <div class="card-body">
+                <div class="col-md-4">
+                    <div class="card bg-light border-0 shadow-sm h-100 rounded-3">
+                        <div class="card-body p-4">
+                            <h4 class="fw-bold text-dark mb-3 border-bottom pb-2">Beneficiary Details</h4>
                             <table class="table table-borderless table-sm mb-0">
                                 <tr>
-                                    <td class="fw-bold">Name</td>
-                                    <td>{{ transaction.project.beneficiary.first_name }} {{ transaction.project.beneficiary.last_name }}</td>
+                                    <td class="text-muted w-50">Name:</td>
+                                    <td class="fw-bold text-end">{{ transaction.project.beneficiary.first_name }} {{ transaction.project.beneficiary.last_name }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-bold">Phone Number</td>
-                                    <td>{{ transaction.project.beneficiary.phone_number }}</td>
+                                    <td class="text-muted w-50">Phone Number:</td>
+                                    <td class="fw-bold text-end">{{ transaction.project.beneficiary.phone_number }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-bold">Age</td>
-                                    <td>{{ transaction.project.beneficiary.age }} years old</td>
+                                    <td class="text-muted w-50">Age:</td>
+                                    <td class="fw-bold text-end">{{ transaction.project.beneficiary.age }} years old</td>
                                 </tr>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-4 mb-3">
-                    <div class="card data-card h-100">
-                        <div class="card-header bg-dark">
-                            <h4 class="text-light mb-0"><strong>Buyer Details</strong></h4>
-                        </div>
-                        <div class="card-body">
+                <div class="col-md-4">
+                    <div class="card bg-light border-0 shadow-sm h-100 rounded-3">
+                        <div class="card-body p-4">
+                            <h4 class="fw-bold text-dark mb-3 border-bottom pb-2">Buyer Details</h4>
                             <table class="table table-borderless table-sm mb-0">
                                 <tr>
-                                    <td class="fw-bold">Name</td>
-                                    <td>{{ transaction.sender.full_name }}</td>
+                                    <td class="text-muted w-50">Name:</td>
+                                    <td class="fw-bold text-end">{{ transaction.sender.full_name }}</td>
                                 </tr>
                                 {% if transaction.sender.email %}
                                 <tr>
-                                    <td class="fw-bold">Email</td>
-                                    <td>{{ transaction.sender.email }}</td>
+                                    <td class="text-muted w-50">Email:</td>
+                                    <td class="fw-bold text-end">{{ transaction.sender.email }}</td>
                                 </tr>
                                 {% endif %}
                                 <tr>
-                                    <td class="fw-bold">Phone</td>
-                                    <td>{{ transaction.sender.phone }}</td>
+                                    <td class="text-muted w-50">Phone:</td>
+                                    <td class="fw-bold text-end">{{ transaction.sender.phone }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-bold">Address</td>
-                                    <td>{{ transaction.sender.address }}</td>
+                                    <td class="text-muted w-50">Address:</td>
+                                    <td class="fw-bold text-end">{{ transaction.sender.address|default:'N/A' }}</td>
                                 </tr>
                             </table>
                         </div>
@@ -98,61 +104,65 @@
                 </div>
             </div>
 
-            <div class="card data-card mb-4">
-                <div class="card-header bg-dark">
-                    <h4 class="text-light mb-0"><strong>Transaction Summary</strong></h4>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <ul class="list-unstyled mb-0">
-                            <li><strong>Tracking ID:</strong> {{ transaction.tracking_id }}</li>
-                            <li><strong>Transaction Time:</strong> {{ transaction.transaction_time|date:"d M, Y P" }}</li>
-                            <li><strong>Tiles:</strong> {{ transaction.tiles_bought.tiles }}</li>
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold text-dark mb-3 border-bottom pb-2">Transaction Summary</h4>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <ul class="list-unstyled mb-0 w-50">
+                            <li class="mb-1 text-muted"><strong>Tracking ID:</strong> <span class="fw-bold text-dark">{{ transaction.tracking_id }}</span></li>
+                            <li class="mb-1 text-muted"><strong>Transaction Time:</strong> <span class="fw-bold text-dark">{{ transaction.transaction_time|date:"d M, Y h:i A" }}</span></li>
+                            <li class="mb-1 text-muted"><strong>Total Tiles in Project:</strong> <span class="fw-bold text-dark">{{ transaction.tiles_bought.tiles|default:'N/A' }}</span></li>
                         </ul>
-                        <div class="text-end">
-                            <h4 class="mb-0 fw-bold">{{ transaction.num_tiles }} Tiles</h4>
-                            <h2 class="mb-0 text-success fw-bold">₹{{ transaction.amount|floatformat:2|intcomma }}</h2>
+                        <div class="text-end mt-3 mt-sm-0">
+                            <h4 class="mb-1 fw-bold text-muted">{{ transaction.num_tiles }} Tiles Purchased</h4>
+                            <h1 class="mb-0 text-success fw-bolder display-6">₹{{ transaction.amount|floatformat:2|intcomma }}</h1>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card data-card mb-4">
-                <div class="card-header bg-dark">
-                    <h4 class="text-light mb-0"><strong>Proof of Payment</strong></h4>
-                </div>
-                <div class="card-body text-center">
-                    {% if screenshot %}
-                        <object data="{{ screenshot.screen_shot.url }}" class="border" style="height: 500px;">
-                            <p>Your browser doesn't support PDF/image display. You can <a href="{{ screenshot.screen_shot.url }}" target="_blank">download the file</a> instead.</p>
-                        </object>
-                    {% else %}
-                        <p class="text-muted">No proof of payment has been uploaded for this transaction yet.</p>
-                    {% endif %}
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold text-dark mb-3 border-bottom pb-2">Proof of Payment</h4>
+                    <div class="text-center p-3 border rounded-3 bg-light">
+                        {% if screenshot %}
+                            <img src="{{ screenshot.screen_shot.url }}" alt="Proof of Payment" class="img-fluid rounded shadow-sm" style="max-height: 600px; width: auto; object-fit: contain;">
+
+                            <p class="mt-3 mb-0">
+                                <a href="{{ screenshot.screen_shot.url }}" target="_blank" class="btn btn-outline-primary fw-semibold rounded-pill py-2 px-3 mt-2">
+                                    <i class="align-middle me-1" data-feather="maximize"></i> View Full Screen
+                                </a>
+                            </p>
+                        {% else %}
+                            <p class="text-muted mb-0 p-3">
+                                <i class="align-middle me-1" data-feather="file-text"></i> No proof of payment has been uploaded for this transaction yet.
+                            </p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
             {% if not admin.is_superuser %}
-            <div class="text-end mt-4">
+            <div class="text-end pt-3">
                 {% if transaction.status == 'Unverified' %}
-                    <a class="btn btn-danger me-2" href="/administrator/reject-transaction/{{ transaction.id }}/">
+                    <a class="btn btn-lg btn-outline-danger fw-semibold rounded-pill py-2 px-4 me-3" href="/administrator/reject-transaction/{{ transaction.id }}/">
                         <i class="align-middle me-1" data-feather="x-circle"></i> Reject
                     </a>
-                    <a class="btn btn-success" href="/administrator/approve-transaction/{{ transaction.id }}/">
+                    <a class="btn btn-lg btn-success fw-semibold rounded-pill py-2 px-4" href="/administrator/approve-transaction/{{ transaction.id }}/">
                         <i class="align-middle me-1" data-feather="check-circle"></i> Approve
                     </a>
                 {% elif transaction.status == 'Verified' %}
-                    <a class="btn btn-secondary me-2" href="/administrator/unverify-transaction/{{ transaction.id }}/">
-                        <i class="align-middle me-1" data-feather="rotate-ccw"></i> Unverify
+                    <a class="btn btn-lg btn-outline-secondary fw-semibold rounded-pill py-2 px-4 me-3" href="/administrator/unverify-transaction/{{ transaction.id }}/">
+                        <i class="align-middle me-1" data-feather="rotate-ccw"></i> Revert to Unverified
                     </a>
-                    <a class="btn btn-danger" href="/administrator/reject-transaction/{{ transaction.id }}/">
+                    <a class="btn btn-lg btn-danger fw-semibold rounded-pill py-2 px-4" href="/administrator/reject-transaction/{{ transaction.id }}/">
                         <i class="align-middle me-1" data-feather="x-circle"></i> Reject
                     </a>
                 {% else %}
-                    <a class="btn btn-secondary me-2" href="/administrator/unverify-transaction/{{ transaction.id }}/">
-                        <i class="align-middle me-1" data-feather="rotate-ccw"></i> Unverify
+                    <a class="btn btn-lg btn-outline-secondary fw-semibold rounded-pill py-2 px-4 me-3" href="/administrator/unverify-transaction/{{ transaction.id }}/">
+                        <i class="align-middle me-1" data-feather="rotate-ccw"></i> Revert to Unverified
                     </a>
-                    <a class="btn btn-success" href="/administrator/approve-transaction/{{ transaction.id }}/">
+                    <a class="btn btn-lg btn-success fw-semibold rounded-pill py-2 px-4" href="/administrator/approve-transaction/{{ transaction.id }}/">
                         <i class="align-middle me-1" data-feather="check-circle"></i> Approve
                     </a>
                 {% endif %}

@@ -84,39 +84,48 @@
 
 <div class="row">
     <div class="col-12">
-        <h1 class="mb-3"><strong>Contact</strong> Messages</h1>
-        <div class="card data-card py-3">
-            <div class="card-header d-flex justify-content-end align-items-center">
-                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
+        <h1 class="mb-4 fw-bold">Contact Messages</h1>
+
+        <div class="card border-0 shadow-lg rounded-4 flex-fill">
+
+            <div class="card-header bg-white rounded-top-4 border-0 d-flex justify-content-end align-items-center p-4">
+                <button type="button" class="btn btn-primary fw-semibold rounded-pill py-2 px-3" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
                     <i class="align-middle me-1" data-feather="filter"></i> Advanced Filter
                 </button>
             </div>
 
-            <div class="collapse" id="advancedFilterCollapse">
-                <div class="card-body">
-                    <form method="get" class="row g-3">
+            <div class="collapse border-bottom px-4 pb-4" id="advancedFilterCollapse">
+                <div class="card-body pt-0 pb-0">
+                    <form method="get" class="row g-3 align-items-end">
+                        <h6 class="mt-3 mb-2 fw-bold text-dark">Filter Options</h6>
+
                         <div class="col-md-4">
+                            <label for="sender_name" class="form-label small text-muted mb-1">Sender Name</label>
                             <input type="text" class="form-control" id="sender_name" name="sender_name" placeholder="Enter Sender Name">
                         </div>
                         <div class="col-md-4">
+                            <label for="sender_email" class="form-label small text-muted mb-1">Email Address</label>
                             <input type="text" class="form-control" id="sender_email" name="sender_email" placeholder="Enter Email Address">
                         </div>
                         <div class="col-md-4">
+                            <label for="sender_phone" class="form-label small text-muted mb-1">Phone Number</label>
                             <input type="text" class="form-control" id="sender_phone" name="sender_phone" placeholder="Enter Phone Number">
                         </div>
+
                         <div class="col-md-6">
-                            <label for="start_date" class="form-label">From Date</label>
+                            <label for="start_date" class="form-label small text-muted mb-1">From Date</label>
                             <input type="date" class="form-control" id="start_date" name="start_date">
                         </div>
                         <div class="col-md-6">
-                            <label for="end_date" class="form-label">To Date</label>
+                            <label for="end_date" class="form-label small text-muted mb-1">To Date</label>
                             <input type="date" class="form-control" id="end_date" name="end_date">
                         </div>
-                        <div class="col-12 text-end mt-3">
-                            <button type="submit" class="btn btn-primary me-2">
+
+                        <div class="col-12 text-end mt-4">
+                            <button type="submit" class="btn btn-primary fw-semibold rounded-pill py-2 px-3 me-2">
                                 <i class="align-middle me-1" data-feather="check"></i> Apply Filters
                             </button>
-                            <a href="." class="btn btn-danger">
+                            <a href="." class="btn btn-outline-secondary fw-semibold rounded-pill py-2 px-3">
                                 <i class="align-middle me-1" data-feather="x"></i> Clear Filters
                             </a>
                         </div>
@@ -124,45 +133,59 @@
                 </div>
             </div>
 
-            <div class="card-body table-responsive">
-                <table class="table table-hover my-0">
-                    <thead class="table-dark">
-                    <tr>
-                        <th>Sl no.</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Sent At</th>
-                        <th>Status</th>
-                        <th class="text-center">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for msg in contact_messages %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ msg.first_name }} {{ msg.last_name }}</td>
-                        <td>{{ msg.email }}</td>
-                        <td>{{ msg.phone }}</td>
-                        <td>{{ msg.sent_time|date:"d M, Y P" }}</td>
-                        <td class="{% if msg.has_replied == True %} text-success {% else %}
-                                    text-secondary {% endif %}">
-                            <strong>{% if msg.has_replied == True %} Replied {% else %}
-                            Unchecked {% endif %}</strong>
-                        </td>
-                        <td class="text-center">
-                            <a class="btn btn-info btn-sm" href="#" data-bs-toggle="modal" data-bs-target="#messageModal{{ msg.id }}">
-                                <i class="align-middle" data-feather="eye"></i> View
-                            </a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="8" class="text-center p-4">No Messages found matching the criteria.</td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-borderless align-middle mb-0">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="text-white small fw-bold text-uppercase ps-4">Sl no.</th>
+                                <th class="text-white small fw-bold text-uppercase">Name</th>
+                                <th class="text-white small fw-bold text-uppercase">Email</th>
+                                <th class="text-white small fw-bold text-uppercase">Phone</th>
+                                <th class="text-white small fw-bold text-uppercase">Sent At</th>
+                                <th class="text-white small fw-bold text-uppercase">Status</th>
+                                <th class="text-center text-white small fw-bold text-uppercase pe-4">Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for msg in contact_messages %}
+                        <tr>
+                            <td class="ps-4">{{ forloop.counter }}</td>
+                            <td class="fw-semibold text-dark">{{ msg.first_name }} {{ msg.last_name }}</td>
+                            <td>{{ msg.email }}</td>
+                            <td>{{ msg.phone }}</td>
+                            <td>{{ msg.sent_time|date:"d M, Y h:i A" }}</td>
+                            <td>
+                                {% if msg.has_replied == True %}
+                                    <span class="badge bg-success bg-opacity-10 text-success fw-bold rounded-pill p-2">
+                                        <i class="align-middle me-1" data-feather="check-circle"></i> Replied
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning fw-bold rounded-pill p-2">
+                                        <i class="align-middle me-1" data-feather="alert-circle"></i> Unchecked
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center pe-4">
+                                <a class="btn btn-sm btn-info rounded-pill px-3" href="#" data-bs-toggle="modal" data-bs-target="#messageModal{{ msg.id }}" title="View Message">
+                                    <i class="align-middle" data-feather="eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center p-5">
+                                <div class="alert alert-warning m-0 rounded-3" role="alert">
+                                    No contact messages found matching the criteria.
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

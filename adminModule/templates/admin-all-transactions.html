@@ -5,63 +5,74 @@
 
     <div class="row">
         <div class="col-12">
-            <h1 class="mb-3"><strong>Transaction</strong> Details</h1>
-            <div class="card data-card py-3">
-                <div class="card-header d-flex justify-content-end align-items-center">
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
-                         <i class="align-middle me-1" data-feather="filter"></i> Advanced Filter
+            <h1 class="mb-4 fw-bold">Transaction Details</h1>
+
+            <div class="card border-0 shadow-lg rounded-4 flex-fill">
+
+                <div class="card-header bg-white rounded-top-4 border-0 d-flex justify-content-end align-items-center p-4">
+                    <button type="button" class="btn btn-primary fw-semibold rounded-pill py-2 px-3" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
+                        <i class="align-middle me-1" data-feather="filter"></i> Advanced Filter
                     </button>
                 </div>
 
-                <div class="collapse" id="advancedFilterCollapse">
-                    <div class="card-body">
-                        <form method="get" class="row g-3">
-                            <div class="col-md-3">
+                <div class="collapse border-bottom px-4 pb-4" id="advancedFilterCollapse">
+                    <div class="card-body pt-0 pb-0">
+                        <form method="get" class="row g-3 align-items-end">
+                            <h6 class="mt-3 mb-2 fw-bold text-dark">Filter Options</h6>
+
+                            <div class="col-md-3 col-lg-3">
+                                <label for="tracking_id" class="form-label small text-muted mb-1">Tracking ID</label>
                                 <input type="text" class="form-control" id="tracking_id" name="tracking_id" placeholder="Enter Tracking ID">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3 col-lg-3">
+                                <label for="project_title" class="form-label small text-muted mb-1">Project Title</label>
                                 <input type="text" class="form-control" id="project_title" name="project_title" placeholder="Enter Project Title">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3 col-lg-3">
+                                <label for="sender_name" class="form-label small text-muted mb-1">Buyer Name</label>
                                 <input type="text" class="form-control" id="sender_name" name="sender_name" placeholder="Enter Buyer name">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3 col-lg-3">
+                                <label for="status_filter" class="form-label small text-muted mb-1">Transaction Status</label>
                                 <select id="status_filter" name="status" class="form-select">
                                     <option value="">All Transactions</option>
-                                    <option value="Unverified">Unverified Transactions</option>
-                                    <option value="Verified">Verified Transactions</option>
-                                    <option value="Rejected">Rejected Transactions</option>
+                                    <option value="Unverified">Unverified</option>
+                                    <option value="Verified">Verified</option>
+                                    <option value="Rejected">Rejected</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
-                                <label for="start_date" class="form-label">From Date</label>
+
+                            <div class="col-md-3 col-lg-3">
+                                <label for="start_date" class="form-label small text-muted mb-1">From Date</label>
                                 <input type="date" class="form-control" id="start_date" name="start_date">
                             </div>
-                            <div class="col-md-3">
-                                <label for="end_date" class="form-label">To Date</label>
+                            <div class="col-md-3 col-lg-3">
+                                <label for="end_date" class="form-label small text-muted mb-1">To Date</label>
                                 <input type="date" class="form-control" id="end_date" name="end_date">
                             </div>
-                            <div class="col-md-3">
-                                <label for="order_by_amount" class="form-label">Amount</label>
+
+                            <div class="col-md-3 col-lg-3">
+                                <label for="order_by_amount" class="form-label small text-muted mb-1">Sort by Amount</label>
                                 <select id="order_by_amount" name="amount_order" class="form-select">
                                     <option value="">None</option>
                                     <option value="asc">Ascending</option>
                                     <option value="desc">Descending</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
-                                <label for="order_by_tiles" class="form-label">Bought Tiles</label>
+                            <div class="col-md-3 col-lg-3">
+                                <label for="order_by_tiles" class="form-label small text-muted mb-1">Sort by Tiles</label>
                                 <select id="order_by_tiles" name="tiles_order" class="form-select">
                                     <option value="">None</option>
                                     <option value="asc">Ascending</option>
                                     <option value="desc">Descending</option>
                                 </select>
                             </div>
-                            <div class="col-12 text-end mt-3">
-                                <button type="submit" class="btn btn-primary me-2">
+
+                            <div class="col-12 text-end mt-4">
+                                <button type="submit" class="btn btn-primary fw-semibold rounded-pill py-2 px-3 me-2">
                                     <i class="align-middle me-1" data-feather="check"></i> Apply Filters
                                 </button>
-                                <a href="." class="btn btn-danger">
+                                <a href="." class="btn btn-outline-secondary fw-semibold rounded-pill py-2 px-3">
                                     <i class="align-middle me-1" data-feather="x"></i> Clear Filters
                                 </a>
                             </div>
@@ -69,77 +80,85 @@
                     </div>
                 </div>
 
-                <div class="card-body table-responsive">
-                    <table class="table table-hover my-0">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>#</th>
-                                <th>Project</th>
-                                <th class="d-none d-lg-table-cell">Buyer</th>
-                                <th>Tracking ID</th>
-                                <th class="d-none d-lg-table-cell">Transaction Time</th>
-                                <th class="d-none d-md-table-cell">Qty</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for t in transaction %}
-                            <tr>
-                                <td>{{ forloop.counter }}</td>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-borderless align-middle mb-0">
 
-                                <td>
-                                    <a href="/administrator/single-project/{{ t.project.id }}/" class="text-decoration-none fw-medium">
-                                        {{ t.project.title|truncatechars:30 }}
-                                    </a>
-                                </td>
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="text-white small fw-bold text-uppercase ps-4">#</th>
+                                    <th class="text-white small fw-bold text-uppercase">Project</th>
+                                    <th class="d-none d-lg-table-cell text-white small fw-bold text-uppercase">Buyer</th>
+                                    <th class="text-white small fw-bold text-uppercase">Tracking ID</th>
+                                    <th class="d-none d-lg-table-cell text-white small fw-bold text-uppercase">Time</th>
+                                    <th class="d-none d-md-table-cell text-white small fw-bold text-uppercase">Qty</th>
+                                    <th class="text-white small fw-bold text-uppercase">Amount</th>
+                                    <th class="text-white small fw-bold text-uppercase">Status</th>
+                                    <th class="text-center text-white small fw-bold text-uppercase pe-4">Action</th>
+                                </tr>
+                            </thead>
 
-                                <td class="d-none d-lg-table-cell">{{ t.sender.full_name|truncatechars:20 }}</td>
+                            <tbody>
+                            {% for t in transaction %}
+                                <tr>
+                                    <td class="ps-4">{{ forloop.counter }}</td>
 
-                                <td class="fw-bold">{{ t.tracking_id }}</td>
+                                    <td>
+                                        <a href="/administrator/single-project/{{ t.project.id }}/" class="text-decoration-none fw-semibold text-dark">
+                                            {{ t.project.title|truncatechars:30 }}
+                                        </a>
+                                    </td>
 
-                                <td class="d-none d-lg-table-cell">{{ t.transaction_time|date:"P ,d M Y" }}</td>
+                                    <td class="d-none d-lg-table-cell">{{ t.sender.full_name|truncatechars:20 }}</td>
 
-                                <td class="d-none d-md-table-cell">{{ t.num_tiles }} Tiles</td>
+                                    <td class="fw-bold">{{ t.tracking_id }}</td>
 
-                                <td class="text-nowrap fw-bold">₹{{ t.amount|floatformat:2|intcomma }}</td>
-                                <td>
-                                    {% if t.status == 'Verified' %}
-                                        <span class="badge bg-success">Verified</span>
-                                    {% elif t.status == 'Unverified' %}
-                                        <span class="badge bg-warning text-dark">Unverified</span>
-                                    {% elif t.status == 'Rejected' %}
-                                        <span class="badge bg-danger">Rejected</span>
-                                    {% endif %}
-                                </td>
+                                    <td class="d-none d-lg-table-cell">{{ t.transaction_time|date:"d M, Y H:i" }}</td>
 
-                                <td class=" text-nowrap">
+                                    <td class="d-none d-md-table-cell text-nowrap">{{ t.num_tiles }} Tiles</td>
 
-                                    <div class="d-inline-block ms-2">
-                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-primary btn-sm" title="View Transaction Details">
-                                            <i class="align-middle" data-feather="info"></i>
+                                    <td class="text-nowrap fw-bold">₹{{ t.amount|floatformat:2|intcomma }}</td>
+
+                                    <td>
+                                        {% if t.status == 'Verified' %}
+                                            <span class="badge bg-success bg-opacity-10 text-success fw-bold rounded-pill p-2">
+                                                <i class="align-middle me-1" data-feather="check-circle"></i>Verified
+                                            </span>
+                                        {% elif t.status == 'Unverified' %}
+                                            <span class="badge bg-warning bg-opacity-10 text-warning fw-bold rounded-pill p-2">
+                                                <i class="align-middle me-1" data-feather="alert-circle"></i>Unverified
+                                            </span>
+                                        {% elif t.status == 'Rejected' %}
+                                            <span class="badge bg-danger bg-opacity-10 text-danger fw-bold rounded-pill p-2">
+                                                <i class="align-middle me-1" data-feather="x-circle"></i>Rejected
+                                            </span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="pe-4 text-nowrap">
+                                        <a href="/administrator/verify-transaction/{{ t.id }}/" class="btn btn-sm btn-primary rounded-pill px-3" title="View Transaction Details">
+                                            <i class="align-middle" data-feather="eye"></i>
                                         </a>
 
                                         {% if t.status == 'Verified' and not admin.is_superuser %}
-                                            <a href="/administrator/generate-receipt/{{ t.id }}/" class="btn btn-info btn-sm" title="Generate Receipt">
-                                                <i class="align-middle" data-feather="file-plus"></i>
+                                            <a href="/administrator/generate-receipt/{{ t.id }}/" class="btn btn-sm btn-info rounded-pill px-3 ms-2" title="Generate Receipt">
+                                                <i class="align-middle" data-feather="file-text"></i>
                                             </a>
                                         {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="8" class="text-center p-4">
-                                    <div class="alert alert-warning m-0">
-                                        No transactions found matching the criteria.
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center p-5">
+                                        <div class="alert alert-warning m-0 rounded-3" role="alert">
+                                            No transactions found matching the criteria.
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
