@@ -118,7 +118,7 @@
                             <div class="p-4 rounded-4 bg-white shadow-lg mt-4 text-center">
                                 <h4 class="mb-3 fw-bold">Scan or Pay via UPI</h4>
 
-                                <img src="{% static 'Custom-styles/Frontend/img/project_1_qr.png' %}" class="img-fluid border rounded-3 mb-3 shadow-sm" alt="QR Code for payment" style="max-width: 200px; height: auto;">
+                                <img src="{{ project.qr_code.url }}" class="img-fluid border rounded-3 mb-3 shadow-sm" alt="QR Code for payment" style="max-width: 200px; height: auto;">
                                 <p class="mb-3 small text-muted">
                                     UPI ID: <strong class="text-dark">{{ ins.default_bank.upi_id }}</strong>
                                 </p>

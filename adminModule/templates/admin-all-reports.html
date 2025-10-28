@@ -1,37 +1,46 @@
 {% extends 'admin-dashboard.html' %}
 {% load humanize %}
 {% block content %}
+
 <div class="row">
     <div class="col-12">
-        <h1 class="mb-3"><strong>Project</strong> Reports</h1>
-        <div class="card data-card py-3">
-            <div class="card-header d-flex justify-content-end align-items-center">
-                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
+        <h1 class="mb-4 fw-bold">Project Reports</h1>
+
+        <div class="card border-0 shadow-lg rounded-4 flex-fill">
+
+            <div class="card-header bg-white rounded-top-4 border-0 d-flex justify-content-end align-items-center p-4">
+                <button type="button" class="btn btn-primary fw-semibold rounded-pill py-2 px-3" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
                     <i class="align-middle me-1" data-feather="filter"></i> Advanced Filter
                 </button>
             </div>
 
-            <div class="collapse" id="advancedFilterCollapse">
-                <div class="card-body">
-                    <form method="get" class="row g-3">
+            <div class="collapse border-bottom px-4 pb-4" id="advancedFilterCollapse">
+                <div class="card-body pt-0 pb-0">
+                    <form method="get" class="row g-3 align-items-end">
+                        <h6 class="mt-3 mb-2 fw-bold text-dark">Filter Options</h6>
+
                         <div class="col-md-4">
+                            <label for="project_title" class="form-label small text-muted mb-1">Project Title</label>
                             <input type="text" class="form-control" id="project_title" name="project_title" placeholder="Enter Project Title">
                         </div>
                         <div class="col-md-4">
+                            <label for="beneficiary_name" class="form-label small text-muted mb-1">Beneficiary Name</label>
                             <input type="text" class="form-control" id="beneficiary_name" name="beneficiary_name" placeholder="Enter Beneficiary Name">
                         </div>
                         <div class="col-md-4">
+                            <label for="order_by_goal" class="form-label small text-muted mb-1">Sort by Goal</label>
                             <select id="order_by_goal" name="goal_order" class="form-select">
-                                <option value="">Default</option>
+                                <option value="">Default (Latest)</option>
                                 <option value="asc">Goal Ascending</option>
                                 <option value="desc">Goal Descending</option>
                             </select>
                         </div>
+
                         <div class="col-12 text-end mt-4">
-                            <button type="submit" class="btn btn-primary me-2">
+                            <button type="submit" class="btn btn-primary fw-semibold rounded-pill py-2 px-3 me-2">
                                 <i class="align-middle me-1" data-feather="check"></i> Apply Filters
                             </button>
-                            <a href="." class="btn btn-danger">
+                            <a href="." class="btn btn-outline-secondary fw-semibold rounded-pill py-2 px-3">
                                 <i class="align-middle me-1" data-feather="x"></i> Clear Filters
                             </a>
                         </div>
@@ -39,52 +48,71 @@
                 </div>
             </div>
 
-            <div class="card-body table-responsive">
-                <table class="table table-hover my-0">
-                    <thead class="table-dark">
-                    <tr>
-                        <th>Sl no.</th>
-                        <th>Project Title</th>
-                        <th>Beneficiary</th>
-                        <th>Success Date</th>
-                        <th>Goal</th>
-                        <th>Total Tiles</th>
-                        <th>Total Transactions</th>
-                        <th class="text-center">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for p in project %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td><a href="/administrator/single-project/{{ project.id }}/">{{ p.title }}</a></td>
-                        <td>{{ p.beneficiary.first_name }} {{ p.beneficiary.last_name }}</td>
-                        <td>{{ p.closed_by|date:"d M, Y P" }}</td>
-                        <td>₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
-                        <td>{{ p.tiles }} tiles</td>
-                        <td>{{ p.tra }} Transaction</td>
-                        <td class="text-center">
-                            {% if p not in reports %}
-                            <a class="btn btn-info btn-sm me-1" href="/administrator/generate-report/{{ p.id }}/">
-                                <i class="align-middle" data-feather="file-plus"></i>
-                            </a>
-                            {% endif %}
-                            {% for r in reports %}
-                                {% if r.project.id == p.id %}
-                                <a class="btn btn-primary btn-sm me-1" href="{{ r.report_pdf.url }}" target="_blank" rel="noopener noreferrer">
-                                    <i class="align-middle" data-feather="file-text"></i>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-borderless align-middle mb-0">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="text-white small fw-bold text-uppercase ps-4">Sl no.</th>
+                                <th class="text-white small fw-bold text-uppercase">Project Title</th>
+                                <th class="text-white small fw-bold text-uppercase">Beneficiary</th>
+                                <th class="text-white small fw-bold text-uppercase">Success Date</th>
+                                <th class="text-white small fw-bold text-uppercase">Goal</th>
+                                <th class="text-white small fw-bold text-uppercase">Total Tiles</th>
+                                <th class="text-white small fw-bold text-uppercase">Transactions</th>
+                                <th class="text-center text-white small fw-bold text-uppercase pe-4">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for p in project %}
+                        <tr>
+                            <td class="ps-4">{{ forloop.counter }}</td>
+                            <td>
+                                <a href="/administrator/single-project/{{ p.id }}/" class="text-decoration-none fw-semibold text-dark">
+                                    {{ p.title }}
                                 </a>
+                            </td>
+                            <td>{{ p.beneficiary.first_name }} {{ p.beneficiary.last_name }}</td>
+                            <td>{{ p.closed_by|date:"d M, Y" }}</td>
+                            <td class="fw-bold text-nowrap">₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
+                            <td class="text-nowrap">{{ p.tiles }} tiles</td>
+                            <td>{{ p.tra }}</td>
+
+                            <td class="text-center pe-4 text-nowrap">
+                                {% if p not in reports %}
+                                    <a class="btn btn-sm btn-info rounded-pill px-3" href="/administrator/generate-report/{{ p.id }}/" title="Generate New Report">
+                                        <i class="align-middle" data-feather="file-plus"></i>
+                                    </a>
                                 {% endif %}
-                            {% endfor %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="8" class="text-center p-4">No completed projects found matching the criteria.</td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+
+                                {% for r in reports %}
+                                    {% if r.project.id == p.id %}
+                                        <a class="btn btn-sm btn-primary rounded-pill px-3" href="{{ r.report_pdf.url }}" target="_blank" rel="noopener noreferrer" title="View Generated Report">
+                                            <i class="align-middle" data-feather="file-text"></i>
+                                        </a>
+                                        {% comment %} Note: Since 'break' is illegal, this link will render once for every report found. We assume one report per project. {% endcomment %}
+                                    {% endif %}
+                                {% endfor %}
+
+                                <a class="btn btn-sm btn-secondary rounded-pill px-3 ms-2" href="/administrator/single-project/{{ p.id }}/" title="View Project Details">
+                                    <i class="align-middle" data-feather="eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center p-5">
+                                <div class="alert alert-warning m-0 rounded-3" role="alert">
+                                    No completed projects found matching the criteria.
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

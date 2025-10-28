@@ -130,121 +130,123 @@
 
 	<div class="wrapper">
 		<nav id="sidebar" class="sidebar js-sidebar">
-			<div class="sidebar-content js-simplebar">
-				<a class="sidebar-brand" href="/administrator/admin-dash/">
+            <div class="sidebar-content js-simplebar">
+                <a class="sidebar-brand" href="/administrator/admin-dash/">
                     {% if admin.is_superuser %}
-                    <span class="align-middle">Superuser: {{admin.username}}</span>
+                    <span class="align-middle fw-bold">Superuser: {{admin.username}}</span>
                     {% else %}
-                    <span class="align-middle">{{admin.institution.institution_name}}</span>
+                    <span class="align-middle fw-bold">{{admin.institution.institution_name}}</span>
                     {% endif %}
                 </a>
 
-<!---------------------- Start Main Side-bar Menu -------------------->
-				<ul class="sidebar-nav py-4">
-					<li class="sidebar-item active">
-						<a class="sidebar-link" href="/administrator/admin-dash/">
-                            <i class="align-middle" data-feather="home"></i>
+                <ul class="sidebar-nav py-4">
+                    <li class="sidebar-item active">
+                        <a class="sidebar-link" href="/administrator/admin-dash/">
+                            <i class="align-middle" data-feather="monitor"></i>
                             <span class="align-middle">Dashboard</span>
                         </a>
-					</li>
+                    </li>
 
                     {% if admin.is_superuser %}
-                    <li class="sidebar-header">Super User</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/all-institution/">
-                            <i class="align-middle" data-feather="globe"></i>
+                    <li class="sidebar-header">System Administration</li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="/administrator/all-institution/">
+                            <i class="align-middle" data-feather="briefcase"></i>
                             <span class="align-middle">Institutions</span>
                         </a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/all-insti-admin/">
-                            <i class="align-middle" data-feather="user"></i>
-                            <span class="align-middle">Admins</span>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="/administrator/all-insti-admin/">
+                            <i class="align-middle" data-feather="users"></i> <span class="align-middle">Admins</span>
                         </a>
-					</li>
+                    </li>
                     {% endif %}
 
-                    <li class="sidebar-header">Administrator</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/all-project/">
-                            <i class="align-middle" data-feather="folder"></i>
+                    <li class="sidebar-header">Project Management</li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="/administrator/all-project/">
+                            <i class="align-middle" data-feather="box"></i>
                             <span class="align-middle">Projects</span>
                         </a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/all-transactions/">
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="/administrator/contact-message/">
+                            <i class="align-middle" data-feather="message-square"></i>
+                            <span class="align-middle">Contact Messages</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-header">Finance & Reporting</li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="/administrator/all-transactions/">
                             <i class="align-middle" data-feather="credit-card"></i>
                             <span class="align-middle">Transactions</span>
                         </a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/all-receipts/">
-                            <i class="align-middle" data-feather="file-text"></i>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="/administrator/all-receipts/">
+                            <i class="align-middle" data-feather="printer"></i>
                             <span class="align-middle">Receipts</span>
                         </a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/all-reports/">
-                            <i class="align-middle" data-feather="file-text"></i>
-                            <span class="align-middle">Reports</span>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="/administrator/all-reports/">
+                            <i class="align-middle" data-feather="bar-chart-2"></i>
+                            <span class="align-middle">Analytics & Reports</span>
                         </a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/contact-message/">
-                            <i class="align-middle" data-feather="message-square"></i>
-                            <span class="align-middle">Messages</span>
-                        </a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="/administrator/profile/">
+                    </li>
+
+                    <li class="sidebar-header">Account</li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="/administrator/profile/">
                             <i class="align-middle" data-feather="user"></i>
                             <span class="align-middle">Profile</span>
                         </a>
-					</li>
-				</ul>
+                    </li>
+                </ul>
 
-			</div>
-		</nav>
-<!---------------------- Ends Main Side-bar Menu -------------------->
+                </div>
+        </nav>
 
 		<div class="main">
-
-<!---------------------- Starts Main horizontal Menu-bar -------------------->
-			<nav class="navbar navbar-expand navbar-light navbar-bg">
+            <nav class="navbar navbar-expand navbar-light navbar-bg shadow-sm border-bottom">
                 <a class="sidebar-toggle js-sidebar-toggle">
                     <i class="hamburger align-self-center"></i>
                 </a>
+
                 <div class="navbar-collapse collapse">
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav ms-auto align-items-center">
+
                         {% if not admin.is_superuser %}
                         <li class="nav-item me-2">
-                            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                <i class="align-middle" data-feather="globe"></i>
-                                Bank
+                            <button type="button" class="btn btn-outline-secondary d-flex align-items-center fw-semibold rounded-pill py-2 px-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                <i class="align-middle me-md-2" data-feather="dollar-sign"></i>
+                                <span class="d-none d-md-inline align-middle">Bank Details</span>
                             </button>
                         </li>
+
                         <li class="nav-item me-2">
-                            <button type="button" class="btn btn-primary" id="ins_share" data-bs-toggle="modal" data-bs-target="#shareModal">
-                                <i class="align-middle" data-feather="share"></i>
-                                Share
+                            <button type="button" class="btn btn-primary d-flex align-items-center fw-semibold rounded-pill py-2 px-3" id="ins_share" data-bs-toggle="modal" data-bs-target="#shareModal">
+                                <i class="align-middle me-md-2" data-feather="share-2"></i>
+                                <span class="d-none d-md-inline align-middle">Share Institution</span>
                             </button>
                         </li>
                         {% endif %}
+
                         <li class="nav-item">
-                            <a class="btn btn-danger" href="/administrator/admin-log-out/">
-                                <i class="align-middle" data-feather="log-out"></i>
-                                Log out
+                            <a class="btn btn-danger d-flex align-items-center fw-semibold rounded-pill py-2 px-3" href="/administrator/admin-log-out/">
+                                <i class="align-middle me-md-2" data-feather="log-out"></i>
+                                <span class="d-none d-md-inline align-middle">Log out</span>
                             </a>
                         </li>
                     </ul>
                 </div>
             </nav>
-<!---------------------- Ends Main horizontal Menu-bar -------------------->
 
 			<main class="content">
                 <div class="container-fluid p-0">
                     {% block content %}
-                    <h1 class="mb-3"><strong>Admin</strong> Dashboard</h1>
+                    <h1 class="mb-4 fw-bold">Admin Dashboard</h1>
                     <div class="row g-4">
                         <div class="col-xl-12 d-flex">
                             <div class="w-100">
@@ -374,58 +376,69 @@
                         </div>
 
                         <div class="col-12">
-                            <div class="card flex-fill">
-                                <div class="card-header">
-                                    <h1 class="card-title mb-0"><strong>Ongoing Projects</strong></h1>
+                            <div class="card flex-fill border-0 shadow-lg rounded-4">
+
+                                <div class="card-header bg-white rounded-top-4 border-0 pt-4 pb-2">
+                                    <h1 class="card-title mb-0 fs-4 fw-bold text-dark">Ongoing Projects</h1>
                                 </div>
-                                <div class="card-body table-responsive">
-                                    <table class="table table-hover my-0">
-                                        <thead class="table-dark">
-                                        <tr>
-                                            <th>Sl no.</th>
-                                            <th>Project Title</th>
-                                            <th>Target</th>
-                                            <th>Current</th>
-                                            <th>Created At</th>
-                                            <th>Status</th>
-                                            <th class="text-center">Action</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {% for p in context.lst_prj %}
-                                        <tr>
-                                            <td>{{ forloop.counter }}</td>
-                                            <td>{{ p.title }}</td>
-                                            <td>₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
-                                            <td>₹{{ p.current_amount|floatformat:2|intcomma }}</td>
-                                            <td>{{ p.started_at|date:"d M, Y" }}</td>
-                                            <td class="{% if p.table_status == False %}
-                                                        text-danger
-                                                    {% else %}
-                                                        text-primary
-                                                    {% endif %}">
-                                                <strong>
+
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+
+                                        <table class="table table-hover table-borderless align-middle mb-0">
+
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th class="text-white small fw-bold text-uppercase ps-4">#</th>
+                                                    <th class="text-white small fw-bold text-uppercase">Project Title</th>
+                                                    <th class="text-white small fw-bold text-uppercase">Target</th>
+                                                    <th class="text-white small fw-bold text-uppercase">Current</th>
+                                                    <th class="text-white small fw-bold text-uppercase">Created At</th>
+                                                    <th class="text-white small fw-bold text-uppercase">Status</th>
+                                                    <th class="text-center text-white small fw-bold text-uppercase pe-4">Action</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                            {% for p in context.lst_prj %}
+                                            <tr>
+                                                <td class="ps-4">{{ forloop.counter }}</td>
+                                                <td class="fw-semibold text-dark">{{ p.title }}</td>
+                                                <td class="fw-semibold text-info">₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
+                                                <td class="fw-semibold text-success">₹{{ p.current_amount|floatformat:2|intcomma }}</td>
+                                                <td>{{ p.started_at|date:"d M, Y" }}</td>
+                                                <td>
                                                     {% if p.table_status == False %}
-                                                        Closed
+                                                        <span class="badge bg-danger bg-opacity-10 text-danger fw-bold rounded-pill p-2">
+                                                            <i class="align-middle me-1" data-feather="lock"></i> Closed
+                                                        </span>
                                                     {% else %}
-                                                        Ongoing
+                                                        <span class="badge bg-info bg-opacity-10 text-info fw-bold rounded-pill p-2">
+                                                            <i class="align-middle me-1" data-feather="activity"></i> Ongoing
+                                                        </span>
                                                     {% endif %}
-                                                </strong>
-                                            </td>
-                                            <td class="text-center">
-                                                <a class="btn btn-info btn-sm" href="/administrator/single-project/{{ p.id }}/">
-                                                    <i class="align-middle" data-feather="info"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        {% empty %}
-                                        <tr>
-                                            <td colspan="8" class="text-center p-4">No Projects found matching the criteria.</td>
-                                        </tr>
-                                        {% endfor %}
-                                        </tbody>
-                                    </table>
+                                                </td>
+                                                <td class="text-center pe-4">
+                                                    <a class="btn btn-sm btn-info rounded-pill px-3" href="/administrator/single-project/{{ p.id }}/" title="View Details">
+                                                        <i class="align-middle" data-feather="eye"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="7" class="text-center p-5 text-muted">No projects found matching the criteria.</td>
+                                            </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+
+                                    </div>
                                 </div>
+
+                                <div class="card-footer bg-white rounded-bottom-4 border-0 pt-3 pb-4">
+                                    <small class="text-muted">Displaying {{ context.lst_prj|length }} latest projects.</small>
+                                </div>
+
                             </div>
                         </div>
                     </div>

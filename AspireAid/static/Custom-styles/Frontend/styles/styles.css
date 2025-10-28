@@ -55,7 +55,7 @@
 .tile-grid {
     display: grid;
     /* Use 'auto-fit' for responsiveness, showing as many columns as possible */
-    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
     gap: 8px; /* Spacing between tiles */
     padding: 5px;
     user-select: none; /* Prevents text selection when rapidly clicking tiles */
