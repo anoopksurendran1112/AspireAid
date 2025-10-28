@@ -6,7 +6,7 @@ from django.db import transaction as db_transaction
 from django.db import transaction, IntegrityError
 from django.contrib import messages
 from django.urls import reverse
-from django.db.models import F
+from django.db.models import F, Count, ExpressionWrapper, FloatField
 import urllib.parse
 import os
 
@@ -14,35 +14,10 @@ import os
 # Create your views here.
 def userIndex(request, ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
-
-    projects = Project.objects.filter(created_by=ins, current_amount__lt=F('funding_goal'),
-        table_status=True).order_by('-started_at')[:3]
-    for p in projects:
-        p.progress = round((p.current_amount / p.funding_goal) * 100,
-                                 3) if p.funding_goal > 0 else 0
-
-    if request.method == 'POST':
-        try:
-            with transaction.atomic():
-                first_name = request.POST.get('first_name')
-                last_name = request.POST.get('last_name')
-                email = request.POST.get('email')
-                phone = request.POST.get('phone')
-                message = request.POST.get('message')
-
-                if not all([first_name, last_name, email, phone, message]):
-                    messages.error(request, 'All form fields must be filled out.')
-                    return redirect(f'/user/{ins.id}/contact-us/')
-
-                ContactMessage.objects.create(first_name=first_name,last_name=last_name,email=email,phone=phone,message=message,ins=ins)
-
-                messages.success(request, 'Your message has been sent successfully!')
-                return redirect(f'/user/{ins.id}/')
-
-        except IntegrityError:
-            messages.error(request, 'An error occurred while saving your message. Please try again.')
-        except Exception as e:
-            messages.error(request, f'An unexpected error occurred: {e}')
+    projects = Project.objects.filter(created_by=ins,current_amount__lt=F('funding_goal'),table_status=True
+                                      ).annotate(contributor_count=Count('transaction', distinct=True),
+                                                 progress=ExpressionWrapper((F('current_amount') * 100.0 / F('funding_goal')),
+                                                                            output_field=FloatField())).order_by('-started_at')[:3]
     return render(request, 'index.html',{'ins':ins, 'prj':projects})
 
 
@@ -86,11 +61,11 @@ def credit(request, ins_id):
 
 def userAllProject(request,ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
-    projects = Project.objects.filter(created_by=ins, current_amount__lt=F('funding_goal'),
-                                      table_status=True).order_by('-started_at')
-    for p in projects:
-        p.progress = round((p.current_amount / p.funding_goal) * 100,
-                                 3) if p.funding_goal > 0 else 0
+    projects = Project.objects.filter(created_by=ins, current_amount__lt=F('funding_goal'), table_status=True
+                                      ).annotate(contributor_count=Count('transaction', distinct=True),
+                                                 progress=ExpressionWrapper(
+                                                     (F('current_amount') * 100.0 / F('funding_goal')),
+                                                     output_field=FloatField())).order_by('-started_at')
     return render(request, 'user-projects.html',{'ins':ins, 'prj':projects})
 
 
@@ -98,11 +73,16 @@ def userSingleProject(request, prj_id, ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
     prj = get_object_or_404(Project, id=prj_id)
 
-    prj.progress = round((prj.current_amount / prj.funding_goal) * 100,
-                             3) if prj.funding_goal > 0 else 0
-    total_tiles = int(prj.funding_goal // prj.tile_value)
+    # --- Calculations needed for all states ---
+    prj.progress = round((prj.current_amount / prj.funding_goal) * 100, 2) if prj.funding_goal > 0 else 0
 
+    # ✅ COUNT THE TRANSACTIONS HERE
+    # Count only successful, verified transactions to represent the number of donors.
+    prj.contributors_count = Transaction.objects.filter(project=prj, status='Verified').count()
+
+    # --- POST Request Handling (Checkout Logic) ---
     if request.method == "POST":
+        # ... (Your existing POST logic remains unchanged)
         selected_tiles = request.POST.get("selected_tiles_input")
         if not selected_tiles:
             return redirect(reverse('user_single_project', kwargs={'ins_id': ins_id, 'prj_id': prj_id}))
@@ -111,6 +91,7 @@ def userSingleProject(request, prj_id, ins_id):
         query_string = urllib.parse.urlencode({'project_id': prj.id, 'selected_tiles': selected_tiles})
         return redirect(f"{checkout_url}?{query_string}")
 
+    # --- GET Request Handling (Display Logic) ---
     else:
         project_status = 'Active'
         if prj.funding_goal <= prj.current_amount or prj.closed_by:
@@ -118,28 +99,40 @@ def userSingleProject(request, prj_id, ins_id):
         if not prj.table_status:
             project_status = 'Closed'
 
+        # Pass the project with the new contributors_count attribute for all statuses
         if project_status in ['Completed', 'Expired', 'Closed']:
-            return render(request, 'user-single-project.html',{'ins': ins, 'project': prj, 'project_status': project_status,})
+            return render(request, 'user-single-project.html', {
+                'ins': ins,
+                'project': prj,  # prj now has .contributors_count
+                'project_status': project_status,
+            })
         else:
-            tile_range = range(1, total_tiles + 1)
-            all_tiles_str_list = SelectedTile.objects.filter(project=prj,table_status=True).values_list('tiles', flat=True)
-
-            all_tiles_list = []
-            for tiles_str in all_tiles_str_list:
-                if tiles_str:
-                    all_tiles_list.extend([int(t) for t in tiles_str.split('-') if t.isdigit()])
-
-            sold_tiles_set = set(Transaction.objects.filter(project=prj,status='Verified').values_list('tiles_bought__tiles', flat=True))
+            # --- Tile Calculation Logic ---
+            total_tiles = int(prj.funding_goal // prj.tile_value)
+            sold_tiles_set = set(
+                Transaction.objects.filter(project=prj, status='Verified').values_list('tiles_bought__tiles',
+                                                                                       flat=True))
             sold_tiles = set([int(t) for s in sold_tiles_set for t in s.split('-') if t.isdigit()])
 
-            processing_tiles_set = set(Transaction.objects.filter(project=prj,status='Unverified').values_list('tiles_bought__tiles', flat=True))
+            processing_tiles_set = set(
+                Transaction.objects.filter(project=prj, status='Unverified').values_list('tiles_bought__tiles',
+                                                                                         flat=True))
             processing_tiles = set([int(t) for s in processing_tiles_set for t in s.split('-') if t.isdigit()])
 
             unavailable_tiles_count = len(sold_tiles) + len(processing_tiles)
             available_tiles_count = total_tiles - unavailable_tiles_count
+            tile_range = range(1, total_tiles + 1)
 
-            return render(request, 'user-single-project.html',{'ins': ins, 'project': prj, 'total_tiles': total_tiles,
-                           'available_tiles_count': available_tiles_count, 't_range': tile_range,'sold_tiles_set': sold_tiles, 'processing_tiles_set': processing_tiles,})
+            return render(request, 'user-single-project.html', {
+                'ins': ins,
+                'project': prj,  # prj now has .contributors_count
+                'total_tiles': total_tiles,
+                'available_tiles_count': available_tiles_count,
+                't_range': tile_range,
+                'sold_tiles_set': sold_tiles,
+                'processing_tiles_set': processing_tiles,
+            })
+
 
 def userCheckoutView(request, ins_id):
     institution = get_object_or_404(Institution, id=ins_id)
