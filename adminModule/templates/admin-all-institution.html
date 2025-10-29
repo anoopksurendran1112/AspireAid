@@ -100,7 +100,6 @@
     </div>
 </div>
 
-
 <!---------------------- Modal for Deleting Institution -------------------->
 <div class="modal fade" id="permanentDeleteModal" tabindex="-1" aria-labelledby="permanentDeleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -131,33 +130,57 @@
 
 
 <!---------------------- All Institution Table Details -------------------->
-    <div class="row">
+<div class="row">
     <div class="col-12 ">
-        <h1 class="mb-3"><strong>Institutional</strong> Details</h1>
-        <div class="card data-card py-3">
-            <div class="card-header d-flex justify-content-end align-items-center">
-                <button type="button" class="btn btn-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#institutionModal" data-action-type="add">
-                    <i class="align-middle me-1" data-feather="plus"></i> Register a new Institution
+        <h1 class="mb-4 fw-bold">Institutional Details</h1>
+
+        <div class="card border-0 shadow-lg rounded-4 flex-fill">
+
+            <div class="card-header bg-white rounded-top-4 border-0 d-flex justify-content-end align-items-center p-4">
+                <button type="button" class="btn btn-info fw-semibold rounded-pill py-2 px-3 me-2" data-bs-toggle="modal" data-bs-target="#institutionModal" data-action-type="add">
+                    <i class="align-middle me-1" data-feather="plus"></i> Register New Institution
                 </button>
-                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
+                <button type="button" class="btn btn-primary fw-semibold rounded-pill py-2 px-3"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#offcanvasInstFilter"
+                    aria-controls="offcanvasInstFilter">
                     <i class="align-middle me-1" data-feather="filter"></i> Advanced Filter
                 </button>
             </div>
 
-            <div class="collapse" id="advancedFilterCollapse">
-                <div class="card-body">
-                    <form method="get" class="row g-3">
-                        <div class="col-md-4">
+            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasInstFilter" aria-labelledby="offcanvasInstFilterLabel">
+                <div class="offcanvas-header border-bottom">
+                    <h5 class="offcanvas-title fw-bold" id="offcanvasInstFilterLabel">
+                        <i class="align-middle me-2" data-feather="filter"></i> Filter Options
+                    </h5>
+                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <form method="get" class="row g-3 align-items-end">
+
+                        <div class="col-12">
+                            <h6 class="mt-0 mb-3 fw-bold text-dark">Search Criteria</h6>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label for="institution_name" class="form-label small text-muted mb-1">Institution Name</label>
                             <input type="text" class="form-control" id="institution_name" name="institution_name" placeholder="Enter Institution Name">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-12">
+                            <label for="email_filter" class="form-label small text-muted mb-1">Email Address</label>
                             <input type="text" class="form-control" id="email_filter" name="email_filter" placeholder="Enter Email Address">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-12">
+                            <label for="phone_filter" class="form-label small text-muted mb-1">Phone Number</label>
                             <input type="text" class="form-control" id="phone_filter" name="phone_filter" placeholder="Enter Phone number">
                         </div>
+
+                        <div class="col-12 mt-4">
+                            <h6 class="mb-3 fw-bold text-dark">Sorting & Status</h6>
+                        </div>
+
                         <div class="col-md-6">
-                            <label for="status_filter" class="form-label">Status</label>
+                            <label for="status_filter" class="form-label small text-muted mb-1">Status</label>
                             <select id="status_filter" name="status_filter" class="form-select">
                                 <option value="">All</option>
                                 <option value="active">Active</option>
@@ -165,18 +188,19 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label for="order_by_name" class="form-label">Order by Name</label>
+                            <label for="order_by_name" class="form-label small text-muted mb-1">Order by Name</label>
                             <select id="order_by_name" name="name_order" class="form-select">
                                 <option value="">None</option>
                                 <option value="asc">Ascending</option>
                                 <option value="desc">Descending</option>
                             </select>
                         </div>
-                        <div class="col-12 text-end mt-3">
-                            <button type="submit" class="btn btn-primary me-2">
+
+                        <div class="col-12 text-end mt-4 pt-3 border-top">
+                            <button type="submit" class="btn btn-primary fw-semibold rounded-pill py-2 px-3 w-100 mb-2">
                                 <i class="align-middle me-1" data-feather="check"></i> Apply Filters
                             </button>
-                            <a href="." class="btn btn-danger">
+                            <a href="." class="btn btn-outline-secondary fw-semibold rounded-pill py-2 px-3 w-100">
                                 <i class="align-middle me-1" data-feather="x"></i> Clear Filters
                             </a>
                         </div>
@@ -184,64 +208,79 @@
                 </div>
             </div>
 
-            <div class="card-body table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-dark">
-                    <tr>
-                        <th>Sl no.</th>
-                        <th>Institution Name</th>
-                        <th>Email Address</th>
-                        <th>Contact Number</th>
-                        <th>Institution Address</th>
-                        <th class="text-center">Status</th>
-                        <th class="text-center">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for i in institutions %}
-                    <tr>
-                        <td>{{forloop.counter}}</td>
-                        <td>{{i.institution_name}}</td>
-                        <td>{{i.email}}</td>
-                        <td>{{i.phn}}</td>
-                        <td>{{i.address}}</td>
-                        <td class="text-center {% if i.table_status %} text-success {% else %} text-danger {% endif %}">
-                            {% if i.table_status %}
-                                <strong>Active</strong>
-                            {% else %}
-                                <strong>Inactive</strong>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">
-                            <div class="d-flex align-items-center justify-content-center gap-2">
-                                <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#institutionViewModal" data-action-type="view"
-                                   data-inst-id="{{ i.id }}" data-inst-name="{{ i.institution_name }}" data-inst-email="{{ i.email }}"
-                                   data-inst-phn="{{ i.phn }}" data-inst-address="{{ i.address }}">
-                                    <i class="align-middle" data-feather="edit"></i>
-                                </a>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-borderless align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="text-white small fw-bold text-uppercase ps-4">#</th>
+                                <th class="text-white small fw-bold text-uppercase">Institution Name</th>
+                                <th class="text-white small fw-bold text-uppercase">Email Address</th>
+                                <th class="text-white small fw-bold text-uppercase">Contact Number</th>
+                                <th class="text-white small fw-bold text-uppercase">Address</th>
+                                <th class="text-center text-white small fw-bold text-uppercase">Status</th>
+                                <th class="text-center text-white small fw-bold text-uppercase pe-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for i in institutions %}
+                        <tr>
+                            <td class="ps-4">{{forloop.counter}}</td>
+                            <td class="fw-semibold text-dark">{{i.institution_name}}</td>
+                            <td>{{i.email}}</td>
+                            <td>{{i.phn}}</td>
+                            <td>{{i.address}}</td>
+                            <td class="text-center">
                                 {% if i.table_status %}
-                                <a class="btn btn-success btn-sm" href="/administrator/change-institution-status/{{i.id}}/">
-                                    <i class="align-middle" data-feather="toggle-right"></i>
-                                </a>
+                                    <span class="badge bg-success bg-opacity-10 text-success fw-bold rounded-pill p-2">
+                                        <i class="align-middle me-1" data-feather="check-circle"></i> Active
+                                    </span>
                                 {% else %}
-                                <a class="btn btn-secondary btn-sm" href="/administrator/change-institution-status/{{i.id}}/">
-                                    <i class="align-middle" data-feather="toggle-left"></i>
-                                </a>
+                                    <span class="badge bg-danger bg-opacity-10 text-danger fw-bold rounded-pill p-2">
+                                        <i class="align-middle me-1" data-feather="x-circle"></i> Inactive
+                                    </span>
                                 {% endif %}
-                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#permanentDeleteModal" data-inst-id="{{ i.id }}">
-                                    <i class="align-middle" data-feather="trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                            </td>
+                            <td class="text-center pe-4 text-nowrap">
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <a class="btn btn-sm btn-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#institutionViewModal" data-action-type="view"
+                                       data-inst-id="{{ i.id }}" data-inst-name="{{ i.institution_name }}" data-inst-email="{{ i.email }}"
+                                       data-inst-phn="{{ i.phn }}" data-inst-address="{{ i.address }}" title="Edit Details">
+                                        <i class="align-middle" data-feather="edit"></i>
+                                    </a>
+
+                                    {% if i.table_status %}
+                                    <a class="btn btn-sm btn-warning rounded-pill px-3" href="/administrator/change-institution-status/{{i.id}}/" title="Set Inactive">
+                                        <i class="align-middle" data-feather="toggle-right"></i>
+                                    </a>
+                                    {% else %}
+                                    <a class="btn btn-sm btn-success rounded-pill px-3" href="/administrator/change-institution-status/{{i.id}}/" title="Set Active">
+                                        <i class="align-middle" data-feather="toggle-left"></i>
+                                    </a>
+                                    {% endif %}
+
+                                    <button type="button" class="btn btn-sm btn-danger rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#permanentDeleteModal" data-inst-id="{{ i.id }}" title="Delete Institution">
+                                        <i class="align-middle" data-feather="trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center p-5">
+                                <div class="alert alert-warning m-0 rounded-3" role="alert">
+                                    No institution details found matching the criteria.
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         {% if messages %}
