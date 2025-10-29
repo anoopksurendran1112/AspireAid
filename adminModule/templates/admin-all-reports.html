@@ -9,25 +9,42 @@
         <div class="card border-0 shadow-lg rounded-4 flex-fill">
 
             <div class="card-header bg-white rounded-top-4 border-0 d-flex justify-content-end align-items-center p-4">
-                <button type="button" class="btn btn-primary fw-semibold rounded-pill py-2 px-3" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
+                <button type="button" class="btn btn-primary fw-semibold rounded-pill py-2 px-3"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#offcanvasFinalBeneficiaryFilter"
+                    aria-controls="offcanvasFinalBeneficiaryFilter">
                     <i class="align-middle me-1" data-feather="filter"></i> Advanced Filter
                 </button>
             </div>
 
-            <div class="collapse border-bottom px-4 pb-4" id="advancedFilterCollapse">
-                <div class="card-body pt-0 pb-0">
+            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasFinalBeneficiaryFilter" aria-labelledby="offcanvasFinalBeneficiaryFilterLabel">
+                <div class="offcanvas-header border-bottom">
+                    <h5 class="offcanvas-title fw-bold" id="offcanvasFinalBeneficiaryFilterLabel">
+                        <i class="align-middle me-2" data-feather="filter"></i> Filter Projects
+                    </h5>
+                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
                     <form method="get" class="row g-3 align-items-end">
-                        <h6 class="mt-3 mb-2 fw-bold text-dark">Filter Options</h6>
 
-                        <div class="col-md-4">
+                        <div class="col-12">
+                            <h6 class="mt-0 mb-3 fw-bold text-dark">Search Criteria</h6>
+                        </div>
+
+                        <div class="col-12">
                             <label for="project_title" class="form-label small text-muted mb-1">Project Title</label>
                             <input type="text" class="form-control" id="project_title" name="project_title" placeholder="Enter Project Title">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-12">
                             <label for="beneficiary_name" class="form-label small text-muted mb-1">Beneficiary Name</label>
                             <input type="text" class="form-control" id="beneficiary_name" name="beneficiary_name" placeholder="Enter Beneficiary Name">
                         </div>
-                        <div class="col-md-4">
+
+                        <div class="col-12 mt-4">
+                            <h6 class="mb-3 fw-bold text-dark">Sorting Options</h6>
+                        </div>
+
+                        <div class="col-12">
                             <label for="order_by_goal" class="form-label small text-muted mb-1">Sort by Goal</label>
                             <select id="order_by_goal" name="goal_order" class="form-select">
                                 <option value="">Default (Latest)</option>
@@ -36,11 +53,11 @@
                             </select>
                         </div>
 
-                        <div class="col-12 text-end mt-4">
-                            <button type="submit" class="btn btn-primary fw-semibold rounded-pill py-2 px-3 me-2">
+                        <div class="col-12 text-end mt-4 pt-3 border-top">
+                            <button type="submit" class="btn btn-primary fw-semibold rounded-pill py-2 px-3 w-100 mb-2">
                                 <i class="align-middle me-1" data-feather="check"></i> Apply Filters
                             </button>
-                            <a href="." class="btn btn-outline-secondary fw-semibold rounded-pill py-2 px-3">
+                            <a href="." class="btn btn-outline-secondary fw-semibold rounded-pill py-2 px-3 w-100">
                                 <i class="align-middle me-1" data-feather="x"></i> Clear Filters
                             </a>
                         </div>

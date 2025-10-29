@@ -117,21 +117,33 @@
                         </button>
                     {% endif %}
 
-                    <button type="button" class="btn btn-primary fw-semibold rounded-pill py-2 px-3" data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse" aria-expanded="false" aria-controls="advancedFilterCollapse">
+                    <button type="button" class="btn btn-primary fw-semibold rounded-pill py-2 px-3"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasProjectFilter"
+                        aria-controls="offcanvasProjectFilter">
                         <i class="align-middle me-1" data-feather="filter"></i> Advanced Filter
                     </button>
                 </div>
 
-                <div class="collapse bg-light border-top border-bottom" id="advancedFilterCollapse">
-                    <div class="p-4">
+                <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasProjectFilter" aria-labelledby="offcanvasProjectFilterLabel">
+                    <div class="offcanvas-header border-bottom">
+                        <h5 class="offcanvas-title fw-bold" id="offcanvasProjectFilterLabel">
+                            <i class="align-middle me-2" data-feather="filter"></i> Filter Projects
+                        </h5>
+                        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body">
                         <form method="get" class="row g-3 align-items-end">
-                            <h6 class="mb-3 fw-bold text-dark">Filter Options</h6>
 
-                            <div class="col-md-6 col-lg-6">
+                            <div class="col-12">
+                                <h6 class="mt-0 mb-3 fw-bold text-dark">Search & Status</h6>
+                            </div>
+
+                            <div class="col-12">
                                 <label for="project_title" class="form-label small text-muted mb-1">Project Name</label>
                                 <input type="text" class="form-control" id="project_title" name="project_title" placeholder="Enter Project Name">
                             </div>
-                            <div class="col-md-6 col-lg-6">
+                            <div class="col-12">
                                 <label for="project_status" class="form-label small text-muted mb-1">Project Status</label>
                                 <select id="project_status" name="project_status" class="form-select">
                                     <option value="">All Projects</option>
@@ -141,16 +153,24 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-3 col-lg-3">
+                            <div class="col-12 mt-4">
+                                <h6 class="mb-3 fw-bold text-dark">Date Range</h6>
+                            </div>
+
+                            <div class="col-md-6">
                                 <label for="start_date" class="form-label small text-muted mb-1">Created From</label>
                                 <input type="date" class="form-control" id="start_date" name="start_date">
                             </div>
-                            <div class="col-md-3 col-lg-3">
+                            <div class="col-md-6">
                                 <label for="end_date" class="form-label small text-muted mb-1">Created To</label>
                                 <input type="date" class="form-control" id="end_date" name="end_date">
                             </div>
 
-                            <div class="col-md-3 col-lg-3">
+                            <div class="col-12 mt-4">
+                                <h6 class="mb-3 fw-bold text-dark">Sorting Options</h6>
+                            </div>
+
+                            <div class="col-md-6">
                                 <label for="order_by_target" class="form-label small text-muted mb-1">Sort by Target</label>
                                 <select id="order_by_target" name="target_order" class="form-select">
                                     <option value="">None</option>
@@ -158,7 +178,7 @@
                                     <option value="desc">Descending</option>
                                 </select>
                             </div>
-                            <div class="col-md-3 col-lg-3">
+                            <div class="col-md-6">
                                 <label for="order_by_current_amount" class="form-label small text-muted mb-1">Sort by Current</label>
                                 <select id="order_by_current_amount" name="amount_order" class="form-select">
                                     <option value="">None</option>
@@ -167,11 +187,11 @@
                                 </select>
                             </div>
 
-                            <div class="col-12 text-end pt-3">
-                                <button type="submit" class="btn btn-primary fw-semibold rounded-pill py-2 px-3 me-2">
+                            <div class="col-12 text-end mt-4 pt-3 border-top">
+                                <button type="submit" class="btn btn-primary fw-semibold rounded-pill py-2 px-3 w-100 mb-2">
                                     <i class="align-middle me-1" data-feather="check"></i> Apply Filters
                                 </button>
-                                <a href="." class="btn btn-outline-secondary fw-semibold rounded-pill py-2 px-3">
+                                <a href="." class="btn btn-outline-secondary fw-semibold rounded-pill py-2 px-3 w-100">
                                     <i class="align-middle me-1" data-feather="x"></i> Clear Filters
                                 </a>
                             </div>
