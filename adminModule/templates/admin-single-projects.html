@@ -170,251 +170,364 @@
     </div>
 </div>
 
-<div class="row g-4 ">
-    <div class="col-xl-9 col-lg-12 ">
-        <div class="card data-card">
-            <div class="row">
-                <div class="col-xl-8">
-                    <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-inner">
-                        {% if project.images.all %}
-                            {% for image in project.images.all %}
-                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                              <img src="{{ image.project_img.url }}" class="d-block w-100 carousel-image border" alt="Project Image {{ forloop.counter }}">
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="carousel-item active">
-                                <img src="{% static 'Dashboard/img/photos/default-banner.jpg' %}" class="d-block w-100 carousel-image border" alt="No image available">
-                            </div>
-                        {% endif %}
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-4 col-lg-12 ">
-                    <div class="row h-100 m-0">
-                        <div class="col-12 card-header px-0">
-                            <h3 class="lead"><strong>{{project.title}}</strong></h3>
-                        </div>
-                        <ul class="list-group list-group-flush mb-auto">
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                <strong>Goal</strong>
-                                <span>₹{{ project.funding_goal|floatformat:2|intcomma }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                <strong>Current</strong>
-                                <span>₹{{ project.current_amount|floatformat:2|intcomma }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                <strong>Tile value</strong>
-                                <span>₹{{ project.tile_value|floatformat:2|intcomma }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                <strong>Available tiles</strong>
-                                <span>{{ available_tiles_count }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                <strong>Status</strong>
-                                {% if project.current_amount == project.funding_goal %}
-                                    <span class="p-1 btn btn-sm btn-success" style="width:70px;">
-                                            Success
-                                    </span>
-                                    {% elif project.validity == False %}
-                                    <span class="p-1 btn btn-sm btn-danger" style="width:70px;">
-                                            Failed
-                                    </span>
-                                    {% else %}
-                                    <form id="status-form-{{ project.id }}" action="/administrator/change-project-status/{{ project.id }}/" method="post" class="d-flex align-items-center">
-                                        {% csrf_token %}
-                                         {% if not admin.is_superuser %}
-                                        <div class="form-check form-switch ">
-                                            <input class="form-check-input status-switch " type="checkbox" role="switch" id="switchCheck-{{ project.id }}" {% if project.table_status %}checked{% endif %}>
-                                        </div>
-                                        {% endif %}
-                                        {% if project.table_status %}
-                                            <span class="btn btn-sm btn-warning text-black">Active</span>
-                                        {% else %}
-                                            <span class="btn btn-sm btn-secondary">Closed</span>
-                                        {% endif %}
-                                    </form>
-                                {% endif %}
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+<div class="row ">
+    <div class="col-12">
+        <div class="row g-4">
 
-            <div class="card-body">
-                <p class=" mb-4">{{ project.description }}</p>
-                <div>
-                    <div class="progress" role="progressbar" aria-label="Project Progress" aria-valuenow="{{ project.progress }}" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
-                        <div class="progress-bar bg-success" style="width: {{ project.progress }}%;"></div>
-                    </div>
-                    <div class="d-flex justify-content-end mt-1">
-                        <strong class="text-success">{{ project.progress }}%</strong>
-                    </div>
-                </div>
+            <div class="col-xl-8 col-lg-12">
+                <div class="card border-0 shadow-lg rounded-4 flex-fill p-4">
+                    <h1 class="fw-bolder text-dark mb-4">{{ project.title }}</h1>
 
-                <div class="row">
-                    <div class="col-lg-6 col-12 mb-3 mb-lg-0">
-                        <h5 class="mb-2"><strong>Project Timeline</strong></h5>
-                        <ul class="list-unstyled">
-                            <li>
-                                <i class="align-middle me-2 text-muted" data-feather="calendar"></i>
-                                <strong>Created on:</strong> {{ project.started_at|date:"d M, Y P" }}
-                            </li>
-                            <li>
-                                <i class="align-middle me-2 text-muted" data-feather="clock"></i>
-                                <strong>Closes by:</strong>
-                                <span class="{% if project.closed_by %}
-                                                text-success
-                                            {% elif not project.table_status %}
-                                                text-danger
-                                            {% else %}
-                                                text-primary
-                                            {% endif %}">
-                                    {% if project.closed_by %}
-                                        {{ project.closed_by|date:"d M, Y P"  }}
-                                    {% elif not project.table_status %}
-                                        Closed
-                                    {% else %}
-                                        Ongoing
-                                    {% endif %}
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="col-lg-6 col-12 d-flex flex-wrap justify-content-end align-items-center gap-2">
-                        {% if not admin.is_superuser %}
-                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#projectModal">
-                            <i class="align-middle" data-feather="edit"></i> Edit
-                        </button>
-                        <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#imgModal">
-                            <i class="align-middle" data-feather="image"></i> Upload
-                        </button>
-                        <a href="/administrator/delete-project/{{project.id}}/" class="btn btn-outline-danger">
-                            <i class="align-middle" data-feather="trash"></i> Delete
-                        </a>
-                        {% endif %}
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#shareProjectModal">
-                            <i class="align-middle" data-feather="share"></i> Share
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-lg-12">
-        <div class="card data-card">
-            <div class="card-header">
-                <h3 class="lead"><strong>Beneficiary Details</strong></h3>
-            </div>
-            <div class="card-body text-center">
-                <form id="uploadForm" method="post" action="/administrator/bene_img/{{project.id}}/" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="file" id="imgUpload" name="bene_img" class="d-none" onchange="this.form.submit();">
-                    <label for="imgUpload" class="d-inline-block position-relative">
-                        <img
-                            {% if project.beneficiary.profile_pic %}
-                                src="{{ project.beneficiary.profile_pic.url }}"
+                    <div class="card border-0 rounded-3 overflow-hidden shadow-sm mb-4">
+                        <div id="projectImageCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                            {% if project.images.all %}
+                                {% for image in project.images.all %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                  <img src="{{ image.project_img.url }}" class="d-block w-100 object-fit-cover" style="height: 450px;" alt="Project Image {{ forloop.counter }}">
+                                </div>
+                                {% endfor %}
                             {% else %}
-                                src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
+                                <div class="carousel-item active">
+                                    <img src="{% static 'Dashboard/img/photos/default-banner.jpg' %}" class="d-block w-100 object-fit-cover bg-light" style="height: 450px;" alt="No image available">
+                                </div>
                             {% endif %}
-                            alt="Click to upload an image"
-                            class="rounded-circle border border-primary img-fluid"
-                            style="width: 128px; height: 128px; object-fit: cover; cursor: pointer;">
-                        <span class="position-absolute bottom-0 end-0 p-1 bg-primary text-white rounded-circle">
-                            <i data-feather="camera"></i>
-                        </span>
-                    </label>
-                </form>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="mt-4">
-                    <h5 class="mb-1"><strong>{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</strong></h5>
-                    <small class="text-muted">{{ project.beneficiary.age }}-years old</small>
-                    <hr class="my-3">
-                    <ul class="list-unstyled text-start">
-                        <li class="d-flex justify-content-between py-1">
-                            <strong class="text-muted">Phone number:</strong>
-                            <span>+91-{{project.beneficiary.phone_number}}</span>
+                    <h4 class="mb-3 fw-bold text-dark border-bottom pb-2">Description</h4>
+                    <p class="mb-4 text-muted">{{ project.description }}</p>
+
+                    <h4 class="mb-3 fw-bold text-dark border-bottom pb-2 mt-4">Timeline</h4>
+                    <ul class="list-unstyled row mb-0 g-3">
+                        <li class="col-md-6">
+                            <div class="p-3 bg-light rounded-3 d-flex align-items-center h-100">
+                                <i class="align-middle me-3 text-primary flex-shrink-0" data-feather="calendar" style="width: 24px; height: 24px;"></i>
+                                <div>
+                                    <strong class="small text-muted d-block">Created on:</strong>
+                                    <span class="fw-bold text-dark">{{ project.started_at|date:"d M, Y h:i A" }}</span>
+                                </div>
+                            </div>
                         </li>
-                        <li class="d-flex justify-content-between py-1">
-                            <strong class="text-muted">Address:</strong>
-                            <span class="text-end">{{project.beneficiary.address}}</span>
+
+                        <li class="col-md-6">
+                            <div class="p-3 bg-light rounded-3 d-flex align-items-center h-100">
+                                <i class="align-middle me-3 text-primary flex-shrink-0" data-feather="activity" style="width: 24px; height: 24px;"></i>
+                                <div>
+                                    <strong class="small text-muted d-block">Current Status:</strong>
+                                    <span class="fw-bold
+                                        {% if project.closed_by %}
+                                            text-success
+                                        {% elif not project.table_status %}
+                                            text-danger
+                                        {% else %}
+                                            text-primary
+                                        {% endif %}">
+                                        {% if project.closed_by %}
+                                            {{ project.closed_by|date:"d M, Y h:i A"  }}
+                                        {% elif not project.table_status %}
+                                            Permanently Closed
+                                        {% else %}
+                                            Ongoing
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
                         </li>
                     </ul>
                 </div>
             </div>
+
+            <div class="col-xl-4 col-lg-12">
+                <div class="card border-0 shadow-lg rounded-4 sticky-top" style="top: 1.5rem;">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3 text-dark">Funding Summary</h5>
+
+                        {% if project.current_amount == project.funding_goal %}
+                            <div class="alert alert-success fw-bold text-center py-2 rounded-3" role="alert">
+                                <i class="align-middle me-1" data-feather="check-circle"></i> PROJECT SUCCESSFUL
+                            </div>
+                        {% elif project.validity == False %}
+                            <div class="alert alert-danger fw-bold text-center py-2 rounded-3" role="alert">
+                                <i class="align-middle me-1" data-feather="x-circle"></i> PROJECT FAILED
+                            </div>
+                        {% else %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong class="text-muted">Progress</strong>
+                                <strong class="text-primary fw-bold">{{ project.progress }}%</strong>
+                            </div>
+                            <div class="progress rounded-pill mb-4" role="progressbar" aria-label="Project Progress" aria-valuenow="{{ project.progress }}" aria-valuemin="0" aria-valuemax="100" style="height: 10px;">
+                                <div class="progress-bar bg-primary" style="width: {{ project.progress }}%;"></div>
+                            </div>
+                        {% endif %}
+
+                        <ul class="list-group list-group-flush mb-4">
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <strong class="text-muted">Funding Goal</strong>
+                                <h5 class="mb-0 fw-bold">₹{{ project.funding_goal|floatformat:2|intcomma }}</h5>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <strong class="text-muted">Current Amount</strong>
+                                <h5 class="mb-0 fw-bold text-success">₹{{ project.current_amount|floatformat:2|intcomma }}</h5>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <strong class="text-muted">Tile Value</strong>
+                                <span class="fw-bold">₹{{ project.tile_value|floatformat:2|intcomma }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <strong class="text-muted">Available Tiles</strong>
+                                <span class="fw-bold">{{ available_tiles_count }}</span>
+                            </li>
+                        </ul>
+
+                        <hr class="mt-0 mb-4">
+
+                        <h5 class="fw-bold mb-3 text-dark">Management</h5>
+
+                        <div class="mb-3 d-flex justify-content-between align-items-center p-2 rounded-3 border">
+                            <span class="fw-bold text-dark me-2">Project Status:</span>
+                            <form id="status-form-{{ project.id }}" action="/administrator/change-project-status/{{ project.id }}/" method="post" class="d-flex align-items-center">
+                                {% csrf_token %}
+                                {% if not admin.is_superuser %}
+                                <div class="form-check form-switch m-0 me-3">
+                                    <input class="form-check-input status-switch" type="checkbox" role="switch" id="switchCheck-{{ project.id }}" {% if project.table_status %}checked{% endif %}>
+                                </div>
+                                {% endif %}
+
+                                {% if project.table_status %}
+                                    <span class="badge bg-success bg-opacity-10 text-success fw-bold p-2 rounded-pill">
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary fw-bold p-2 rounded-pill">
+                                        Closed
+                                    </span>
+                                {% endif %}
+                            </form>
+                        </div>
+
+                        <div class="d-grid gap-2">
+
+                            {% if not admin.is_superuser %}
+                            <button type="button" class="btn btn-outline-primary fw-semibold rounded-pill py-2" data-bs-toggle="modal" data-bs-target="#projectModal">
+                                <i class="align-middle me-1" data-feather="edit"></i> Edit Details
+                            </button>
+                            <button type="button" class="btn btn-outline-info fw-semibold rounded-pill py-2" data-bs-toggle="modal" data-bs-target="#imgModal">
+                                <i class="align-middle me-1" data-feather="image"></i> Manage Images
+                            </button>
+                            <a href="/administrator/delete-project/{{project.id}}/" class="btn btn-outline-danger fw-semibold rounded-pill py-2">
+                                <i class="align-middle me-1" data-feather="trash"></i> Delete Project
+                            </a>
+                            {% endif %}
+                            <button type="button" class="btn btn-primary fw-semibold rounded-pill py-2" data-bs-toggle="modal" data-bs-target="#shareProjectModal">
+                                <i class="align-middle me-1" data-feather="share-2"></i> Share Project
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
-</div>
 
-<div class="card data-card">
-    <div class="card-header d-flex justify-content-end gap-3 align-items-center">
-        <span class="badge bg-success">Available Tile</span>
-        <span class="badge bg-primary">Processing Tile</span>
-        <span class="badge bg-secondary">Sold Tile</span>
-    </div>
-    <div class="card-body">
-        <div class="container-fluid border border-2 py-3 rounded overflow-auto" style="height:250px;">
-            <div class="d-flex flex-wrap gap-2">
-                {% for t in total_tiles_count|ljust:total_tiles_count %}
-                    <div id="T{{ forloop.counter }}" class="p-2 border rounded text-white text-center fw-bold
-                         {% if forloop.counter in sold_tiles_set %} bg-secondary
-                         {% elif forloop.counter in processing_tiles_set %} bg-primary
-                         {% else %} bg-success {% endif %}"
-                         style="width: 50px; height: 30px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        <span>{{ forloop.counter }}</span>
+    <div class="col-12">
+        <div class="card border-0 shadow-lg rounded-4 flex-fill">
+
+            <div class="card-header bg-white rounded-top-4 border-bottom p-0">
+                <ul class="nav nav-tabs border-0 p-3" id="projectDetailsTab" role="tablist">
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-bold px-4 py-2" id="beneficiary-tab" data-bs-toggle="tab" data-bs-target="#beneficiary-tab-pane" type="button" role="tab" aria-controls="beneficiary-tab-pane" aria-selected="true">
+                            <i class="align-middle me-1" data-feather="user"></i> Beneficiary Details
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold px-4 py-2" id="tiles-tab" data-bs-toggle="tab" data-bs-target="#tiles-tab-pane" type="button" role="tab" aria-controls="tiles-tab-pane" aria-selected="false">
+                            <i class="align-middle me-1" data-feather="grid"></i> Tile Status
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold px-4 py-2" id="transactions-tab" data-bs-toggle="tab" data-bs-target="#transactions-tab-pane" type="button" role="tab" aria-controls="transactions-tab-pane" aria-selected="false">
+                            <i class="align-middle me-1" data-feather="dollar-sign"></i> Transactions
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold px-4 py-2" id="updates-tab" data-bs-toggle="tab" data-bs-target="#updates-tab-pane" type="button" role="tab" aria-controls="updates-tab-pane" aria-selected="false">
+                            <i class="align-middle me-1" data-feather="message-square"></i> Updates
+                        </button>
+                    </li>
+
+                </ul>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="tab-content" id="projectDetailsTabContent">
+
+                    <div class="tab-pane fade show active" id="beneficiary-tab-pane" role="tabpanel" aria-labelledby="beneficiary-tab" tabindex="0">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="row g-4">
+
+                                    <div class="col-md-4 text-center">
+                                        <form id="uploadForm" method="post" action="/administrator/bene_img/{{project.id}}/" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <input type="file" id="imgUpload" name="bene_img" class="d-none" onchange="this.form.submit();">
+                                            <label for="imgUpload" class="d-inline-block position-relative">
+                                                <img
+                                                    {% if project.beneficiary.profile_pic %}
+                                                        src="{{ project.beneficiary.profile_pic.url }}"
+                                                    {% else %}
+                                                        src="{% static 'Dashboard/img/avatars/default-avatar.jpg' %}"
+                                                    {% endif %}
+                                                    alt="Click to upload an image"
+                                                    class="rounded-circle border border-5 border-primary shadow-sm img-fluid"
+                                                    style="width: 180px; height: 180px; object-fit: cover; cursor: pointer;">
+                                                <span class="position-absolute bottom-0 end-0 p-1 bg-primary text-white rounded-circle shadow-sm" style="transform: translate(0, -10%);">
+                                                    <i data-feather="camera" style="width: 18px; height: 18px;"></i>
+                                                </span>
+                                            </label>
+                                        </form>
+                                    </div>
+
+                                    <div class="col-md-8">
+
+                                        <div class="mb-4 pb-2 border-bottom">
+                                            <h3 class="mb-1 fw-bold text-dark">{{project.beneficiary.first_name}} {{project.beneficiary.last_name}}</h3>
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary fw-semibold p-2">{{ project.beneficiary.age }}-years old</span>
+                                        </div>
+
+                                        <h5 class="fw-bold text-dark mb-3">Contact Information</h5>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent ps-0 py-2">
+                                                <strong class="text-muted"><i class="align-middle me-2 text-primary" data-feather="phone"></i> Phone Number:</strong>
+                                                <span class="fw-semibold">+91-{{project.beneficiary.phone_number}}</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-start bg-transparent ps-0 py-2">
+                                                <strong class="text-muted w-50"><i class="align-middle me-2 text-primary" data-feather="map-pin"></i> Address:</strong>
+                                                <span class="text-end fw-semibold w-50">{{project.beneficiary.address}}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                {% endfor %}
+
+                    <div class="tab-pane fade" id="tiles-tab-pane" role="tabpanel" aria-labelledby="tiles-tab" tabindex="0">
+
+                        <div class="d-flex justify-content-end flex-wrap gap-3 align-items-center mb-4">
+                            <span class="badge bg-success bg-opacity-10 text-success fw-bold p-2"><i class="align-middle me-1" data-feather="check"></i> Available Tile</span>
+                            <span class="badge bg-primary bg-opacity-10 text-primary fw-bold p-2"><i class="align-middle me-1" data-feather="loader"></i> Processing Tile</span>
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary fw-bold p-2"><i class="align-middle me-1" data-feather="tag"></i> Sold Tile</span>
+                        </div>
+
+                        <div class="container-fluid border border-2 py-3 rounded-3 overflow-auto bg-light" style="max-height: 400px;">
+                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                {% for t in total_tiles_count|ljust:total_tiles_count %}
+                                    <div id="T{{ forloop.counter }}" class="p-2 border rounded text-white text-center fw-bold shadow-sm
+                                         {% if forloop.counter in sold_tiles_set %} bg-secondary
+                                         {% elif forloop.counter in processing_tiles_set %} bg-primary
+                                         {% else %} bg-success {% endif %}"
+                                         style="width: 50px; height: 30px; display: flex; align-items: center; justify-content: center;">
+                                        <span>{{ forloop.counter }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="transactions-tab-pane" role="tabpanel" aria-labelledby="transactions-tab" tabindex="0">
+                        <h5 class="fw-bold mb-3 text-dark">Recent Transactions</h5>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-dark">
+                                <tr>
+                                    <th class="text-white small fw-bold text-uppercase">Sl no</th>
+                                    <th class="text-white small fw-bold text-uppercase">Buyer</th>
+                                    <th class="text-white small fw-bold text-uppercase">Tiles Bought</th>
+                                    <th class="text-white small fw-bold text-uppercase">Amount</th>
+                                    <th class="text-white small fw-bold text-uppercase">Time</th>
+                                    <th class="text-white small fw-bold text-uppercase">Status</th>
+                                    <th class="text-center text-white small fw-bold text-uppercase">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for t in transactions %}
+                                <tr>
+                                    <td>{{forloop.counter}}</td>
+                                    <td class="fw-semibold">{{t.sender.full_name}}</td>
+                                    <td>
+                                        <span class="badge bg-primary bg-opacity-10 text-primary p-2 fw-bold me-1">{{ t.num_tiles }} Tiles</span>
+                                    </td>
+                                    <td class="fw-bold {% if t.status == 'Verified' %}text-success
+                                            {% elif t.status == 'Rejected' %}text-danger
+                                            {% else %}text-primary{% endif %}">₹{{t.amount|floatformat:2|intcomma }}</td>
+                                    <td class="text-muted small">{{t.transaction_time|date:"d M, Y P"}}</td>
+                                    <td>
+                                        <span class="badge p-2 fw-bold rounded-pill
+                                            {% if t.status == 'Verified' %}bg-success bg-opacity-10 text-success
+                                            {% elif t.status == 'Rejected' %}bg-danger bg-opacity-10 text-danger
+                                            {% else %}bg-warning bg-opacity-10 text-warning{% endif %}">
+                                            {{ t.status }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-info btn-sm rounded-pill px-3">
+                                            <i class="align-middle" data-feather="info"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="updates-tab-pane" role="tabpanel" aria-labelledby="updates-tab" tabindex="0">
+
+                        <h5 class="fw-bold mb-3 text-dark">Post a New Update</h5>
+                        <div class="card p-4 mb-5 border rounded-4 shadow-sm">
+                            <form method="post" action="" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <textarea class="form-control" id="projectUpdateText" name="content" rows="4" placeholder="Share news, progress, or photos with your supporters..." required></textarea>
+                                </div>
+                                    <button type="submit" class="btn btn-primary fw-semibold rounded-pill px-4">
+                                        <i class="align-middle me-1" data-feather="send"></i> Post Update
+                                    </button>
+                            </form>
+                        </div>
+
+                        <h5 class="fw-bold mb-3 text-dark border-bottom pb-2">Recent Updates</h5>
+
+                        <div class="list-group">
+                            {% for update in updates %}
+                            <div class="list-group-item list-group-item-action mb-3 border-bottom rounded-3 shadow-sm p-4">
+                                <div class="d-flex w-100 justify-content-between mb-1 border-bottom">
+                                    <h6 class="mb-1 fw-bold text-dark">Update #{{ forloop.counter }}</h6>
+                                    <small class="text-muted">{{ update.created_at|date:"d M, Y P" }}</small>
+                                </div>
+                                <p class="mb-1 mt-2 text-muted">{{ update.content }}</p>
+                            </div>
+                            {% empty %}
+                            <div class="alert alert-info text-center" role="alert">
+                                <i class="align-middle me-1" data-feather="info"></i> No updates have been posted for this project yet.
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card data-card ">
-    <div class="card-header">
-        <h2><strong>Transactions</strong></h2>
-    </div>
-    <div class="card-body table-responsive ">
-        <table class="table table-hover">
-            <thead class="table-dark">
-            <tr>
-                <th>Sl no</th>
-                <th>Buyer</th>
-                <th>No of Tiles</th>
-                <th>Amount</th>
-                <th>Transaction Time</th>
-                <th>Status</th>
-                <th class="text-center">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for t in transactions %}
-            <tr>
-                <td>{{forloop.counter}}</td>
-                <td>{{t.sender.full_name}}</td>
-                <td>{{ t.num_tiles }} [{{t.tiles_bought.tiles}}]</td>
-                <td>₹{{t.amount|floatformat:2|intcomma }}</td>
-                <td>{{t.transaction_time|date:"d M, Y P"}}</td>
-                <td class="{% if t.status == 'Verified' %}text-success
-                            {% elif t.status == 'Rejected' %}text-danger
-                            {% else %}text-secondary{% endif %}">
-                    <strong>{{ t.status }}</strong>
-                </td>
-                <td class="text-center">
-                    <a href="/administrator/verify-transaction/{{t.id}}/" class="btn btn-info btn-sm">
-                        <i class="align-middle" data-feather="info"></i> View
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
