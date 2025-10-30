@@ -2,68 +2,96 @@
 {% block content %}
 
 <!---------------------- Modal for Adding new Admin -------------------->
-    <div class="modal fade" id="newAdminModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Add a new Admin</strong></h1>
+<div class="modal fade" id="newAdminModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg border-0">
+
+            <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                <h5 class="modal-title fw-bolder text-dark" id="exampleModalLabel">
+                    <i class="align-middle me-2 text-primary" data-feather="user-plus"></i> Add a New Administrator
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <form method="post" id="add-admin-form">
                 {% csrf_token %}
-                <div class="modal-body">
-                    <div class="row p-2">
-                        <div class="col-lg-6 form-floating mb-1 p-1">
-                            <input type="text" class="form-control" id="first_name" placeholder="First name" name="first_name" required>
-                            <label for="first_name">First name</label>
-                            <span class="text-danger small-text" id="first_name-error"></span>
+                <div class="modal-body p-4">
+                    <h6 class="fw-bold text-dark mb-3 border-bottom pb-2">Admin Account Details</h6>
+
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="first_name" placeholder="First name" name="first_name" required>
+                                <label for="first_name">First Name</label>
+                                <span class="text-danger small mt-1 d-block" id="first_name-error"></span>
+                            </div>
                         </div>
-                        <div class="col-lg-6 form-floating mb-1 p-1">
-                            <input type="text" class="form-control" id="last_name" placeholder="Last name" name="last_name" required>
-                            <label for="last_name">Last name</label>
-                            <span class="text-danger small-text" id="last_name-error"></span>
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="last_name" placeholder="Last name" name="last_name" required>
+                                <label for="last_name">Last Name</label>
+                                <span class="text-danger small mt-1 d-block" id="last_name-error"></span>
+                            </div>
                         </div>
-                        <div class="col-lg-12 form-floating mb-1 p-1">
-                            <input type="email" class="form-control" id="email" placeholder="Enter Email" name="email" required>
-                            <label for="email">Email</label>
-                            <span class="text-danger small-text" id="email-error"></span>
+                        <div class="col-lg-12">
+                            <div class="form-floating">
+                                <input type="email" class="form-control rounded-3" id="email" placeholder="Enter Email" name="email" required>
+                                <label for="email">Email Address</label>
+                                <span class="text-danger small mt-1 d-block" id="email-error"></span>
+                            </div>
                         </div>
-                        <div class="col-lg-12 form-floating mb-1 p-1">
-                            <select class="form-control" aria-label="Default select example" id="inst_name" name="inst_name" required>
-                                <option selected disabled value="">Select the Affiliated Institution</option>
-                                {% for i in inst %}
-                                <option value="{{i.id}}">{{i.institution_name}}</option>
-                                {% endfor %}
-                            </select>
-                            <label for="inst_name">Institution name</label>
-                            <span class="text-danger small-text" id="inst_name-error"></span>
+
+                        <div class="col-lg-12">
+                            <div class="form-floating">
+                                <select class="form-select rounded-3" id="inst_name" name="inst_name" required>
+                                    <option selected disabled value="">Select the Affiliated Institution</option>
+                                    {% for i in inst %}
+                                    <option value="{{i.id}}">{{i.institution_name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="inst_name">Institution Name</label>
+                                <span class="text-danger small mt-1 d-block" id="inst_name-error"></span>
+                            </div>
                         </div>
-                        <div class="col-lg-12 form-floating mb-1 p-1">
-                            <input type="tel" class="form-control" id="phn_no" placeholder="Enter Contact number" name="phn_no" required>
-                            <label for="phn_no">Contact number</label>
-                            <span class="text-danger small-text" id="phn_no-error"></span>
+
+                        <div class="col-lg-12">
+                            <div class="form-floating">
+                                <input type="tel" class="form-control rounded-3" id="phn_no" placeholder="Enter Contact number" name="phn_no" required>
+                                <label for="phn_no">Contact Number</label>
+                                <span class="text-danger small mt-1 d-block" id="phn_no-error"></span>
+                            </div>
                         </div>
-                        <div class="col-lg-12 form-floating mb-1 p-1">
-                            <input type="text" class="form-control" id="username" placeholder="Enter Username" name="username" required>
-                            <label for="username">Username</label>
-                            <span class="text-danger small-text" id="username-error"></span>
+                        <div class="col-lg-12">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="username" placeholder="Enter Username" name="username" required>
+                                <label for="username">Username</label>
+                                <span class="text-danger small mt-1 d-block" id="username-error"></span>
+                            </div>
                         </div>
-                        <div class="col-lg-6 form-floating mb-1 p-1">
-                            <input type="password" class="form-control" id="password" placeholder="Enter Password" name="password" required>
-                            <label for="password">Password</label>
-                            <span class="text-danger small-text" id="password-error"></span>
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="password" class="form-control rounded-3" id="password" placeholder="Enter Password" name="password" required>
+                                <label for="password">Password</label>
+                                <span class="text-danger small mt-1 d-block" id="password-error"></span>
+                            </div>
                         </div>
-                        <div class="col-lg-6 form-floating mb-1 p-1">
-                            <input type="password" class="form-control" id="confirm_password" placeholder="Confirm Password" name="confirm_password" required>
-                            <label for="confirm_password">Confirm Password</label>
-                            <span class="text-danger small-text" id="confirm_password-error"></span>
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="password" class="form-control rounded-3" id="confirm_password" placeholder="Confirm Password" name="confirm_password" required>
+                                <label for="confirm_password">Confirm Password</label>
+                                <span class="text-danger small mt-1 d-block" id="confirm_password-error"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer d-flex justify-content-between">
-                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success" id="saveButton" >Save</button>
+
+                <div class="modal-footer d-flex justify-content-between border-top p-4">
+                    <button type="reset" class="btn btn-outline-danger fw-semibold rounded-pill px-4" data-bs-dismiss="modal">
+                        <i class="align-middle me-1" data-feather="x"></i> Reset & Close
+                    </button>
+                    <button type="submit" class="btn btn-primary fw-semibold rounded-pill px-4" id="saveButton">
+                        <i class="align-middle me-1" data-feather="check"></i> Save
+                    </button>
                 </div>
             </form>
         </div>
@@ -72,101 +100,136 @@
 
 <!---------------------- Modal for Updating Admin -------------------->
 <div class="modal fade" id="updateAdminModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
-    <div class="modal-dialog ">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="updateModalLabel"><strong>Update the Admin</strong></h1>
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg border-0">
+
+            <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                <h5 class="modal-title fw-bolder text-dark" id="updateModalLabel">
+                    <i class="align-middle me-2 text-primary" data-feather="user-check"></i> Update Administrator Details
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <form method="post" action="" id="update-admin-form">
                 {% csrf_token %}
-                <div class="modal-body">
-                    <div class="row p-2">
-                        <div class="col-lg-6 form-floating mb-1 p-1">
-                            <input type="text" class="form-control" id="first_name_update" placeholder="First name" name="first_name" required>
-                            <label for="first_name_update">First name</label>
-                            <span class="text-danger small-text" id="first_name_update-error"></span>
+                <div class="modal-body p-4">
+                    <h6 class="fw-bold text-dark mb-3 border-bottom pb-2">Admin Account Details</h6>
+
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="first_name_update" placeholder="First name" name="first_name" required>
+                                <label for="first_name_update">First Name</label>
+                                <span class="text-danger small mt-1 d-block" id="first_name_update-error"></span>
+                            </div>
                         </div>
-                        <div class="col-lg-6 form-floating mb-1 p-1">
-                            <input type="text" class="form-control" id="last_name_update" placeholder="Last name" name="last_name" required>
-                            <label for="last_name_update">Last name</label>
-                            <span class="text-danger small-text" id="last_name_update-error"></span>
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="last_name_update" placeholder="Last name" name="last_name" required>
+                                <label for="last_name_update">Last Name</label>
+                                <span class="text-danger small mt-1 d-block" id="last_name_update-error"></span>
+                            </div>
                         </div>
-                        <div class="col-lg-12 form-floating mb-1 p-1">
-                            <input type="email" class="form-control" id="email_update" placeholder="Enter Email" name="email" required>
-                            <label for="email_update">Email</label>
-                            <span class="text-danger small-text" id="email_update-error"></span>
+                        <div class="col-lg-12">
+                            <div class="form-floating">
+                                <input type="email" class="form-control rounded-3" id="email_update" placeholder="Enter Email" name="email" required>
+                                <label for="email_update">Email Address</label>
+                                <span class="text-danger small mt-1 d-block" id="email_update-error"></span>
+                            </div>
                         </div>
-                        <div class="col-lg-12 form-floating mb-1 p-1">
-                            <select class="form-control" aria-label="Default select example" id="inst_name_update" name="inst_name" required>
-                                <option selected disabled>Select the Affiliated Institution</option>
-                                {% for i in inst %}
-                                <option value="{{i.id}}">{{i.institution_name}}</option>
-                                {% endfor %}
-                            </select>
-                            <label for="inst_name_update">Institution name</label>
-                            <span class="text-danger small-text" id="inst_name_update-error"></span>
+
+                        <div class="col-lg-12">
+                            <div class="form-floating">
+                                <select class="form-select rounded-3" id="inst_name_update" name="inst_name" required>
+                                    <option selected disabled value="">Select the Affiliated Institution</option>
+                                    {% for i in inst %}
+                                    <option value="{{i.id}}">{{i.institution_name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="inst_name_update">Institution Name</label>
+                                <span class="text-danger small mt-1 d-block" id="inst_name_update-error"></span>
+                            </div>
                         </div>
-                        <div class="col-lg-12 form-floating mb-1 p-1">
-                            <input type="tel" class="form-control" id="phn_no_update" placeholder="Enter Contact number" name="phn_no" required>
-                            <label for="phn_no_update">Contact number</label>
-                            <span class="text-danger small-text" id="phn_no_update-error"></span>
+
+                        <div class="col-lg-12">
+                            <div class="form-floating">
+                                <input type="tel" class="form-control rounded-3" id="phn_no_update" placeholder="Enter Contact number" name="phn_no" required>
+                                <label for="phn_no_update">Contact Number</label>
+                                <span class="text-danger small mt-1 d-block" id="phn_no_update-error"></span>
+                            </div>
                         </div>
-                        <div class="col-lg-12 form-floating mb-1 p-1">
-                            <input type="text" class="form-control" id="username_update" placeholder="Enter Username" name="username" required>
-                            <label for="username_update">Username</label>
-                            <span class="text-danger small-text" id="username_update-error"></span>
+                        <div class="col-lg-12">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="username_update" placeholder="Enter Username" name="username" required>
+                                <label for="username_update">Username</label>
+                                <span class="text-danger small mt-1 d-block" id="username_update-error"></span>
+                            </div>
                         </div>
-                        <div class="col-lg-6 form-floating mb-1 p-1">
-                            <input type="password" class="form-control" id="password_update" placeholder="Enter Password" name="password" required>
-                            <label for="password_update">Old Password</label>
-                            <span class="text-danger small-text" id="password_update-error"></span>
+
+                        <h6 class="fw-bold text-dark mt-4 border-bottom pb-2">Change Password</h6>
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="password" class="form-control rounded-3" id="password_update" placeholder="Enter Old Password" name="password" required>
+                                <label for="password_update">Old Password (Required)</label>
+                                <span class="text-danger small mt-1 d-block" id="password_update-error"></span>
+                            </div>
                         </div>
-                        <div class="col-lg-6 form-floating mb-1 p-1">
-                            <input type="password" class="form-control" id="confirm_password_update" placeholder="Confirm Password" name="confirm_password">
-                            <label for="confirm_password_update">New Password</label>
-                            <span class="text-danger small-text" id="confirm_password_update-error"></span>
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="password" class="form-control rounded-3" id="confirm_password_update" placeholder="Confirm Password" name="confirm_password">
+                                <label for="confirm_password_update">New Password (Leave blank to keep old)</label>
+                                <span class="text-danger small mt-1 d-block" id="confirm_password_update-error"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer d-flex justify-content-between">
-                <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-warning" id="edit-button">Edit</button>
-                <button type="submit" class="btn btn-primary" id="update-button" hidden>Update</button>
+
+                <div class="modal-footer d-flex justify-content-between border-top p-4">
+                    <button type="reset" class="btn btn-outline-danger fw-semibold rounded-pill px-4" data-bs-dismiss="modal">
+                        <i class="align-middle me-1" data-feather="x"></i> Close
+                    </button>
+
+                    <button type="button" class="btn btn-warning fw-semibold rounded-pill px-4" id="edit-button">
+                        <i class="align-middle me-1" data-feather="edit"></i> Edit
+                    </button>
+
+                    <button type="submit" class="btn btn-primary fw-semibold rounded-pill px-4" id="update-button" hidden>
+                        <i class="align-middle me-1" data-feather="save"></i> Update
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
 
 <!---------------------- Modal for Deleting Institution Admin -------------------->
-<div class="modal fade" id="adminPermanentDeleteModal" tabindex="-1" aria-labelledby="adminPermanentDeleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="adminPermanentDeleteModalLabel"><strong>Delete Institution Admin</strong></h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+<!--<div class="modal fade" id="adminPermanentDeleteModal" tabindex="-1" aria-labelledby="adminPermanentDeleteModalLabel" aria-hidden="true">-->
+<!--    <div class="modal-dialog">-->
+<!--        <div class="modal-content">-->
+<!--            <div class="modal-header">-->
+<!--                <h1 class="modal-title fs-5" id="adminPermanentDeleteModalLabel"><strong>Delete Institution Admin</strong></h1>-->
+<!--                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
+<!--            </div>-->
 
-            <form method="post" action="">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <div class="alert alert-danger" role="alert">
-                        <strong>Warning!</strong> Deleting this admin account is permanent and cannot be undone.
-                        <br>
-                        This user will be removed from the system and lose all access.
-                    </div>
-                    <p>Are you sure you want to proceed?</p>
-                </div>
-                <div class="modal-footer d-flex justify-content-between">
-                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-warning">Delete Permanently</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+<!--            <form method="post" action="">-->
+<!--                {% csrf_token %}-->
+<!--                <div class="modal-body">-->
+<!--                    <div class="alert alert-danger" role="alert">-->
+<!--                        <strong>Warning!</strong> Deleting this admin account is permanent and cannot be undone.-->
+<!--                        <br>-->
+<!--                        This user will be removed from the system and lose all access.-->
+<!--                    </div>-->
+<!--                    <p>Are you sure you want to proceed?</p>-->
+<!--                </div>-->
+<!--                <div class="modal-footer d-flex justify-content-between">-->
+<!--                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>-->
+<!--                    <button type="submit" class="btn btn-warning">Delete Permanently</button>-->
+<!--                </div>-->
+<!--            </form>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
 
 <!---------------------- All Admin Table Details -------------------->
 <div class="row">
