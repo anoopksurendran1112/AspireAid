@@ -3,102 +3,114 @@
 {% load humanize %}
 
 <!---------------------- Modal for Adding new Institution -------------------->
-    <div class="modal fade" id="ModalAddProject" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Add a new Project</strong></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+<div class="modal fade" id="ModalAddProject" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg border-0">
 
-                <form method="post" id="create-project-form" action="{% url 'admin_add_project' %}">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-lg-6 px-3">
-                                <h3 class="card-title my-2 text-black">Project Details</h3>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="projectTitle" placeholder="Enter the project title.. " name="title" required>
-                                            <label for="projectTitle">Project Title</label>
-                                            <span class="text-danger" id="projectTitle-error"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <input type="number" class="form-control" id="fundingGoal" placeholder="Enter the funding goal.. " name="goal" required>
-                                            <label for="fundingGoal">Funding Goal</label>
-                                            <span class="text-danger" id="fundingGoal-error"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <input type="number" class="form-control" id="tileValue" placeholder="Enter tile value " name="tvalue" required>
-                                            <label for="tileValue">Single Tile Value</label>
-                                            <span class="text-danger" id="tileValue-error"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <textarea class="form-control" id="projectDesc" style="resize:none; height:75px;" placeholder="Enter the description..." name="desc" required></textarea>
-                                            <label for="projectDesc">Project Description</label>
-                                            <span class="text-danger" id="projectDesc-error"></span>
-                                        </div>
+            <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                <h5 class="modal-title fw-bolder text-dark" id="exampleModalLabel">
+                    <i class="align-middle me-2 text-primary" data-feather="plus-circle"></i> Add a New Project
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form method="post" id="create-project-form" action="{% url 'admin_add_project' %}">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+
+                        <div class="col-lg-6 border-end pe-lg-4">
+                            <h6 class="fw-bold text-dark mb-3">Project Funding & Description</h6>
+                            <div class="row g-3">
+
+                                <div class="col-lg-12">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control rounded-3" id="projectTitle" placeholder="Enter the project title.. " name="title" required>
+                                        <label for="projectTitle">Project Title</label>
+                                        <span class="text-danger small mt-1 d-block" id="projectTitle-error"></span>
                                     </div>
                                 </div>
+                                <div class="col-lg-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control rounded-3" id="fundingGoal" placeholder="Enter the funding goal.. " name="goal" required>
+                                        <label for="fundingGoal">Funding Goal (₹)</label>
+                                        <span class="text-danger small mt-1 d-block" id="fundingGoal-error"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control rounded-3" id="tileValue" placeholder="Enter tile value " name="tvalue" required>
+                                        <label for="tileValue">Single Tile Value (₹)</label>
+                                        <span class="text-danger small mt-1 d-block" id="tileValue-error"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="form-floating">
+                                        <textarea class="form-control rounded-3" id="projectDesc" style="resize:none; height:120px;" placeholder="Enter the description..." name="desc" required></textarea>
+                                        <label for="projectDesc">Project Description</label>
+                                        <span class="text-danger small mt-1 d-block" id="projectDesc-error"></span>
+                                    </div>
+                                </div>
+
                             </div>
-                            <div class="col-lg-6 px-3">
-                                <h3 class="card-title my-2 text-black">Beneficiary Details</h3>
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="fname" placeholder="Enter Firstname" name="fname" required>
-                                            <label for="fname">First Name</label>
-                                            <span class="text-danger" id="fname-error"></span>
-                                        </div>
+                        </div>
+
+                        <div class="col-lg-6 ps-lg-4">
+                            <h6 class="fw-bold text-dark mb-3">Beneficiary Personal Details</h6>
+                            <div class="row g-3">
+
+                                <div class="col-lg-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control rounded-3" id="fname" placeholder="Enter Firstname" name="fname" required>
+                                        <label for="fname">First Name</label>
+                                        <span class="text-danger small mt-1 d-block" id="fname-error"></span>
                                     </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="lname" placeholder="Enter Lastname" name="lname" required>
-                                            <label for="lname">Last Name</label>
-                                            <span class="text-danger" id="lname-error"></span>
-                                        </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control rounded-3" id="lname" placeholder="Enter Lastname" name="lname" required>
+                                        <label for="lname">Last Name</label>
+                                        <span class="text-danger small mt-1 d-block" id="lname-error"></span>
                                     </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <input type="number" class="form-control" id="age" placeholder="Enter Age " name="age" required>
-                                            <label for="age">Enter Age</label>
-                                            <span class="text-danger" id="age-error"></span>
-                                        </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control rounded-3" id="age" placeholder="Enter Age " name="age" required>
+                                        <label for="age">Age</label>
+                                        <span class="text-danger small mt-1 d-block" id="age-error"></span>
                                     </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <input type="tel" class="form-control" id="telPhn" placeholder="Enter Phone Number.. " name="phn" required>
-                                            <label for="telPhn">Phone Number</label>
-                                            <span class="text-danger" id="telPhn-error"></span>
-                                        </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-floating">
+                                        <input type="tel" class="form-control rounded-3" id="telPhn" placeholder="Enter Phone Number.. " name="phn" required>
+                                        <label for="telPhn">Phone Number</label>
+                                        <span class="text-danger small mt-1 d-block" id="telPhn-error"></span>
                                     </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-floating mb-2">
-                                            <textarea class="form-control" style="resize:none; height:75px;" id="address" placeholder="Enter your Address.." name="addr" required></textarea>
-                                            <label for="address">Address</label>
-                                            <span class="text-danger" id="address-error"></span>
-                                        </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="form-floating">
+                                        <textarea class="form-control rounded-3" style="resize:none; height:120px;" id="address" placeholder="Enter your Address.." name="addr" required></textarea>
+                                        <label for="address">Address</label>
+                                        <span class="text-danger small mt-1 d-block" id="address-error"></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="modal-footer d-flex justify-content-between">
-                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
-                        <button type="submit" class="btn btn-success">Add</button>
-                    </div>
-                </form>
-            </div>
+                <div class="modal-footer d-flex justify-content-between border-top p-4">
+                    <button type="reset" class="btn btn-outline-danger fw-semibold rounded-pill px-4" data-bs-dismiss="modal">
+                        <i class="align-middle me-1" data-feather="x"></i> Reset & Close
+                    </button>
+                    <button type="submit" class="btn btn-primary fw-semibold rounded-pill px-4">
+                        <i class="align-middle me-1" data-feather="save"></i> Add Project
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
 <!---------------------- All Institution Table Details -------------------->
     <div class="row">
@@ -224,9 +236,9 @@
                                         {{ p.title|truncatechars:35 }}
                                     </td>
 
-                                    <td class="d-none d-lg-table-cell text-nowrap">₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
+                                    <td class="d-none d-lg-table-cell fw-bold text-info text-nowrap">₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
 
-                                    <td class="fw-bold text-nowrap">₹{{ p.current_amount|floatformat:2|intcomma }}</td>
+                                    <td class="fw-bold text-success text-nowrap">₹{{ p.current_amount|floatformat:2|intcomma }}</td>
 
                                     <td class="d-none d-md-table-cell">{{ p.started_at|date:"d M, Y" }}</td>
 
@@ -270,21 +282,6 @@
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script>
-        {% if messages %}
-            {% for message in messages %}
-                Swal.fire({
-                    title: '{{ message.tags|title }}!',
-                    text: '{{ message }}',
-                    icon: '{{ message.tags }}',
-                    confirmButtonText: 'OK'
-                });
-            {% endfor %}
-        {% endif %}
-    </script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {

@@ -85,6 +85,17 @@ class ProjectImage(models.Model):
         return f"Image for {self.project.title}"
 
 
+class ProjectUpdates(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='updates')
+    update_title = models.CharField(max_length=100)
+    update = models.TextField()
+    update_date = models.DateTimeField(auto_now_add=True)
+    table_status = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Update for {self.project.title}"
+
+
 class NotificationPreference(models.Model):
     institution = models.OneToOneField(Institution,on_delete=models.CASCADE,primary_key=True,related_name='notification_prefs',verbose_name="Institution")
     sms_enabled = models.BooleanField(default=True,verbose_name="SMS Notifications")

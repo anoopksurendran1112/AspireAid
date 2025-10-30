@@ -5,77 +5,82 @@
 
 <!-------------------Modal for updating project details--------------------->
 <div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Add a new Project</strong></h1>
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg border-0">
+
+            <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                <h5 class="modal-title fw-bolder text-dark" id="exampleModalLabel">
+                    <i class="align-middle me-2 text-primary" data-feather="repeat"></i> Update Project Details
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <form method="post" action="{% url 'admin_update_project' pid=project.id %}">
                 {% csrf_token %}
-                <div class="modal-body">
+                <div class="modal-body p-4">
 
-                    <div class="row">
-                        <div class="col-lg-6 px-3">
-                            <h3 class="card-title my-2 text-black">Project Details</h3>
-                            <div class="row">
+                    <div class="row g-4">
+
+                        <div class="col-lg-6 border-end pe-lg-4">
+                            <h6 class="fw-bold text-dark mb-3">Project Funding & Description</h6>
+                            <div class="row g-3">
                                 <div class="col-lg-12">
-                                    <div class="form-floating mb-2">
-                                        <input type="text" class="form-control" id="projectTitle" placeholder="Enter the project title.. " name="title" value="{{project.title}}">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control rounded-3" id="projectTitle" placeholder="Enter the project title.. " name="title" value="{{project.title}}">
                                         <label for="projectTitle">Project Title</label>
                                     </div>
                                 </div>
-                                <div class="col-lg-12">
-                                    <div class="form-floating mb-2">
-                                        <input type="text" class="form-control" id="fundingGoal" placeholder="Enter the funding goal.. " name="goal" value="{{project.funding_goal}}">
-                                        <label for="fundingGoal">Funding Goal</label>
+                                <div class="col-lg-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control rounded-3" id="fundingGoal" placeholder="Enter the funding goal.. " name="goal" value="{{project.funding_goal}}">
+                                        <label for="fundingGoal">Funding Goal (₹)</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control rounded-3" id="tileValue" placeholder="Enter tile value " name="tvalue" value="{{project.tile_value}}">
+                                        <label for="tileValue">Single Tile Value (₹)</label>
                                     </div>
                                 </div>
                                 <div class="col-lg-12">
-                                    <div class="form-floating mb-2">
-                                        <input type="text" class="form-control" id="tileValue" placeholder="Enter tile value " name="tvalue" value="{{project.tile_value}}">
-                                        <label for="tileValue">Single Tile Value</label>
-                                    </div>
-                                </div>
-                                <div class="col-lg-12">
-                                    <div class="form-floating mb-2">
-                                        <textarea class="form-control" id="projectDesc" style="resize:none; height:75px;" placeholder="Enter the description..." name="desc">{{project.description}}</textarea>
+                                    <div class="form-floating">
+                                        <textarea class="form-control rounded-3" id="projectDesc" style="resize:none; height:120px;" placeholder="Enter the description..." name="desc">{{project.description}}</textarea>
                                         <label for="projectDesc">Project Description</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-6 px-3">
-                            <h3 class="card-title my-2 text-black">Beneficiary Details</h3>
-                            <div class="row">
+
+                        <div class="col-lg-6 ps-lg-4">
+                            <h6 class="fw-bold text-dark mb-3">Beneficiary Personal Details</h6>
+                            <div class="row g-3">
                                 <div class="col-lg-6">
-                                    <div class="form-floating mb-2">
-                                        <input type="text" class="form-control" id="fname" placeholder="Enter Firstname" name="fname" value="{{project.beneficiary.first_name}}">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control rounded-3" id="fname" placeholder="Enter Firstname" name="fname" value="{{project.beneficiary.first_name}}">
                                         <label for="fname">First Name</label>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
-                                    <div class="form-floating mb-2">
-                                        <input type="text" class="form-control" id="lname" placeholder="Enter Lastname" name="lname" value="{{project.beneficiary.last_name}}">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control rounded-3" id="lname" placeholder="Enter Lastname" name="lname" value="{{project.beneficiary.last_name}}">
                                         <label for="lname">Last Name</label>
                                     </div>
                                 </div>
-                                <div class="col-lg-12">
-                                    <div class="form-floating mb-2">
-                                        <input type="number" class="form-control" id="age"  placeholder="Enter Age " name="age" value="{{project.beneficiary.age}}">
-                                        <label for="age">Enter Age</label>
+                                <div class="col-lg-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control rounded-3" id="age"  placeholder="Enter Age " name="age" value="{{project.beneficiary.age}}">
+                                        <label for="age">Age</label>
                                     </div>
                                 </div>
-                                <div class="col-lg-12">
-                                    <div class="form-floating mb-2">
-                                        <input type="tel" class="form-control" id="telPhn"  placeholder="Enter Phone Number.. " name="phn" value="{{project.beneficiary.phone_number}}">
+                                <div class="col-lg-6">
+                                    <div class="form-floating">
+                                        <input type="tel" class="form-control rounded-3" id="telPhn"  placeholder="Enter Phone Number.. " name="phn" value="{{project.beneficiary.phone_number}}">
                                         <label for="telPhn">Phone Number</label>
                                     </div>
                                 </div>
                                 <div class="col-lg-12">
-                                    <div class="form-floating mb-2">
-                                        <textarea class="form-control" style="resize:none; height:75px;" id="address" placeholder="Enter your Address.." name="addr">{{project.beneficiary.address}}</textarea>
+                                    <div class="form-floating">
+                                        <textarea class="form-control rounded-3" style="resize:none; height:120px;" id="address" placeholder="Enter your Address.." name="addr">{{project.beneficiary.address}}</textarea>
                                         <label for="address">Address</label>
                                     </div>
                                 </div>
@@ -85,9 +90,13 @@
                     </div>
                 </div>
 
-                <div class="modal-footer d-flex justify-content-between">
-                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
-                    <button type="submit" class="btn btn-success">Save changes</button>
+                <div class="modal-footer d-flex justify-content-between border-top p-4">
+                    <button type="button" class="btn btn-outline-danger fw-semibold rounded-pill px-4" data-bs-dismiss="modal">
+                        <i class="align-middle me-1" data-feather="x"></i> Reset & Close
+                    </button>
+                    <button type="submit" class="btn btn-primary fw-semibold rounded-pill px-4">
+                        <i class="align-middle me-1" data-feather="save"></i> Save changes
+                    </button>
                 </div>
             </form>
         </div>
@@ -96,36 +105,65 @@
 
 <!-------------------Modal for uploading images--------------------->
 <div class="modal fade" id="imgModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="imgModalLabel"><strong>Upload Image</strong></h1>
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg border-0">
+
+            <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                <h5 class="modal-title fw-bolder text-dark" id="imgModalLabel">
+                    <i class="align-middle me-2 text-primary" data-feather="image"></i> Manage Project Images
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
             <form method="post" action="{% url 'upload_project_image' project_id=project.id %}" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="modal-body">
-                    <table class="table">
-                      <tbody>
-                      {% for image in project.images.all %}
-                        <tr>
-                            <th>
-                                <a href="{{image.project_img.url}}" target="_blank" rel="noopener noreferrer">{{image.project_img}}</a>
-                            </th>
-                            <td class="text-end">
-                                <a class="" href="/administrator/del_prj_img/{{image.id}}/">Delete</a>
-                            </td>
-                        </tr>
-                      {% endfor %}
-                      </tbody>
-                    </table>
-                    <div class="my-2">
-                        <input type="file" class="form-control" id="img" placeholder="Upload an image.. " name="img">
+                <div class="modal-body p-4">
+
+                    <h6 class="fw-bold text-dark mb-3 border-bottom pb-2">Existing Images</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm table-hover align-middle mb-0">
+                            <tbody>
+                            {% for image in project.images.all %}
+                                <tr class="border-bottom">
+                                    <th class="fw-normal">
+                                        Image {{forloop.counter}}
+                                    </th>
+                                    <td class="text-end">
+                                        <a href="{{image.project_img.url}}" target="_blank" rel="noopener noreferrer"
+                                           class="btn btn-sm btn-outline-info rounded-pill py-1 px-3">
+                                            <i class="align-middle" data-feather="image" style="width: 14px; height: 14px;"></i> View
+                                        </a>
+
+                                        <a href="/administrator/del_prj_img/{{image.id}}/"
+                                           class="btn btn-sm btn-outline-danger rounded-pill py-1 px-3"
+                                           onclick="return confirm('Are you sure you want to delete this image?');">
+                                            <i class="align-middle" data-feather="trash-2" style="width: 14px; height: 14px;"></i> Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted small">No images uploaded yet.</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h6 class="fw-bold text-dark mb-3 border-bottom pb-2">Upload New Image</h6>
+                    <div class="mb-3">
+                        <label for="img" class="form-label small text-muted">Select file to upload:</label>
+                        <input type="file" class="form-control rounded-3" id="img" placeholder="Upload an image.. " name="img" accept="image/*" required>
                     </div>
                 </div>
-                <div class="modal-footer d-flex justify-content-between">
-                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success">Upload</button>
+
+                <div class="modal-footer d-flex justify-content-between border-top p-4">
+                    <button type="button" class="btn btn-outline-danger fw-semibold rounded-pill px-4" data-bs-dismiss="modal">
+                        <i class="align-middle me-1" data-feather="x"></i> Close
+                    </button>
+                    <button type="submit" class="btn btn-primary fw-semibold rounded-pill px-4">
+                        <i class="align-middle me-1" data-feather="upload-cloud"></i> Upload
+                    </button>
                 </div>
             </form>
         </div>
@@ -135,36 +173,47 @@
 <!-------------------Modal for share project--------------------->
 <div class="modal fade" id="shareProjectModal" tabindex="-1" aria-labelledby="shareProjectModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-primary">
-                <h1 class="modal-title fs-5 text-white" id="shareProjectModalLabel"><strong>Share this Project</strong></h1>
+        <div class="modal-content rounded-4 shadow-lg border-0">
+
+            <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                <h5 class="modal-title fw-bolder text-dark" id="shareProjectModalLabel">
+                    <i class="align-middle me-2 text-primary" data-feather="share-2"></i> Share This Project
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
             <div class="modal-body text-center p-4">
-                <p class="lead mb-4">You can share this project's link using these options:</p>
-                <div class="input-group mb-3">
-                    <input id="projectLinkInput" class="form-control" type="text" readonly>
-                    <button id="copyProjectLink" class="btn btn-outline-secondary" type="button">
-                        <i class="align-middle" data-feather="copy"></i>
+                <p class="mb-4 text-muted">Copy the direct link below or share instantly using the social options:</p>
+
+                <div class="input-group mb-4 rounded-pill overflow-hidden shadow-sm border border-primary">
+                    <input id="projectLinkInput" class="form-control border-0 bg-light py-2 ps-4" type="text" readonly placeholder="Loading share link...">
+                    <button id="copyProjectLink" class="btn btn-primary fw-semibold px-4" type="button" data-bs-toggle="tooltip" title="Link Copied!">
+                        <i class="align-middle me-1" data-feather="copy"></i> Copy
                     </button>
                 </div>
-                <div class="d-flex justify-content-center flex-wrap">
-                    <a href="#" id="whatsappShareProject" target="_blank" class="btn btn-success m-2">
-                        <i class="align-middle" data-feather="message-circle"></i>
-                        WhatsApp
+
+                <div class="d-flex justify-content-center gap-3">
+
+                    <a href="#" id="whatsappShareProject" target="_blank" class="btn btn-success rounded-circle p-3 shadow-sm border"
+                        style="width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;" data-bs-toggle="tooltip" title="Share via WhatsApp">
+                        <i class="align-middle" data-feather="message-circle" style="width: 22px; height: 22px;"></i>
                     </a>
-                    <a href="#" id="facebookShareProject" target="_blank" class="btn btn-primary m-2">
-                        <i class="align-middle" data-feather="thumbs-up"></i>
-                        Facebook
+
+                    <a href="#" id="facebookShareProject" target="_blank" class="btn btn-primary rounded-circle p-3 shadow-sm border"
+                        style="width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;" data-bs-toggle="tooltip" title="Share via Facebook">
+                        <i class="align-middle" data-feather="facebook" style="width: 22px; height: 22px;"></i>
                     </a>
-                    <a href="#" id="twitterShareProject" target="_blank" class="btn btn-info m-2">
-                        <i class="align-middle" data-feather="twitter"></i>
-                        Twitter
+
+                    <a href="#" id="twitterShareProject" target="_blank" class="btn btn-info text-white rounded-circle p-3 shadow-sm border"
+                        style="width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;" data-bs-toggle="tooltip" title="Share via X (Twitter)">
+                        <i class="align-middle" data-feather="twitter" style="width: 22px; height: 22px;"></i>
                     </a>
+
                 </div>
             </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+
+            <div class="modal-footer justify-content-center border-top p-4 pt-0">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -316,7 +365,8 @@
                             <button type="button" class="btn btn-outline-info fw-semibold rounded-pill py-2" data-bs-toggle="modal" data-bs-target="#imgModal">
                                 <i class="align-middle me-1" data-feather="image"></i> Manage Images
                             </button>
-                            <a href="/administrator/delete-project/{{project.id}}/" class="btn btn-outline-danger fw-semibold rounded-pill py-2">
+                            <a href="/administrator/delete-project/{{project.id}}/" class="btn btn-outline-danger fw-semibold rounded-pill py-2"
+                            onclick="return confirm('Are you sure you want to delete this Project?');">
                                 <i class="align-middle me-1" data-feather="trash"></i> Delete Project
                             </a>
                             {% endif %}
@@ -492,10 +542,13 @@
 
                         <h5 class="fw-bold mb-3 text-dark">Post a New Update</h5>
                         <div class="card p-4 mb-5 border rounded-4 shadow-sm">
-                            <form method="post" action="" enctype="multipart/form-data">
+                            <form method="post" action="{% url 'upload_project_update' pid=project.id %}" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <div class="mb-3">
-                                    <textarea class="form-control" id="projectUpdateText" name="content" rows="4" placeholder="Share news, progress, or photos with your supporters..." required></textarea>
+                                    <input type="text" class="form-control" id="projectUpdateTitle" name="update_name" placeholder="Enter update title" required>
+                                </div>
+                                <div class="mb-3">
+                                    <textarea class="form-control" id="projectUpdateText" name="update_content" rows="4" placeholder="Share news or progress with your supporters..." required></textarea>
                                 </div>
                                     <button type="submit" class="btn btn-primary fw-semibold rounded-pill px-4">
                                         <i class="align-middle me-1" data-feather="send"></i> Post Update
@@ -507,12 +560,81 @@
 
                         <div class="list-group">
                             {% for update in updates %}
-                            <div class="list-group-item list-group-item-action mb-3 border-bottom rounded-3 shadow-sm p-4">
-                                <div class="d-flex w-100 justify-content-between mb-1 border-bottom">
-                                    <h6 class="mb-1 fw-bold text-dark">Update #{{ forloop.counter }}</h6>
-                                    <small class="text-muted">{{ update.created_at|date:"d M, Y P" }}</small>
+                            <div class="list-group-item list-group-item-action mb-3 rounded-3 shadow-sm p-4">
+
+                                <div class="d-flex w-100 justify-content-between align-items-center mb-2 border-bottom pb-2">
+
+                                    <h6 class="mb-0 fw-bolder text-dark">
+                                        <span class="text-muted small me-2 fw-normal">#{{ forloop.counter }}</span>
+                                        {{ update.update_title }}
+                                    </h6>
+
+                                    <div class="d-flex align-items-center gap-2">
+
+                                        <button type="button" class="btn btn-sm btn-primary rounded-pill px-3"
+                                                data-bs-toggle="modal" data-bs-target="#updateModal-{{ update.id }}" title="Edit Update">
+                                            <i class="align-middle" data-feather="edit"></i>
+                                        </button>
+
+                                        <a href="{% url 'delete_project_update' uid=update.id %}" class="btn btn-sm btn-danger rounded-pill px-3"
+                                           onclick="return confirm('Are you sure you want to delete this update?');" title="Delete Update">
+                                            <i class="align-middle" data-feather="trash"></i>
+                                        </a>
+
+                                        <small class="text-muted text-nowrap ms-2">{{ update.update_date|date:"d M, Y P" }}</small>
+                                    </div>
                                 </div>
-                                <p class="mb-1 mt-2 text-muted">{{ update.content }}</p>
+
+                                <p class="mb-1 mt-3 text-dark">{{ update.update }}</p>
+
+                            </div>
+                            <div class="modal fade" id="updateModal-{{ update.id }}" tabindex="-1" aria-labelledby="updateModalLabel-{{ update.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg modal-dialog-centered">
+                                    <div class="modal-content rounded-4 shadow-lg border-0">
+
+                                        <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                                            <h5 class="modal-title fw-bolder text-dark" id="updateModalLabel-{{ update.id }}">
+                                                <i class="align-middle me-2 text-primary" data-feather="edit-2"></i> Edit Project Update
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+
+                                        <form method="post" action="{% url 'edit_project_update' uid=update.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-body p-4">
+
+                                                <h6 class="fw-bold text-dark mb-3 border-bottom pb-2">Editing: <span class="text-primary">{{ update.update_title }}</span></h6>
+
+                                                <div class="row g-3">
+                                                    <div class="col-lg-12">
+                                                        <div class="form-floating">
+                                                            <input type="text" class="form-control rounded-3" id="updateTitle-{{ update.id }}"
+                                                                   placeholder="Enter the update title.. " name="update_name"
+                                                                   value="{{ update.update_title }}" required>
+                                                            <label for="updateTitle-{{ update.id }}">Update Title</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12">
+                                                        <div class="form-floating">
+                                                            <textarea class="form-control rounded-3" id="updateContent-{{ update.id }}" style="resize:none; height:150px;"
+                                                                      placeholder="Enter the update content..." name="update_content" required>{{ update.update }}</textarea>
+                                                            <label for="updateContent-{{ update.id }}">Update Content</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal-footer d-flex justify-content-between border-top p-4">
+                                                <button type="button" class="btn btn-outline-danger fw-semibold rounded-pill px-4" data-bs-dismiss="modal">
+                                                    <i class="align-middle me-1" data-feather="x"></i> Cancel
+                                                </button>
+                                                <button type="submit" class="btn btn-primary fw-semibold rounded-pill px-4">
+                                                    <i class="align-middle me-1" data-feather="save"></i> Update Post
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                             {% empty %}
                             <div class="alert alert-info text-center" role="alert">

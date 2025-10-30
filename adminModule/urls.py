@@ -33,10 +33,16 @@ urlpatterns = [
 
     path('all-project/',views.adminAllProject),
     path('add-project/', views.adminAddProject, name='admin_add_project'),
+
     path('single-project/<int:pid>/',views.adminSingleProject),
     path('update-project/<int:pid>/', views.adminUpdateProject, name='admin_update_project'),
     path('change-project-status/<int:pid>/',views.adminChangeProjectStatus),
     path('delete-project/<int:pid>/',views.adminDeleteProject),
+
+    path('upload_project_update/<int:pid>/', views.upload_project_update, name='upload_project_update'),
+    path('edit_project_update/<int:uid>/', views.edit_project_update, name='edit_project_update'),
+    path('delete_project_update/<int:uid>/', views.delete_project_update, name='delete_project_update'),
+
     path('upload_project_image/<int:project_id>/', views.upload_project_image, name='upload_project_image'),
     path('bene_img/<int:prj_id>/', views.upload_beneficiary_image, name='upload_beneficiary_image'),
     path('del_prj_img/<int:img_id>/', views.delete_project_image, name='upload_project_image'),

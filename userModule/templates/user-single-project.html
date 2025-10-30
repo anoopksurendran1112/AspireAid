@@ -202,8 +202,29 @@
 
                     <div class="tab-pane fade p-4 border rounded-4 shadow-sm" id="updates-tab-pane" role="tabpanel" aria-labelledby="updates-tab" tabindex="0">
                         <h3 class="fw-bold text-dark mb-4 border-bottom pb-2">Latest Project Updates</h3>
-                        <p class="text-secondary">No updates have been posted for this project yet. Check back soon!</p>
+
+                        <div class="list-group">
+                            {% for update in updates %}
+                            <div class="list-group-item list-group-item-action mb-3 rounded-3 p-4 border-0 shadow-sm">
+                                <div class="d-flex w-100 justify-content-between align-items-center mb-2 border-bottom pb-2">
+
+                                    <h5 class="mb-0 fw-bold text-dark">
+                                        <span class="text-primary small me-2 fw-normal">#{{ forloop.counter }}</span>
+                                        {{ update.update_title }}
+                                    </h5>
+
+                                    <small class="text-muted text-nowrap">{{ update.created_at|date:"d M, Y P" }}</small>
+                                </div>
+
+                                <p class="mb-1 mt-3 text-dark">{{ update.update }}</p>
+                            </div>
+                            {% empty %}
+                            <div class="alert alert-info text-center" role="alert">
+                                <i class="align-middle me-1" data-feather="info"></i> No updates have been posted for this project yet. Check back soon!
+                            </div>
+                            {% endfor %}
                         </div>
+                    </div>
                 </div>
 
             </div>

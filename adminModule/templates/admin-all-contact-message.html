@@ -3,70 +3,91 @@
 
 {% for msg in contact_messages %}
 <div class="modal fade" id="messageModal{{ msg.id }}" tabindex="-1" aria-labelledby="messageModalLabel{{ msg.id }}" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="messageModalLabel{{ msg.id }}">Message from {{ msg.first_name }} {{ msg.last_name }}</h5>
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg border-0">
+
+            <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                <h5 class="modal-title fw-bolder text-dark" id="messageModalLabel{{ msg.id }}">
+                    <i class="align-middle me-2 text-primary" data-feather="message-square"></i> Message from {{ msg.first_name }} {{ msg.last_name }}
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <ul class="nav nav-tabs" id="myTab{{ msg.id }}" role="tablist">
+
+            <div class="modal-body p-4">
+
+                <ul class="nav nav-tabs border-bottom-0" id="myTab{{ msg.id }}" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="message-tab{{ msg.id }}" data-bs-toggle="tab" data-bs-target="#message-content{{ msg.id }}" type="button" role="tab" aria-controls="message-content{{ msg.id }}" aria-selected="true">Message</button>
+                        <button class="nav-link active fw-bold px-4 py-2" id="message-tab{{ msg.id }}" data-bs-toggle="tab" data-bs-target="#message-content{{ msg.id }}" type="button" role="tab" aria-controls="message-content{{ msg.id }}" aria-selected="true">
+                            <i class="align-middle me-1" data-feather="inbox"></i> Message & History
+                        </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="reply-tab{{ msg.id }}" data-bs-toggle="tab" data-bs-target="#reply-content{{ msg.id }}" type="button" role="tab" aria-controls="reply-content{{ msg.id }}" aria-selected="false">Reply</button>
+                        <button class="nav-link fw-bold px-4 py-2" id="reply-tab{{ msg.id }}" data-bs-toggle="tab" data-bs-target="#reply-content{{ msg.id }}" type="button" role="tab" aria-controls="reply-content{{ msg.id }}" aria-selected="false">
+                            <i class="align-middle me-1" data-feather="send"></i> Send Reply
+                        </button>
                     </li>
                 </ul>
 
-                <div class="tab-content mt-3" id="myTabContent{{ msg.id }}">
-                    <div class="tab-pane fade show active" id="message-content{{ msg.id }}" role="tabpanel" aria-labelledby="message-tab{{ msg.id }}">
-                        <div class="p-3 mb-3 border rounded">
-                            <p><strong>Name:</strong> {{ msg.first_name }} {{ msg.last_name }}</p>
-                            <p><strong>Email:</strong> {{ msg.email }}</p>
-                            <p><strong>Phone:</strong> {{ msg.phone }}</p>
-                            <hr>
-                            <p><strong>Message:</strong></p>
-                            <p>{{ msg.message }}</p>
-                            <small class="text-muted d-block text-end">Sent at {{ msg.sent_time|date:"F d, Y P" }}</small>
-                        </div>
+                <div class="tab-content pt-4" id="myTabContent{{ msg.id }}">
 
-                        {% if msg.msg.all %}
-                        <h6 class="mb-2">Replies:</h6>
-                        <div style="max-height: 250px; overflow-y: auto;">
-                            <div class="accordion" id="accordionReplies{{ msg.id }}">
-                                {% for reply in msg.msg.all %}
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header" id="heading{{ reply.id }}">
-                                            <button class="accordion-button collapsed text-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ reply.id }}" aria-expanded="false" aria-controls="collapse{{ reply.id }}">
-                                               Sent at {{ reply.reply_time|date:"F d, Y P" }}
-                                            </button>
-                                        </h2>
-                                        <div id="collapse{{ reply.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ reply.id }}" data-bs-parent="#accordionReplies{{ msg.id }}">
-                                            <div class="accordion-body">
-                                                <strong>{{ reply.reply }}</strong>
+                    <div class="tab-pane fade show active" id="message-content{{ msg.id }}" role="tabpanel" aria-labelledby="message-tab{{ msg.id }}">
+
+                        <div class="row g-4">
+
+                            <div class="col-lg-6">
+                                <h6 class="fw-bold mb-3 text-dark border-bottom pb-2">Original Inquiry</h6>
+                                <div class="p-3 mb-3 bg-light rounded-3">
+                                    <p class="mb-1"><strong>Name:</strong> {{ msg.first_name }} {{ msg.last_name }}</p>
+                                    <p class="mb-1"><strong>Email:</strong> <a href="mailto:{{ msg.email }}" class="text-decoration-none">{{ msg.email }}</a></p>
+                                    <p class="mb-3"><strong>Phone:</strong> {{ msg.phone }}</p>
+                                    <hr>
+                                    <p class="mb-1 fw-bold">Message:</p>
+                                    <p class="text-muted">{{ msg.message }}</p>
+                                    <small class="text-secondary d-block text-end">Received on: {{ msg.sent_time|date:"F d, Y P" }}</small>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <h6 class="fw-bold mb-3 text-dark border-bottom pb-2">Reply History</h6>
+
+                                {% if msg.msg.all %}
+                                <div class="bg-light p-3 rounded-3" style="max-height: 400px; overflow-y: auto;">
+                                    <div class="accordion accordion-flush" id="accordionReplies{{ msg.id }}">
+                                        {% for reply in msg.msg.all %}
+                                            <div class="accordion-item bg-transparent">
+                                                <h2 class="accordion-header" id="heading{{ reply.id }}">
+                                                    <button class="accordion-button collapsed text-muted p-2 bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ reply.id }}" aria-expanded="false" aria-controls="collapse{{ reply.id }}">
+                                                       Reply Sent at: {{ reply.reply_time|date:"F d, Y P" }}
+                                                    </button>
+                                                </h2>
+                                                <div id="collapse{{ reply.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ reply.id }}" data-bs-parent="#accordionReplies{{ msg.id }}">
+                                                    <div class="accordion-body fw-semibold p-2">
+                                                        {{ reply.reply }}
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
+                                        {% endfor %}
                                     </div>
-                                {% endfor %}
+                                </div>
+                                {% else %}
+                                    <div class="alert alert-info" role="alert">
+                                        No replies sent yet.
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
-                    {% else %}
-                        <div class="alert alert-info" role="alert">
-                            No replies sent yet.
-                        </div>
-                    {% endif %}
                     </div>
 
                     <div class="tab-pane fade" id="reply-content{{ msg.id }}" role="tabpanel" aria-labelledby="reply-tab{{ msg.id }}">
+                        <h6 class="fw-bold mb-3 text-dark">Compose Your Response</h6>
                         <form method="post" action="/administrator/send-reply/{{ msg.id }}/">
                             {% csrf_token %}
                             <div class="mb-3">
-                                <label for="replyMessage{{ msg.id }}" class="form-label">Your Reply</label>
-                                <textarea class="form-control" id="replyMessage{{ msg.id }}" name="reply_message" rows="5" required></textarea>
+                                <label for="replyMessage{{ msg.id }}" class="form-label text-muted">Reply to {{ msg.first_name }} {{ msg.last_name }}</label>
+                                <textarea class="form-control rounded-3" id="replyMessage{{ msg.id }}" name="reply_message" rows="7" placeholder="Type your response here..." required></textarea>
                             </div>
                             <div class="text-end">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary fw-semibold rounded-pill px-4">
                                     <i class="align-middle me-1" data-feather="send"></i> Send Reply
                                 </button>
                             </div>
@@ -74,8 +95,9 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+            <div class="modal-footer border-top p-4">
+                <button type="button" class="btn btn-outline-secondary fw-semibold rounded-pill px-4" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -206,20 +228,5 @@
         </div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-    {% if messages %}
-        {% for message in messages %}
-            Swal.fire({
-                title: '{{ message.tags|title }}!',
-                text: '{{ message }}',
-                icon: '{{ message.tags }}',
-                confirmButtonText: 'OK'
-            });
-        {% endfor %}
-    {% endif %}
-</script>
 
 {% endblock %}

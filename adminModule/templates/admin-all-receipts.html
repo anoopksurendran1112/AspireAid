@@ -1,6 +1,7 @@
 {% extends 'admin-dashboard.html' %}
 {% load humanize %}
 {% block content %}
+
 <!---------------------- All Institution Table Details -------------------->
 <div class="row">
     <div class="col-12">
@@ -97,8 +98,8 @@
                         <thead class="table-dark">
                             <tr>
                                 <th class="text-white small fw-bold text-uppercase ps-4">#</th>
-                                <th class="text-white small fw-bold text-uppercase">Project</th>
                                 <th class="d-none d-md-table-cell text-white small fw-bold text-uppercase">Sender</th>
+                                <th class="text-white small fw-bold text-uppercase">Project</th>
                                 <th class="text-white small fw-bold text-uppercase">Tracking ID</th>
                                 <th class="d-none d-lg-table-cell text-white small fw-bold text-uppercase">Time</th>
                                 <th class="d-none d-md-table-cell text-white small fw-bold text-uppercase">Qty</th>
@@ -111,6 +112,7 @@
                         {% for r in rec %}
                         <tr>
                             <td class="ps-4">{{ forloop.counter }}</td>
+                            <td class="d-none fw-bold d-md-table-cell">{{ r.transaction.sender.full_name|truncatechars:20 }}</td>
 
                             <td>
                                 <a href="/administrator/single-project/{{ r.transaction.project.id }}/" class="text-decoration-none fw-semibold text-dark">
@@ -118,15 +120,13 @@
                                 </a>
                             </td>
 
-                            <td class="d-none d-md-table-cell">{{ r.transaction.sender.full_name|truncatechars:20 }}</td>
-
                             <td class="fw-bold">{{ r.transaction.tracking_id }}</td>
 
                             <td class="d-none d-lg-table-cell">{{ r.transaction.transaction_time|date:"d M, Y H:i" }}</td>
 
                             <td class="d-none d-md-table-cell text-nowrap">{{ r.tile_count }} Tiles</td>
 
-                            <td class="fw-bold text-nowrap">₹{{ r.transaction.amount|floatformat:2|intcomma }}</td>
+                            <td class="fw-bold text-nowrap text-success">₹{{ r.transaction.amount|floatformat:2|intcomma }}</td>
 
                             <td class="text-center pe-4 text-nowrap">
                                 <a class="btn btn-sm btn-primary rounded-pill px-3 me-2" href="/administrator/verify-transaction/{{ r.transaction.id }}/" title="Transaction Details">
@@ -158,20 +158,4 @@
         </div>
     </div>
 </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script>
-        {% if messages %}
-            {% for message in messages %}
-                Swal.fire({
-                    title: '{{ message.tags|title }}!',
-                    text: '{{ message }}',
-                    icon: '{{ message.tags }}',
-                    confirmButtonText: 'OK'
-                });
-            {% endfor %}
-        {% endif %}
-    </script>
-
 {% endblock %}

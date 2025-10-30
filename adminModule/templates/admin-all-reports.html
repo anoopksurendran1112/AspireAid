@@ -71,7 +71,7 @@
 
                         <thead class="table-dark">
                             <tr>
-                                <th class="text-white small fw-bold text-uppercase ps-4">Sl no.</th>
+                                <th class="text-white small fw-bold text-uppercase ps-4">#</th>
                                 <th class="text-white small fw-bold text-uppercase">Project Title</th>
                                 <th class="text-white small fw-bold text-uppercase">Beneficiary</th>
                                 <th class="text-white small fw-bold text-uppercase">Success Date</th>
@@ -87,13 +87,13 @@
                         <tr>
                             <td class="ps-4">{{ forloop.counter }}</td>
                             <td>
-                                <a href="/administrator/single-project/{{ p.id }}/" class="text-decoration-none fw-semibold text-dark">
+                                <a href="/administrator/single-project/{{ p.id }}/" class="text-decoration-none fw-bold text-dark">
                                     {{ p.title }}
                                 </a>
                             </td>
-                            <td>{{ p.beneficiary.first_name }} {{ p.beneficiary.last_name }}</td>
+                            <td class="fw-bold">{{ p.beneficiary.first_name }} {{ p.beneficiary.last_name }}</td>
                             <td>{{ p.closed_by|date:"d M, Y" }}</td>
-                            <td class="fw-bold text-nowrap">₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
+                            <td class="fw-bold text-nowrap text-success">₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
                             <td class="text-nowrap">{{ p.tiles }} tiles</td>
                             <td>{{ p.tra }}</td>
 
@@ -134,20 +134,5 @@
         </div>
     </div>
 </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script>
-        {% if messages %}
-            {% for message in messages %}
-                Swal.fire({
-                    title: '{{ message.tags|title }}!',
-                    text: '{{ message }}',
-                    icon: '{{ message.tags }}',
-                    confirmButtonText: 'OK'
-                });
-            {% endfor %}
-        {% endif %}
-    </script>
 
     {% endblock %}

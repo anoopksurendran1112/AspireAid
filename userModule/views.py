@@ -1,7 +1,7 @@
 from adminModule.utils import whatsapp_send_initiated, email_send_initiated, whatsapp_send_proof, email_send_proof, sms_send_initiated, sms_send_proof, get_unique_tracking_id
 from userModule.models import PersonalDetails, SelectedTile, Transaction, Screenshot, ContactMessage
 from django.shortcuts import render, redirect, get_object_or_404
-from adminModule.models import Project, Institution, NotificationPreference
+from adminModule.models import Project, Institution, NotificationPreference, ProjectUpdates
 from django.db import transaction as db_transaction
 from django.db import transaction, IntegrityError
 from django.contrib import messages
@@ -22,7 +22,13 @@ def userIndex(request, ins_id):
 
 
 def contact_us(request, ins_id):
-    ins = get_object_or_404(Institution, id=ins_id, table_status=True)
+    try:
+        ins = get_object_or_404(Institution, id=ins_id, table_status=True)
+    except Exception:
+        messages.error(request, "Institution not found.")
+        return redirect('/')
+
+    redirect_url = request.META.get('HTTP_REFERER', f'/user/{ins_id}/')
 
     if request.method == 'POST':
         try:
@@ -35,18 +41,27 @@ def contact_us(request, ins_id):
 
                 if not all([first_name, last_name, email, phone, message]):
                     messages.error(request, 'All form fields must be filled out.')
-                    return redirect(f'/user/{ins.id}/contact-us/')
+                    return redirect(redirect_url)
 
-                ContactMessage.objects.create(first_name=first_name,last_name=last_name,email=email,phone=phone,message=message,ins=ins)
+                if not phone.isdigit() or len(phone) != 10:
+                    messages.error(request, 'Please enter a valid 10-digit phone number.')
+                    return redirect(redirect_url)
 
-                messages.success(request, 'Your message has been sent successfully!')
-                return redirect(f'/user/{ins.id}/contact-us/')
+                ContactMessage.objects.create(
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email,
+                    phone=phone,
+                    message=message,
+                    ins=ins
+                )
 
+                messages.success(request, 'Your message has been sent successfully! We will get back to you soon.')
         except IntegrityError:
-            messages.error(request, 'An error occurred while saving your message. Please try again.')
+            messages.error(request, 'A database error occurred while saving your message. Please try again.')
         except Exception as e:
             messages.error(request, f'An unexpected error occurred: {e}')
-    return render(request, 'contact-us.html', {'ins': ins})
+    return redirect(redirect_url)
 
 
 def about(request, ins_id):
@@ -73,16 +88,11 @@ def userSingleProject(request, prj_id, ins_id):
     ins = get_object_or_404(Institution, id=ins_id, table_status=True)
     prj = get_object_or_404(Project, id=prj_id)
 
-    # --- Calculations needed for all states ---
     prj.progress = round((prj.current_amount / prj.funding_goal) * 100, 2) if prj.funding_goal > 0 else 0
-
-    # ✅ COUNT THE TRANSACTIONS HERE
-    # Count only successful, verified transactions to represent the number of donors.
     prj.contributors_count = Transaction.objects.filter(project=prj, status='Verified').count()
+    project_updates = ProjectUpdates.objects.filter(project=prj).order_by('-update_date')
 
-    # --- POST Request Handling (Checkout Logic) ---
     if request.method == "POST":
-        # ... (Your existing POST logic remains unchanged)
         selected_tiles = request.POST.get("selected_tiles_input")
         if not selected_tiles:
             return redirect(reverse('user_single_project', kwargs={'ins_id': ins_id, 'prj_id': prj_id}))
@@ -91,7 +101,6 @@ def userSingleProject(request, prj_id, ins_id):
         query_string = urllib.parse.urlencode({'project_id': prj.id, 'selected_tiles': selected_tiles})
         return redirect(f"{checkout_url}?{query_string}")
 
-    # --- GET Request Handling (Display Logic) ---
     else:
         project_status = 'Active'
         if prj.funding_goal <= prj.current_amount or prj.closed_by:
@@ -99,15 +108,17 @@ def userSingleProject(request, prj_id, ins_id):
         if not prj.table_status:
             project_status = 'Closed'
 
-        # Pass the project with the new contributors_count attribute for all statuses
+        common_context = {
+            'ins': ins,
+            'project': prj,
+            'project_status': project_status,
+            'updates': project_updates,
+        }
+
         if project_status in ['Completed', 'Expired', 'Closed']:
-            return render(request, 'user-single-project.html', {
-                'ins': ins,
-                'project': prj,  # prj now has .contributors_count
-                'project_status': project_status,
-            })
+            return render(request, 'user-single-project.html', common_context)
         else:
-            # --- Tile Calculation Logic ---
+            # --- Tile Calculation Logic remains unchanged ---
             total_tiles = int(prj.funding_goal // prj.tile_value)
             sold_tiles_set = set(
                 Transaction.objects.filter(project=prj, status='Verified').values_list('tiles_bought__tiles',
@@ -123,15 +134,9 @@ def userSingleProject(request, prj_id, ins_id):
             available_tiles_count = total_tiles - unavailable_tiles_count
             tile_range = range(1, total_tiles + 1)
 
-            return render(request, 'user-single-project.html', {
-                'ins': ins,
-                'project': prj,  # prj now has .contributors_count
-                'total_tiles': total_tiles,
-                'available_tiles_count': available_tiles_count,
-                't_range': tile_range,
-                'sold_tiles_set': sold_tiles,
-                'processing_tiles_set': processing_tiles,
-            })
+            # Update context for Active projects
+            common_context.update({'total_tiles': total_tiles,'available_tiles_count': available_tiles_count,'t_range': tile_range,'sold_tiles_set': sold_tiles,'processing_tiles_set': processing_tiles,})
+            return render(request, 'user-single-project.html', common_context)
 
 
 def userCheckoutView(request, ins_id):
