@@ -236,9 +236,9 @@
                                         {{ p.title|truncatechars:35 }}
                                     </td>
 
-                                    <td class="d-none d-lg-table-cell text-nowrap">₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
+                                    <td class="d-none d-lg-table-cell fw-bold text-info text-nowrap">₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
 
-                                    <td class="fw-bold text-nowrap">₹{{ p.current_amount|floatformat:2|intcomma }}</td>
+                                    <td class="fw-bold text-success text-nowrap">₹{{ p.current_amount|floatformat:2|intcomma }}</td>
 
                                     <td class="d-none d-md-table-cell">{{ p.started_at|date:"d M, Y" }}</td>
 

@@ -3,58 +3,80 @@
 {% block content %}
 
 <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary ">
-                <h1 class="modal-title fs-5 text-white" id="profileModalLabel"><strong>Update Profile Details</strong></h1>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg border-0">
+
+            <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                <h5 class="modal-title fw-bolder text-dark" id="profileModalLabel">
+                    <i class="align-middle me-2 text-primary" data-feather="user"></i> Update Profile Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <form method="post">
                 {% csrf_token %}
                 <div class="modal-body p-4">
-                    <h5 class="mb-3 text-primary">User Details</h5>
-                    <div class="row gx-3 gy-3">
-                        <div class="col-md-6 form-floating">
-                            <input type="text" class="form-control" id="userFirstName" placeholder="Firstname" value="{{ admin.first_name }}" name="first_name">
-                            <label for="userFirstName" class="ms-2">First Name</label>
+
+                    <h6 class="mb-3 fw-bold text-dark border-bottom pb-2">User Details</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="userFirstName" placeholder="Firstname" value="{{ admin.first_name }}" name="first_name">
+                                <label for="userFirstName">First Name</label>
+                            </div>
                         </div>
-                        <div class="col-md-6 form-floating">
-                            <input type="text" class="form-control" id="userLastName" placeholder="Lastname" value="{{ admin.last_name }}" name="last_name">
-                            <label for="userLastName" class="ms-2">Last Name</label>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="userLastName" placeholder="Lastname" value="{{ admin.last_name }}" name="last_name">
+                                <label for="userLastName">Last Name</label>
+                            </div>
                         </div>
-                        <div class="col-md-6 form-floating">
-                            <input type="email" class="form-control" id="userEmail" placeholder="Email ID" value="{{ admin.email }}" name="email">
-                            <label for="userEmail" class="ms-2">Email ID</label>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="email" class="form-control rounded-3" id="userEmail" placeholder="Email ID" value="{{ admin.email }}" name="email">
+                                <label for="userEmail">Email ID</label>
+                            </div>
                         </div>
-                        <div class="col-md-6 form-floating">
-                            <input type="tel" class="form-control" id="userPhn" placeholder="Phone number" value="{{ admin.phn_no }}" name="phn_no">
-                            <label for="userPhn" class="ms-2">Phone Number</label>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="tel" class="form-control rounded-3" id="userPhn" placeholder="Phone number" value="{{ admin.phn_no }}" name="phn_no">
+                                <label for="userPhn">Phone Number</label>
+                            </div>
                         </div>
                     </div>
 
                     {% if not admin.is_superuser %}
-                    <hr class="my-4">
-                    <h5 class="mb-3 text-primary">Institution Details</h5>
-                    <div class="row gx-3 gy-3">
-                        <div class="col-md-6 form-floating">
-                            <input type="text" class="form-control" id="instName" placeholder="Institution Name" value="{{ admin.institution.institution_name }}" name="institution_name">
-                            <label for="instName" class="ms-2">Institution Name</label>
+                    <h6 class="mb-3 fw-bold text-dark border-bottom pb-2">Institution Details</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="instName" placeholder="Institution Name" value="{{ admin.institution.institution_name }}" name="institution_name">
+                                <label for="instName">Institution Name</label>
+                            </div>
                         </div>
-                        <div class="col-md-6 form-floating">
-                            <input type="tel" class="form-control" id="instPhn" placeholder="Institution Phone" value="{{ admin.institution.phn }}" name="institution_phn">
-                            <label for="instPhn" class="ms-2">Institution Phone</label>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="tel" class="form-control rounded-3" id="instPhn" placeholder="Institution Phone" value="{{ admin.institution.phn }}" name="institution_phn">
+                                <label for="instPhn">Institution Phone</label>
+                            </div>
                         </div>
-                        <div class="col-md-12 form-floating">
-                            <textarea class="form-control" id="instAddress" placeholder="Institution Address" name="institution_address" style="height: 100px;">{{ admin.institution.address }}</textarea>
-                            <label for="instAddress" class="ms-2">Institution Address</label>
+                        <div class="col-md-12">
+                            <div class="form-floating">
+                                <textarea class="form-control rounded-3" id="instAddress" placeholder="Institution Address" name="institution_address" style="height: 100px;">{{ admin.institution.address }}</textarea>
+                                <label for="instAddress">Institution Address</label>
+                            </div>
                         </div>
                     </div>
                     {% endif %}
                 </div>
-                <div class="modal-footer d-flex justify-content-between">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success">Save changes</button>
+
+                <div class="modal-footer d-flex justify-content-between border-top p-4">
+                    <button type="button" class="btn btn-outline-danger fw-semibold rounded-pill px-4" data-bs-dismiss="modal">
+                        <i class="align-middle me-1" data-feather="x"></i> Close
+                    </button>
+                    <button type="submit" class="btn btn-primary fw-semibold rounded-pill px-4">
+                        <i class="align-middle me-1" data-feather="check"></i> Save Changes
+                    </button>
                 </div>
             </form>
         </div>
@@ -62,10 +84,13 @@
 </div>
 
 <div class="modal fade" id="updateDataModal" tabindex="-1" aria-labelledby="updateDataModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-danger ">
-                <h1 class="modal-title fs-5 text-white" id="updateDataModalLabel"><strong>Change Credentials</strong></h1>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg border-0">
+
+            <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                <h5 class="modal-title fw-bolder text-dark" id="updateDataModalLabel">
+                    <i class="align-middle me-2 text-primary" data-feather="key"></i> Change Account Credentials
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -74,54 +99,71 @@
                 <div class="modal-body p-4">
 
                     {% if not admin.is_superuser and preference.email_enabled %}
-                    <fieldset class="mb-4 p-3 border rounded-3 bg-light">
-                        <legend class="h6 text-primary">Institution Email Credentials</legend>
-                        <p class="text-muted small mb-3">Update credentials for automated email notifications.</p>
-                        <div class="row gx-3 gy-3">
-                            <div class="col-md-6 form-floating">
-                                <input type="email" class="form-control" id="instEmail" placeholder="Institution Email" value="{{ admin.institution.email }}" name="institution_email" required>
-                                <label for="instEmail" class="ms-2">Institution Email</label>
+                    <fieldset class="mb-5 p-4 border rounded-4 bg-light">
+                        <legend class="h6 text-primary fw-bold px-2">Institution Email Credentials</legend>
+                        <p class="text-muted small mb-4">Update credentials for automated email notifications (only needed if changing email service providers).</p>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="email" class="form-control rounded-3" id="instEmail" placeholder="Institution Email" value="{{ admin.institution.email }}" name="institution_email" required>
+                                    <label for="instEmail">Institution Email</label>
+                                </div>
                             </div>
-                            <div class="col-md-6 form-floating">
-                                <input type="password" class="form-control" id="instAppPassword" placeholder="Email App Password" name="institution_app_password" value="{{ admin.institution.email_app_password }}" required>
-                                <label for="instAppPassword" class="ms-2">Email App Password</label>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="password" class="form-control rounded-3" id="instAppPassword" placeholder="Email App Password" name="institution_app_password" value="{{ admin.institution.email_app_password }}" required>
+                                    <label for="instAppPassword">Email App Password</label>
+                                </div>
                             </div>
                         </div>
                     </fieldset>
-                    <hr class="my-4">
                     {% endif %}
 
                     <fieldset>
-                        <legend class="h5 text-danger">User Account Credentials</legend>
-                        <p class="text-muted small">Enter your **current password** to confirm your identity.</p>
-                        <div class="row gx-3 gy-3 mb-4">
-                            <div class="col-md-6 form-floating">
-                                <input type="text" class="form-control" id="newUsername" placeholder="New Username" value="{{ admin.username }}" name="new_username" required>
-                                <label for="newUsername" class="ms-2">New Username</label>
+                        <legend class="h6 text-dark fw-bold border-bottom pb-2 mb-3">User Account Credentials</legend>
+
+                        <p class="text-muted small">Enter your <strong class="text-dark">current password</strong> to verify your identity before making any changes.</p>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control rounded-3" id="newUsername" placeholder="New Username" value="{{ admin.username }}" name="new_username" required>
+                                    <label for="newUsername">New Username</label>
+                                </div>
                             </div>
-                            <div class="col-md-6 form-floating">
-                                <input type="password" class="form-control" id="oldPassword" placeholder="Current Password" name="old_password" required>
-                                <label for="oldPassword" class="ms-2">Current Password</label>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="password" class="form-control rounded-3" id="oldPassword" placeholder="Current Password" name="old_password" required>
+                                    <label for="oldPassword">Current Password</label>
+                                </div>
                             </div>
                         </div>
 
-                        <hr class="mt-4 mb-2">
-                        <p class="text-muted small">Change password fields. **Leave blank to keep current password.**</p>
-                        <div class="row gx-3 gy-3">
-                            <div class="col-md-6 form-floating">
-                                <input type="password" class="form-control" id="newPassword" placeholder="New Password" name="new_password">
-                                <label for="newPassword" class="ms-2">New Password</label>
+                        <h6 class="text-dark fw-bold mt-4">Change Password</h6>
+                        <p class="text-muted small">To keep your current password, simply <strong class="text-dark">leave these fields blank</strong>.</p>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="password" class="form-control rounded-3" id="newPassword" placeholder="New Password" name="new_password">
+                                    <label for="newPassword">New Password</label>
+                                </div>
                             </div>
-                            <div class="col-md-6 form-floating">
-                                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password" name="confirm_password">
-                                <label for="confirmPassword" class="ms-2">Confirm Password</label>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="password" class="form-control rounded-3" id="confirmPassword" placeholder="Confirm Password" name="confirm_password">
+                                    <label for="confirmPassword">Confirm New Password</label>
+                                </div>
                             </div>
                         </div>
                     </fieldset>
                 </div>
-                <div class="modal-footer d-flex justify-content-between">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success">Save changes</button>
+
+                <div class="modal-footer d-flex justify-content-between border-top p-4">
+                    <button type="button" class="btn btn-outline-danger fw-semibold rounded-pill px-4" data-bs-dismiss="modal">
+                        <i class="align-middle me-1" data-feather="x"></i> Close
+                    </button>
+                    <button type="submit" class="btn btn-primary fw-semibold rounded-pill px-4">
+                        <i class="align-middle me-1" data-feather="check"></i> Save Changes
+                    </button>
                 </div>
             </form>
         </div>
