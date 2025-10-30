@@ -285,7 +285,7 @@
                 Have a question about a project or need support? Fill out the form below and we'll get back to you shortly!
             </p>
 
-            <form method="post" action="" class="needs-validation" novalidate>
+            <form method="post" action="{% url 'contact_us' ins_id=ins.id %}" class="needs-validation" novalidate>
                 {% csrf_token %}
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -340,7 +340,7 @@
                     </div>
                 </div>
             </form>
-            </div>
+        </div>
     </div>
 <!--Ending Contact us Section-->
 
@@ -397,5 +397,19 @@
 <!--Ending Footer Section-->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                title: '{{ message.tags|title }}!',
+                text: '{{ message }}',
+                icon: '{{ message.tags }}',
+                confirmButtonText: 'OK'
+            });
+        {% endfor %}
+    {% endif %}
+</script>
+
 </body>
 </html>

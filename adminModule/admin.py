@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import (
     Project, BankDetails, Beneficial, ProjectImage, Institution,
-    CustomUser, NotificationPreference  # Import the new model
+    CustomUser, NotificationPreference, ProjectUpdates  # 1. Import ProjectUpdates
 )
 
 
@@ -10,10 +10,18 @@ from .models import (
 # --- INLINES ---
 # =========================================================================
 
-# 1. Inline for NotificationPreference (for InstitutionAdmin)
+# Inline for ProjectUpdates (to be used in ProjectAdmin)
+class ProjectUpdatesInline(admin.TabularInline):
+    model = ProjectUpdates
+    extra = 1  # Show one empty form for adding a new update
+    fields = ('update_title', 'update', 'table_status')
+    readonly_fields = ('update_date',)
+    verbose_name_plural = 'Project Updates'
+
+
+# Inline for NotificationPreference (for InstitutionAdmin)
 class NotificationPreferenceInline(admin.StackedInline):
     model = NotificationPreference
-    # Ensure there's only one instance to edit (due to OneToOneField)
     max_num = 1
     can_delete = False
     verbose_name_plural = 'Notification Channel Settings'
@@ -26,12 +34,10 @@ class NotificationPreferenceInline(admin.StackedInline):
     )
 
 
-# --- Inline for Institution (to view its default bank) ---
+# Inline for Institution (to view its default bank) ---
 class BankDetailsInline(admin.TabularInline):
     model = BankDetails
     extra = 0
-    # Note: If BankDetails is only linked via ForeignKey to Institution, this inline won't work
-    # unless you are viewing the BankDetails object itself. Assuming this inline is for a related purpose.
 
 
 # =========================================================================
@@ -40,60 +46,31 @@ class BankDetailsInline(admin.TabularInline):
 
 # --- Custom Admin for CustomUser ---
 class CustomUserAdmin(UserAdmin):
-    # Removed 'default_bank' as it is not on the CustomUser model
     list_display = UserAdmin.list_display + (
         'phn_no',
         'institution',
         'profile_pic',
         'table_status'
     )
-
     fieldsets = UserAdmin.fieldsets + (
-        ('Custom Fields', {
-            'fields': (
-                'phn_no',
-                'profile_pic',
-                'institution',
-                'table_status',
-            )
-        }),
+        ('Custom Fields', {'fields': ('phn_no', 'profile_pic', 'institution', 'table_status')}),
     )
-
     add_fieldsets = UserAdmin.add_fieldsets + (
-        ('Custom Fields', {
-            'fields': (
-                'phn_no',
-                'profile_pic',
-                'institution',
-                'table_status',
-            )
-        }),
+        ('Custom Fields', {'fields': ('phn_no', 'profile_pic', 'institution', 'table_status')}),
     )
-
     list_filter = UserAdmin.list_filter + ('institution', 'table_status')
     search_fields = ('email', 'phn_no', 'institution__institution_name')
 
 
 # --- Standard Model Admins ---
 class InstitutionAdmin(admin.ModelAdmin):
-    list_display = (
-        'institution_name',
-        'email',
-        'phn',
-        'default_bank',
-        'table_status'
-    )
+    list_display = ('institution_name', 'email', 'phn', 'default_bank', 'table_status')
     search_fields = ('institution_name', 'email')
     list_filter = ('table_status',)
-
-    # 2. Add the NotificationPreferenceInline here
     inlines = [NotificationPreferenceInline]
-
-    # Optional: Group the fields for better layout
     fieldsets = (
-        (None, {
-            'fields': ('institution_name', 'address', 'phn', 'email', 'default_bank', 'institution_img', 'table_status')
-        }),
+        (None, {'fields': ('institution_name', 'address', 'phn', 'email', 'default_bank', 'institution_img',
+                           'table_status')}),
     )
 
 
@@ -103,14 +80,15 @@ class ProjectAdmin(admin.ModelAdmin):
         'beneficiary',
         'funding_goal',
         'current_amount',
-        'tile_value',
         'created_by',
-        'closed_by',
         'table_status'
     )
-    list_filter = ('created_by', 'beneficiary', 'closed_by', 'table_status')
+    list_filter = ('created_by', 'beneficiary', 'table_status')
     search_fields = ('title', 'beneficiary__first_name', 'created_by__institution_name')
     date_hierarchy = 'started_at'
+
+    # 2. Add the ProjectUpdatesInline here
+    inlines = [ProjectUpdatesInline]
 
 
 class BankDetailsAdmin(admin.ModelAdmin):
@@ -153,3 +131,7 @@ admin.site.register(Project, ProjectAdmin)
 admin.site.register(BankDetails, BankDetailsAdmin)
 admin.site.register(Beneficial, BeneficialAdmin)
 admin.site.register(ProjectImage, ProjectImageAdmin)
+
+# 3. ProjectUpdates is managed through the ProjectAdmin inline, so it does not need to be registered separately.
+# If you wanted a standalone page for updates, you would uncomment the line below:
+# admin.site.register(ProjectUpdates)

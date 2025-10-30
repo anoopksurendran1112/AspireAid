@@ -2,7 +2,7 @@ from adminModule.utils import generate_receipt_pdf, whatsapp_send_approve, email
     email_send_reject, sms_send_reject, whatsapp_send_reject, email_send_unverify, sms_send_unverify, \
     whatsapp_send_unverify, sms_send_response, email_send_response, whatsapp_send_response, generate_report_pdf
 from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser, Reports, \
-    NotificationPreference
+    NotificationPreference, ProjectUpdates
 from userModule.models import Transaction, Receipt, Screenshot, ContactMessage, MessageReply
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
@@ -727,17 +727,11 @@ def adminSingleProject(request, pid):
 
     project = get_object_or_404(Project, id=pid)
 
-    project.progress = round((project.current_amount / project.funding_goal) * 100,
-                             3) if project.funding_goal > 0 else 0
-    # project.validity = project.closed_by >= timezone.now()
+    updates = project.updates.all().order_by('-update_date')
+    project.progress = round((project.current_amount / project.funding_goal) * 100,3) if project.funding_goal > 0 else 0
+    total_tiles_count = int(project.funding_goal // project.tile_value) if project.tile_value > 0 else 0
+    transactions = Transaction.objects.filter(project=project).select_related('tiles_bought', 'sender').order_by('-transaction_time')
 
-    total_tiles_count = int(project.funding_goal // project.tile_value)
-
-    # Retrieve all transactions for the project
-    transactions = Transaction.objects.filter(project=project).select_related('tiles_bought', 'sender').order_by(
-        '-transaction_time')
-
-    # Calculate tiles and available tiles in a single pass
     sold_tiles_set = set()
     processing_tiles_set = set()
 
@@ -753,21 +747,11 @@ def adminSingleProject(request, pid):
 
     unavailable_tiles_count = len(sold_tiles_set) + len(processing_tiles_set)
     available_tiles_count = total_tiles_count - unavailable_tiles_count
-
-    # Re-fetch specific transactions for the template, if needed
     verified_transactions = [t for t in transactions if t.status == 'Verified']
 
-    context = {
-        'admin': request.user,
-        'project': project,
-        'transactions': transactions,  # This now includes all transactions with num_tiles
-        'total_tiles_count': total_tiles_count,
-        'available_tiles_count': available_tiles_count,
-        'sold_tiles_set': sold_tiles_set,
-        'processing_tiles_set': processing_tiles_set,
-        'verified_transactions': verified_transactions,  # Keep this for compatibility if needed
-    }
-
+    context = {'admin': request.user,'project': project,'updates': updates, 'transactions': transactions,
+        'total_tiles_count': total_tiles_count,'available_tiles_count': available_tiles_count,'sold_tiles_set': sold_tiles_set,
+               'processing_tiles_set': processing_tiles_set,'verified_transactions': verified_transactions,}
     return render(request, "admin-single-projects.html", context)
 
 
@@ -822,6 +806,69 @@ def adminDeleteProject(request,pid):
         return redirect('/administrator/all-project/')
     else:
         return redirect('/administrator/')
+
+
+def upload_project_update(request, pid):
+    if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "You do not have permission for this action.")
+        return redirect('/administrator/')
+
+    if request.method == 'POST':
+        project_instance = get_object_or_404(Project, id=pid)
+        update_title = request.POST.get('update_name')
+        update_content = request.POST.get('update_content')
+
+        if not update_title or not update_content:
+            messages.error(request, "Update title and content cannot be empty.")
+            return redirect(f'/administrator/single-project/{pid}/')
+        try:
+            ProjectUpdates.objects.create(project=project_instance,update_title=update_title,update=update_content)
+            messages.success(request, "Project update has been posted successfully!")
+        except Exception as e:
+            messages.error(request, f"An error occurred while posting the update: {e}")
+    return redirect(f'/administrator/single-project/{pid}/')
+
+
+def edit_project_update(request, uid):
+    if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "You do not have permission for this action.")
+        return redirect('/administrator/')
+
+    update_instance = get_object_or_404(ProjectUpdates, id=uid)
+    pid = update_instance.project.id
+
+    if request.method == 'POST':
+        update_title = request.POST.get('update_name')
+        update_content = request.POST.get('update_content')
+
+        if not update_title or not update_content:
+            messages.error(request, "Update title and content cannot be empty.")
+            return redirect(f'/administrator/single-project/{pid}/')
+        try:
+            update_instance.update_title = update_title
+            update_instance.update = update_content
+            update_instance.save()
+            messages.success(request, f"Update '{update_title}' has been saved successfully!")
+        except Exception as e:
+            messages.error(request, f"An error occurred while saving the update: {e}")
+    return redirect(f'/administrator/single-project/{pid}/')
+
+
+def delete_project_update(request, uid):
+    if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "You do not have permission for this action.")
+        return redirect('/administrator/')
+
+    try:
+        update_to_delete = get_object_or_404(ProjectUpdates, pk=uid)
+        pid = update_to_delete.project.id
+        update_title = update_to_delete.update_title or f"Update #{uid}"
+        update_to_delete.delete()
+        messages.success(request, f"Project update '{update_title}' was deleted successfully.")
+    except Exception as e:
+        messages.error(request, f"An error occurred during deletion: {e}")
+        return redirect('/administrator/')
+    return redirect(f'/administrator/single-project/{pid}/')
 
 
 def upload_project_image(request, project_id):

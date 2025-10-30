@@ -492,10 +492,13 @@
 
                         <h5 class="fw-bold mb-3 text-dark">Post a New Update</h5>
                         <div class="card p-4 mb-5 border rounded-4 shadow-sm">
-                            <form method="post" action="" enctype="multipart/form-data">
+                            <form method="post" action="{% url 'upload_project_update' pid=project.id %}" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <div class="mb-3">
-                                    <textarea class="form-control" id="projectUpdateText" name="content" rows="4" placeholder="Share news, progress, or photos with your supporters..." required></textarea>
+                                    <input type="text" class="form-control" id="projectUpdateTitle" name="update_name" placeholder="Enter update title" required>
+                                </div>
+                                <div class="mb-3">
+                                    <textarea class="form-control" id="projectUpdateText" name="update_content" rows="4" placeholder="Share news or progress with your supporters..." required></textarea>
                                 </div>
                                     <button type="submit" class="btn btn-primary fw-semibold rounded-pill px-4">
                                         <i class="align-middle me-1" data-feather="send"></i> Post Update
@@ -507,12 +510,77 @@
 
                         <div class="list-group">
                             {% for update in updates %}
-                            <div class="list-group-item list-group-item-action mb-3 border-bottom rounded-3 shadow-sm p-4">
-                                <div class="d-flex w-100 justify-content-between mb-1 border-bottom">
-                                    <h6 class="mb-1 fw-bold text-dark">Update #{{ forloop.counter }}</h6>
-                                    <small class="text-muted">{{ update.created_at|date:"d M, Y P" }}</small>
+                            <div class="list-group-item list-group-item-action mb-3 rounded-3 shadow-sm p-4">
+
+                                <div class="d-flex w-100 justify-content-between align-items-center mb-2 border-bottom pb-2">
+
+                                    <h6 class="mb-0 fw-bolder text-dark">
+                                        <span class="text-muted small me-2 fw-normal">#{{ forloop.counter }}</span>
+                                        {{ update.update_title }}
+                                    </h6>
+
+                                    <div class="d-flex align-items-center gap-2">
+
+                                        <button type="button" class="btn btn-sm btn-primary rounded-pill px-3"
+                                                data-bs-toggle="modal" data-bs-target="#updateModal-{{ update.id }}" title="Edit Update">
+                                            <i class="align-middle" data-feather="edit"></i>
+                                        </button>
+
+                                        <a href="{% url 'delete_project_update' uid=update.id %}" class="btn btn-sm btn-danger rounded-pill px-3"
+                                           onclick="return confirm('Are you sure you want to delete this update?');" title="Delete Update">
+                                            <i class="align-middle" data-feather="trash"></i>
+                                        </a>
+
+                                        <small class="text-muted text-nowrap ms-2">{{ update.update_date|date:"d M, Y P" }}</small>
+                                    </div>
                                 </div>
-                                <p class="mb-1 mt-2 text-muted">{{ update.content }}</p>
+
+                                <p class="mb-1 mt-3 text-dark">{{ update.update }}</p>
+
+                            </div>
+
+                            <div class="modal fade" id="updateModal-{{ update.id }}" tabindex="-1" aria-labelledby="updateModalLabel-{{ update.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="updateModalLabel-{{ update.id }}">
+                                                <strong>Edit Update: {{ update.update_title }}</strong>
+                                            </h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+
+                                        <form method="post" action="{% url 'edit_project_update' uid=update.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-body">
+
+                                                <h3 class="card-title my-2 text-black">Update Details</h3>
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <div class="form-floating mb-3">
+                                                            <input type="text" class="form-control" id="updateTitle-{{ update.id }}"
+                                                                   placeholder="Enter the update title.. " name="update_name"
+                                                                   value="{{ update.update_title }}" required>
+                                                            <label for="updateTitle-{{ update.id }}">Update Title</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12">
+                                                        <div class="form-floating mb-3">
+                                                            <textarea class="form-control" id="updateContent-{{ update.id }}" style="resize:none; height:150px;"
+                                                                      placeholder="Enter the update content..." name="update_content" required>{{ update.update }}</textarea>
+                                                            <label for="updateContent-{{ update.id }}">Update Content</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="modal-footer d-flex justify-content-between">
+                                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-success">Update Post</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                             {% empty %}
                             <div class="alert alert-info text-center" role="alert">

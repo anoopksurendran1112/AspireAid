@@ -33,100 +33,147 @@
 <!---------------------- Modal for Share institution -------------------->
 <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-primary">
-                <h5 class="modal-title fs-5 text-white" id="shareModalLabel"><strong>Share this page</strong></h5>
+        <div class="modal-content rounded-4 shadow-xl border-0">
+
+            <div class="modal-header border-bottom p-4">
+                <h5 class="modal-title fs-5 fw-bolder text-dark" id="shareModalLabel">
+                    <i class="align-middle me-2 text-primary" data-feather="share-2"></i> Share This Project
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center p-4">
-                <p class="lead mb-4">You can share your institution link using these options:</p>
-                <div class="input-group mb-3">
-                    <input id="institutionLinkInput" class="form-control" type="text" readonly>
-                    <button id="copyLinkButton" class="btn btn-outline-secondary" type="button">
-                        <i class="align-middle" data-feather="copy"></i>
+
+            <div class="modal-body p-4">
+                <p class="mb-4 text-muted">Copy the direct link below or share instantly using the social options:</p>
+
+                <div class="input-group mb-4 rounded-pill overflow-hidden shadow-sm border border-primary">
+                    <input id="institutionLinkInput" class="form-control border-0 bg-light py-2 ps-4" type="text" readonly value="Loading share link..." placeholder="Loading share link...">
+                    <button id="copyLinkButton" class="btn btn-primary fw-semibold px-4" type="button" data-bs-toggle="tooltip" title="Link Copied!">
+                        <i class="align-middle me-1" data-feather="copy"></i> Copy
                     </button>
                 </div>
-                <div class="d-flex justify-content-center flex-wrap">
-                    <a href="#" id="whatsappShare" target="_blank" class="btn btn-success m-2">
-                        <i class="align-middle" data-feather="message-circle"></i>
-                        WhatsApp
+
+                <div class="d-flex justify-content-center gap-3">
+
+                    <a href="#" id="whatsappShare" target="_blank" class="btn btn-success rounded-circle p-3 shadow-sm border"
+                        style="width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;" data-bs-toggle="tooltip" title="Share via WhatsApp">
+                        <i class="align-middle" data-feather="message-circle" style="width: 22px; height: 22px;"></i>
                     </a>
-                    <a href="#" id="facebookShare" target="_blank" class="btn btn-primary m-2">
-                        <i class="align-middle" data-feather="thumbs-up"></i>
-                        Facebook
+
+                    <a href="#" id="facebookShare" target="_blank" class="btn btn-primary rounded-circle p-3 shadow-sm border"
+                        style="width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;" data-bs-toggle="tooltip" title="Share via Facebook">
+                        <i class="align-middle" data-feather="facebook" style="width: 22px; height: 22px;"></i>
                     </a>
-                    <a href="#" id="twitterShare" target="_blank" class="btn btn-info m-2">
-                        <i class="align-middle" data-feather="twitter"></i>
-                        Twitter
+
+                    <a href="#" id="twitterShare" target="_blank" class="btn btn-info text-white rounded-circle p-3 shadow-sm border"
+                        style="width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;" data-bs-toggle="tooltip" title="Share via X (Twitter)">
+                        <i class="align-middle" data-feather="twitter" style="width: 22px; height: 22px;"></i>
                     </a>
+
+                    <a href="#" id="emailShare" target="_blank" class="btn btn-secondary rounded-circle p-3 shadow-sm border"
+                        style="width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;" data-bs-toggle="tooltip" title="Share via Email">
+                        <i class="align-middle" data-feather="mail" style="width: 22px; height: 22px;"></i>
+                    </a>
+
                 </div>
             </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+
+            <div class="modal-footer justify-content-center border-top p-3">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
 <!---------------------- Modal for Adding or Updating Bank Details -------------------->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog ">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Update Default Bank Details</strong></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg border-0">
 
-                <form method="post" action="{% url 'update_bank' %}">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <div class="row p-2">
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="acHolderFirstName" placeholder="Enter Firstname" value="{{admin.institution.default_bank.account_holder_first_name}}" name="account_holder_first_name">
+            <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                <h5 class="modal-title fw-bolder text-dark" id="exampleModalLabel">
+                    <i class="align-middle me-2 text-primary" data-feather="briefcase"></i> Update Default Bank Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form method="post" action="{% url 'update_bank' %}">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+
+                    <h6 class="fw-bold text-dark mb-3">Account Holder Details</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="acHolderFirstName" placeholder="Enter Firstname" value="{{admin.institution.default_bank.account_holder_first_name}}" name="account_holder_first_name">
                                 <label for="acHolderFirstName">A/c holder's Firstname</label>
                             </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="acHolderLastName" placeholder="Enter Lastname" value="{{admin.institution.default_bank.account_holder_last_name}}" name="account_holder_last_name">
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="acHolderLastName" placeholder="Enter Lastname" value="{{admin.institution.default_bank.account_holder_last_name}}" name="account_holder_last_name">
                                 <label for="acHolderLastName">A/c holder's Lastname</label>
                             </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="number" class="form-control" id="acHolderPhn" placeholder="Enter Phone number" value="{{admin.institution.default_bank.account_holder_phn_no}}" name="account_holder_phn_no">
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="form-floating">
+                                <input type="number" class="form-control rounded-3" id="acHolderPhn" placeholder="Enter Phone number" value="{{admin.institution.default_bank.account_holder_phn_no}}" name="account_holder_phn_no">
                                 <label for="acHolderPhn">A/c holder's Phone number</label>
                             </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <textarea class="form-control" placeholder="Enter Address" id="acHolderAddress"  name="account_holder_address">{{admin.institution.default_bank.account_holder_address}}</textarea>
-                                <label for="acHolderAddress">Enter Address</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="bankName" placeholder="Enter Bank Name" value="{{admin.institution.default_bank.bank_name}}" name="bank_name" required>
-                                <label for="bankName">Bank name</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="branchName" placeholder="Enter Branch Name" value="{{admin.institution.default_bank.branch_name}}" name="branch_name" required>
-                                <label for="branchName">Branch name</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="ifscCode" placeholder="Enter IFSC code" value="{{admin.institution.default_bank.ifsc_code}}" name="ifsc_code">
-                                <label for="ifscCode">IFSC code</label>
-                            </div>
-                            <div class="col-lg-6 form-floating mb-1 p-1">
-                                <input type="number" class="form-control" id="acNumber" placeholder="Enter A/c number" value="{{admin.institution.default_bank.account_no}}" name="account_no">
-                                <label for="acNumber">A/c number</label>
-                            </div>
-                            <div class="col-lg-12 form-floating mb-1 p-1">
-                                <input type="text" class="form-control" id="upiId" placeholder="Enter UPI id" value="{{admin.institution.default_bank.upi_id}}" name="upi_id" required>
-                                <label for="upiId">UPI id</label>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="form-floating">
+                                <textarea class="form-control rounded-3" placeholder="Enter Address" id="acHolderAddress" name="account_holder_address" style="height: 100px;">{{admin.institution.default_bank.account_holder_address}}</textarea>
+                                <label for="acHolderAddress">Address</label>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer d-flex justify-content-between">
-                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Reset & Close</button>
-                        <button type="submit" class="btn btn-success">Save changes</button>
+
+                    <h6 class="fw-bold text-dark mb-3">Bank Information & UPI</h6>
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="bankName" placeholder="Enter Bank Name" value="{{admin.institution.default_bank.bank_name}}" name="bank_name" required>
+                                <label for="bankName">Bank name *</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="branchName" placeholder="Enter Branch Name" value="{{admin.institution.default_bank.branch_name}}" name="branch_name" required>
+                                <label for="branchName">Branch name *</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="ifscCode" placeholder="Enter IFSC code" value="{{admin.institution.default_bank.ifsc_code}}" name="ifsc_code">
+                                <label for="ifscCode">IFSC code</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="number" class="form-control rounded-3" id="acNumber" placeholder="Enter A/c number" value="{{admin.institution.default_bank.account_no}}" name="account_no">
+                                <label for="acNumber">A/c number</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="form-floating">
+                                <input type="text" class="form-control rounded-3" id="upiId" placeholder="Enter UPI id" value="{{admin.institution.default_bank.upi_id}}" name="upi_id" required>
+                                <label for="upiId">UPI ID *</label>
+                            </div>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between border-top p-4">
+                    <button type="button" class="btn btn-outline-secondary fw-semibold rounded-pill px-4" data-bs-dismiss="modal">
+                        <i class="align-middle me-1" data-feather="x"></i> Close
+                    </button>
+                    <button type="submit" class="btn btn-primary fw-semibold rounded-pill px-4">
+                        <i class="align-middle me-1" data-feather="check"></i> Save Changes
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
 	<div class="wrapper">
 		<nav id="sidebar" class="sidebar js-sidebar">
@@ -469,9 +516,23 @@
 		</div>
 	</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
-    <script src="{% static 'Dashboard/js/app.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+<script src="{% static 'Dashboard/js/app.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                title: '{{ message.tags|title }}!',
+                text: '{{ message }}',
+                icon: '{{ message.tags }}',
+                confirmButtonText: 'OK'
+            });
+        {% endfor %}
+    {% endif %}
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
