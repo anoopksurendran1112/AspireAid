@@ -796,7 +796,7 @@ def generate_report_pdf(project, request):
     elements.append(Spacer(1, 20))
 
     # --- ASSOCIATED DETAILS ---
-    elements.append(Paragraph("Associated Details", section_heading_style))
+    elements.append(Paragraph(   "Associated Details", section_heading_style))
     inst_bank = project.created_by.default_bank
     beneficiary = project.beneficiary
     details_data = [
