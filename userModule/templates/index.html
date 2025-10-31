@@ -16,12 +16,12 @@
     {% if ins.institution_img %}
     <link rel="shortcut icon" href="{{ ins.institution_img.url}}">
     {% else %}
-    <link rel="shortcut icon" href="{% static 'Custom-styles/frontend/img/default_logo.jpg' %}">
+    <link rel="shortcut icon" href="{% static 'Frontend/img/default_logo.jpg' %}">
     {% endif %}
 
-    <link rel="stylesheet" href="{% static 'Custom-styles/frontend/styles/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'Frontend/styles/styles.css' %}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="{% static 'Custom-styles/frontend/img' %}">
+    <link href="{% static 'Frontend/img' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 <body>
@@ -108,7 +108,7 @@
                 {% for p in prj %}
                 <div class="col-lg-4 col-md-6">
                     <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden project-card-custom">
-                        <div class="position-relative project-img-container">
+                        <div class="position-relative project-img-container border-bottom">
                             <a href="/user/{{ ins.id }}/single-project/{{ p.id }}/">
                                 {% if p.images.first %}
                                 <img class="card-img-top w-100 h-100 object-fit-cover project-img-zoom"
@@ -116,7 +116,7 @@
                                      alt="{{ p.title }}">
                                 {% else %}
                                 <img class="card-img-top w-100 h-100 object-fit-cover project-img-zoom"
-                                     src="{% static 'frontend/img/p1.jpg' %}"
+                                     src="{% static 'Frontend/img/default-banner.png' %}"
                                      alt="Project Image ">
                                 {% endif %}
                             </a>
@@ -167,7 +167,7 @@
     <section class="container my-5 py-5 ">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-4 mb-lg-0 order-md-1 order-2 mb-5">
-                <img src="{% static 'frontend/img/about-img.jpg' %}"
+                <img src="{% static 'Frontend/img/unified-mission.png' %}"
                      class="img-fluid rounded-4 shadow-lg"
                      alt="Students learning or collaborating"
                      style="max-height: 450px; width: 100%; object-fit: cover;">

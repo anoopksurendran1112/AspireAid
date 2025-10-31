@@ -29,24 +29,28 @@
                                         <input type="text" class="form-control rounded-3" id="projectTitle" placeholder="Enter the project title.. " name="title" value="{{project.title}}">
                                         <label for="projectTitle">Project Title</label>
                                     </div>
+                                    <span class="text-danger small mt-1 d-block" id="projectTitle-error"></span>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form-floating">
                                         <input type="text" class="form-control rounded-3" id="fundingGoal" placeholder="Enter the funding goal.. " name="goal" value="{{project.funding_goal}}">
                                         <label for="fundingGoal">Funding Goal (₹)</label>
                                     </div>
+                                    <span class="text-danger small mt-1 d-block" id="fundingGoal-error"></span>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form-floating">
                                         <input type="text" class="form-control rounded-3" id="tileValue" placeholder="Enter tile value " name="tvalue" value="{{project.tile_value}}">
                                         <label for="tileValue">Single Tile Value (₹)</label>
                                     </div>
+                                    <span class="text-danger small mt-1 d-block" id="tileValue-error"></span>
                                 </div>
                                 <div class="col-lg-12">
                                     <div class="form-floating">
                                         <textarea class="form-control rounded-3" id="projectDesc" style="resize:none; height:120px;" placeholder="Enter the description..." name="desc">{{project.description}}</textarea>
                                         <label for="projectDesc">Project Description</label>
                                     </div>
+                                    <span class="text-danger small mt-1 d-block" id="projectDesc-error"></span>
                                 </div>
                             </div>
                         </div>
@@ -59,30 +63,35 @@
                                         <input type="text" class="form-control rounded-3" id="fname" placeholder="Enter Firstname" name="fname" value="{{project.beneficiary.first_name}}">
                                         <label for="fname">First Name</label>
                                     </div>
+                                    <span class="text-danger small mt-1 d-block" id="fname-error"></span>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form-floating">
                                         <input type="text" class="form-control rounded-3" id="lname" placeholder="Enter Lastname" name="lname" value="{{project.beneficiary.last_name}}">
                                         <label for="lname">Last Name</label>
                                     </div>
+                                    <span class="text-danger small mt-1 d-block" id="lname-error"></span>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form-floating">
                                         <input type="number" class="form-control rounded-3" id="age"  placeholder="Enter Age " name="age" value="{{project.beneficiary.age}}">
                                         <label for="age">Age</label>
                                     </div>
+                                    <span class="text-danger small mt-1 d-block" id="age-error"></span>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form-floating">
                                         <input type="tel" class="form-control rounded-3" id="telPhn"  placeholder="Enter Phone Number.. " name="phn" value="{{project.beneficiary.phone_number}}">
                                         <label for="telPhn">Phone Number</label>
                                     </div>
+                                    <span class="text-danger small mt-1 d-block" id="telPhn-error"></span>
                                 </div>
                                 <div class="col-lg-12">
                                     <div class="form-floating">
                                         <textarea class="form-control rounded-3" style="resize:none; height:120px;" id="address" placeholder="Enter your Address.." name="addr">{{project.beneficiary.address}}</textarea>
                                         <label for="address">Address</label>
                                     </div>
+                                    <span class="text-danger small mt-1 d-block" id="address-error"></span>
                                 </div>
                             </div>
                         </div>
@@ -227,22 +236,46 @@
                 <div class="card border-0 shadow-lg rounded-4 flex-fill p-4">
                     <h1 class="fw-bolder text-dark mb-4">{{ project.title }}</h1>
 
-                    <div class="card border-0 rounded-3 overflow-hidden shadow-sm mb-4">
+                    <div class="card rounded-3 border overflow-hidden shadow-sm mb-4">
                         <div id="projectImageCarousel" class="carousel slide" data-bs-ride="carousel">
-                            <div class="carousel-inner">
-                            {% if project.images.all %}
-                                {% for image in project.images.all %}
-                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                  <img src="{{ image.project_img.url }}" class="d-block w-100 object-fit-cover" style="height: 450px;" alt="Project Image {{ forloop.counter }}">
-                                </div>
-                                {% endfor %}
-                            {% else %}
-                                <div class="carousel-item active">
-                                    <img src="{% static 'Dashboard/img/photos/default-banner.jpg' %}" class="d-block w-100 object-fit-cover bg-light" style="height: 450px;" alt="No image available">
-                                </div>
-                            {% endif %}
-                            </div>
-                        </div>
+
+    <div class="carousel-indicators">
+        {% for image in project.images.all %}
+        <button type="button" data-bs-target="#projectImageCarousel" data-bs-slide-to="{{ forloop.counter0 }}"
+                class="{% if forloop.first %}active{% endif %}" aria-current="{% if forloop.first %}true{% endif %}" aria-label="Slide {{ forloop.counter }}">
+        </button>
+        {% endfor %}
+
+        {% if not project.images.all %}
+        <button type="button" data-bs-target="#projectImageCarousel" data-bs-slide-to="0"
+                class="active" aria-current="true" aria-label="Slide 1">
+        </button>
+        {% endif %}
+    </div>
+
+    <div class="carousel-inner">
+        {% for image in project.images.all %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <img src="{{ image.project_img.url }}" class="d-block w-100 object-fit-cover" style="height: 450px;" alt="Project Image {{ forloop.counter }}">
+        </div>
+        {% empty %}
+        <div class="carousel-item active">
+            <img src="{% static 'Dashboard/img/photos/default-banner.png' %}" class="d-block w-100 object-fit-cover bg-light" style="height: 450px;" alt="No image available">
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if project.images.count > 1 %}
+    <button class="carousel-control-prev" type="button" data-bs-target="#projectImageCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#projectImageCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+    {% endif %}
+</div>
                     </div>
 
                     <h4 class="mb-3 fw-bold text-dark border-bottom pb-2">Description</h4>
@@ -476,7 +509,7 @@
                         </div>
 
                         <div class="container-fluid border border-2 py-3 rounded-3 overflow-auto bg-light" style="max-height: 400px;">
-                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                            <div class="d-flex flex-wrap gap-2 justify-content-start">
                                 {% for t in total_tiles_count|ljust:total_tiles_count %}
                                     <div id="T{{ forloop.counter }}" class="p-2 border rounded text-white text-center fw-bold shadow-sm
                                          {% if forloop.counter in sold_tiles_set %} bg-secondary
@@ -663,6 +696,157 @@
             });
         {% endfor %}
     {% endif %}
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Ensure the form ID is correct. The HTML provided doesn't have an ID,
+        // but we can target it via the modal (if only one form is inside) or just select the first form.
+        // For safety, let's select the form based on its action or a placeholder ID:
+        const form = document.querySelector('#projectModal form');
+
+        // 1. Define all input elements
+        const projectTitleInput = document.getElementById('projectTitle');
+        const fundingGoalInput = document.getElementById('fundingGoal');
+        const tileValueInput = document.getElementById('tileValue');
+        // Note: Closing Date input is still missing in the HTML, so validation for it is omitted.
+        const projectDescInput = document.getElementById('projectDesc');
+        const fnameInput = document.getElementById('fname');
+        const lnameInput = document.getElementById('lname');
+        const ageInput = document.getElementById('age');
+        const phoneInput = document.getElementById('telPhn');
+        const addressInput = document.getElementById('address');
+
+        // 2. Define Regex patterns for validation
+        const phoneRegex = /^\d{10}$/;
+        const nameRegex = /^[a-zA-Z\s]+$/;
+
+        // 3. Helper function to display validation status
+        function updateValidationStatus(inputElement, isValid, errorMessage = "") {
+            // This form doesn't use the dedicated error spans from the creation modal,
+            // so we'll rely only on Bootstrap's 'is-invalid' class here for the visual feedback.
+            // If you add <div class="invalid-feedback">...</div> next to each input,
+            // Bootstrap will automatically display the feedback.
+            if (isValid) {
+                inputElement.classList.remove('is-invalid');
+                inputElement.classList.add('is-valid');
+            } else {
+                inputElement.classList.remove('is-valid');
+                inputElement.classList.add('is-invalid');
+                // You can use a library like Popover or Tooltip to display the errorMessage
+                // if you don't want to modify the HTML structure to include invalid-feedback divs.
+                console.error(`Validation Error on ${inputElement.name}: ${errorMessage}`);
+            }
+        }
+
+        // 4. Main validation function
+        function validateForm() {
+            let formIsValid = true;
+
+            // --- Reset status for all inputs ---
+            const allInputs = form.querySelectorAll('input, textarea');
+            allInputs.forEach(input => {
+                input.classList.remove('is-valid', 'is-invalid');
+            });
+
+            // --- Re-validate all fields ---
+
+            // 4.1. Validate required fields (since required attribute is missing in the HTML, we'll check fields that should be mandatory)
+            const mandatoryInputs = [projectTitleInput, fundingGoalInput, tileValueInput, projectDescInput, fnameInput, lnameInput, ageInput, phoneInput, addressInput];
+
+            mandatoryInputs.forEach(input => {
+                if (input.value.trim() === '') {
+                    updateValidationStatus(input, false, "This field is required.");
+                    formIsValid = false;
+                }
+            });
+
+
+            // 4.2. Validate Beneficiary Details
+
+            // Validate First and Last Name
+            if (fnameInput.value.trim() !== '' && !nameRegex.test(fnameInput.value)) {
+                updateValidationStatus(fnameInput, false, "Must contain only letters and spaces.");
+                formIsValid = false;
+            }
+            if (lnameInput.value.trim() !== '' && !nameRegex.test(lnameInput.value)) {
+                updateValidationStatus(lnameInput, false, "Must contain only letters and spaces.");
+                formIsValid = false;
+            }
+
+            // Validate Phone Number
+            if (phoneInput.value.trim() !== '' && !phoneRegex.test(phoneInput.value)) {
+                updateValidationStatus(phoneInput, false, "Please enter a valid 10-digit phone number.");
+                formIsValid = false;
+            }
+
+            // Validate Age
+            const age = parseInt(ageInput.value);
+            if (ageInput.value.trim() !== '' && (isNaN(age) || age < 1 || age > 150)) {
+                updateValidationStatus(ageInput, false, "Please enter a valid age.");
+                formIsValid = false;
+            }
+
+
+            // 4.3. Validate Funding & Tile Values (Complex Logic)
+            const fundingGoal = parseFloat(fundingGoalInput.value);
+            const tileValue = parseFloat(tileValueInput.value);
+            let goalValid = true;
+            let tileValid = true;
+
+            // Check if goal is valid number
+            if (fundingGoalInput.value.trim() === '' || isNaN(fundingGoal) || fundingGoal <= 0) {
+                updateValidationStatus(fundingGoalInput, false, "Must be a positive number.");
+                formIsValid = false;
+                goalValid = false;
+            } else if (fundingGoal > 10000000) {
+                updateValidationStatus(fundingGoalInput, false, "Funding goal cannot exceed 1 Crore (10,000,000).");
+                formIsValid = false;
+                goalValid = false;
+            }
+
+            // Check if tile value is valid number
+            if (tileValueInput.value.trim() === '' || isNaN(tileValue) || tileValue <= 0) {
+                updateValidationStatus(tileValueInput, false, "Must be a positive number.");
+                formIsValid = false;
+                tileValid = false;
+            }
+
+            // Combined Goal and Tile Logic (only run if both are valid numbers)
+            if (goalValid && tileValid) {
+
+                // Rule 1: Goal must be greater than tile value.
+                if (fundingGoal <= tileValue) {
+                    const errorMessage = "Goal must be greater than tile value.";
+                    updateValidationStatus(fundingGoalInput, false, errorMessage);
+                    updateValidationStatus(tileValueInput, false, errorMessage);
+                    formIsValid = false;
+                }
+
+                // Rule 2: Divisibility Check (Goal % Tile Value == 0)
+                const remainder = fundingGoal % tileValue;
+
+                // Check if the remainder is NOT effectively zero (using a small tolerance)
+                if (remainder > 0.0001 && Math.abs(remainder - tileValue) > 0.0001) {
+                    const errorMessage = "Goal must be perfectly divisible by Tile Value (no balance amount left).";
+                    updateValidationStatus(fundingGoalInput, false, errorMessage);
+                    updateValidationStatus(tileValueInput, false, errorMessage);
+                    formIsValid = false;
+                }
+            }
+
+            return formIsValid;
+        }
+
+        // 5. Add the submit event listener
+        if (form) {
+            form.addEventListener('submit', (event) => {
+                const formIsValid = validateForm();
+                if (!formIsValid) {
+                    event.preventDefault(); // Stop form submission if validation fails
+                }
+            });
+        }
+    });
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {

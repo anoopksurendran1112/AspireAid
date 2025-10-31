@@ -291,7 +291,7 @@
         const projectTitleInput = document.getElementById('projectTitle');
         const fundingGoalInput = document.getElementById('fundingGoal');
         const tileValueInput = document.getElementById('tileValue');
-        const closingDateInput = document.getElementById('closingDate');
+        // const closingDateInput = document.getElementById('closingDate'); // Removed: Missing in HTML
         const projectDescInput = document.getElementById('projectDesc');
         const fnameInput = document.getElementById('fname');
         const lnameInput = document.getElementById('lname');
@@ -326,7 +326,17 @@
                     updateValidationStatus(input, false, "This field is required.");
                     formIsValid = false;
                 } else {
-                    updateValidationStatus(input, true);
+                    // Only update to valid if it passes all specific checks later.
+                    // For now, clear the error if present.
+                    // This is handled better by re-running specific checks below.
+                }
+            });
+
+            // Re-run specific validation checks
+            // Set all fields to valid initially if not empty, so we can re-evaluate.
+            requiredInputs.forEach(input => {
+                if (input.value.trim() !== '') {
+                     updateValidationStatus(input, true);
                 }
             });
 
@@ -348,40 +358,57 @@
                 formIsValid = false;
             }
 
-            // Validate Closing Date (must be in the future)
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const closingDate = new Date(closingDateInput.value);
-
-            if (closingDateInput.value.trim() !== '' && (isNaN(closingDate.getTime()) || closingDate <= today)) {
-                updateValidationStatus(closingDateInput, false, "The closing date must be in the future.");
-                formIsValid = false;
-            }
-
             // Validate Funding Goal and Tile Value
             const fundingGoal = parseFloat(fundingGoalInput.value);
             const tileValue = parseFloat(tileValueInput.value);
+            let goalValid = true;
+            let tileValid = true;
 
-            if (fundingGoalInput.value.trim() !== '' && (isNaN(fundingGoal) || fundingGoal <= 0)) {
+
+            if (fundingGoalInput.value.trim() === '' || isNaN(fundingGoal) || fundingGoal <= 0) {
                 updateValidationStatus(fundingGoalInput, false, "Must be a positive number.");
                 formIsValid = false;
-            }
-
-            if (!isNaN(fundingGoal) && fundingGoal > 10000000) {
+                goalValid = false;
+            } else if (fundingGoal > 10000000) {
                 updateValidationStatus(fundingGoalInput, false, "Funding goal cannot exceed 1 Crore (10,000,000).");
                 formIsValid = false;
+                goalValid = false;
+            } else {
+                updateValidationStatus(fundingGoalInput, true);
             }
 
-            if (tileValueInput.value.trim() !== '' && (isNaN(tileValue) || tileValue <= 0)) {
+            if (tileValueInput.value.trim() === '' || isNaN(tileValue) || tileValue <= 0) {
                 updateValidationStatus(tileValueInput, false, "Must be a positive number.");
                 formIsValid = false;
+                tileValid = false;
+            } else {
+                updateValidationStatus(tileValueInput, true);
             }
 
-            if (!isNaN(fundingGoal) && !isNaN(tileValue) && fundingGoal <= tileValue) {
-                updateValidationStatus(fundingGoalInput, false, "Goal must be greater than tile value.");
-                updateValidationStatus(tileValueInput, false, "Goal must be greater than tile value.");
-                formIsValid = false;
+
+            // Combined Goal and Tile Logic
+            if (goalValid && tileValid) {
+                // Rule 1: Goal must be greater than tile value.
+                if (fundingGoal <= tileValue) {
+                    updateValidationStatus(fundingGoalInput, false, "Goal must be greater than tile value.");
+                    updateValidationStatus(tileValueInput, false, "Goal must be greater than tile value.");
+                    formIsValid = false;
+                }
+
+                // Rule 2: Goal must be perfectly divisible by tile value (for a clean tile system).
+                // Use .toFixed(2) to handle floating point precision issues when checking divisibility
+                // A better approach is to check if the remainder is negligibly small.
+                const remainder = fundingGoal % tileValue;
+
+                // Check if the remainder is effectively zero (within a tiny tolerance, e.g., 0.0001)
+                if (remainder > 0.0001 && Math.abs(remainder - tileValue) > 0.0001) {
+                    const errorMessage = "Goal must be perfectly divisible by Tile Value (no balance amount left).";
+                    updateValidationStatus(fundingGoalInput, false, errorMessage);
+                    updateValidationStatus(tileValueInput, false, errorMessage);
+                    formIsValid = false;
+                }
             }
+
 
             // Validate Age
             const age = parseInt(ageInput.value);
@@ -402,5 +429,4 @@
         });
     });
 </script>
-
 {% endblock %}
