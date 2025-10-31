@@ -12,6 +12,4 @@ urlpatterns = [
     path('<int:ins_id>/single-project/<int:prj_id>/',views.userSingleProject),
     path('<int:ins_id>/checkout/', views.userCheckoutView, name='user_checkout'),
     path('<int:ins_id>/proof/<int:trans_id>/', views.userProofUpload),
-
-    path('<int:ins_id>/test/',views.Test),
 ]

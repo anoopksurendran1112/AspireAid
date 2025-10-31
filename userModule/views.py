@@ -299,14 +299,3 @@ def userTrackStatus(request, ins_id):
                     t.num_tiles = 0
     return render(request, "user-track-status.html", {'ins': ins, 'tra': transactions, 'search': search_content})
 
-
-
-def Test(request,ins_id):
-    ins = get_object_or_404(Institution, id=ins_id, table_status=True)
-
-    projects = Project.objects.filter(created_by=ins, current_amount__lt=F('funding_goal'),
-                                      table_status=True).order_by('-created_by')[:3]
-    for p in projects:
-        p.progress = round((p.current_amount / p.funding_goal) * 100,
-                           3) if p.funding_goal > 0 else 0
-    return render(request, 'Test.html',{'ins':ins, 'prj':projects})

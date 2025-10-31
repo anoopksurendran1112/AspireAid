@@ -20,7 +20,7 @@
                 {% for p in prj %}
                 <div class="col-lg-4 col-md-6">
                     <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden project-card-custom">
-                        <div class="position-relative project-img-container">
+                        <div class="position-relative project-img-container border-bottom">
                             <a href="/user/{{ ins.id }}/single-project/{{ p.id }}/">
                                 {% if p.images.first %}
                                 <img class="card-img-top w-100 h-100 object-fit-cover project-img-zoom"
@@ -28,7 +28,7 @@
                                      alt="{{ p.title }}">
                                 {% else %}
                                 <img class="card-img-top w-100 h-100 object-fit-cover project-img-zoom"
-                                     src="{% static 'frontend/img/p1.jpg' %}"
+                                     src="{% static 'Frontend/img/default-banner.png' %}"
                                      alt="Project Image ">
                                 {% endif %}
                             </a>
