@@ -239,43 +239,43 @@
                     <div class="card rounded-3 border overflow-hidden shadow-sm mb-4">
                         <div id="projectImageCarousel" class="carousel slide" data-bs-ride="carousel">
 
-    <div class="carousel-indicators">
-        {% for image in project.images.all %}
-        <button type="button" data-bs-target="#projectImageCarousel" data-bs-slide-to="{{ forloop.counter0 }}"
-                class="{% if forloop.first %}active{% endif %}" aria-current="{% if forloop.first %}true{% endif %}" aria-label="Slide {{ forloop.counter }}">
-        </button>
-        {% endfor %}
+                            <div class="carousel-indicators">
+                                {% for image in project.images.all %}
+                                <button type="button" data-bs-target="#projectImageCarousel" data-bs-slide-to="{{ forloop.counter0 }}"
+                                        class="{% if forloop.first %}active{% endif %}" aria-current="{% if forloop.first %}true{% endif %}" aria-label="Slide {{ forloop.counter }}">
+                                </button>
+                                {% endfor %}
 
-        {% if not project.images.all %}
-        <button type="button" data-bs-target="#projectImageCarousel" data-bs-slide-to="0"
-                class="active" aria-current="true" aria-label="Slide 1">
-        </button>
-        {% endif %}
-    </div>
+                                {% if not project.images.all %}
+                                <button type="button" data-bs-target="#projectImageCarousel" data-bs-slide-to="0"
+                                        class="active" aria-current="true" aria-label="Slide 1">
+                                </button>
+                                {% endif %}
+                            </div>
 
-    <div class="carousel-inner">
-        {% for image in project.images.all %}
-        <div class="carousel-item {% if forloop.first %}active{% endif %}">
-            <img src="{{ image.project_img.url }}" class="d-block w-100 object-fit-cover" style="height: 450px;" alt="Project Image {{ forloop.counter }}">
-        </div>
-        {% empty %}
-        <div class="carousel-item active">
-            <img src="{% static 'Dashboard/img/photos/default-banner.png' %}" class="d-block w-100 object-fit-cover bg-light" style="height: 450px;" alt="No image available">
-        </div>
-        {% endfor %}
-    </div>
+                            <div class="carousel-inner">
+                                {% for image in project.images.all %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <img src="{{ image.project_img.url }}" class="d-block w-100 object-fit-cover" style="height: 450px;" alt="Project Image {{ forloop.counter }}">
+                                </div>
+                                {% empty %}
+                                <div class="carousel-item active">
+                                    <img src="{% static 'Dashboard/img/photos/default-banner.png' %}" class="d-block w-100 object-fit-cover bg-light" style="height: 450px;" alt="No image available">
+                                </div>
+                                {% endfor %}
+                            </div>
 
-    {% if project.images.count > 1 %}
-    <button class="carousel-control-prev" type="button" data-bs-target="#projectImageCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#projectImageCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-    </button>
-    {% endif %}
-</div>
+                            {% if project.images.count > 1 %}
+                            <button class="carousel-control-prev" type="button" data-bs-target="#projectImageCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#projectImageCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                            {% endif %}
+                        </div>
                     </div>
 
                     <h4 class="mb-3 fw-bold text-dark border-bottom pb-2">Description</h4>
@@ -297,7 +297,13 @@
                             <div class="p-3 bg-light rounded-3 d-flex align-items-center h-100">
                                 <i class="align-middle me-3 text-primary flex-shrink-0" data-feather="activity" style="width: 24px; height: 24px;"></i>
                                 <div>
-                                    <strong class="small text-muted d-block">Current Status:</strong>
+                                    <strong class="small text-muted d-block">
+                                        {% if project.closed_by %}
+                                            Completed on:
+                                        {% else %}
+                                            Current status
+                                        {% endif %}
+                                    </strong>
                                     <span class="fw-bold
                                         {% if project.closed_by %}
                                             text-success
@@ -309,7 +315,7 @@
                                         {% if project.closed_by %}
                                             {{ project.closed_by|date:"d M, Y h:i A"  }}
                                         {% elif not project.table_status %}
-                                            Permanently Closed
+                                            Temporarily Closed
                                         {% else %}
                                             Ongoing
                                         {% endif %}

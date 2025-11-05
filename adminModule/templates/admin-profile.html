@@ -23,24 +23,28 @@
                             <div class="form-floating">
                                 <input type="text" class="form-control rounded-3" id="userFirstName" placeholder="Firstname" value="{{ admin.first_name }}" name="first_name">
                                 <label for="userFirstName">First Name</label>
+                                <div class="invalid-feedback">First Name is required and must contain only letters and spaces.</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating">
                                 <input type="text" class="form-control rounded-3" id="userLastName" placeholder="Lastname" value="{{ admin.last_name }}" name="last_name">
                                 <label for="userLastName">Last Name</label>
+                                <div class="invalid-feedback">Last Name is required and must contain only letters and spaces.</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating">
                                 <input type="email" class="form-control rounded-3" id="userEmail" placeholder="Email ID" value="{{ admin.email }}" name="email">
                                 <label for="userEmail">Email ID</label>
+                                <div class="invalid-feedback">Please enter a valid email address.</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating">
                                 <input type="tel" class="form-control rounded-3" id="userPhn" placeholder="Phone number" value="{{ admin.phn_no }}" name="phn_no">
                                 <label for="userPhn">Phone Number</label>
+                                <div class="invalid-feedback">Phone Number is required and must be valid.</div>
                             </div>
                         </div>
                     </div>
@@ -52,18 +56,21 @@
                             <div class="form-floating">
                                 <input type="text" class="form-control rounded-3" id="instName" placeholder="Institution Name" value="{{ admin.institution.institution_name }}" name="institution_name">
                                 <label for="instName">Institution Name</label>
+                                <div class="invalid-feedback">Institution Name is required.</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating">
                                 <input type="tel" class="form-control rounded-3" id="instPhn" placeholder="Institution Phone" value="{{ admin.institution.phn }}" name="institution_phn">
                                 <label for="instPhn">Institution Phone</label>
+                                <div class="invalid-feedback">Institution Phone Number is required and must be valid.</div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-floating">
                                 <textarea class="form-control rounded-3" id="instAddress" placeholder="Institution Address" name="institution_address" style="height: 100px;">{{ admin.institution.address }}</textarea>
                                 <label for="instAddress">Institution Address</label>
+                                <div class="invalid-feedback">Institution Address is required.</div>
                             </div>
                         </div>
                     </div>
@@ -358,6 +365,141 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.querySelector('.modal-body').closest('form');
+
+        // --- 1. Define Input Elements ---
+
+        // User Details
+        const firstNameInput = document.getElementById('userFirstName');
+        const lastNameInput = document.getElementById('userLastName');
+        const emailInput = document.getElementById('userEmail');
+        const phnInput = document.getElementById('userPhn');
+
+        // Institution Details (Check if they exist for non-superusers)
+        const instNameInput = document.getElementById('instName');
+        const instPhnInput = document.getElementById('instPhn');
+        const instAddressInput = document.getElementById('instAddress');
+
+        // --- 2. Define Regex Patterns ---
+        const nameRegex = /^[a-zA-Z\s'-]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        // Simple phone regex for digits (allowing country codes/formatting is more complex)
+        const phoneRegex = /^\+?(\d[\d\s-()]){8,20}$/;
+
+        // --- 3. Helper Function to Display Validation Status ---
+        function updateValidationStatus(inputElement, isValid, errorMessage = "") {
+            const feedbackElement = inputElement.closest('.form-floating').querySelector('.invalid-feedback');
+
+            if (isValid) {
+                inputElement.classList.remove('is-invalid');
+                inputElement.classList.add('is-valid');
+                if (feedbackElement) feedbackElement.textContent = '';
+            } else {
+                inputElement.classList.remove('is-valid');
+                inputElement.classList.add('is-invalid');
+                // Since your HTML currently doesn't have `<div class="invalid-feedback">` inside
+                // the `.form-floating` for error messages, we'll rely on the visual 'is-invalid' class.
+                // If you add the invalid-feedback div, this script will be ready:
+                // if (feedbackElement) feedbackElement.textContent = errorMessage;
+            }
+        }
+
+        // --- 4. Main Validation Function ---
+        function validateForm(event) {
+            let formIsValid = true;
+
+            // --- Reset status for all inputs ---
+            const allInputs = form.querySelectorAll('input, textarea');
+            allInputs.forEach(input => {
+                input.classList.remove('is-valid', 'is-invalid');
+            });
+
+            // --- A. Validate User Details ---
+
+            // First Name
+            if (firstNameInput.value.trim() === '') {
+                updateValidationStatus(firstNameInput, false, "First Name is required.");
+                formIsValid = false;
+            } else if (!nameRegex.test(firstNameInput.value.trim())) {
+                updateValidationStatus(firstNameInput, false, "First Name must contain only letters, spaces, hyphens, or apostrophes.");
+                formIsValid = false;
+            }
+
+            // Last Name
+            if (lastNameInput.value.trim() === '') {
+                updateValidationStatus(lastNameInput, false, "Last Name is required.");
+                formIsValid = false;
+            } else if (!nameRegex.test(lastNameInput.value.trim())) {
+                updateValidationStatus(lastNameInput, false, "Last Name must contain only letters, spaces, hyphens, or apostrophes.");
+                formIsValid = false;
+            }
+
+            // Email ID
+            if (emailInput.value.trim() === '') {
+                updateValidationStatus(emailInput, false, "Email ID is required.");
+                formIsValid = false;
+            } else if (!emailRegex.test(emailInput.value.trim())) {
+                updateValidationStatus(emailInput, false, "Please enter a valid email address.");
+                formIsValid = false;
+            }
+
+            // Phone Number
+            if (phnInput.value.trim() === '') {
+                updateValidationStatus(phnInput, false, "Phone Number is required.");
+                formIsValid = false;
+            } else if (!phoneRegex.test(phnInput.value.trim())) {
+                updateValidationStatus(phnInput, false, "Please enter a valid phone number (at least 8 digits).");
+                formIsValid = false;
+            }
+
+            // --- B. Validate Institution Details (if fields exist) ---
+            if (instNameInput) {
+
+                // Institution Name
+                if (instNameInput.value.trim() === '') {
+                    updateValidationStatus(instNameInput, false, "Institution Name is required.");
+                    formIsValid = false;
+                }
+
+                // Institution Phone
+                if (instPhnInput.value.trim() === '') {
+                    updateValidationStatus(instPhnInput, false, "Institution Phone is required.");
+                    formIsValid = false;
+                } else if (!phoneRegex.test(instPhnInput.value.trim())) {
+                    updateValidationStatus(instPhnInput, false, "Please enter a valid institution phone number.");
+                    formIsValid = false;
+                }
+
+                // Institution Address
+                if (instAddressInput.value.trim() === '') {
+                    updateValidationStatus(instAddressInput, false, "Institution Address is required.");
+                    formIsValid = false;
+                }
+            }
+
+            return formIsValid;
+        }
+
+        // --- 5. Attach Event Listener ---
+        if (form) {
+            form.addEventListener('submit', (event) => {
+                const formIsValid = validateForm();
+                if (!formIsValid) {
+                    event.preventDefault(); // Stop form submission if validation fails
+                    event.stopPropagation();
+                }
+                // Optional: Scroll to the first invalid input
+                const firstInvalid = form.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
+    });
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {

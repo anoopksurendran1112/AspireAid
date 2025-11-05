@@ -500,16 +500,8 @@ def adminAllInstiAdmin(request):
         pwd = request.POST.get('password')
         try:
             ins = Institution.objects.get(id=inst)
-            CustomUser.objects.create_user(
-                first_name=firstname,
-                last_name=lastname,
-                email=em,
-                institution=ins,
-                username=usr,
-                is_staff=True,
-                phn_no=phn,
-                password=pwd
-            )
+            CustomUser.objects.create_user(first_name=firstname,last_name=lastname,email=em,
+                                           institution=ins,username=usr,is_staff=True,phn_no=phn,password=pwd)
             messages.success(request, f'Registered new admin {firstname} {lastname} for {ins.institution_name}.')
             return redirect('/administrator/all-insti-admin/')
         except IntegrityError:
@@ -646,9 +638,11 @@ def adminAllProject(request):
             projects = projects.filter(current_amount__gte=F('funding_goal'))
 
     if start_date:
-        projects = projects.filter(started_at__date__gte=start_date)
+        start_datetime = datetime.datetime.strptime(start_date, '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
+        projects = projects.filter(started_at__gte=start_datetime)
     if end_date:
-        projects = projects.filter(started_at__date__lte=end_date)
+        end_datetime = datetime.datetime.strptime(end_date, '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
+        projects = projects.filter(started_at__lte=end_datetime)
 
     if amount_order == 'asc':
         projects = projects.order_by('current_amount')
@@ -972,14 +966,15 @@ def adminAllTransactions(request):
     if project_title:
         transactions = transactions.filter(project__title__icontains=project_title)
     if sender_name:
-        transactions = transactions.filter(
-            Q(sender__first_name__icontains=sender_name) | Q(sender__last_name__icontains=sender_name))
+        transactions = transactions.filter(sender__full_name__icontains=sender_name)
     if status:
         transactions = transactions.filter(status=status)
     if start_date:
-        transactions = transactions.filter(transaction_time__date__gte=start_date)
+        start_datetime = datetime.datetime.strptime(start_date, '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
+        transactions = transactions.filter(transaction_time__gte=start_datetime)
     if end_date:
-        transactions = transactions.filter(transaction_time__date__lte=end_date)
+        end_datetime = datetime.datetime.strptime(end_date, '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
+        transactions = transactions.filter(transaction_time__lte=end_datetime)
 
     transactions = transactions.order_by('-transaction_time')
 
@@ -1268,12 +1263,13 @@ def adminAllReceipts(request):
     if project_title:
         receipts = receipts.filter(transaction__project__title__icontains=project_title)
     if sender_name:
-        receipts = receipts.filter(Q(transaction__sender__first_name__icontains=sender_name) | Q(
-                transaction__sender__last_name__icontains=sender_name))
+        receipts = receipts.filter(transaction__sender__full_name__icontains=sender_name)
     if start_date:
-        receipts = receipts.filter(transaction__transaction_time__date__gte=start_date)
+        start_datetime = datetime.datetime.strptime(start_date, '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
+        receipts = receipts.filter(transaction__transaction_time__gte=start_datetime)
     if end_date:
-        receipts = receipts.filter(transaction__transaction_time__date__lte=end_date)
+        end_datetime = datetime.datetime.strptime(end_date, '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
+        receipts = receipts.filter(transaction__transaction_time__lte=end_datetime)
 
     if amount_order or tiles_order:
         if tiles_order:
