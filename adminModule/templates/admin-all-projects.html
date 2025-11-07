@@ -82,7 +82,7 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form-floating">
-                                        <input type="tel" class="form-control rounded-3" id="telPhn" placeholder="Enter Phone Number.. " name="phn" required>
+                                        <input type="number" class="form-control rounded-3" id="telPhn" placeholder="Enter Phone Number.. " name="phn" required>
                                         <label for="telPhn">Phone Number</label>
                                         <span class="text-danger small mt-1 d-block" id="telPhn-error"></span>
                                     </div>
@@ -287,11 +287,12 @@
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('create-project-form');
 
+        if (!form) return; // Guard clause
+
         // Define all input elements
         const projectTitleInput = document.getElementById('projectTitle');
         const fundingGoalInput = document.getElementById('fundingGoal');
         const tileValueInput = document.getElementById('tileValue');
-        // const closingDateInput = document.getElementById('closingDate'); // Removed: Missing in HTML
         const projectDescInput = document.getElementById('projectDesc');
         const fnameInput = document.getElementById('fname');
         const lnameInput = document.getElementById('lname');
@@ -299,12 +300,13 @@
         const phoneInput = document.getElementById('telPhn');
         const addressInput = document.getElementById('address');
 
-        // Regex patterns for validation
-        const phoneRegex = /^\d{10}$/;
-        const nameRegex = /^[a-zA-Z\s]+$/;
+        // --- Regex patterns for validation ---
+        const phoneRegex = /^\d{10}$/;          // Must be exactly 10 digits
+        const nameRegex = /^[a-zA-Z\s]+$/;      // Only letters and spaces
 
         function updateValidationStatus(inputElement, isValid, errorMessage = "") {
             const errorSpan = document.getElementById(`${inputElement.id}-error`);
+
             if (isValid) {
                 inputElement.classList.remove('is-invalid');
                 inputElement.classList.add('is-valid');
@@ -319,102 +321,93 @@
         function validateForm() {
             let formIsValid = true;
 
-            // 1. Validate all required fields
+            // --- 1. Validate all Required Fields (Simple Empty Check) ---
             const requiredInputs = form.querySelectorAll('[required]');
             requiredInputs.forEach(input => {
                 if (input.value.trim() === '') {
                     updateValidationStatus(input, false, "This field is required.");
                     formIsValid = false;
                 } else {
-                    // Only update to valid if it passes all specific checks later.
-                    // For now, clear the error if present.
-                    // This is handled better by re-running specific checks below.
+                    // Temporarily set to valid before specific checks
+                    updateValidationStatus(input, true);
                 }
             });
 
-            // Re-run specific validation checks
-            // Set all fields to valid initially if not empty, so we can re-evaluate.
-            requiredInputs.forEach(input => {
-                if (input.value.trim() !== '') {
-                     updateValidationStatus(input, true);
-                }
-            });
 
-            // 2. Validate specific fields with custom rules
+            // --- 2. Validate Specific Fields with Custom Rules ---
 
-            // Validate First and Last Name
+            // Validate First and Last Name (Letters and Spaces Only)
             if (fnameInput.value.trim() !== '' && !nameRegex.test(fnameInput.value)) {
-                updateValidationStatus(fnameInput, false, "Must contain only letters and spaces.");
+                updateValidationStatus(fnameInput, false, "First Name must contain only letters and spaces.");
                 formIsValid = false;
             }
             if (lnameInput.value.trim() !== '' && !nameRegex.test(lnameInput.value)) {
-                updateValidationStatus(lnameInput, false, "Must contain only letters and spaces.");
+                updateValidationStatus(lnameInput, false, "Last Name must contain only letters and spaces.");
                 formIsValid = false;
             }
 
-            // Validate Phone Number
+            // Validate Phone Number (Exactly 10 Digits)
             if (phoneInput.value.trim() !== '' && !phoneRegex.test(phoneInput.value)) {
-                updateValidationStatus(phoneInput, false, "Please enter a valid 10-digit phone number.");
+                updateValidationStatus(phoneInput, false, "Phone number must be exactly 10 digits.");
                 formIsValid = false;
             }
 
-            // Validate Funding Goal and Tile Value
+            // Validate Age (1 to 100)
+            const age = parseInt(ageInput.value);
+            if (ageInput.value.trim() !== '') {
+                if (isNaN(age) || age < 1 || age > 100) { // Updated limit to 100
+                    updateValidationStatus(ageInput, false, "Please enter a valid age (1-100).");
+                    formIsValid = false;
+                }
+            }
+
+
+            // --- 3. Validate Funding Goal and Tile Value ---
             const fundingGoal = parseFloat(fundingGoalInput.value);
             const tileValue = parseFloat(tileValueInput.value);
             let goalValid = true;
             let tileValid = true;
 
-
+            // A. Check for positive number and maximum limit
             if (fundingGoalInput.value.trim() === '' || isNaN(fundingGoal) || fundingGoal <= 0) {
-                updateValidationStatus(fundingGoalInput, false, "Must be a positive number.");
-                formIsValid = false;
-                goalValid = false;
+                updateValidationStatus(fundingGoalInput, false, "Funding goal must be a positive number.");
+                formIsValid = false; goalValid = false;
             } else if (fundingGoal > 10000000) {
                 updateValidationStatus(fundingGoalInput, false, "Funding goal cannot exceed 1 Crore (10,000,000).");
-                formIsValid = false;
-                goalValid = false;
-            } else {
-                updateValidationStatus(fundingGoalInput, true);
+                formIsValid = false; goalValid = false;
+            } else if(fundingGoalInput.value.trim() !== '') {
+                 updateValidationStatus(fundingGoalInput, true);
             }
 
             if (tileValueInput.value.trim() === '' || isNaN(tileValue) || tileValue <= 0) {
-                updateValidationStatus(tileValueInput, false, "Must be a positive number.");
-                formIsValid = false;
-                tileValid = false;
-            } else {
-                updateValidationStatus(tileValueInput, true);
+                updateValidationStatus(tileValueInput, false, "Tile value must be a positive number.");
+                formIsValid = false; tileValid = false;
+            } else if(tileValueInput.value.trim() !== '') {
+                 updateValidationStatus(tileValueInput, true);
             }
 
 
-            // Combined Goal and Tile Logic
+            // B. Combined Goal and Tile Logic (Only if both are valid numbers)
             if (goalValid && tileValid) {
+
                 // Rule 1: Goal must be greater than tile value.
                 if (fundingGoal <= tileValue) {
-                    updateValidationStatus(fundingGoalInput, false, "Goal must be greater than tile value.");
-                    updateValidationStatus(tileValueInput, false, "Goal must be greater than tile value.");
-                    formIsValid = false;
-                }
-
-                // Rule 2: Goal must be perfectly divisible by tile value (for a clean tile system).
-                // Use .toFixed(2) to handle floating point precision issues when checking divisibility
-                // A better approach is to check if the remainder is negligibly small.
-                const remainder = fundingGoal % tileValue;
-
-                // Check if the remainder is effectively zero (within a tiny tolerance, e.g., 0.0001)
-                if (remainder > 0.0001 && Math.abs(remainder - tileValue) > 0.0001) {
-                    const errorMessage = "Goal must be perfectly divisible by Tile Value (no balance amount left).";
+                    const errorMessage = "Goal must be greater than tile value.";
                     updateValidationStatus(fundingGoalInput, false, errorMessage);
                     updateValidationStatus(tileValueInput, false, errorMessage);
                     formIsValid = false;
                 }
-            }
 
+                // Rule 2: Goal must be perfectly divisible by tile value.
+                const remainder = fundingGoal % tileValue;
 
-            // Validate Age
-            const age = parseInt(ageInput.value);
-            if (ageInput.value.trim() !== '' && (isNaN(age) || age < 1 || age > 150)) {
-                updateValidationStatus(ageInput, false, "Please enter a valid age.");
-                formIsValid = false;
+                // Check if the remainder is effectively zero (using a small tolerance for floating point math)
+                if (remainder > 0.0001 && Math.abs(remainder - tileValue) > 0.0001) {
+                    const errorMessage = "Goal must be perfectly divisible by Tile Value.";
+                    updateValidationStatus(fundingGoalInput, false, errorMessage);
+                    updateValidationStatus(tileValueInput, false, errorMessage);
+                    formIsValid = false;
+                }
             }
 
             return formIsValid;
@@ -425,6 +418,12 @@
             const formIsValid = validateForm();
             if (!formIsValid) {
                 event.preventDefault(); // Stop form submission if validation fails
+
+                // Optional: Scroll to the first invalid input
+                const firstInvalid = form.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
             }
         });
     });

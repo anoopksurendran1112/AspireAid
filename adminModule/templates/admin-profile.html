@@ -21,30 +21,30 @@
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <input type="text" class="form-control rounded-3" id="userFirstName" placeholder="Firstname" value="{{ admin.first_name }}" name="first_name">
+                                <input type="text" class="form-control rounded-3" id="userFirstName" placeholder="Firstname" value="{{ admin.first_name }}" name="first_name" required>
                                 <label for="userFirstName">First Name</label>
                                 <div class="invalid-feedback">First Name is required and must contain only letters and spaces.</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <input type="text" class="form-control rounded-3" id="userLastName" placeholder="Lastname" value="{{ admin.last_name }}" name="last_name">
+                                <input type="text" class="form-control rounded-3" id="userLastName" placeholder="Lastname" value="{{ admin.last_name }}" name="last_name" required>
                                 <label for="userLastName">Last Name</label>
                                 <div class="invalid-feedback">Last Name is required and must contain only letters and spaces.</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <input type="email" class="form-control rounded-3" id="userEmail" placeholder="Email ID" value="{{ admin.email }}" name="email">
+                                <input type="email" class="form-control rounded-3" id="userEmail" placeholder="Email ID" value="{{ admin.email }}" name="email" required>
                                 <label for="userEmail">Email ID</label>
                                 <div class="invalid-feedback">Please enter a valid email address.</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <input type="tel" class="form-control rounded-3" id="userPhn" placeholder="Phone number" value="{{ admin.phn_no }}" name="phn_no">
+                                <input type="number" class="form-control rounded-3" id="userPhn" placeholder="Phone number" value="{{ admin.phn_no }}" name="phn_no" required>
                                 <label for="userPhn">Phone Number</label>
-                                <div class="invalid-feedback">Phone Number is required and must be valid.</div>
+                                <div class="invalid-feedback">Phone Number is required and must be exactly 10 digits.</div>
                             </div>
                         </div>
                     </div>
@@ -54,21 +54,21 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <input type="text" class="form-control rounded-3" id="instName" placeholder="Institution Name" value="{{ admin.institution.institution_name }}" name="institution_name">
+                                <input type="text" class="form-control rounded-3" id="instName" placeholder="Institution Name" value="{{ admin.institution.institution_name }}" name="institution_name" required>
                                 <label for="instName">Institution Name</label>
-                                <div class="invalid-feedback">Institution Name is required.</div>
+                                <div class="invalid-feedback">Institution Name is required (letters and spaces only).</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <input type="tel" class="form-control rounded-3" id="instPhn" placeholder="Institution Phone" value="{{ admin.institution.phn }}" name="institution_phn">
+                                <input type="number" class="form-control rounded-3" id="instPhn" placeholder="Institution Phone" value="{{ admin.institution.phn }}" name="institution_phn" required>
                                 <label for="instPhn">Institution Phone</label>
-                                <div class="invalid-feedback">Institution Phone Number is required and must be valid.</div>
+                                <div class="invalid-feedback">Institution Phone Number is required and must be exactly 10 digits.</div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-floating">
-                                <textarea class="form-control rounded-3" id="instAddress" placeholder="Institution Address" name="institution_address" style="height: 100px;">{{ admin.institution.address }}</textarea>
+                                <textarea class="form-control rounded-3" id="instAddress" placeholder="Institution Address" name="institution_address" style="height: 100px;" required>{{ admin.institution.address }}</textarea>
                                 <label for="instAddress">Institution Address</label>
                                 <div class="invalid-feedback">Institution Address is required.</div>
                             </div>
@@ -114,12 +114,14 @@
                                 <div class="form-floating">
                                     <input type="email" class="form-control rounded-3" id="instEmail" placeholder="Institution Email" value="{{ admin.institution.email }}" name="institution_email" required>
                                     <label for="instEmail">Institution Email</label>
+                                    <div class="invalid-feedback">Institution Email is required.</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
                                     <input type="password" class="form-control rounded-3" id="instAppPassword" placeholder="Email App Password" name="institution_app_password" value="{{ admin.institution.email_app_password }}" required>
                                     <label for="instAppPassword">Email App Password</label>
+                                    <div class="invalid-feedback">Email App Password is required.</div>
                                 </div>
                             </div>
                         </div>
@@ -135,12 +137,14 @@
                                 <div class="form-floating">
                                     <input type="text" class="form-control rounded-3" id="newUsername" placeholder="New Username" value="{{ admin.username }}" name="new_username" required>
                                     <label for="newUsername">New Username</label>
+                                    <div class="invalid-feedback">New Username is required.</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
                                     <input type="password" class="form-control rounded-3" id="oldPassword" placeholder="Current Password" name="old_password" required>
                                     <label for="oldPassword">Current Password</label>
+                                    <div class="invalid-feedback">Current Password is mandatory to save any changes.</div>
                                 </div>
                             </div>
                         </div>
@@ -152,12 +156,14 @@
                                 <div class="form-floating">
                                     <input type="password" class="form-control rounded-3" id="newPassword" placeholder="New Password" name="new_password">
                                     <label for="newPassword">New Password</label>
+                                    <div class="invalid-feedback">Password must be at least 8 characters long, including uppercase, lowercase, number, and symbol.</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
                                     <input type="password" class="form-control rounded-3" id="confirmPassword" placeholder="Confirm Password" name="confirm_password">
                                     <label for="confirmPassword">Confirm New Password</label>
+                                    <div class="invalid-feedback">New Password and Confirm Password must match.</div>
                                 </div>
                             </div>
                         </div>
@@ -308,7 +314,7 @@
 
                         <div class="col-12 d-flex justify-content-end gap-3 mt-4">
                             <button type="submit" class="btn btn-primary fw-semibold rounded-pill py-2 px-3">
-                                <i class="align-middle me-1" data-feather="save"></i> Update Preferences
+                                <i class="align-middle me-1" data-feather="save"></i> Save Preferences
                             </button>
                             <a href="/administrator/default-notification/" class="btn btn-outline-secondary fw-semibold rounded-pill py-2 px-3">
                                 <i class="align-middle me-1" data-feather="refresh-cw"></i> Reset to Default
@@ -368,7 +374,14 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const form = document.querySelector('.modal-body').closest('form');
+
+        // ===============================================
+        // A. Profile Details Form Validation Logic
+        // ===============================================
+
+        // 🎯 CRITICAL FIX: Target the form inside the specific profile modal
+        const profileModal = document.getElementById('profileModal');
+        const profileForm = profileModal ? profileModal.querySelector('form') : null;
 
         // --- 1. Define Input Elements ---
 
@@ -383,97 +396,78 @@
         const instPhnInput = document.getElementById('instPhn');
         const instAddressInput = document.getElementById('instAddress');
 
-        // --- 2. Define Regex Patterns ---
-        const nameRegex = /^[a-zA-Z\s'-]+$/;
+        // --- 2. Define Strict Regex Patterns ---
+        const nameRegex = /^[a-zA-Z\s]+$/;         // Letters and spaces only
+        const phoneRegex = /^\d{10}$/;             // Exactly 10 digits only
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        // Simple phone regex for digits (allowing country codes/formatting is more complex)
-        const phoneRegex = /^\+?(\d[\d\s-()]){8,20}$/;
 
         // --- 3. Helper Function to Display Validation Status ---
         function updateValidationStatus(inputElement, isValid, errorMessage = "") {
-            const feedbackElement = inputElement.closest('.form-floating').querySelector('.invalid-feedback');
+            if (!inputElement) return; // Guard clause
+
+            // Use optional chaining for robustness
+            const feedbackElement = inputElement.closest('.form-floating')?.querySelector('.invalid-feedback');
 
             if (isValid) {
                 inputElement.classList.remove('is-invalid');
                 inputElement.classList.add('is-valid');
-                if (feedbackElement) feedbackElement.textContent = '';
             } else {
                 inputElement.classList.remove('is-valid');
                 inputElement.classList.add('is-invalid');
-                // Since your HTML currently doesn't have `<div class="invalid-feedback">` inside
-                // the `.form-floating` for error messages, we'll rely on the visual 'is-invalid' class.
-                // If you add the invalid-feedback div, this script will be ready:
-                // if (feedbackElement) feedbackElement.textContent = errorMessage;
+            }
+
+            // Optional: Override hardcoded message
+            if (!isValid && feedbackElement && errorMessage) {
+                 feedbackElement.textContent = errorMessage;
             }
         }
 
         // --- 4. Main Validation Function ---
-        function validateForm(event) {
+        function validateProfileForm() {
             let formIsValid = true;
 
-            // --- Reset status for all inputs ---
-            const allInputs = form.querySelectorAll('input, textarea');
+            if (!profileForm) return true; // Exit if form not found
+
+            // --- Reset status for all inputs (Only within the profile form) ---
+            const allInputs = profileForm.querySelectorAll('input, textarea');
             allInputs.forEach(input => {
                 input.classList.remove('is-valid', 'is-invalid');
             });
 
-            // --- A. Validate User Details ---
-
-            // First Name
-            if (firstNameInput.value.trim() === '') {
-                updateValidationStatus(firstNameInput, false, "First Name is required.");
-                formIsValid = false;
-            } else if (!nameRegex.test(firstNameInput.value.trim())) {
-                updateValidationStatus(firstNameInput, false, "First Name must contain only letters, spaces, hyphens, or apostrophes.");
+            // A. Validate User Details
+            if (firstNameInput && (firstNameInput.value.trim() === '' || !nameRegex.test(firstNameInput.value.trim()))) {
+                updateValidationStatus(firstNameInput, false, firstNameInput.value.trim() === '' ? "First Name is required." : "First Name must contain only letters and spaces.");
                 formIsValid = false;
             }
 
-            // Last Name
-            if (lastNameInput.value.trim() === '') {
-                updateValidationStatus(lastNameInput, false, "Last Name is required.");
-                formIsValid = false;
-            } else if (!nameRegex.test(lastNameInput.value.trim())) {
-                updateValidationStatus(lastNameInput, false, "Last Name must contain only letters, spaces, hyphens, or apostrophes.");
+            if (lastNameInput && (lastNameInput.value.trim() === '' || !nameRegex.test(lastNameInput.value.trim()))) {
+                updateValidationStatus(lastNameInput, false, lastNameInput.value.trim() === '' ? "Last Name is required." : "Last Name must contain only letters and spaces.");
                 formIsValid = false;
             }
 
-            // Email ID
-            if (emailInput.value.trim() === '') {
-                updateValidationStatus(emailInput, false, "Email ID is required.");
-                formIsValid = false;
-            } else if (!emailRegex.test(emailInput.value.trim())) {
-                updateValidationStatus(emailInput, false, "Please enter a valid email address.");
+            if (emailInput && (emailInput.value.trim() === '' || !emailRegex.test(emailInput.value.trim()))) {
+                updateValidationStatus(emailInput, false, emailInput.value.trim() === '' ? "Email ID is required." : "Please enter a valid email address.");
                 formIsValid = false;
             }
 
-            // Phone Number
-            if (phnInput.value.trim() === '') {
-                updateValidationStatus(phnInput, false, "Phone Number is required.");
-                formIsValid = false;
-            } else if (!phoneRegex.test(phnInput.value.trim())) {
-                updateValidationStatus(phnInput, false, "Please enter a valid phone number (at least 8 digits).");
+            if (phnInput && (phnInput.value.trim() === '' || !phoneRegex.test(phnInput.value.trim()))) {
+                updateValidationStatus(phnInput, false, phnInput.value.trim() === '' ? "Phone Number is required." : "Phone Number must be exactly 10 digits (numbers only).");
                 formIsValid = false;
             }
 
-            // --- B. Validate Institution Details (if fields exist) ---
+
+            // B. Validate Institution Details (if fields exist)
             if (instNameInput) {
-
-                // Institution Name
-                if (instNameInput.value.trim() === '') {
-                    updateValidationStatus(instNameInput, false, "Institution Name is required.");
+                if (instNameInput.value.trim() === '' || !nameRegex.test(instNameInput.value.trim())) {
+                    updateValidationStatus(instNameInput, false, instNameInput.value.trim() === '' ? "Institution Name is required." : "Institution Name must contain only letters and spaces.");
                     formIsValid = false;
                 }
 
-                // Institution Phone
-                if (instPhnInput.value.trim() === '') {
-                    updateValidationStatus(instPhnInput, false, "Institution Phone is required.");
-                    formIsValid = false;
-                } else if (!phoneRegex.test(instPhnInput.value.trim())) {
-                    updateValidationStatus(instPhnInput, false, "Please enter a valid institution phone number.");
+                if (instPhnInput.value.trim() === '' || !phoneRegex.test(instPhnInput.value.trim())) {
+                    updateValidationStatus(instPhnInput, false, instPhnInput.value.trim() === '' ? "Institution Phone is required." : "Institution Phone Number must be exactly 10 digits (numbers only).");
                     formIsValid = false;
                 }
 
-                // Institution Address
                 if (instAddressInput.value.trim() === '') {
                     updateValidationStatus(instAddressInput, false, "Institution Address is required.");
                     formIsValid = false;
@@ -483,31 +477,31 @@
             return formIsValid;
         }
 
-        // --- 5. Attach Event Listener ---
-        if (form) {
-            form.addEventListener('submit', (event) => {
-                const formIsValid = validateForm();
+        // --- 5. Attach Profile Form Event Listener ---
+        if (profileForm) {
+            profileForm.addEventListener('submit', (event) => {
+                const formIsValid = validateProfileForm();
+
                 if (!formIsValid) {
-                    event.preventDefault(); // Stop form submission if validation fails
+                    event.preventDefault();
                     event.stopPropagation();
-                }
-                // Optional: Scroll to the first invalid input
-                const firstInvalid = form.querySelector('.is-invalid');
-                if (firstInvalid) {
-                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const firstInvalid = profileForm.querySelector('.is-invalid');
+                    if (firstInvalid) {
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                 }
             });
         }
-    });
-</script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
 
-        // --- Profile Image Auto-Submit Logic ---
+        // ===============================================
+        // B. Profile Image Auto-Submit Logic
+        // ===============================================
+
         const autoSubmitForm = (event) => {
             const fileInput = event.target;
             if (fileInput.files && fileInput.files.length > 0) {
+                // Submit the form that the file input belongs to
                 fileInput.form.submit();
             }
         };
@@ -522,41 +516,124 @@
             instImgUpload.addEventListener('change', autoSubmitForm);
         }
 
-        // --- Password Validation Logic ---
+
+        // ===============================================
+        // C. Password Validation Logic (UPDATED)
+        // ===============================================
+
+        // This targets the modal where password change fields typically reside
         const updateDataModal = document.getElementById('updateDataModal');
+
         if (updateDataModal) {
-            const form = updateDataModal.querySelector('form');
+            // Find the form *inside* the password modal/section
+            const passwordForm = updateDataModal.querySelector('form');
             const oldPasswordInput = document.getElementById('oldPassword');
+            const newUsernameInput = document.getElementById('newUsername');
             const newPasswordInput = document.getElementById('newPassword');
             const confirmPasswordInput = document.getElementById('confirmPassword');
 
-            form.addEventListener('submit', (event) => {
-                if (newPasswordInput.value || confirmPasswordInput.value) {
+            // Password complexity regex (at least 8 chars, 1 upper, 1 lower, 1 number, 1 symbol)
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-                    // Check if current and new passwords are the same
-                    if (oldPasswordInput.value === newPasswordInput.value) {
-                        alert("Error: Your new password cannot be the same as your current password.");
-                        event.preventDefault();
-                        return;
-                    }
+            // Helper function for visual feedback (use the one defined in section A)
+            function updateCredentialValidationStatus(inputElement, isValid, errorMessage = "") {
+                if (!inputElement) return;
+                const feedbackElement = inputElement.closest('.form-floating')?.querySelector('.invalid-feedback');
 
-                    // Check if new passwords match
-                    if (newPasswordInput.value !== confirmPasswordInput.value) {
-                        alert("Error: New password and confirm password do not match.");
-                        event.preventDefault();
-                        return;
-                    }
-
-                    // Password complexity regex
-                    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-                    // Check if password meets complexity requirements
-                    if (!passwordRegex.test(newPasswordInput.value)) {
-                        alert("Error: Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one symbol (@$!%*?&).");
-                        event.preventDefault();
-                    }
+                if (isValid) {
+                    inputElement.classList.remove('is-invalid');
+                    inputElement.classList.add('is-valid');
+                } else {
+                    inputElement.classList.remove('is-valid');
+                    inputElement.classList.add('is-invalid');
                 }
-            });
+
+                if (!isValid && feedbackElement) {
+                     feedbackElement.textContent = errorMessage;
+                }
+            }
+
+
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', (event) => {
+                    let passwordFormIsValid = true;
+
+                    // Clear previous validation states for all fields in this form
+                    [oldPasswordInput, newUsernameInput, newPasswordInput, confirmPasswordInput].forEach(input => {
+                        if (input) {
+                            input.classList.remove('is-valid', 'is-invalid');
+                        }
+                    });
+
+                    // --- 1. Current Password (oldPassword) is MANDATORY for ANY change (Username or Password) ---
+                    if (oldPasswordInput && oldPasswordInput.value.trim() === '') {
+                        updateCredentialValidationStatus(oldPasswordInput, false, "Current Password is required to verify your identity and save changes.");
+                        passwordFormIsValid = false;
+                    } else {
+                        updateCredentialValidationStatus(oldPasswordInput, true);
+                    }
+
+                    // --- 2. New Username validation (optional: add stricter regex if needed) ---
+                    if (newUsernameInput && newUsernameInput.value.trim() === '') {
+                         updateCredentialValidationStatus(newUsernameInput, false, "New Username cannot be empty.");
+                         passwordFormIsValid = false;
+                    } else {
+                         updateCredentialValidationStatus(newUsernameInput, true);
+                    }
+
+                    // --- 3. New Password Fields Validation (Conditional) ---
+                    const newPwd = newPasswordInput ? newPasswordInput.value : '';
+                    const confirmPwd = confirmPasswordInput ? confirmPasswordInput.value : '';
+
+                    // Check if user is trying to change the password (at least one field filled)
+                    if (newPwd.length > 0 || confirmPwd.length > 0) {
+
+                        // A. Check for New Password Input
+                        if (newPwd.length === 0) {
+                            updateCredentialValidationStatus(newPasswordInput, false, "New Password is required if Confirm Password is set.");
+                            passwordFormIsValid = false;
+                        }
+                        // B. Check for Password Complexity
+                        else if (!passwordRegex.test(newPwd)) {
+                            updateCredentialValidationStatus(newPasswordInput, false, "Password must be at least 8 characters long, including an uppercase letter, a lowercase letter, a number, and a symbol.");
+                            passwordFormIsValid = false;
+                        } else {
+                            updateCredentialValidationStatus(newPasswordInput, true);
+                        }
+
+                        // C. Check if passwords match
+                        if (newPwd !== confirmPwd) {
+                            updateCredentialValidationStatus(confirmPasswordInput, false, "New Password and Confirm Password do not match.");
+                            // Check if newPasswordInput failed validation first, if not, update its status to avoid confusion
+                            if (passwordFormIsValid) {
+                               updateCredentialValidationStatus(newPasswordInput, false, "New Password and Confirm Password do not match.");
+                            }
+                            passwordFormIsValid = false;
+                        } else {
+                            updateCredentialValidationStatus(confirmPasswordInput, true);
+                            if (passwordFormIsValid) {
+                               updateCredentialValidationStatus(newPasswordInput, true);
+                            }
+                        }
+                    } else {
+                        // If fields are blank, they are valid (since changing password is optional)
+                        if(newPasswordInput) newPasswordInput.classList.remove('is-valid', 'is-invalid');
+                        if(confirmPasswordInput) confirmPasswordInput.classList.remove('is-valid', 'is-invalid');
+                    }
+
+
+                    if (!passwordFormIsValid) {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        // Scroll to the first invalid input in this modal
+                        const firstInvalid = passwordForm.querySelector('.is-invalid');
+                        if (firstInvalid) {
+                            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                });
+            }
         }
     });
 </script>

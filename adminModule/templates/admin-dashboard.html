@@ -95,7 +95,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <form method="post" action="{% url 'update_bank' %}">
+            <form method="post" action="{% url 'update_bank' %}" id="bankUpdateForm">
                 {% csrf_token %}
                 <div class="modal-body p-4">
 
@@ -105,25 +105,28 @@
                             <div class="form-floating">
                                 <input type="text" class="form-control rounded-3" id="acHolderFirstName" placeholder="Enter Firstname" value="{{admin.institution.default_bank.account_holder_first_name}}" name="account_holder_first_name">
                                 <label for="acHolderFirstName">A/c holder's Firstname</label>
+                                <div class="invalid-feedback">First Name must contain only letters and spaces.</div>
                             </div>
                         </div>
                         <div class="col-lg-6">
                             <div class="form-floating">
                                 <input type="text" class="form-control rounded-3" id="acHolderLastName" placeholder="Enter Lastname" value="{{admin.institution.default_bank.account_holder_last_name}}" name="account_holder_last_name">
                                 <label for="acHolderLastName">A/c holder's Lastname</label>
+                                <div class="invalid-feedback">Last Name must contain only letters and spaces.</div>
                             </div>
                         </div>
                         <div class="col-lg-12">
                             <div class="form-floating">
                                 <input type="number" class="form-control rounded-3" id="acHolderPhn" placeholder="Enter Phone number" value="{{admin.institution.default_bank.account_holder_phn_no}}" name="account_holder_phn_no">
                                 <label for="acHolderPhn">A/c holder's Phone number</label>
+                                <div class="invalid-feedback">Phone Number must be between 10 and 15 digits (numbers only).</div>
                             </div>
                         </div>
                         <div class="col-lg-12">
                             <div class="form-floating">
                                 <textarea class="form-control rounded-3" placeholder="Enter Address" id="acHolderAddress" name="account_holder_address" style="height: 100px;">{{admin.institution.default_bank.account_holder_address}}</textarea>
                                 <label for="acHolderAddress">Address</label>
-                            </div>
+                                </div>
                         </div>
                     </div>
 
@@ -133,30 +136,35 @@
                             <div class="form-floating">
                                 <input type="text" class="form-control rounded-3" id="bankName" placeholder="Enter Bank Name" value="{{admin.institution.default_bank.bank_name}}" name="bank_name" required>
                                 <label for="bankName">Bank name *</label>
+                                <div class="invalid-feedback">Bank Name is required.</div>
                             </div>
                         </div>
                         <div class="col-lg-6">
                             <div class="form-floating">
                                 <input type="text" class="form-control rounded-3" id="branchName" placeholder="Enter Branch Name" value="{{admin.institution.default_bank.branch_name}}" name="branch_name" required>
                                 <label for="branchName">Branch name *</label>
+                                <div class="invalid-feedback">Branch Name is required.</div>
                             </div>
                         </div>
                         <div class="col-lg-6">
                             <div class="form-floating">
                                 <input type="text" class="form-control rounded-3" id="ifscCode" placeholder="Enter IFSC code" value="{{admin.institution.default_bank.ifsc_code}}" name="ifsc_code">
                                 <label for="ifscCode">IFSC code</label>
+                                <div class="invalid-feedback">IFSC Code must be 11 characters long (e.g., ABCD0123456) and is required if Account Number is provided.</div>
                             </div>
                         </div>
                         <div class="col-lg-6">
                             <div class="form-floating">
                                 <input type="number" class="form-control rounded-3" id="acNumber" placeholder="Enter A/c number" value="{{admin.institution.default_bank.account_no}}" name="account_no">
                                 <label for="acNumber">A/c number</label>
+                                <div class="invalid-feedback">Account Number must be 9 to 18 digits (numbers only) and is required if IFSC Code is provided.</div>
                             </div>
                         </div>
                         <div class="col-lg-12">
                             <div class="form-floating">
                                 <input type="text" class="form-control rounded-3" id="upiId" placeholder="Enter UPI id" value="{{admin.institution.default_bank.upi_id}}" name="upi_id" required>
                                 <label for="upiId">UPI ID *</label>
+                                <div class="invalid-feedback">UPI ID is required and must be in a valid format (e.g., example@bank).</div>
                             </div>
                         </div>
                     </div>
@@ -174,245 +182,244 @@
     </div>
 </div>
 
-	<div class="wrapper">
-		<nav id="sidebar" class="sidebar js-sidebar">
-            <div class="sidebar-content js-simplebar">
-                <a class="sidebar-brand" href="/administrator/admin-dash/">
-                    {% if admin.is_superuser %}
-                    <span class="align-middle fw-bold">Superuser: {{admin.username}}</span>
-                    {% else %}
-                    <span class="align-middle fw-bold">{{admin.institution.institution_name}}</span>
+<div class="wrapper">
+    <nav id="sidebar" class="sidebar js-sidebar">
+        <div class="sidebar-content js-simplebar">
+            <a class="sidebar-brand" href="/administrator/admin-dash/">
+                {% if admin.is_superuser %}
+                <span class="align-middle fw-bold">Superuser: {{admin.username}}</span>
+                {% else %}
+                <span class="align-middle fw-bold">{{admin.institution.institution_name}}</span>
+                {% endif %}
+            </a>
+
+            <ul class="sidebar-nav py-4">
+                <li class="sidebar-item active">
+                    <a class="sidebar-link" href="/administrator/admin-dash/">
+                        <i class="align-middle" data-feather="monitor"></i>
+                        <span class="align-middle">Dashboard</span>
+                    </a>
+                </li>
+
+                {% if admin.is_superuser %}
+                <li class="sidebar-header">System Administration</li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="/administrator/all-institution/">
+                        <i class="align-middle" data-feather="briefcase"></i>
+                        <span class="align-middle">Institutions</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="/administrator/all-insti-admin/">
+                        <i class="align-middle" data-feather="users"></i> <span class="align-middle">Admins</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                <li class="sidebar-header">Project Management</li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="/administrator/all-project/">
+                        <i class="align-middle" data-feather="box"></i>
+                        <span class="align-middle">Projects</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="/administrator/contact-message/">
+                        <i class="align-middle" data-feather="message-square"></i>
+                        <span class="align-middle">Contact Messages</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-header">Finance & Reporting</li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="/administrator/all-transactions/">
+                        <i class="align-middle" data-feather="credit-card"></i>
+                        <span class="align-middle">Transactions</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="/administrator/all-receipts/">
+                        <i class="align-middle" data-feather="printer"></i>
+                        <span class="align-middle">Receipts</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="/administrator/all-reports/">
+                        <i class="align-middle" data-feather="bar-chart-2"></i>
+                        <span class="align-middle">Analytics & Reports</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-header">Account</li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="/administrator/profile/">
+                        <i class="align-middle" data-feather="user"></i>
+                        <span class="align-middle">Profile</span>
+                    </a>
+                </li>
+            </ul>
+
+            </div>
+    </nav>
+
+    <div class="main">
+        <nav class="navbar navbar-expand navbar-light navbar-bg shadow-sm border-bottom">
+            <a class="sidebar-toggle js-sidebar-toggle">
+                <i class="hamburger align-self-center"></i>
+            </a>
+
+            <div class="navbar-collapse collapse">
+                <ul class="navbar-nav ms-auto align-items-center">
+
+                    {% if not admin.is_superuser %}
+                    <li class="nav-item me-2">
+                        <button type="button" class="btn btn-outline-secondary d-flex align-items-center fw-semibold rounded-pill py-2 px-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            <i class="align-middle me-md-2" data-feather="dollar-sign"></i>
+                            <span class="d-none d-md-inline align-middle">Bank Details</span>
+                        </button>
+                    </li>
+
+                    <li class="nav-item me-2">
+                        <button type="button" class="btn btn-primary d-flex align-items-center fw-semibold rounded-pill py-2 px-3" id="ins_share" data-bs-toggle="modal" data-bs-target="#shareModal">
+                            <i class="align-middle me-md-2" data-feather="share-2"></i>
+                            <span class="d-none d-md-inline align-middle">Share Institution</span>
+                        </button>
+                    </li>
                     {% endif %}
-                </a>
 
-                <ul class="sidebar-nav py-4">
-                    <li class="sidebar-item active">
-                        <a class="sidebar-link" href="/administrator/admin-dash/">
-                            <i class="align-middle" data-feather="monitor"></i>
-                            <span class="align-middle">Dashboard</span>
-                        </a>
-                    </li>
-
-                    {% if admin.is_superuser %}
-                    <li class="sidebar-header">System Administration</li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="/administrator/all-institution/">
-                            <i class="align-middle" data-feather="briefcase"></i>
-                            <span class="align-middle">Institutions</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="/administrator/all-insti-admin/">
-                            <i class="align-middle" data-feather="users"></i> <span class="align-middle">Admins</span>
-                        </a>
-                    </li>
-                    {% endif %}
-
-                    <li class="sidebar-header">Project Management</li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="/administrator/all-project/">
-                            <i class="align-middle" data-feather="box"></i>
-                            <span class="align-middle">Projects</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="/administrator/contact-message/">
-                            <i class="align-middle" data-feather="message-square"></i>
-                            <span class="align-middle">Contact Messages</span>
-                        </a>
-                    </li>
-
-                    <li class="sidebar-header">Finance & Reporting</li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="/administrator/all-transactions/">
-                            <i class="align-middle" data-feather="credit-card"></i>
-                            <span class="align-middle">Transactions</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="/administrator/all-receipts/">
-                            <i class="align-middle" data-feather="printer"></i>
-                            <span class="align-middle">Receipts</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="/administrator/all-reports/">
-                            <i class="align-middle" data-feather="bar-chart-2"></i>
-                            <span class="align-middle">Analytics & Reports</span>
-                        </a>
-                    </li>
-
-                    <li class="sidebar-header">Account</li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link" href="/administrator/profile/">
-                            <i class="align-middle" data-feather="user"></i>
-                            <span class="align-middle">Profile</span>
+                    <li class="nav-item">
+                        <a class="btn btn-danger d-flex align-items-center fw-semibold rounded-pill py-2 px-3" href="/administrator/admin-log-out/">
+                            <i class="align-middle me-md-2" data-feather="log-out"></i>
+                            <span class="d-none d-md-inline align-middle">Log out</span>
                         </a>
                     </li>
                 </ul>
-
-                </div>
+            </div>
         </nav>
 
-		<div class="main">
-            <nav class="navbar navbar-expand navbar-light navbar-bg shadow-sm border-bottom">
-                <a class="sidebar-toggle js-sidebar-toggle">
-                    <i class="hamburger align-self-center"></i>
-                </a>
-
-                <div class="navbar-collapse collapse">
-                    <ul class="navbar-nav ms-auto align-items-center">
-
-                        {% if not admin.is_superuser %}
-                        <li class="nav-item me-2">
-                            <button type="button" class="btn btn-outline-secondary d-flex align-items-center fw-semibold rounded-pill py-2 px-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                <i class="align-middle me-md-2" data-feather="dollar-sign"></i>
-                                <span class="d-none d-md-inline align-middle">Bank Details</span>
-                            </button>
-                        </li>
-
-                        <li class="nav-item me-2">
-                            <button type="button" class="btn btn-primary d-flex align-items-center fw-semibold rounded-pill py-2 px-3" id="ins_share" data-bs-toggle="modal" data-bs-target="#shareModal">
-                                <i class="align-middle me-md-2" data-feather="share-2"></i>
-                                <span class="d-none d-md-inline align-middle">Share Institution</span>
-                            </button>
-                        </li>
-                        {% endif %}
-
-                        <li class="nav-item">
-                            <a class="btn btn-danger d-flex align-items-center fw-semibold rounded-pill py-2 px-3" href="/administrator/admin-log-out/">
-                                <i class="align-middle me-md-2" data-feather="log-out"></i>
-                                <span class="d-none d-md-inline align-middle">Log out</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-
-			<main class="content">
-                <div class="container-fluid p-0">
-                    {% block content %}
-                    <h1 class="mb-4 fw-bold">Admin Dashboard</h1>
-                    <div class="row g-4">
-                        <div class="col-xl-12 d-flex">
-                            <div class="w-100">
-                                <div class="row">
-                                    <div class="col-md-3 col-sm-6">
-                                        <div class="card data-card border border-primary">
-                                            <div class="card-body">
-                                                <h5 class="card-title text-primary mb-3">Total Projects</h5>
-                                                <div class="row align-items-center mt-4 mb-0">
-                                                    <div class="col-auto">
-                                                        <h1><strong class="text-primary">{{ context.all_prj }}</strong></h1>
-                                                    </div>
-                                                    <div class="col-auto ps-0">
-                                                        <h2><strong>Projects</strong></h2>
-                                                    </div>
+        <main class="content">
+            <div class="container-fluid p-0">
+                {% block content %}
+                <h1 class="mb-4 fw-bold">Admin Dashboard</h1>
+                <div class="row g-4">
+                    <div class="col-xl-12 d-flex">
+                        <div class="w-100">
+                            <div class="row">
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="card data-card border border-primary">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-primary mb-3">Total Projects</h5>
+                                            <div class="row align-items-center mt-4 mb-0">
+                                                <div class="col-auto">
+                                                    <h1><strong class="text-primary">{{ context.all_prj }}</strong></h1>
+                                                </div>
+                                                <div class="col-auto ps-0">
+                                                    <h2><strong>Projects</strong></h2>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-sm-6">
-                                        <div class="card data-card border border-success">
-                                            <div class="card-body">
-                                                <h5 class="card-title text-success mb-3">Successful Projects</h5>
-                                                <div class="row align-items-center mt-4 mb-0">
-                                                    <div class="col-auto">
-                                                        <h1><strong class="text-success">{{ context.cmp_prj }}</strong></h1>
-                                                    </div>
-                                                    <div class="col-auto ps-0">
-                                                        <h2><strong>Projects</strong></h2>
-                                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="card data-card border border-success">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-success mb-3">Successful Projects</h5>
+                                            <div class="row align-items-center mt-4 mb-0">
+                                                <div class="col-auto">
+                                                    <h1><strong class="text-success">{{ context.cmp_prj }}</strong></h1>
+                                                </div>
+                                                <div class="col-auto ps-0">
+                                                    <h2><strong>Projects</strong></h2>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-sm-6">
-                                        <div class="card data-card border border-secondary">
-                                            <div class="card-body">
-                                                <h5 class="card-title text-secondary mb-3">Closed Projects</h5>
-                                                <div class="row align-items-center mt-4 mb-0">
-                                                    <div class="col-auto">
-                                                        <h1><strong class="text-secondary">{{ context.cls_prj }}</strong></h1>
-                                                    </div>
-                                                    <div class="col-auto ps-0">
-                                                        <h2><strong>Projects</strong></h2>
-                                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="card data-card border border-secondary">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-secondary mb-3">Closed Projects</h5>
+                                            <div class="row align-items-center mt-4 mb-0">
+                                                <div class="col-auto">
+                                                    <h1><strong class="text-secondary">{{ context.cls_prj }}</strong></h1>
+                                                </div>
+                                                <div class="col-auto ps-0">
+                                                    <h2><strong>Projects</strong></h2>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-sm-6">
-                                        <div class="card data-card border border-danger">
-                                            <div class="card-body">
-                                                <h5 class="card-title text-danger mb-3">Failed Projects</h5>
-                                                <div class="row align-items-center mt-4 mb-0">
-                                                    <div class="col-auto">
-                                                        <h1><strong class="text-danger">{{ context.fail_prj }}</strong></h1>
-                                                    </div>
-                                                    <div class="col-auto ps-0">
-                                                        <h2><strong>Projects</strong></h2>
-                                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="card data-card border border-danger">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-danger mb-3">Failed Projects</h5>
+                                            <div class="row align-items-center mt-4 mb-0">
+                                                <div class="col-auto">
+                                                    <h1><strong class="text-danger">{{ context.fail_prj }}</strong></h1>
+                                                </div>
+                                                <div class="col-auto ps-0">
+                                                    <h2><strong>Projects</strong></h2>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-sm-6">
-                                        <div class="card data-card border border-primary">
-                                            <div class="card-body">
-                                                <h5 class="card-title text-primary mb-3">Total Transactions</h5>
-                                                <div class="row align-items-center mt-4 mb-0">
-                                                    <div class="col-auto">
-                                                        <h1><strong class="text-primary">{{ context.all_tra }}</strong></h1>
-                                                    </div>
-                                                    <div class="col-auto ps-0">
-                                                        <h2><strong>Transactions</strong></h2>
-                                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="card data-card border border-primary">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-primary mb-3">Total Transactions</h5>
+                                            <div class="row align-items-center mt-4 mb-0">
+                                                <div class="col-auto">
+                                                    <h1><strong class="text-primary">{{ context.all_tra }}</strong></h1>
+                                                </div>
+                                                <div class="col-auto ps-0">
+                                                    <h2><strong>Transactions</strong></h2>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-sm-6">
-                                        <div class="card data-card border border-success">
-                                            <div class="card-body">
-                                                <h5 class="card-title text-success mb-3">Verified Transactions</h5>
-                                                <div class="row align-items-center mt-4 mb-0">
-                                                    <div class="col-auto">
-                                                        <h1><strong class="text-success">{{ context.ver_tra }}</strong></h1>
-                                                    </div>
-                                                    <div class="col-auto ps-0">
-                                                        <h2><strong>Transactions</strong></h2>
-                                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="card data-card border border-success">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-success mb-3">Verified Transactions</h5>
+                                            <div class="row align-items-center mt-4 mb-0">
+                                                <div class="col-auto">
+                                                    <h1><strong class="text-success">{{ context.ver_tra }}</strong></h1>
+                                                </div>
+                                                <div class="col-auto ps-0">
+                                                    <h2><strong>Transactions</strong></h2>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-sm-6">
-                                        <div class="card data-card border border-warning">
-                                            <div class="card-body">
-                                                <h5 class="card-title text-warning mb-3">Unverified Transactions</h5>
-                                                <div class="row align-items-center mt-4 mb-0">
-                                                    <div class="col-auto">
-                                                        <h1><strong class="text-warning">{{ context.unver_tra }}</strong></h1>
-                                                    </div>
-                                                    <div class="col-auto ps-0">
-                                                        <h2><strong>Transactions</strong></h2>
-                                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="card data-card border border-warning">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-warning mb-3">Unverified Transactions</h5>
+                                            <div class="row align-items-center mt-4 mb-0">
+                                                <div class="col-auto">
+                                                    <h1><strong class="text-warning">{{ context.unver_tra }}</strong></h1>
+                                                </div>
+                                                <div class="col-auto ps-0">
+                                                    <h2><strong>Transactions</strong></h2>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-sm-6">
-                                        <div class="card data-card border border-danger">
-                                            <div class="card-body">
-                                                <h5 class="card-title text-danger mb-3">Rejected Transactions</h5>
-                                                <div class="row align-items-center mt-4 mb-0">
-                                                    <div class="col-auto">
-                                                        <h1><strong class="text-danger">{{ context.rej_tra }}</strong></h1>
-                                                    </div>
-                                                    <div class="col-auto ps-0">
-                                                        <h2><strong>Transactions</strong></h2>
-                                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="card data-card border border-danger">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-danger mb-3">Rejected Transactions</h5>
+                                            <div class="row align-items-center mt-4 mb-0">
+                                                <div class="col-auto">
+                                                    <h1><strong class="text-danger">{{ context.rej_tra }}</strong></h1>
+                                                </div>
+                                                <div class="col-auto ps-0">
+                                                    <h2><strong>Transactions</strong></h2>
                                                 </div>
                                             </div>
                                         </div>
@@ -420,100 +427,101 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="col-12">
-                            <div class="card flex-fill border-0 shadow-lg rounded-4">
+                    <div class="col-12">
+                        <div class="card flex-fill border-0 shadow-lg rounded-4">
 
-                                <div class="card-header bg-white rounded-top-4 border-0 pt-4 pb-2">
-                                    <h1 class="card-title mb-0 fs-4 fw-bold text-dark">Ongoing Projects</h1>
-                                </div>
-
-                                <div class="card-body p-0">
-                                    <div class="table-responsive">
-
-                                        <table class="table table-hover table-borderless align-middle mb-0">
-
-                                            <thead class="table-dark">
-                                                <tr>
-                                                    <th class="text-white small fw-bold text-uppercase ps-4">#</th>
-                                                    <th class="text-white small fw-bold text-uppercase">Project Title</th>
-                                                    <th class="text-white small fw-bold text-uppercase">Target</th>
-                                                    <th class="text-white small fw-bold text-uppercase">Current</th>
-                                                    <th class="text-white small fw-bold text-uppercase">Created At</th>
-                                                    <th class="text-white small fw-bold text-uppercase">Status</th>
-                                                    <th class="text-center text-white small fw-bold text-uppercase pe-4">Action</th>
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                            {% for p in context.lst_prj %}
-                                            <tr>
-                                                <td class="ps-4">{{ forloop.counter }}</td>
-                                                <td class="fw-semibold text-dark">{{ p.title }}</td>
-                                                <td class="fw-semibold text-info">₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
-                                                <td class="fw-semibold text-success">₹{{ p.current_amount|floatformat:2|intcomma }}</td>
-                                                <td>{{ p.started_at|date:"d M, Y" }}</td>
-                                                <td>
-                                                    {% if p.table_status == False %}
-                                                        <span class="badge bg-danger bg-opacity-10 text-danger fw-bold rounded-pill p-2">
-                                                            <i class="align-middle me-1" data-feather="lock"></i> Closed
-                                                        </span>
-                                                    {% else %}
-                                                        <span class="badge bg-info bg-opacity-10 text-info fw-bold rounded-pill p-2">
-                                                            <i class="align-middle me-1" data-feather="activity"></i> Ongoing
-                                                        </span>
-                                                    {% endif %}
-                                                </td>
-                                                <td class="text-center pe-4">
-                                                    <a class="btn btn-sm btn-info rounded-pill px-3" href="/administrator/single-project/{{ p.id }}/" title="View Details">
-                                                        <i class="align-middle" data-feather="eye"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            {% empty %}
-                                            <tr>
-                                                <td colspan="7" class="text-center p-5 text-muted">No projects found matching the criteria.</td>
-                                            </tr>
-                                            {% endfor %}
-                                            </tbody>
-                                        </table>
-
-                                    </div>
-                                </div>
-
-                                <div class="card-footer bg-white rounded-bottom-4 border-0 pt-3 pb-4">
-                                    <small class="text-muted">Displaying {{ context.lst_prj|length }} latest projects.</small>
-                                </div>
-
+                            <div class="card-header bg-white rounded-top-4 border-0 pt-4 pb-2">
+                                <h1 class="card-title mb-0 fs-4 fw-bold text-dark">Ongoing Projects</h1>
                             </div>
+
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+
+                                    <table class="table table-hover table-borderless align-middle mb-0">
+
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th class="text-white small fw-bold text-uppercase ps-4">#</th>
+                                                <th class="text-white small fw-bold text-uppercase">Project Title</th>
+                                                <th class="text-white small fw-bold text-uppercase">Target</th>
+                                                <th class="text-white small fw-bold text-uppercase">Current</th>
+                                                <th class="text-white small fw-bold text-uppercase">Created At</th>
+                                                <th class="text-white small fw-bold text-uppercase">Status</th>
+                                                <th class="text-center text-white small fw-bold text-uppercase pe-4">Action</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                        {% for p in context.lst_prj %}
+                                        <tr>
+                                            <td class="ps-4">{{ forloop.counter }}</td>
+                                            <td class="fw-semibold text-dark">{{ p.title }}</td>
+                                            <td class="fw-semibold text-info">₹{{ p.funding_goal|floatformat:2|intcomma }}</td>
+                                            <td class="fw-semibold text-success">₹{{ p.current_amount|floatformat:2|intcomma }}</td>
+                                            <td>{{ p.started_at|date:"d M, Y" }}</td>
+                                            <td>
+                                                {% if p.table_status == False %}
+                                                    <span class="badge bg-danger bg-opacity-10 text-danger fw-bold rounded-pill p-2">
+                                                        <i class="align-middle me-1" data-feather="lock"></i> Closed
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-info bg-opacity-10 text-info fw-bold rounded-pill p-2">
+                                                        <i class="align-middle me-1" data-feather="activity"></i> Ongoing
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center pe-4">
+                                                <a class="btn btn-sm btn-info rounded-pill px-3" href="/administrator/single-project/{{ p.id }}/" title="View Details">
+                                                    <i class="align-middle" data-feather="eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="7" class="text-center p-5 text-muted">No projects found matching the criteria.</td>
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+
+                            <div class="card-footer bg-white rounded-bottom-4 border-0 pt-3 pb-4">
+                                <small class="text-muted">Displaying {{ context.lst_prj|length }} latest projects.</small>
+                            </div>
+
                         </div>
                     </div>
-                    {% endblock %}
                 </div>
-            </main>
+                {% endblock %}
+            </div>
+        </main>
 
 
-			<footer class="footer mt-auto py-4 bg-light">
-                <div class="container-fluid px-4">
-                    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
-                        <div class="mb-2 mb-md-0 text-center text-md-start">
-                            <span class="text-muted">
-                                &copy; {% now "Y" %}
-                                <a class="text-info text-decoration-none fw-bold" href="https://kochi.digital/" target="_blank">Kochi Digital</a>. All Rights Reserved.
-                            </span>
-                        </div>
-                        <div class="text-center text-md-end">
-                            <ul class="list-inline mb-0">
-                                <li class="list-inline-item me-3">
-                                    <a class="text-info text-decoration-none" href="/administrator/credits/">Credits</a>
-                                </li>
-                            </ul>
-                        </div>
+        <footer class="footer mt-auto py-4 bg-light">
+            <div class="container-fluid px-4">
+                <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
+                    <div class="mb-2 mb-md-0 text-center text-md-start">
+                        <span class="text-muted">
+                            &copy; {% now "Y" %}
+                            <a class="text-info text-decoration-none fw-bold" href="https://kochi.digital/" target="_blank">Kochi Digital</a>. All Rights Reserved.
+                        </span>
+                    </div>
+                    <div class="text-center text-md-end">
+                        <ul class="list-inline mb-0">
+                            <li class="list-inline-item me-3">
+                                <a class="text-info text-decoration-none" href="/administrator/credits/">Credits</a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-            </footer>
-		</div>
-	</div>
+            </div>
+        </footer>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
 <script src="{% static 'Dashboard/js/app.js' %}"></script>
@@ -535,13 +543,174 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+
+        // --- 1. Helper Function for Visual Feedback (Used by Bank Form Validation) ---
+        function updateValidationStatus(inputElement, isValid, errorMessage = "") {
+            if (!inputElement) return;
+
+            // Use optional chaining for safe access
+            const feedbackElement = inputElement.closest('.form-floating')?.querySelector('.invalid-feedback');
+
+            if (isValid) {
+                inputElement.classList.remove('is-invalid');
+                inputElement.classList.add('is-valid');
+            } else {
+                inputElement.classList.remove('is-valid');
+                inputElement.classList.add('is-invalid');
+            }
+
+            if (!isValid && feedbackElement) {
+                 feedbackElement.textContent = errorMessage;
+            }
+        }
+
+
+        // ===============================================
+        // A. Bank Form Validation Logic
+        // ===============================================
+
+        // Assuming you have added id="bankUpdateForm" to your <form> tag
+        const bankForm = document.getElementById('bankUpdateForm');
+
+        if (bankForm) {
+
+            // --- Input Elements ---
+            const acHolderFirstNameInput = document.getElementById('acHolderFirstName');
+            const acHolderLastNameInput = document.getElementById('acHolderLastName');
+            const acHolderPhnInput = document.getElementById('acHolderPhn');
+            // const acHolderAddressInput = document.getElementById('acHolderAddress'); // Not strictly used in validation
+
+            const bankNameInput = document.getElementById('bankName');
+            const branchNameInput = document.getElementById('branchName');
+            const ifscCodeInput = document.getElementById('ifscCode');
+            const acNumberInput = document.getElementById('acNumber');
+            const upiIdInput = document.getElementById('upiId');
+
+            // --- Regex Patterns ---
+            const nameRegex = /^[a-zA-Z\s]+$/;
+            const phoneRegex = /^\d{10}$/;          // Must be exactly 10 digits (numbers only)
+            const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/; // 11 chars: 4 letters, 0, 6 alphanumeric
+            const acNumberRegex = /^\d{9,18}$/; // 9 to 18 digits
+            const upiRegex = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z0-9]{2,64}$/;
+
+
+            // --- Main Validation Function ---
+            function validateBankForm(event) {
+                let formIsValid = true;
+
+                // Reset status for all relevant inputs
+                [acHolderFirstNameInput, acHolderLastNameInput, acHolderPhnInput, bankNameInput, branchNameInput, ifscCodeInput, acNumberInput, upiIdInput].forEach(input => {
+                    if (input) input.classList.remove('is-valid', 'is-invalid');
+                });
+
+
+                // === ACCOUNT HOLDER DETAILS (Optional, but check format) ===
+
+                // First Name
+                if (acHolderFirstNameInput.value.trim().length > 0 && !nameRegex.test(acHolderFirstNameInput.value.trim())) {
+                    updateValidationStatus(acHolderFirstNameInput, false, "First Name must contain only letters and spaces.");
+                    formIsValid = false;
+                }
+
+                // Last Name
+                if (acHolderLastNameInput.value.trim().length > 0 && !nameRegex.test(acHolderLastNameInput.value.trim())) {
+                    updateValidationStatus(acHolderLastNameInput, false, "Last Name must contain only letters and spaces.");
+                    formIsValid = false;
+                }
+
+                // Phone Number (10 digits)
+                if (acHolderPhnInput.value.trim().length > 0 && !phoneRegex.test(acHolderPhnInput.value.trim())) {
+                    updateValidationStatus(acHolderPhnInput, false, "Phone Number must be exactly 10 digits (numbers only).");
+                    formIsValid = false;
+                }
+
+                // === BANK INFORMATION (Required Fields) ===
+
+                // Bank Name
+                if (bankNameInput.value.trim() === '') {
+                    updateValidationStatus(bankNameInput, false, "Bank Name is required.");
+                    formIsValid = false;
+                }
+
+                // Branch Name
+                if (branchNameInput.value.trim() === '') {
+                    updateValidationStatus(branchNameInput, false, "Branch Name is required.");
+                    formIsValid = false;
+                }
+
+                // UPI ID
+                if (upiIdInput.value.trim() === '') {
+                    updateValidationStatus(upiIdInput, false, "UPI ID is required.");
+                    formIsValid = false;
+                } else if (!upiRegex.test(upiIdInput.value.trim())) {
+                    updateValidationStatus(upiIdInput, false, "Please enter a valid UPI ID (e.g., example@bank).");
+                    formIsValid = false;
+                }
+
+
+                // === ACCOUNT NUMBER / IFSC (Conditional logic) ===
+                const hasIfsc = ifscCodeInput.value.trim().length > 0;
+                const hasAcNumber = acNumberInput.value.trim().length > 0;
+
+                // If either is present, both must be valid
+                if (hasIfsc || hasAcNumber) {
+                    let acFieldsValid = true;
+
+                    // 1. Check IFSC
+                    if (ifscCodeInput.value.trim() === '') {
+                        updateValidationStatus(ifscCodeInput, false, "IFSC Code is required if Account Number is provided.");
+                        acFieldsValid = false;
+                    } else if (!ifscRegex.test(ifscCodeInput.value.trim())) {
+                        updateValidationStatus(ifscCodeInput, false, "IFSC Code must be 11 characters long (e.g., ABCD0123456).");
+                        acFieldsValid = false;
+                    }
+
+                    // 2. Check Account Number
+                    if (acNumberInput.value.trim() === '') {
+                        updateValidationStatus(acNumberInput, false, "Account Number is required if IFSC Code is provided.");
+                        acFieldsValid = false;
+                    } else if (!acNumberRegex.test(acNumberInput.value.trim())) {
+                        updateValidationStatus(acNumberInput, false, "Account Number must be 9 to 18 digits (numbers only).");
+                        acFieldsValid = false;
+                    }
+
+                    if (!acFieldsValid) {
+                        formIsValid = false;
+                    }
+                }
+
+                return formIsValid;
+            }
+
+            // --- Attach Event Listener ---
+            bankForm.addEventListener('submit', (event) => {
+                const formIsValid = validateBankForm();
+                if (!formIsValid) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const firstInvalid = bankForm.querySelector('.is-invalid');
+                    if (firstInvalid) {
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+        }
+
+
+        // ===============================================
+        // B. Share Modal/Link Logic
+        // ===============================================
+
         const shareModal = document.getElementById('shareModal');
         const institutionLinkInput = document.getElementById('institutionLinkInput');
         const copyLinkButton = document.getElementById('copyLinkButton');
         const whatsappShare = document.getElementById('whatsappShare');
         const twitterShare = document.getElementById('twitterShare');
-        const facebookShare = document.getElementById('facebookShare'); // New element
+        const facebookShare = document.getElementById('facebookShare');
 
+        // Note: The customUrl uses Django template tags ({{ admin.institution.id }}),
+        // ensure this script is inside a Django template file.
         const customUrl = `${window.location.protocol}//${window.location.host}/user/{{admin.institution.id}}/`;
         const shareText = `Welcome!
 Check out the available donation projects from {{ admin.institution.institution_name }}.
