@@ -1419,19 +1419,48 @@ def adminContactMessage(request):
         if not request.user.table_status:
             messages.error(request, "Your account has been deactivated by another superuser.")
             return redirect('/administrator/logout/')
-        msg = ContactMessage.objects.all().order_by('-sent_time')
+        msg = ContactMessage.objects.all()
     elif request.user.is_staff:
         if not request.user.table_status or not request.user.institution.table_status:
             messages.error(request, "Your account or institution has been deactivated by a superuser.")
             return redirect('/administrator/logout/')
-        msg = ContactMessage.objects.filter(ins=request.user.institution).order_by('-sent_time')
+        msg = ContactMessage.objects.filter(ins=request.user.institution)
     else:
         messages.error(request, "Your Don't have permission to access this page.")
         return redirect('/administrator/')
 
+    sender_name = request.GET.get('sender_name')
+    sender_email = request.GET.get('sender_email')
+    sender_phone = request.GET.get('sender_phone')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    if sender_name:
+        msg = msg.filter(
+            Q(first_name__icontains=sender_name) | Q(last_name__icontains=sender_name)
+        )
+    if sender_email:
+        msg = msg.filter(email__icontains=sender_email)
+    if sender_phone:
+        msg = msg.filter(phone__icontains=sender_phone)
+    if start_date:
+        try:
+            start_datetime = datetime.datetime.strptime(start_date, '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
+            msg = msg.filter(sent_time__gte=start_datetime)
+        except ValueError:
+            pass
+
+    if end_date:
+        try:
+            end_datetime = datetime.datetime.strptime(end_date, '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
+            msg = msg.filter(sent_time__lte=end_datetime)
+        except ValueError:
+            pass
+    msg = msg.order_by('-sent_time')
+
     for m in msg:
         m.has_replied = MessageReply.objects.filter(message=m).exists()
-    return render(request, 'admin-all-contact-message.html', {'admin':request.user,'contact_messages': msg})
+    return render(request, 'admin-all-contact-message.html', {'admin': request.user,'contact_messages': msg,})
 
 
 def adminMessageReply(request, msg_id):
