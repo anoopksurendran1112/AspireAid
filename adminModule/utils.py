@@ -666,8 +666,6 @@ def generate_receipt_pdf(transaction):
 
 
 """generate report pdf."""
-
-
 def generate_report_pdf(project, request):
     # --- REGISTER AND EMBED FONT ---
     # Reusing the font paths and robust checks from the receipt function

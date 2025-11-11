@@ -59,16 +59,13 @@
                             <h4 class="fw-bold text-dark mb-3 border-bottom pb-2">Beneficiary Details</h4>
                             <table class="table table-borderless table-sm mb-0">
                                 <tr>
-                                    <td class="text-muted w-50">Name:</td>
-                                    <td class="fw-bold text-end">{{ transaction.project.beneficiary.first_name }} {{ transaction.project.beneficiary.last_name }}</td>
+                                    <td class="fw-bold">{{ transaction.project.beneficiary.first_name }} {{ transaction.project.beneficiary.last_name }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted w-50">Phone Number:</td>
-                                    <td class="fw-bold text-end">{{ transaction.project.beneficiary.phone_number }}</td>
+                                    <td class="fw-bold">{{ transaction.project.beneficiary.phone_number }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted w-50">Age:</td>
-                                    <td class="fw-bold text-end">{{ transaction.project.beneficiary.age }} years old</td>
+                                    <td class="fw-bold">{{ transaction.project.beneficiary.age }} years old</td>
                                 </tr>
                             </table>
                         </div>
@@ -81,22 +78,15 @@
                             <h4 class="fw-bold text-dark mb-3 border-bottom pb-2">Buyer Details</h4>
                             <table class="table table-borderless table-sm mb-0">
                                 <tr>
-                                    <td class="text-muted w-50">Name:</td>
-                                    <td class="fw-bold text-end">{{ transaction.sender.full_name }}</td>
+                                    <td class="fw-bold">{{ transaction.sender.full_name }}</td>
                                 </tr>
                                 {% if transaction.sender.email %}
                                 <tr>
-                                    <td class="text-muted w-50">Email:</td>
-                                    <td class="fw-bold text-end">{{ transaction.sender.email }}</td>
+                                    <td class="fw-bold">{{ transaction.sender.email }}</td>
                                 </tr>
                                 {% endif %}
                                 <tr>
-                                    <td class="text-muted w-50">Phone:</td>
-                                    <td class="fw-bold text-end">{{ transaction.sender.phone }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted w-50">Address:</td>
-                                    <td class="fw-bold text-end">{{ transaction.sender.address|default:'N/A' }}</td>
+                                    <td class="fw-bold">{{ transaction.sender.phone }}</td>
                                 </tr>
                             </table>
                         </div>
@@ -109,13 +99,13 @@
                     <h4 class="fw-bold text-dark mb-3 border-bottom pb-2">Transaction Summary</h4>
                     <div class="d-flex justify-content-between align-items-center flex-wrap">
                         <ul class="list-unstyled mb-0 w-50">
-                            <li class="mb-1 text-muted"><strong>Tracking ID:</strong> <span class="fw-bold text-dark">{{ transaction.tracking_id }}</span></li>
-                            <li class="mb-1 text-muted"><strong>Transaction Time:</strong> <span class="fw-bold text-dark">{{ transaction.transaction_time|date:"d M, Y h:i A" }}</span></li>
-                            <li class="mb-1 text-muted"><strong>Total Tiles in Project:</strong> <span class="fw-bold text-dark">{{ transaction.tiles_bought.tiles|default:'N/A' }}</span></li>
+                            <li class="mb-2 text-muted"><strong>Tracking ID:</strong> <span class="fw-bold text-dark">{{ transaction.tracking_id }}</span></li>
+                            <li class="mb-2 text-muted"><strong>Transaction Time:</strong> <span class="fw-bold text-dark">{{ transaction.transaction_time|date:"d M, Y h:i A" }}</span></li>
+                            <li class="mb-2 text-muted"><strong>Total Tiles in Project:</strong> <span class="fw-bold text-dark">{{ transaction.tiles_bought.tiles|default:'N/A' }}</span></li>
                         </ul>
                         <div class="text-end mt-3 mt-sm-0">
-                            <h4 class="mb-1 fw-bold text-muted">{{ transaction.num_tiles }} Tiles Purchased</h4>
-                            <h1 class="mb-0 text-success fw-bolder display-6">₹{{ transaction.amount|floatformat:2|intcomma }}</h1>
+                            <h6 class="mb-1 fw-bold text-muted">{{ transaction.num_tiles }} Tiles Purchased</h6>
+                            <h1 class="mb-0 text-success fw-bolder ">₹{{ transaction.amount|floatformat:2|intcomma }}</h1>
                         </div>
                     </div>
                 </div>
