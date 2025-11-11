@@ -21,11 +21,8 @@ import os
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
-)
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER
+from reportlab.lib.units import mm
+from reportlab.pdfgen import canvas
 
 
 SMS_INITIATE_TEMPLATE_ID = "198753"
@@ -674,16 +671,16 @@ def generate_receipt_pdf(transaction):
 def generate_report_pdf(project, request):
     # --- REGISTER AND EMBED FONT ---
     # Reusing the font paths and robust checks from the receipt function
-    font_regular_path = os.path.join(settings.BASE_DIR, 'AspireAid', 'static', 'fonts', 'NotoSans-Regular.ttf')
-    font_bold_path = os.path.join(settings.BASE_DIR, 'AspireAid', 'static', 'fonts', 'NotoSans-Bold.ttf')
+    font_regular_path = os.path.join(settings.BASE_DIR, 'AspireAid', 'static', 'fonts', 'NotoSansMalayalam-Regular.ttf')
+    font_bold_path = os.path.join(settings.BASE_DIR, 'AspireAid', 'static', 'fonts', 'NotoSansMalayalam-Bold.ttf')
 
     if not os.path.exists(font_regular_path):
         raise FileNotFoundError(f"Font not found at: {font_regular_path}")
     if not os.path.exists(font_bold_path):
         raise FileNotFoundError(f"Font not found at: {font_bold_path}")
 
-    pdfmetrics.registerFont(TTFont('NotoSans', font_regular_path))
-    pdfmetrics.registerFont(TTFont('NotoSans-Bold', font_bold_path))
+    pdfmetrics.registerFont(TTFont('NotoSansMalayalam-Regular', font_regular_path))
+    pdfmetrics.registerFont(TTFont('NotoSansMalayalam-Bold', font_bold_path))
 
     # --- PAGE CONFIGURATION ---
     page_width, page_height = A4
@@ -706,23 +703,22 @@ def generate_report_pdf(project, request):
     styles = getSampleStyleSheet()
 
     # Matching receipt's styles
-    styles.add(ParagraphStyle('ReportTitle', fontName='NotoSans-Bold', fontSize=18, spaceAfter=20,
+    styles.add(ParagraphStyle('ReportTitle', fontName='NotoSansMalayalam-Bold', fontSize=18, spaceAfter=20,
                               alignment=TA_LEFT))  # Based on TitleStyle
-    styles.add(
-        ParagraphStyle('SectionHeading', fontName='NotoSans-Bold', fontSize=12, textColor=colors.black, spaceAfter=8,
+    styles.add(ParagraphStyle('SectionHeading', fontName='NotoSansMalayalam-Bold', fontSize=12, textColor=colors.black, spaceAfter=8,
                        alignment=TA_LEFT))  # Based on SubtitleStyle
-    styles.add(ParagraphStyle('NormalStyle', fontName='NotoSans', fontSize=8, spaceAfter=6, alignment=TA_LEFT,
+    styles.add(ParagraphStyle('NormalStyle', fontName='NotoSansMalayalam-Regular', fontSize=8, spaceAfter=6, alignment=TA_LEFT,
                               leading=10))  # Based on NormalStyle, added leading
     styles.add(
-        ParagraphStyle('NormalStyleCenter', fontName='NotoSans', fontSize=8, textColor=colors.black, spaceAfter=6,
+        ParagraphStyle('NormalStyleCenter', fontName='NotoSansMalayalam-Regular', fontSize=8, textColor=colors.black, spaceAfter=6,
                        alignment=TA_CENTER))
-    styles.add(ParagraphStyle('BoldStyleLeft', fontName='NotoSans-Bold', fontSize=8, spaceAfter=6, alignment=TA_LEFT))
-    styles.add(ParagraphStyle('RightAlignNormal', fontName='NotoSans', fontSize=10, spaceAfter=6, alignment=TA_RIGHT))
-    styles.add(ParagraphStyle('KeyMetricLabel', fontName='NotoSans', fontSize=11, textColor=colors.HexColor("#666666"),
+    styles.add(ParagraphStyle('BoldStyleLeft', fontName='NotoSansMalayalam-Bold', fontSize=8, spaceAfter=6, alignment=TA_LEFT))
+    styles.add(ParagraphStyle('RightAlignNormal', fontName='NotoSansMalayalam-Regular', fontSize=10, spaceAfter=6, alignment=TA_RIGHT))
+    styles.add(ParagraphStyle('KeyMetricLabel', fontName='NotoSansMalayalam-Regular', fontSize=11, textColor=colors.HexColor("#666666"),
                               alignment=TA_CENTER))
-    styles.add(ParagraphStyle('KeyMetricValue', fontName='NotoSans-Bold', fontSize=22, textColor=colors.black,
+    styles.add(ParagraphStyle('KeyMetricValue', fontName='NotoSansMalayalam-Bold', fontSize=22, textColor=colors.black,
                               alignment=TA_CENTER, leading=30))
-    styles.add(ParagraphStyle('TableHeaderStyle', fontName='NotoSans-Bold', textColor=colors.white, fontSize=9,
+    styles.add(ParagraphStyle('TableHeaderStyle', fontName='NotoSansMalayalam-Bold', textColor=colors.white, fontSize=9,
                               alignment=TA_CENTER))
 
     # --- PAGE 1: HEADER & KEY METRICS ---
@@ -921,7 +917,7 @@ def generate_report_pdf(project, request):
     txn_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#D2C6C6")),  # Dark header
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),  # White text
-        ('FONTNAME', (0, 0), (-1, 0), 'NotoSans-Bold'),
+        ('FONTNAME', (0, 0), (-1, 0), 'NotoSansMalayalam-Bold'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
         ('TOPPADDING', (0, 0), (-1, 0), 6),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
