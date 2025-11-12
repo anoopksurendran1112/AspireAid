@@ -58,6 +58,15 @@ class Receipt(models.Model):
         return f"Receipt for Transaction {self.transaction.transaction_id}"
 
 
+class Receipt80mm(models.Model):
+    transaction = models.ForeignKey(Transaction,on_delete=models.CASCADE,)
+    receipt_80mm_pdf = models.FileField(upload_to='receipts80mm/')
+    table_status = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Receipt for Transaction {self.transaction.transaction_id}"
+
+
 class ContactMessage(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)

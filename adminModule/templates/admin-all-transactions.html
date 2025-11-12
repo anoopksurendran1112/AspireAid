@@ -149,8 +149,8 @@
                                         </a>
 
                                         {% if t.status == 'Verified' and not admin.is_superuser %}
-                                            <a href="/administrator/generate-receipt/{{ t.id }}/" class="btn btn-sm btn-info rounded-pill px-3 ms-2" title="Generate Receipt">
-                                                <i class="align-middle" data-feather="file-text"></i>
+                                            <a href="/administrator/generate-receipt/{{ t.id }}/regular/" class="btn btn-sm btn-info rounded-pill px-3 ms-2" title="Generate Receipt">
+                                                <i class="align-middle" data-feather="file-plus"></i>
                                             </a>
                                         {% endif %}
                                     </td>
