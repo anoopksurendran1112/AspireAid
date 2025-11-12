@@ -6,6 +6,7 @@ from reportlab.platypus.flowables import HRFlowable, PageBreak, Image
 from userModule.models import Receipt, Transaction
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
+from reportlab.lib.units import mm as mm_unit
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
 from reportlab.lib import colors
@@ -663,6 +664,194 @@ def generate_receipt_pdf(transaction):
     buffer.seek(0)
 
     return ContentFile(buffer.getvalue(), name=f'{transaction.tracking_id}.pdf')
+
+
+"""generate receipt pdf."""
+
+
+def generate_80mm_receipt_pdf(transaction):
+    """
+    Generate 80mm thermal receipt dynamically using canvas methods
+    and transaction data.
+    """
+
+    # --- Data & Configuration ---
+    page_width = 80 * mm_unit
+    page_height = 297 * mm_unit  # A4 height, will auto-size based on content
+    left_margin = 5 * mm_unit
+    right_margin = 5 * mm_unit
+
+    # Use io.BytesIO buffer for Django response
+    buffer = io.BytesIO()
+
+    # Currency symbol
+    rupee = u"\u20B9"
+
+    # Dynamic Data Extraction & Calculation
+
+    # Calculate num_tiles (taken from your first code block logic)
+    tiles_string = transaction.tiles_bought.tiles
+    transaction.num_tiles = len(tiles_string.split('-')) if tiles_string else 0
+
+    # Calculate item total
+    item_total_value = transaction.num_tiles * transaction.project.tile_value
+
+    # --- FONT REGISTRATION (Optional, use only if non-English required) ---
+    # WARNING: ReportLab's canvas method does NOT support Complex Text Layout (CTL)
+    # required for correct Malayalam rendering, even with NotoSans.
+    # If NotoSans is required, replace the font paths below and uncomment.
+
+    # try:
+    #     # Mocking settings access - replace with actual Django settings
+    #     # font_regular_path = os.path.join(settings.BASE_DIR, 'AspireAid', 'static', 'fonts', 'NotoSans-Regular.ttf')
+    #     # pdfmetrics.registerFont(TTFont('NotoSans', font_regular_path))
+    #     pass # Using standard fonts for stability
+    # except Exception:
+    #     print("Note: NotoSans font could not be registered.")
+
+    # --- Canvas Setup ---
+    c = canvas.Canvas(buffer, pagesize=(page_width, page_height))
+    y_position = page_height - 10 * mm_unit
+
+    # --- 1. Header Section ---
+    institution_name = transaction.project.created_by.institution_name
+    c.setFont("Helvetica-Bold", 14)
+    text_width = c.stringWidth(institution_name, "Helvetica-Bold", 14)
+    c.drawString((page_width - text_width) / 2, y_position, institution_name)
+    y_position -= 6 * mm_unit
+
+    # Separator line
+    c.setLineWidth(0.5)
+    c.line(left_margin, y_position, page_width - right_margin, y_position)
+    y_position -= 5 * mm_unit
+
+    # Receipt Info
+    c.setFont("Helvetica", 9)
+    c.drawString(left_margin, y_position, f"NO: {transaction.tracking_id}")
+    y_position -= 4 * mm_unit
+
+    # Use transaction time
+    receipt_datetime_str = transaction.transaction_time.strftime("%Y-%m-%d %H:%M:%S")
+    c.drawString(left_margin, y_position, f"DATE: {receipt_datetime_str}")
+    y_position -= 6 * mm_unit
+
+    # --- 2. Details Section (Project, Beneficiary, Donor) ---
+
+    # Separator line
+    c.setLineWidth(0.5)
+    c.line(left_margin, y_position, page_width - right_margin, y_position)
+    y_position -= 5 * mm_unit
+
+    # Project Details
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(left_margin, y_position, "Project Details")
+    y_position -= 4 * mm_unit
+    c.setFont("Helvetica", 9)
+    c.drawString(left_margin, y_position, f"Title: {transaction.project.title}")
+    y_position -= 6 * mm_unit
+
+    # Beneficiary Details
+    beneficiary = transaction.project.beneficiary
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(left_margin, y_position, "Beneficiary Details")
+    y_position -= 4 * mm_unit
+    c.setFont("Helvetica", 9)
+    c.drawString(left_margin, y_position,
+                 f"Name: {beneficiary.first_name} {beneficiary.last_name}")
+    y_position -= 3.5 * mm_unit
+    c.drawString(left_margin, y_position, f"Phone: {beneficiary.phone_number or 'N/A'}")
+    y_position -= 6 * mm_unit
+
+    # Donor Details
+    donor = transaction.sender
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(left_margin, y_position, "Donor Details")
+    y_position -= 4 * mm_unit
+    c.setFont("Helvetica", 9)
+    c.drawString(left_margin, y_position, f"Name: {donor.full_name}")
+    y_position -= 3.5 * mm_unit
+    c.drawString(left_margin, y_position, f"Phone: {donor.phone or 'N/A'}")
+    y_position -= 6 * mm_unit
+
+    # --- 3. Vertical Item Summary ---
+
+    # Separator line
+    c.setLineWidth(0.5)
+    c.line(left_margin, y_position, page_width - right_margin, y_position)
+    y_position -= 5 * mm_unit
+
+    # Title
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(left_margin, y_position, "Donation Summary")
+    y_position -= 5 * mm_unit
+
+    # Item: Title (Left Label, Right Value)
+    c.setFont("Helvetica-Bold", 9)
+    c.drawString(left_margin, y_position, "Item:")
+    c.setFont("Helvetica", 9)
+    c.drawRightString(page_width - right_margin, y_position, transaction.project.title)
+    y_position -= 3.5 * mm_unit
+
+    # Qty: (Left Label, Right Value)
+    c.setFont("Helvetica-Bold", 9)
+    c.drawString(left_margin, y_position, "Qty:")
+    c.setFont("Helvetica", 9)
+    c.drawRightString(page_width - right_margin, y_position, str(transaction.num_tiles))
+    y_position -= 3.5 * mm_unit
+
+    # Value: (Left Label, Right Value)
+    c.setFont("Helvetica-Bold", 9)
+    c.drawString(left_margin, y_position, "Value (Unit):")
+    c.setFont("Helvetica", 9)
+    c.drawRightString(page_width - right_margin, y_position,
+                      f"{rupee}{transaction.project.tile_value:,.2f}")
+    y_position -= 3.5 * mm_unit
+
+    # Amt: (Left Label, Right Value - Bolded)
+    c.setFont("Helvetica-Bold", 9)
+    c.drawString(left_margin, y_position, "Amt (Total):")
+    c.setFont("Helvetica-Bold", 9)
+    c.drawRightString(page_width - right_margin, y_position,
+                      f"{rupee}{item_total_value:,.2f}")
+    y_position -= 6 * mm_unit
+
+    # --- 4. Total Section (Enhanced) ---
+
+    # Thick separator line before total
+    c.setLineWidth(1.5)
+    c.line(left_margin, y_position, page_width - right_margin, y_position)
+    y_position -= 5 * mm_unit
+
+    # Total Amount (Left Label, Right Value, large font)
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(left_margin, y_position, "TOTAL PAID:")
+    c.setFont("Helvetica-Bold", 14)
+    c.drawRightString(page_width - right_margin, y_position,
+                      f"{rupee}{item_total_value:,.2f}")
+    y_position -= 8 * mm_unit
+
+    # --- 5. Footer Section ---
+
+    # Dotted line separator
+    c.setDash(2, 2)
+    c.line(left_margin, y_position, page_width - right_margin, y_position)
+    c.setDash()  # Reset to solid line
+    y_position -= 5 * mm_unit
+
+    # Footer - Thank you message
+    c.setFont("Helvetica-Oblique", 9)
+    thank_you_text = "Thank you for your contribution"
+    text_width = c.stringWidth(thank_you_text, "Helvetica-Oblique", 9)
+    c.drawString((page_width - text_width) / 2, y_position, thank_you_text)
+    y_position -= 10 * mm_unit
+
+    # Save PDF and return buffer
+    c.showPage()
+    c.save()
+    buffer.seek(0)
+
+    # Return ContentFile structure for use in Django view
+    return ContentFile(buffer.getvalue(), name=f'{transaction.tracking_id}_80mm_receipt.pdf')
 
 
 """generate report pdf."""

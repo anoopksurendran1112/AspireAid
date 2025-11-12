@@ -1,9 +1,10 @@
 from adminModule.utils import generate_receipt_pdf, whatsapp_send_approve, email_send_approve, sms_send_approve, \
     email_send_reject, sms_send_reject, whatsapp_send_reject, email_send_unverify, sms_send_unverify, \
-    whatsapp_send_unverify, sms_send_response, email_send_response, whatsapp_send_response, generate_report_pdf
+    whatsapp_send_unverify, sms_send_response, email_send_response, whatsapp_send_response, generate_report_pdf, \
+    generate_80mm_receipt_pdf
 from adminModule.models import BankDetails, Beneficial, Project, Institution, ProjectImage, CustomUser, Reports, \
     NotificationPreference, ProjectUpdates
-from userModule.models import Transaction, Receipt, Screenshot, ContactMessage, MessageReply
+from userModule.models import Transaction, Receipt, Screenshot, ContactMessage, MessageReply, Receipt80mm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -1209,30 +1210,48 @@ def adminUnverifyTransaction(request, tid):
     return redirect('/administrator/all-transactions/')
 
 
-def adminGenerateReceipts(request, t_id):
+def adminGenerateReceipts(request, t_id, receipt_type):
     if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "You do not have permission to access this page.")
         return redirect('/administrator/')
+
     transaction_instance = get_object_or_404(Transaction, id=t_id)
+
+    if receipt_type == 'regular':
+        ReceiptModel = Receipt
+        generate_func = generate_receipt_pdf
+        receipt_name = "Regular PDF Receipt"
+        pdf_field_name = 'receipt_pdf'
+    elif receipt_type == '80mm':
+        ReceiptModel = Receipt80mm
+        generate_func = generate_80mm_receipt_pdf
+        receipt_name = "80mm Thermal Receipt"
+        pdf_field_name = 'receipt_80mm_pdf'
+    else:
+        messages.error(request, f"Invalid receipt type specified: {receipt_type}.")
+        return redirect('/administrator/all-transactions/')
     try:
         with db_transaction.atomic():
             old_receipt = None
             try:
-                old_receipt = Receipt.objects.get(transaction=transaction_instance)
-            except Receipt.DoesNotExist:
+                old_receipt = ReceiptModel.objects.get(transaction=transaction_instance)
+            except ReceiptModel.DoesNotExist:
                 pass
+            new_pdf_data = generate_func(transaction_instance)
+            defaults_data = {pdf_field_name: new_pdf_data}
+            receipt, created = ReceiptModel.objects.update_or_create(transaction=transaction_instance,defaults=defaults_data )
 
-            new_pdf_data = generate_receipt_pdf(transaction_instance)
-            receipt, created = Receipt.objects.update_or_create(transaction=transaction_instance,defaults={'receipt_pdf': new_pdf_data})
+            if not created and old_receipt:
+                old_file = getattr(old_receipt, pdf_field_name, None)
 
-            if not created and old_receipt and old_receipt.receipt_pdf:
-                old_file_path = old_receipt.receipt_pdf.path
-                if os.path.exists(old_file_path):
-                    os.remove(old_file_path)
-
-        messages.success(request,f'A receipt for the transaction: {transaction_instance.tracking_id} has been created.')
+                if old_file:
+                    old_file_path = old_file.path
+                    if os.path.exists(old_file_path):
+                        os.remove(old_file_path)
+        messages.success(request,f'{receipt_name} for transaction {transaction_instance.tracking_id} successfully generated and saved.')
     except Exception as e:
-        messages.error(request, f"Failed to generate receipt: {e}")
-    return redirect('/administrator/all-transactions/')
+        messages.error(request, f"Failed to generate {receipt_name}: {e}")
+    return redirect('/administrator/all-receipts/')
 
 
 def adminAllReceipts(request):
@@ -1241,11 +1260,13 @@ def adminAllReceipts(request):
             messages.error(request, "Your account has been deactivated by another superuser.")
             return redirect('/administrator/logout/')
         receipts = Receipt.objects.all()
+        receipts80mm = Receipt80mm.objects.all()
     elif request.user.is_staff:
         if not request.user.table_status or not request.user.institution.table_status:
             messages.error(request, "Your account or institution has been deactivated by a superuser.")
             return redirect('/administrator/logout/')
         receipts = Receipt.objects.filter(transaction__project__created_by=request.user.institution)
+        receipts80mm = Receipt80mm.objects.filter(transaction__project__created_by=request.user.institution)
     else:
         messages.error(request, "Your Don't have permission to access this page.")
         return redirect('/administrator/')
@@ -1291,13 +1312,21 @@ def adminAllReceipts(request):
     else:
         receipts = receipts.order_by('-transaction__transaction_time')
 
+    transaction_ids = receipts.values_list('transaction_id', flat=True)
+
+    rec80_dict = {
+        r80.transaction_id: r80
+        for r80 in receipts80mm.filter(transaction_id__in=transaction_ids)
+    }
+
     for r in receipts:
+        r.receipt_80mm_instance = rec80_dict.get(r.transaction_id)
         if not hasattr(r, 'tile_count'):
             if r.transaction.tiles_bought and r.transaction.tiles_bought.tiles:
                 r.tile_count = len(r.transaction.tiles_bought.tiles.split('-'))
             else:
                 r.tile_count = 0
-    return render(request, 'admin-all-receipts.html', {'admin': request.user, 'rec': receipts})
+    return render(request, 'admin-all-receipts.html', {'admin': request.user,'rec': receipts,})
 
 
 def adminSendReciept(request, r_id):

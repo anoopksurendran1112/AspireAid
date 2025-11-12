@@ -53,7 +53,7 @@ urlpatterns = [
     path('reject-transaction/<int:tid>/',views.adminRejectTransaction),
     path('unverify-transaction/<int:tid>/',views.adminUnverifyTransaction),
 
-    path('generate-receipt/<int:t_id>/', views.adminGenerateReceipts),
+    path('generate-receipt/<int:t_id>/<str:receipt_type>/', views.adminGenerateReceipts, name='admin_generate_receipts'),
     path('all-receipts/',views.adminAllReceipts),
     path('send-receipt/<int:r_id>/',views.adminSendReciept),
 

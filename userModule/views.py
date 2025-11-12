@@ -279,18 +279,17 @@ def userTrackStatus(request, ins_id):
     ins = Institution.objects.get(id=ins_id)
     transactions = Transaction.objects.none()
     search_content = ''
-
     if request.method == 'POST':
         track_query = request.POST.get('track', '').strip()
         search_content = track_query
 
         if track_query:
             if '@' in track_query:
-                transactions = Transaction.objects.filter(sender__email=track_query).order_by('-transaction_time')
+                transactions = Transaction.objects.filter(sender__email=track_query, project__created_by= ins).order_by('-transaction_time')
             elif track_query.isdigit():
-                transactions = Transaction.objects.filter(sender__phone=track_query).order_by('-transaction_time')
+                transactions = Transaction.objects.filter(sender__phone=track_query, project__created_by= ins).order_by('-transaction_time')
             else:
-                transactions = Transaction.objects.filter(tracking_id=track_query).order_by('-transaction_time')
+                transactions = Transaction.objects.filter(tracking_id=track_query, project__created_by= ins).order_by('-transaction_time')
 
             for t in transactions:
                 if t.tiles_bought:
