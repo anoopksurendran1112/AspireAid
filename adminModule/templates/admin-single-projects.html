@@ -713,6 +713,7 @@
         // Define Regex patterns (Used by Validation Logic)
         const phoneRegex = /^\d{10}$/;          // Must be exactly 10 digits
         const nameRegex = /^[a-zA-Z\s]+$/;      // Only letters and spaces
+        const nonDigitRegex = /\D/;             // NEW: Must contain at least one non-digit character
 
         // Helper function to display validation status (Used by Validation Logic)
         function updateValidationStatus(inputElement, isValid, errorMessage = "") {
@@ -783,6 +784,7 @@
                         updateValidationStatus(input, false, "This field is required.");
                         formIsValid = false;
                     } else {
+                        // Mark as valid before specific checks
                         updateValidationStatus(input, true);
                     }
                 });
@@ -816,6 +818,22 @@
                     }
                 }
 
+                // --- C.1. Validate Text/Address Fields (Must contain characters, not just numbers) ---
+                const fieldsToCheckForNonDigits = [
+                    { input: projectTitleInput, msg: "Project Title must contain characters, not just numbers." },
+                    { input: projectDescInput, msg: "Description must contain characters, not just numbers." },
+                    { input: addressInput, msg: "Address must contain characters, not just numbers." },
+                ];
+
+                fieldsToCheckForNonDigits.forEach(field => {
+                    // Only run this check if the field is not empty (mandatory check covered that)
+                    // and if it hasn't already been marked invalid by a previous rule (e.g., if phone was used in address)
+                    if (field.input.classList.contains('is-valid') && !nonDigitRegex.test(field.input.value)) {
+                        updateValidationStatus(field.input, false, field.msg);
+                        formIsValid = false;
+                    }
+                });
+
 
                 // --- D. Validate Funding Goal and Tile Value (Complex Logic) ---
                 const fundingGoal = parseFloat(fundingGoalInput.value);
@@ -832,6 +850,11 @@
                 } else if (fundingGoal > 10000000) {
                     updateValidationStatus(fundingGoalInput, false, "Funding goal cannot exceed 1 Crore (10,000,000).");
                     formIsValid = false; goalValid = false;
+                } else {
+                    // Update to valid state if it passed previous checks
+                    if (fundingGoalInput.value.trim() !== '') {
+                         updateValidationStatus(fundingGoalInput, true);
+                    }
                 }
 
                 // D.2. Check tile value
@@ -839,6 +862,11 @@
                     if (tileValueInput.value.trim() !== '') {
                         updateValidationStatus(tileValueInput, false, "Tile value must be a positive number.");
                         formIsValid = false; tileValid = false;
+                    }
+                } else {
+                    // Update to valid state if it passed previous checks
+                    if (tileValueInput.value.trim() !== '') {
+                         updateValidationStatus(tileValueInput, true);
                     }
                 }
 

@@ -303,6 +303,7 @@
         // --- Regex patterns for validation ---
         const phoneRegex = /^\d{10}$/;          // Must be exactly 10 digits
         const nameRegex = /^[a-zA-Z\s]+$/;      // Only letters and spaces
+        const nonDigitRegex = /\D/;             // New: Must contain at least one non-digit character (letter, space, symbol, etc.)
 
         function updateValidationStatus(inputElement, isValid, errorMessage = "") {
             const errorSpan = document.getElementById(`${inputElement.id}-error`);
@@ -359,6 +360,24 @@
                     updateValidationStatus(ageInput, false, "Please enter a valid age (1-100).");
                     formIsValid = false;
                 }
+            }
+
+            // Validate Project Title (Must contain characters, not just numbers)
+            if (projectTitleInput.value.trim() !== '' && !nonDigitRegex.test(projectTitleInput.value)) {
+                updateValidationStatus(projectTitleInput, false, "Project Title must contain characters, not just numbers.");
+                formIsValid = false;
+            }
+
+            // Validate Project Description (Must contain characters, not just numbers)
+            if (projectDescInput.value.trim() !== '' && !nonDigitRegex.test(projectDescInput.value)) {
+                updateValidationStatus(projectDescInput, false, "Description must contain characters, not just numbers.");
+                formIsValid = false;
+            }
+
+            // Validate Address (Must contain characters, not just numbers)
+            if (addressInput.value.trim() !== '' && !nonDigitRegex.test(addressInput.value)) {
+                updateValidationStatus(addressInput, false, "Address must contain characters, not just numbers.");
+                formIsValid = false;
             }
 
 

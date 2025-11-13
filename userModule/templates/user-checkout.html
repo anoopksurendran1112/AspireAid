@@ -171,7 +171,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Get necessary elements
-        // const summaryTotalSpan = document.getElementById('summary-total'); // Removed, not in provided HTML
+        const summaryTotalSpan = document.getElementById('summary-total'); // UNCOMMENTED: Find the summary span
         const modalTotalSpan = document.getElementById('modal-total');
         const form = document.getElementById('checkout-form');
         const confirmButton = document.getElementById('confirm-button');
@@ -189,7 +189,7 @@
         }).format(total);
 
         // Update display spans
-        // if (summaryTotalSpan) summaryTotalSpan.textContent = formattedTotal;
+        if (summaryTotalSpan) summaryTotalSpan.textContent = formattedTotal; // UNCOMMENTED: Update the summary span
         if (modalTotalSpan) modalTotalSpan.textContent = formattedTotal;
 
         // --- 2. UPI Link Update Logic ---
