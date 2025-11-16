@@ -1,0 +1,145 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <title>Transaction Receipt - {{ transaction.tracking_id }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- General Layout & Font Styling --- */
+        body {
+            font-family: 'Noto Sans Malayalam', sans-serif;
+            font-size: 8pt;
+            line-height: 1.5;
+            color: #333;
+            /* Mimics ReportLab's A4 with 0.5 inch margins (12.7mm) */
+            margin: 12.7mm 12.7mm 12.7mm 12.7mm;
+        }
+        /* --- Custom Styles replicating ReportLab ParagraphStyles (as before) --- */
+        .title-style { font-size: 18pt; font-weight: 700; margin-bottom: 25pt; }
+        .subtitle-style { font-size: 12pt; font-weight: 700; margin-bottom: 5pt; color: #000; }
+        .normal-style { font-size: 8pt; font-weight: 400; margin-bottom: 5pt; }
+        .bold-style-left { font-size: 8pt; font-weight: 700; margin-bottom: 5pt; }
+        .right-align-normal { font-size: 10pt; text-align: right; margin-bottom: 5pt; }
+        .amount-due-style { font-size: 16pt; font-weight: 700; text-align: center; margin-top: 10pt; margin-bottom: 10pt; }
+        /* --- Table Styling --- */
+        .details-table, .items-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .details-table td { vertical-align: top; padding: 0; }
+        .items-table th, .items-table td { padding: 8px 5px; border: 0.5px solid #ccc; font-size: 9pt; vertical-align: middle; }
+        .items-table thead th { background-color: #D2C6C6; color: white; font-weight: 700; }
+        .items-table tbody tr:last-child { border-top: 1px solid black; font-weight: 700; }
+        .items-table .text-center { text-align: center; }
+        .items-table .text-right { text-align: right; }
+        .items-table .total-row-label { text-align: right; font-weight: 700; padding-right: 15px; }
+        /* --- Utility --- */
+        .hr { border: none; border-top: 1px solid #000; height: 0; margin: 15px 0; }
+        .half-width { width: 50%; float: left; }
+        .clearfix::after { content: ""; clear: both; display: table; }
+
+    </style>
+</head>
+<body>
+    <div class="clearfix" style="margin-bottom: 10pt;">
+        <div class="half-width">
+            <div class="title-style">{{ transaction.project.created_by.institution_name }}</div>
+            <div class="bold-style-left">NO: {{ transaction.tracking_id }}</div>
+        </div>
+        <div class="half-width" style="text-align: right;">
+            <div style="height: 25pt;"></div>
+            <div class="right-align-normal" style="font-size: 8pt; margin-top: 5pt;">
+                DATE: {{ formatted_date }}
+            </div>
+        </div>
+    </div>
+    <div class="hr"></div>
+
+    <table class="details-table">
+        <tr>
+            <td class="half-width">
+                <div class="subtitle-style">Project Details</div>
+                <div class="normal-style">
+                    <b>Title:</b> {{ transaction.project.title }}<br/>
+                    <b>Starting Date:</b> {{ transaction.project.started_at|date:"Y-m-d H:i:s" }}<br/>
+                    <b>Created by:</b> {{ transaction.project.created_by.institution_name }}
+                </div>
+            </td>
+            <td class="half-width">
+                <div class="subtitle-style">Beneficiary Details</div>
+                <div class="normal-style">
+                    <b>Name:</b> {{ transaction.project.beneficiary.first_name }} {{ transaction.project.beneficiary.last_name }}<br/>
+                    <b>Phone:</b> {{ transaction.project.beneficiary.phone_number|default:'N/A' }}<br/>
+                    <b>Address:</b> {{ transaction.project.beneficiary.address|default:'N/A' }}
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div style="height: 10pt;"></div>
+
+    <table class="details-table">
+        <tr>
+            <td class="half-width">
+                <div class="subtitle-style">Tiles Details</div>
+                <div class="normal-style">
+                    <b>Selected Tiles:</b> {{ transaction.tiles_bought.tiles }}<br/>
+                    <b>Quantity:</b> {{ num_tiles }}<br/>
+                    <b>Amount:</b> {{ formatted_amount }}
+                </div>
+            </td>
+            <td class="half-width">
+                <div class="subtitle-style">Buyer Details</div>
+                <div class="normal-style">
+                    <b>Name:</b> {{ transaction.sender.full_name }}<br/>
+                    <b>Phone:</b> {{ transaction.sender.phone|default:'N/A' }}<br/>
+                    <b>Email:</b> {{ transaction.sender.email|default:'N/A' }}<br/>
+                    <b>Address:</b> {{ transaction.sender.address|default:'N/A' }}
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div style="height: 10pt;"></div>
+    <div class="hr"></div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th style="width: 40%; text-align: left;">Project Title</th>
+                <th style="width: 20%; text-align: center;">Tiles Bought</th>
+                <th style="width: 10%; text-align: center;">Quantity</th>
+                <th style="width: 10%; text-align: center;">Tile Value</th>
+                <th style="width: 20%; text-align: center;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="text-align: left;">{{ transaction.project.title }}</td>
+                <td class="text-center">{{ transaction.tiles_bought.tiles }}</td>
+                <td class="text-center">{{ num_tiles }}</td>
+                <td class="text-center">{{ formatted_tile_value }}</td>
+                <td class="text-center">{{ formatted_row_total }}</td>
+            </tr>
+            <tr>
+                <td colspan="3" style="border: none;"></td>
+                <td class="total-row-label">Total:</td>
+                <td class="text-right">{{ formatted_row_total }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div style="height: 10pt;"></div>
+
+    <div class="amount-due-style">
+        Total Amount: {{ formatted_row_total }}
+    </div>
+    <div style="height: 10pt;"></div>
+    <div class="hr"></div>
+
+    <div class="subtitle-style">Payment Details</div>
+    <div class="normal-style"><b>Tracking ID:</b> {{ transaction.tracking_id }}</div>
+    <div class="normal-style"><b>Transaction Date:</b> {{ transaction.transaction_time|date:"Y-m-d H:i:s" }}</div>
+    <div style="height: 10pt;"></div>
+    <div class="hr"></div>
+
+    <div class="subtitle-style">Message</div>
+    <div class="normal-style">{{ transaction.message|default:"No additional message." }}</div>
+
+</body>
+</html>
