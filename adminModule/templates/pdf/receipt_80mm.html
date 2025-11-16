@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <title>80mm Receipt - {{ transaction.tracking_id }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- 80mm Paper & Margins --- */
+        body {
+            font-family: 'Noto Sans Malayalam', sans-serif;
+            width: 80mm;            /* Fixed width */
+            max-width: 80mm;
+            padding: 5mm;           /* Left/Right margin of 5mm */
+            margin: 0;
+            box-sizing: border-box;
+            font-size: 9pt;         /* Matches Helvetica 9pt */
+            line-height: 1.2;
+            color: #000;
+        }
+
+        /* --- Custom Styles matching ReportLab canvas --- */
+        .header-title {
+            font-size: 14pt;
+            font-weight: 700;       /* Helvetica-Bold */
+            text-align: center;
+            margin-bottom: 6mm;
+        }
+        .section-title {
+            font-size: 10pt;
+            font-weight: 700;       /* Helvetica-Bold 10pt */
+            margin-top: 5mm;
+            margin-bottom: 2mm;
+        }
+        .small-text {
+            font-size: 9pt;         /* Helvetica 9pt */
+            margin-bottom: 3.5mm;
+        }
+        .item-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3.5mm;
+        }
+        .item-line .label {
+            font-weight: 700;       /* Helvetica-Bold 9pt */
+        }
+        .total-amount {
+            font-size: 14pt;        /* Helvetica-Bold 14pt */
+            font-weight: 700;
+            text-align: right;
+            margin-top: -8pt;
+        }
+        .total-label {
+            font-size: 11pt;        /* Helvetica-Bold 11pt */
+            font-weight: 700;
+        }
+        .center-oblique {
+            font-size: 9pt;
+            font-style: italic;     /* Helvetica-Oblique */
+            text-align: center;
+            margin-top: 5mm;
+        }
+
+        /* --- Separators --- */
+        .line-sep {
+            border-top: 0.5px solid #000;
+            margin: 5mm 0;
+        }
+        .thick-sep {
+            border-top: 1.5px solid #000;
+            margin: 5mm 0;
+        }
+        .dotted-sep {
+            border: none;
+            border-top: 1px dashed #000;
+            height: 0;
+            margin: 5mm 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-title">{{ transaction.project.created_by.institution_name }}</div>
+
+    <div class="line-sep" style="margin-top: 0;"></div>
+
+    <div class="small-text">NO: {{ transaction.tracking_id }}</div>
+    <div class="small-text" style="margin-bottom: 6mm;">DATE: {{ receipt_datetime_str }}</div>
+
+    <div class="line-sep"></div>
+
+    <div class="section-title">Project Details</div>
+    <div class="small-text">Title: {{ transaction.project.title }}</div>
+
+    <div class="section-title">Beneficiary Details</div>
+    <div class="small-text">Name: {{ transaction.project.beneficiary.first_name }} {{ transaction.project.beneficiary.last_name }}</div>
+    <div class="small-text">Phone: {{ transaction.project.beneficiary.phone_number|default:'N/A' }}</div>
+
+    <div class="section-title">Donor Details</div>
+    <div class="small-text">Name: {{ transaction.sender.full_name }}</div>
+    <div class="small-text" style="margin-bottom: 6mm;">Phone: {{ transaction.sender.phone|default:'N/A' }}</div>
+
+    <div class="line-sep"></div>
+
+    <div class="section-title" style="margin-bottom: 5mm;">Donation Summary</div>
+
+    <div class="item-line">
+        <span class="label">Item:</span>
+        <span>{{ transaction.project.title }}</span>
+    </div>
+
+    <div class="item-line">
+        <span class="label">Qty:</span>
+        <span>{{ num_tiles }}</span>
+    </div>
+
+    <div class="item-line">
+        <span class="label">Value (Unit):</span>
+        <span>{{ formatted_tile_value }}</span>
+    </div>
+
+    <div class="item-line" style="margin-bottom: 6mm;">
+        <span class="label">Amt (Total):</span>
+        <span style="font-weight: 700;">{{ formatted_item_total }}</span>
+    </div>
+
+    <div class="thick-sep"></div>
+
+    <div class="item-line">
+        <span class="total-label">TOTAL PAID:</span>
+        <span class="total-amount">{{ formatted_item_total }}</span>
+    </div>
+
+    <div style="height: 8mm;"></div>
+
+    <div class="dotted-sep"></div>
+
+    <div class="center-oblique">Thank you for your contribution</div>
+
+</body>
+</html>

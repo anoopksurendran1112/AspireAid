@@ -1,29 +1,27 @@
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus.flowables import HRFlowable, PageBreak, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER
 from django.core.mail import EmailMessage, get_connection
-from reportlab.platypus.flowables import HRFlowable, PageBreak, Image
+from django.template.loader import render_to_string
 from userModule.models import Receipt, Transaction
-from django.core.files.base import ContentFile
+from playwright.sync_api import sync_playwright
 from django.shortcuts import get_object_or_404
-from reportlab.lib.units import mm as mm_unit
+from django.core.files.base import ContentFile
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
 from reportlab.lib import colors
 from django.conf import settings
-import datetime
 import requests
+import datetime
 import secrets
 import string
+import locale
+import time
 import io
 import os
-
-
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-
-from reportlab.lib.units import mm
-from reportlab.pdfgen import canvas
 
 
 SMS_INITIATE_TEMPLATE_ID = "198753"
@@ -36,6 +34,15 @@ authorization_key = "EApz1UNdI2KToYWBS5O0Fl4QDM8G6jxvi97PgaRhLqHrfwyeZuMsG2LUHqg
 header_id = "KDIGCF"
 
 SMS_DLT_API = "https://www.fast2sms.com/dev/bulkV2"
+
+
+try:
+    locale.setlocale(locale.LC_ALL, 'en_IN.utf8')
+except locale.Error:
+    try:
+        locale.setlocale(locale.LC_ALL, 'en_IN')
+    except locale.Error:
+        pass
 
 
 """Sends a regular SMS message for contact message response."""
@@ -470,388 +477,100 @@ def get_unique_tracking_id():
             return tracking_id
 
 
-"""generate receipt pdf."""
+def _render_html_to_pdf_bytes(html_content, pdf_type='regular'):
+    if pdf_type == '80mm':
+        pdf_options = {
+            "width": "80mm",
+            "margin": {"top": "1mm", "right": "1mm", "bottom": "1mm", "left": "1mm"},
+            "print_background": True,
+            "display_header_footer": False
+        }
+    else:
+        pdf_options = {
+            "format": "A4",
+            "margin": {"top": "20mm", "right": "20mm", "bottom": "20mm", "left": "20mm"},
+            "print_background": True,
+        }
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page()
+            page.set_content(html_content, wait_until='networkidle')
+            time.sleep(0.5)
+            pdf_bytes = page.pdf(**pdf_options)
+            browser.close()
+            return pdf_bytes
+    except Exception as e:
+        print(f"Playwright PDF generation failed: {e}")
+        raise
+
+
+def format_currency(amount, currency_symbol="₹"):
+    try:
+        formatted = locale.currency(amount, symbol=False, grouping=True)
+        return f"{currency_symbol}{formatted}"
+    except Exception:
+        return f"{currency_symbol}{amount:,.2f}"
+
+
 def generate_receipt_pdf(transaction):
-    # --- Register NotoSans fonts with ABSOLUTE PATH ---
-    font_regular_path = os.path.join(settings.BASE_DIR, 'AspireAid', 'static', 'fonts', 'NotoSans-Regular.ttf')
-    font_bold_path = os.path.join(settings.BASE_DIR, 'AspireAid', 'static', 'fonts', 'NotoSans-Bold.ttf')
+    tile_list = transaction.tiles_bought.tiles.split('-')
+    num_tiles = len(tile_list)
 
-    if not os.path.exists(font_regular_path):
-        raise FileNotFoundError(f"Font not found at: {font_regular_path}")
-    if not os.path.exists(font_bold_path):
-        raise FileNotFoundError(f"Font not found at: {font_bold_path}")
+    tile_value = float(transaction.project.tile_value)
+    row_total = num_tiles * tile_value
 
-    pdfmetrics.registerFont(TTFont('NotoSans', font_regular_path))
-    pdfmetrics.registerFont(TTFont('NotoSans-Bold', font_bold_path))
+    rupee = "₹"
+    formatted_amount = format_currency(float(transaction.amount), rupee)
+    formatted_tile_value = format_currency(tile_value, rupee)
+    formatted_row_total = format_currency(row_total, rupee)
+    formatted_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    # --- Page setup ---
-    page_width = A4[0]
-    left_margin = 0.5 * inch
-    right_margin = 0.5 * inch
-    available_width = page_width - left_margin - right_margin
+    context = {
+        'transaction': transaction,
+        'rupee': rupee,
+        'num_tiles': num_tiles,
+        'row_total': row_total,
+        'formatted_amount': formatted_amount,
+        'formatted_tile_value': formatted_tile_value,
+        'formatted_row_total': formatted_row_total,
+        'formatted_date': formatted_date,
+    }
 
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(
-        buffer,
-        pagesize=A4,
-        leftMargin=left_margin,
-        rightMargin=right_margin,
-        topMargin=0.5 * inch,
-        bottomMargin=0.5 * inch
-    )
-    elements = []
-
-    transaction.num_tiles = len(transaction.tiles_bought.tiles.split('-'))
-    rupee = u"\u20B9"
-
-    # --- Define Styles ---
-    styles = getSampleStyleSheet()
-    styles.add(ParagraphStyle('TitleStyle', fontName='NotoSans-Bold', fontSize=18, spaceAfter=50, alignment=TA_LEFT))
-    styles.add(ParagraphStyle('SubtitleStyle', fontName='NotoSans-Bold', fontSize=12, textColor=colors.black, spaceAfter=6, alignment=TA_LEFT))
-    styles.add(ParagraphStyle('NormalStyle', fontName='NotoSans', fontSize=8, spaceAfter=6, alignment=TA_LEFT))
-    styles.add(ParagraphStyle('NormalStyleCenter', fontName='NotoSans', fontSize=8,textColor=colors.black, spaceAfter=6, alignment=TA_CENTER))
-    styles.add(ParagraphStyle('BoldStyle', fontName='NotoSans-Bold', fontSize=8, spaceAfter=6, alignment=TA_CENTER))
-    styles.add(ParagraphStyle('BoldStyleLeft', fontName='NotoSans-Bold', fontSize=8, spaceAfter=6, alignment=TA_LEFT))
-    styles.add(ParagraphStyle('RightAlignNormal', fontName='NotoSans', fontSize=10, spaceAfter=6, alignment=TA_RIGHT))
-    styles.add(ParagraphStyle('LeftAlignNormal', fontName='NotoSans', fontSize=10, spaceAfter=6, alignment=TA_RIGHT))
-    styles.add(ParagraphStyle('AmountDueStyle', fontName='NotoSans-Bold', fontSize=16, spaceAfter=12, alignment=TA_CENTER))
-
-    # --- Header ---
-    header_data = [
-        [Paragraph(transaction.project.created_by.institution_name, styles['TitleStyle']), ""],
-        '',
-        [
-            Paragraph(f"NO: {transaction.tracking_id}", styles['BoldStyleLeft']),
-            Paragraph(f"DATE: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['RightAlignNormal'])
-        ]
-    ]
-    header_table = Table(header_data, colWidths=[available_width / 2, available_width / 2])
-    header_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-    ]))
-    elements.append(header_table)
-    elements.append(Spacer(1, 10))
-    elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
-
-    # --- Project & Beneficiary Details ---
-    project_beneficiary_data = [
-        [
-            Paragraph("Project Details", styles['SubtitleStyle']),
-            Paragraph("Beneficiary Details", styles['SubtitleStyle']),
-        ],
-        [
-            Paragraph(
-                f"<b>Title:</b> {transaction.project.title}<br/>"
-                f"<b>Starting Date:</b> {transaction.project.started_at.strftime('%Y-%m-%d %H:%M:%S')}<br/>"
-                f"<b>Created by:</b> {transaction.project.created_by.institution_name}",
-                styles['NormalStyle']),
-            Paragraph(
-                f"<b>Name:</b> {transaction.project.beneficiary.first_name} {transaction.project.beneficiary.last_name}<br/>"
-                f"<b>Phone:</b> {transaction.project.beneficiary.phone_number or 'N/A'}<br/>"
-                f"<b>Address:</b> {transaction.project.beneficiary.address or 'N/A'}",
-                styles['NormalStyle']),
-        ]
-    ]
-    project_beneficiary_table = Table(project_beneficiary_data, colWidths=[available_width / 2, available_width / 2])
-    project_beneficiary_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 0),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-    ]))
-    elements.append(project_beneficiary_table)
-    elements.append(Spacer(1, 10))
-
-    # --- Tiles & Buyer Details ---
-    tiles_buyer_data = [
-        [
-            Paragraph("Tiles Details", styles['SubtitleStyle']),
-            Paragraph("Buyer Details", styles['SubtitleStyle']),
-        ],
-        [
-            Paragraph(
-                f"<b>Selected Tiles:</b> {transaction.tiles_bought.tiles}<br/>"
-                f"<b>Quantity:</b> {transaction.num_tiles}<br/>"
-                f"<b>Amount:</b> {rupee}{transaction.amount:,.2f}",
-                styles['NormalStyle']),
-            Paragraph(
-                f"<b>Name:</b> {transaction.sender.full_name}<br/>"
-                f"<b>Phone:</b> {transaction.sender.phone or 'N/A'}<br/>"
-                f"<b>Email:</b> {transaction.sender.email or 'N/A'}<br/>"
-                f"<b>Address:</b> {transaction.sender.address or 'N/A'}",
-                styles['NormalStyle'])
-        ]
-    ]
-    tiles_buyer_table = Table(tiles_buyer_data, colWidths=[available_width / 2, available_width / 2])
-    tiles_buyer_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 0),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-    ]))
-    elements.append(tiles_buyer_table)
-    elements.append(Spacer(1, 10))
-    elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
-
-    # --- Item Table (with rupee fix + dark header) ---
-    item_rows = [
-        [
-            Paragraph("Project Title", styles['BoldStyleLeft']),
-            Paragraph("Tiles Bought", styles['BoldStyle']),
-            Paragraph("Quantity", styles['BoldStyle']),
-            Paragraph("Tile Value", styles['BoldStyle']),
-            Paragraph("Total", styles['BoldStyle']),
-        ]
-    ]
-
-    row_total = transaction.num_tiles * transaction.project.tile_value
-
-    item_rows.append([
-        Paragraph(transaction.project.title, styles['NormalStyle']),
-        Paragraph(transaction.tiles_bought.tiles, styles['NormalStyleCenter']),
-        Paragraph(str(transaction.num_tiles), styles['NormalStyleCenter']),
-        Paragraph(f"{rupee}{transaction.project.tile_value:,.2f}", styles['NormalStyleCenter']),
-        Paragraph(f"{rupee}{row_total:,.2f}", styles['NormalStyleCenter']),
-    ])
-
-    item_rows.append([
-        "", "", "",
-        Paragraph("<b>Total:</b>", styles['BoldStyle']),
-        Paragraph(f"{rupee}{row_total:,.2f}", styles['RightAlignNormal']),
-    ])
-
-    col_widths = [
-        available_width * 0.40,
-        available_width * 0.20,
-        available_width * 0.10,
-        available_width * 0.10,
-        available_width * 0.20
-    ]
-
-    items_table = Table(item_rows, colWidths=col_widths)
-    items_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#D2C6C6")),  # dark header background
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),                 # white header text
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, 0), 'NotoSans-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('TOPPADDING', (0, 0), (-1, 0), 8),
-        ('LINEABOVE', (0, -1), (-1, -1), 1, colors.black),
-        ('ALIGN', (0, -1), (-1, -1), 'RIGHT'),
-        ('FONTNAME', (0, -1), (-1, -1), 'NotoSans-Bold'),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-    ]))
-    elements.append(items_table)
-    elements.append(Spacer(1, 10))
-
-    # --- Total ---
-    elements.append(Paragraph(f"Total Amount: {rupee}{row_total:,.2f}", styles['AmountDueStyle']))
-    elements.append(Spacer(1, 10))
-    elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
-
-    # --- Payment Details ---
-    elements.append(Paragraph("Payment Details", styles['SubtitleStyle']))
-    elements.append(Paragraph(f"<b>Tracking ID:</b> {transaction.tracking_id}", styles['NormalStyle']))
-    elements.append(Paragraph(f"<b>Transaction Date:</b> {transaction.transaction_time.strftime('%Y-%m-%d %H:%M:%S')}", styles['NormalStyle']))
-    elements.append(Spacer(1, 10))
-    elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
-
-    # --- Message ---
-    elements.append(Paragraph("Message", styles['SubtitleStyle']))
-    elements.append(Paragraph(transaction.message or "No additional message.", styles['NormalStyle']))
-
-    # --- Build PDF ---
-    doc.build(elements)
-    buffer.seek(0)
-
-    return ContentFile(buffer.getvalue(), name=f'{transaction.tracking_id}.pdf')
-
-
-"""generate receipt pdf."""
+    html_content = render_to_string('pdf/receipt_regular.html', context)
+    pdf_bytes = _render_html_to_pdf_bytes(html_content, pdf_type='regular')
+    filename = f"regular_receipt_{transaction.tracking_id}.pdf"
+    return ContentFile(pdf_bytes, name=filename)
 
 
 def generate_80mm_receipt_pdf(transaction):
-    """
-    Generate 80mm thermal receipt dynamically using canvas methods
-    and transaction data.
-    """
-
-    # --- Data & Configuration ---
-    page_width = 80 * mm_unit
-    page_height = 297 * mm_unit  # A4 height, will auto-size based on content
-    left_margin = 5 * mm_unit
-    right_margin = 5 * mm_unit
-
-    # Use io.BytesIO buffer for Django response
-    buffer = io.BytesIO()
-
-    # Currency symbol
-    rupee = u"\u20B9"
-
-    # Dynamic Data Extraction & Calculation
-
-    # Calculate num_tiles (taken from your first code block logic)
     tiles_string = transaction.tiles_bought.tiles
-    transaction.num_tiles = len(tiles_string.split('-')) if tiles_string else 0
+    tile_list = tiles_string.split('-') if tiles_string else []
+    num_tiles = len(tile_list)
 
-    # Calculate item total
-    item_total_value = transaction.num_tiles * transaction.project.tile_value
+    tile_value = float(transaction.project.tile_value)
+    item_total_value = num_tiles * tile_value
 
-    # --- FONT REGISTRATION (Optional, use only if non-English required) ---
-    # WARNING: ReportLab's canvas method does NOT support Complex Text Layout (CTL)
-    # required for correct Malayalam rendering, even with NotoSans.
-    # If NotoSans is required, replace the font paths below and uncomment.
+    rupee = "₹"
+    formatted_tile_value = format_currency(tile_value, rupee)
+    formatted_item_total = format_currency(item_total_value, rupee)
 
-    # try:
-    #     # Mocking settings access - replace with actual Django settings
-    #     # font_regular_path = os.path.join(settings.BASE_DIR, 'AspireAid', 'static', 'fonts', 'NotoSans-Regular.ttf')
-    #     # pdfmetrics.registerFont(TTFont('NotoSans', font_regular_path))
-    #     pass # Using standard fonts for stability
-    # except Exception:
-    #     print("Note: NotoSans font could not be registered.")
-
-    # --- Canvas Setup ---
-    c = canvas.Canvas(buffer, pagesize=(page_width, page_height))
-    y_position = page_height - 10 * mm_unit
-
-    # --- 1. Header Section ---
-    institution_name = transaction.project.created_by.institution_name
-    c.setFont("Helvetica-Bold", 14)
-    text_width = c.stringWidth(institution_name, "Helvetica-Bold", 14)
-    c.drawString((page_width - text_width) / 2, y_position, institution_name)
-    y_position -= 6 * mm_unit
-
-    # Separator line
-    c.setLineWidth(0.5)
-    c.line(left_margin, y_position, page_width - right_margin, y_position)
-    y_position -= 5 * mm_unit
-
-    # Receipt Info
-    c.setFont("Helvetica", 9)
-    c.drawString(left_margin, y_position, f"NO: {transaction.tracking_id}")
-    y_position -= 4 * mm_unit
-
-    # Use transaction time
     receipt_datetime_str = transaction.transaction_time.strftime("%Y-%m-%d %H:%M:%S")
-    c.drawString(left_margin, y_position, f"DATE: {receipt_datetime_str}")
-    y_position -= 6 * mm_unit
 
-    # --- 2. Details Section (Project, Beneficiary, Donor) ---
+    context = {
+        'transaction': transaction,
+        'rupee': rupee,
+        'num_tiles': num_tiles,
+        'item_total_value': item_total_value,
+        'formatted_tile_value': formatted_tile_value,
+        'formatted_item_total': formatted_item_total,
+        'receipt_datetime_str': receipt_datetime_str,
+    }
 
-    # Separator line
-    c.setLineWidth(0.5)
-    c.line(left_margin, y_position, page_width - right_margin, y_position)
-    y_position -= 5 * mm_unit
-
-    # Project Details
-    c.setFont("Helvetica-Bold", 10)
-    c.drawString(left_margin, y_position, "Project Details")
-    y_position -= 4 * mm_unit
-    c.setFont("Helvetica", 9)
-    c.drawString(left_margin, y_position, f"Title: {transaction.project.title}")
-    y_position -= 6 * mm_unit
-
-    # Beneficiary Details
-    beneficiary = transaction.project.beneficiary
-    c.setFont("Helvetica-Bold", 10)
-    c.drawString(left_margin, y_position, "Beneficiary Details")
-    y_position -= 4 * mm_unit
-    c.setFont("Helvetica", 9)
-    c.drawString(left_margin, y_position,
-                 f"Name: {beneficiary.first_name} {beneficiary.last_name}")
-    y_position -= 3.5 * mm_unit
-    c.drawString(left_margin, y_position, f"Phone: {beneficiary.phone_number or 'N/A'}")
-    y_position -= 6 * mm_unit
-
-    # Donor Details
-    donor = transaction.sender
-    c.setFont("Helvetica-Bold", 10)
-    c.drawString(left_margin, y_position, "Donor Details")
-    y_position -= 4 * mm_unit
-    c.setFont("Helvetica", 9)
-    c.drawString(left_margin, y_position, f"Name: {donor.full_name}")
-    y_position -= 3.5 * mm_unit
-    c.drawString(left_margin, y_position, f"Phone: {donor.phone or 'N/A'}")
-    y_position -= 6 * mm_unit
-
-    # --- 3. Vertical Item Summary ---
-
-    # Separator line
-    c.setLineWidth(0.5)
-    c.line(left_margin, y_position, page_width - right_margin, y_position)
-    y_position -= 5 * mm_unit
-
-    # Title
-    c.setFont("Helvetica-Bold", 10)
-    c.drawString(left_margin, y_position, "Donation Summary")
-    y_position -= 5 * mm_unit
-
-    # Item: Title (Left Label, Right Value)
-    c.setFont("Helvetica-Bold", 9)
-    c.drawString(left_margin, y_position, "Item:")
-    c.setFont("Helvetica", 9)
-    c.drawRightString(page_width - right_margin, y_position, transaction.project.title)
-    y_position -= 3.5 * mm_unit
-
-    # Qty: (Left Label, Right Value)
-    c.setFont("Helvetica-Bold", 9)
-    c.drawString(left_margin, y_position, "Qty:")
-    c.setFont("Helvetica", 9)
-    c.drawRightString(page_width - right_margin, y_position, str(transaction.num_tiles))
-    y_position -= 3.5 * mm_unit
-
-    # Value: (Left Label, Right Value)
-    c.setFont("Helvetica-Bold", 9)
-    c.drawString(left_margin, y_position, "Value (Unit):")
-    c.setFont("Helvetica", 9)
-    c.drawRightString(page_width - right_margin, y_position,
-                      f"{rupee}{transaction.project.tile_value:,.2f}")
-    y_position -= 3.5 * mm_unit
-
-    # Amt: (Left Label, Right Value - Bolded)
-    c.setFont("Helvetica-Bold", 9)
-    c.drawString(left_margin, y_position, "Amt (Total):")
-    c.setFont("Helvetica-Bold", 9)
-    c.drawRightString(page_width - right_margin, y_position,
-                      f"{rupee}{item_total_value:,.2f}")
-    y_position -= 6 * mm_unit
-
-    # --- 4. Total Section (Enhanced) ---
-
-    # Thick separator line before total
-    c.setLineWidth(1.5)
-    c.line(left_margin, y_position, page_width - right_margin, y_position)
-    y_position -= 5 * mm_unit
-
-    # Total Amount (Left Label, Right Value, large font)
-    c.setFont("Helvetica-Bold", 11)
-    c.drawString(left_margin, y_position, "TOTAL PAID:")
-    c.setFont("Helvetica-Bold", 14)
-    c.drawRightString(page_width - right_margin, y_position,
-                      f"{rupee}{item_total_value:,.2f}")
-    y_position -= 8 * mm_unit
-
-    # --- 5. Footer Section ---
-
-    # Dotted line separator
-    c.setDash(2, 2)
-    c.line(left_margin, y_position, page_width - right_margin, y_position)
-    c.setDash()  # Reset to solid line
-    y_position -= 5 * mm_unit
-
-    # Footer - Thank you message
-    c.setFont("Helvetica-Oblique", 9)
-    thank_you_text = "Thank you for your contribution"
-    text_width = c.stringWidth(thank_you_text, "Helvetica-Oblique", 9)
-    c.drawString((page_width - text_width) / 2, y_position, thank_you_text)
-    y_position -= 10 * mm_unit
-
-    # Save PDF and return buffer
-    c.showPage()
-    c.save()
-    buffer.seek(0)
-
-    # Return ContentFile structure for use in Django view
-    return ContentFile(buffer.getvalue(), name=f'{transaction.tracking_id}_80mm_receipt.pdf')
+    html_content = render_to_string('pdf/receipt_80mm.html', context)
+    pdf_bytes = _render_html_to_pdf_bytes(html_content, pdf_type='80mm')
+    filename = f"80mm_receipt_{transaction.tracking_id}.pdf"
+    return ContentFile(pdf_bytes, name=filename)
 
 
 """generate report pdf."""
