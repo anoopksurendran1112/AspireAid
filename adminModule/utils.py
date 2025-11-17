@@ -577,58 +577,52 @@ def generate_80mm_receipt_pdf(transaction):
 
 
 def generate_report_pdf(project, request):
-    """
-    Refactored to generate a PDF report for a Project instance,
-    based on the multi-page ReportLab structure.
-    """
-    # 1. Aggregate Data and Perform Calculations
-
-    # --- Data Aggregation (Replace with your actual Django ORM queries) ---
-
-    # Example: If you need to access transactions:
-    # all_transactions = project.transactions.all().select_related('sender', 'tiles_bought')
-
-    # --- MOCK DATA BASED ON REPORTLAB LOGIC ---
-    # Funding Metrics
     funding_goal = float(project.funding_goal)
     current_amount = float(project.current_amount)
     tile_value = float(project.tile_value)
-
-    total_required_tiles = int(funding_goal / tile_value)
-
-    # Transaction Details (Used for the transaction table on page 3)
-    # The ReportLab code implies using a queryset named 'transactions'
-    # We'll mock a list of dictionaries with the required fields:
-    transactions_list = [
-        # Note: In real code, fetch this from project.transactions.all()
-        {'sl_no': 1, 'donor_name': 'Donor A', 'tracking_id': 'TX001',
-         'time': datetime.datetime.now() - datetime.timedelta(days=1), 'num_tiles': 25, 'amount': 500},
-        {'sl_no': 2, 'donor_name': 'Donor B', 'tracking_id': 'TX002',
-         'time': datetime.datetime.now() - datetime.timedelta(hours=5), 'num_tiles': 75, 'amount': 1500},
-        # Add more if needed
-    ]
-    # Calculate num_tiles and format amount for each transaction
-    for txn in transactions_list:
-        txn['formatted_amount'] = format_currency(txn['amount'])
-
-    # --- END MOCK DATA ---
-
-    # 2. Perform Formatting
+    total_required_tiles = int(funding_goal / tile_value) if tile_value else 0
     rupee = "₹"
 
     formatted_funding_goal = format_currency(funding_goal, rupee)
     formatted_current_amount = format_currency(current_amount, rupee)
     formatted_tile_value = format_currency(tile_value, rupee)
-    formatted_report_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    funding_status_text = f"Closed - {'Exceeded Goal' if current_amount >= funding_goal else 'Goal Not Met'}"
+    if project.closed_by:
+        funding_status_text = f"Closed - {'Exceeded Goal' if current_amount >= funding_goal else 'Goal Not Met'}"
+    else:
+        funding_status_text = f"Active - {'On Track' if current_amount >= funding_goal * 0.75 else 'Underway'}"
 
-    # 3. Prepare Context
+    project_images_list = []
+    for image in project.images.filter(table_status=True).all():
+        absolute_url = request.build_absolute_uri(image.project_img.url)
+        project_images_list.append({
+            'url': absolute_url,
+            'caption': image.project_img.name.split('/')[-1]
+        })
+
+    transactions_list = []
+    transactions = project.transaction_set.filter(table_status=True).select_related('sender').order_by(
+        'transaction_time')
+
+    for i, txn in enumerate(transactions):
+        txn_amount = float(txn.amount)
+        num_tiles_bought = int(txn_amount / tile_value) if tile_value else 0
+
+        transactions_list.append({
+            'sl_no': i + 1,
+            'donor_name': txn.sender.full_name,
+            'tracking_id': txn.tracking_id,
+            'time': txn.transaction_time,
+            'num_tiles': num_tiles_bought,
+            'amount': txn_amount,
+            'formatted_amount': format_currency(txn_amount, rupee),
+        })
+
     context = {
         'project': project,
-        'request_user': request.user,  # Used for report approval name
+        'inst_bank': project.created_by.default_bank,
+        'request_user': request.user,
         'rupee': rupee,
-        'report_date': formatted_report_date,
 
         # Page 1 Metrics
         'formatted_funding_goal': formatted_funding_goal,
@@ -637,21 +631,21 @@ def generate_report_pdf(project, request):
         'formatted_tile_value': formatted_tile_value,
         'funding_status_text': funding_status_text,
 
-        # Page 2 Images (Need to correctly map this in your actual implementation)
-        # 'project_images': project.images.filter(table_status=True).all(),
-        'project_images_list': [{'url': '', 'caption': 'Placeholder image'}] * 4,  # Mock list
+        # Page 2 Images
+        'project_images_list': project_images_list,
 
         # Page 3 Transactions
         'transactions_list': transactions_list,
     }
 
-    # 4. Generate PDF
+    # 6. Generate PDF
+    # Using a placeholder path; ensure your actual path is correct
     html_content = render_to_string('pdf/project_report.html', context, request=request)
-
     pdf_bytes = _render_html_to_pdf_bytes(html_content, pdf_type='report')
 
-    # 5. Save and Return
+    # 7. Save and Return
     filename = f"project_report_{project.id}.pdf"
+    # ContentFile needs to be imported from django.core.files.base
     return ContentFile(pdf_bytes, name=filename)
 
 #

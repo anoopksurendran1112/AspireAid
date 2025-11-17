@@ -9,7 +9,6 @@
         /* --- GLOBAL STYLES & PRINT CONFIG (Based on A4 Receipt) --- */
         body {
             font-family: 'Noto Sans Malayalam', sans-serif;
-            margin: 1mm; /* Standard A4 margin */
             color: #333;
             font-size: 9pt;
             line-height: 1.4;
@@ -60,7 +59,7 @@
             padding-right: 10px;
             color: #374151;
             flex-shrink: 0;
-            width: 40%; /* Wider labels for report context */
+            width: 40%;
             text-align: left;
         }
         .detail-line .value {
@@ -68,22 +67,25 @@
             flex-grow: 1;
         }
 
-        /* --- Highlight/Metric Styles (Custom for Report) --- */
-        .project-emphasis {
-            font-size: 18pt;
+        /* --- Highlight/Metric Styles --- */
+        .project-highlight {
+            border-left: 5px solid #047857;
+            padding: 5mm;
+            margin-top: 5mm;
+            margin-bottom: 10mm;
+            background-color: #f0fdf4;
+        }
+        .project-title-text {
+            font-size: 14pt;
             font-weight: 700;
             color: #047857;
-            text-align: center;
-            margin-bottom: 8mm;
-            padding-top: 5mm;
-            border-top: 3px solid #047857;
         }
         .metric-box {
             border: 1px solid #ccc;
             padding: 10px;
             text-align: center;
             margin-bottom: 10px;
-            height: 60px; /* Uniform height */
+            height: 60px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -99,7 +101,34 @@
             color: #000;
         }
 
-        /* --- Transaction Table (Based on A4 Receipt Summary Table) --- */
+        /* --- Update Item Styles --- */
+        .update-item {
+            margin-bottom: 8mm;
+            padding: 5mm;
+            border: 1px solid #E5E7EB;
+            border-left: 3px solid #3B82F6; /* Blue bar for updates */
+            background-color: #F9FAFB;
+        }
+        .update-item-title {
+            font-size: 11pt;
+            font-weight: 700;
+            margin-bottom: 5pt;
+            color: #1F2937;
+        }
+        .update-date {
+            font-size: 8pt;
+            color: #6B7280;
+            text-align: right;
+            margin-bottom: 5pt;
+        }
+        .update-body {
+            font-size: 9pt;
+            line-height: 1.4;
+            color: #4B5563;
+        }
+
+
+        /* --- Transaction Table (Page 4) --- */
         .report-txn-table {
             width: 100%;
             border-collapse: collapse;
@@ -112,13 +141,13 @@
             vertical-align: middle;
         }
         .report-txn-table thead th {
-            background-color: #374151; /* Dark header background */
+            background-color: #374151;
             color: white;
             font-weight: 700;
             text-align: center;
         }
         .report-txn-table tbody tr:nth-child(even) {
-            background-color: #F2F2F2; /* Alternating rows */
+            background-color: #F2F2F2;
         }
         .text-center { text-align: center !important; }
         .text-left { text-align: left !important; }
@@ -137,12 +166,14 @@
     <div class="page-one">
         <div class="header-title">{{ project.created_by.institution_name }}</div>
 
-        <div class="project-emphasis">{{ project.title }}</div>
-
-        <div class="hr"></div>
+        <div class="project-highlight">
+            <h2 style="font-size: 9pt; font-weight: 500; color: #666; margin-bottom: 2mm; text-transform: uppercase;">Project Title</h2>
+            <div class="project-title-text">{{ project.title }}</div>
+        </div>
 
         <div class="section-title">Project Description</div>
         <div class="normal-style">{{ project.description|linebreaksbr }}</div>
+
         <div style="height: 15px;"></div>
 
         <div class="section-title">Key Funding Metrics</div>
@@ -170,10 +201,12 @@
             <div class="detail-group">
                 <div class="metric-box">
                     <div class="metric-label">Funding Status</div>
-                    <div class="metric-value" style="color: #047857;">Success</div>
+                    <div class="metric-value" style="color: #047857;">{{ funding_status_text }}</div>
                 </div>
             </div>
         </div>
+
+        <div style="height: 15px;"></div>
 
         <div class="section-title">Project Summary</div>
         <div class="clearfix">
@@ -184,7 +217,7 @@
                 </div>
                 <div class="detail-line">
                     <span class="label">Funding Closed:</span>
-                    <span class="value">{{ project.closed_by|date:"Y-m-d"|default:"N/A" }}</span>
+                    <span class="value">{{ project.closed_by|date:"Y-m-d H:i:s"|default:"Active" }}</span>
                 </div>
             </div>
             <div class="detail-group">
@@ -260,11 +293,33 @@
     </div>
 
     <div class="page-break"></div>
-
     <div class="page-two">
+        <div class="header-title">Project Updates Log</div>
+        <div class="section-title">Progress Updates for: {{ project.title }}</div>
+
+        {% comment %}
+            Assuming 'project_updates_list' is passed in context,
+            or using the reverse relationship 'project.updates.all'
+        {% endcomment %}
+        {% with project_updates_list=project.updates.all %}
+            {% if project_updates_list %}
+                {% for update in project_updates_list %}
+                    <div class="update-item">
+                        <div class="update-date">{{ update.update_date|date:"Y-m-d H:i:s" }}</div>
+                        <div class="update-item-title">{{ update.update_title }}</div>
+                        <div class="update-body">{{ update.update|linebreaksbr }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="normal-style text-center" style="margin-top: 50px;"><b>**No Project Updates Available.**</b></div>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="page-break"></div>
+    <div class="page-three">
         <div class="header-title">Project Image Documentation</div>
         <div class="section-title">Visual Documentation for: {{ project.title }}</div>
-        <div class="hr"></div>
 
         {% if project_images_list %}
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
@@ -291,20 +346,18 @@
     </div>
 
     <div class="page-break"></div>
-
-    <div class="page-three">
+    <div class="page-four">
         <div class="header-title">Detailed Transaction Log</div>
         <div class="section-title">Verified Transactions for: {{ project.title }}</div>
-        <div class="hr"></div>
 
         {% if transactions_list %}
         <table class="report-txn-table">
             <thead>
                 <tr>
                     <th style="width: 5%;" class="text-center">Sl.No</th>
-                    <th style="width: 25%;" class="text-left">Donor Name</th>
+                    <th style="width: 20%;" class="text-left">Donor Name</th>
                     <th style="width: 15%;" class="text-left">Tracking ID</th>
-                    <th style="width: 15%;">Date/Time</th>
+                    <th style="width: 20%;">Date & Time</th>
                     <th style="width: 10%;">Tiles Qty</th>
                     <th style="width: 15%;">Amount ({{ rupee }})</th>
                 </tr>
