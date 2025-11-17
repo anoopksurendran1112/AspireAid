@@ -5,75 +5,132 @@
     <title>80mm Receipt - {{ transaction.tracking_id }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* --- 80mm Paper & Margins --- */
+        /* --- 80mm Paper & Margins (From Print CSS) --- */
         body {
             font-family: 'Noto Sans Malayalam', sans-serif;
             width: 80mm;            /* Fixed width */
             max-width: 80mm;
-            padding: 5mm;           /* Left/Right margin of 5mm */
+            height: auto;
+            padding: 10mm 5mm; /* Minimal vertical padding, 5mm horizontal */
             margin: 0;
             box-sizing: border-box;
-            font-size: 9pt;         /* Matches Helvetica 9pt */
+            font-size: 9pt;
             line-height: 1.2;
             color: #000;
         }
 
-        /* --- Custom Styles matching ReportLab canvas --- */
+        /* --- Header & Title Styles --- */
         .header-title {
             font-size: 14pt;
-            font-weight: 700;       /* Helvetica-Bold */
+            font-weight: 700;
             text-align: center;
-            margin-bottom: 6mm;
+            margin-bottom: 2mm;
         }
         .section-title {
             font-size: 10pt;
-            font-weight: 700;       /* Helvetica-Bold 10pt */
-            margin-top: 5mm;
+            font-weight: 700;
+            margin-top: 4mm;
             margin-bottom: 2mm;
+            /* Added a light underline for distinction, inspired by the Tailwind block */
+            border-bottom: 0.5px solid #ccc;
+            padding-bottom: 1mm;
         }
-        .small-text {
-            font-size: 9pt;         /* Helvetica 9pt */
-            margin-bottom: 3.5mm;
-        }
-        .item-line {
+
+        /* --- Detail Lines (For transaction, beneficiary, donor info) --- */
+        .detail-line {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 3.5mm;
+            font-size: 9pt;
+            margin-bottom: 1.5mm;
         }
-        .item-line .label {
-            font-weight: 700;       /* Helvetica-Bold 9pt */
-        }
-        .total-amount {
-            font-size: 14pt;        /* Helvetica-Bold 14pt */
+        .detail-line .label {
             font-weight: 700;
+            white-space: nowrap;
+            padding-right: 5px;
+            color: #374151; /* Darker grey for labels */
+        }
+
+        /* --- Project Highlight (Inspired by Tailwind Block) --- */
+        .project-highlight {
+            border-left: 4px solid #10B981; /* Green bar for visual emphasis */
+            padding: 4mm;
+            margin-top: 5mm;
+            margin-bottom: 6mm;
+            background-color: #f0fdf4; /* Very light green background */
+        }
+        .project-title-text {
+            font-size: 10pt;
+            font-weight: 700;
+            color: #047857; /* Darker green text */
+        }
+
+        /* --- Summary Table (For perfect price alignment) --- */
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9pt;
+            margin-bottom: 2mm;
+        }
+        .summary-table td {
+            padding: 2px 0;
+            vertical-align: top;
+        }
+        .summary-table .label {
+            font-weight: 700;
+            width: 50%;
+            text-align: left;
+        }
+        .summary-table .value {
+            width: 50%;
             text-align: right;
-            margin-top: -8pt;
+        }
+        .summary-total-row {
+            font-size: 11pt;
+            font-weight: 700;
+            padding-top: 5px !important;
+        }
+
+        /* --- Total Paid Block (High Contrast) --- */
+        .total-block {
+            padding: 4mm 0;
+            text-align: center;
         }
         .total-label {
-            font-size: 11pt;        /* Helvetica-Bold 11pt */
+            font-size: 11pt;
             font-weight: 700;
+            display: block;
+            margin-bottom: 1mm;
         }
-        .center-oblique {
-            font-size: 9pt;
-            font-style: italic;     /* Helvetica-Oblique */
-            text-align: center;
-            margin-top: 5mm;
+        .total-amount {
+            font-size: 20pt;
+            font-weight: 700;
+            color: #047857; /* Use the same highlight color as project */
         }
 
         /* --- Separators --- */
         .line-sep {
             border-top: 0.5px solid #000;
-            margin: 5mm 0;
+            margin: 3mm 0;
         }
         .thick-sep {
+            /* Mimics the double-line look from the Tailwind block's .total-box */
             border-top: 1.5px solid #000;
-            margin: 5mm 0;
+            border-bottom: 1.5px double #000;
+            margin: 3mm 0;
+            height: 0;
         }
         .dotted-sep {
             border: none;
-            border-top: 1px dashed #000;
+            border-top: 1px dashed #A3A3A3; /* Lighter dashed line */
             height: 0;
-            margin: 5mm 0;
+            margin: 2mm 0;
+        }
+        .center-oblique {
+            font-size: 9pt;
+            font-style: italic;
+            text-align: center;
+            margin-top: 3mm;
+            margin-bottom: 0;
         }
     </style>
 </head>
@@ -83,58 +140,96 @@
 
     <div class="line-sep" style="margin-top: 0;"></div>
 
-    <div class="small-text">NO: {{ transaction.tracking_id }}</div>
-    <div class="small-text" style="margin-bottom: 6mm;">DATE: {{ receipt_datetime_str }}</div>
+    <div class="detail-line">
+        <span><strong>Receipt NO:</strong> {{ transaction.tracking_id }}</span>
+    </div>
+    <div class="detail-line">
+        <span><strong>Date & Time:</strong> <span id="current-datetime">Loading...</span></span>
+    </div>
 
-    <div class="line-sep"></div>
+    <div class="dotted-sep"></div>
 
-    <div class="section-title">Project Details</div>
-    <div class="small-text">Title: {{ transaction.project.title }}</div>
+    <div class="project-highlight">
+        <h2 style="font-size: 8pt; font-weight: 500; color: #666; margin-bottom: 1mm; text-transform: uppercase;">Project Title</h2>
+        <div class="project-title-text">{{ transaction.project.title }}</div>
+    </div>
 
     <div class="section-title">Beneficiary Details</div>
-    <div class="small-text">Name: {{ transaction.project.beneficiary.first_name }} {{ transaction.project.beneficiary.last_name }}</div>
-    <div class="small-text">Phone: {{ transaction.project.beneficiary.phone_number|default:'N/A' }}</div>
+
+    {% with beneficiary=transaction.project.beneficiary %}
+    <div class="detail-line">
+        <span>{{ beneficiary.first_name }} {{ beneficiary.last_name }}</span>
+    </div>
+    <div class="detail-line">
+        <span>{{ beneficiary.phone_number|default:'N/A' }}</span>
+    </div>
+    {% endwith %}
+
+    <div style="margin-top: 2mm; margin-bottom: 4mm;"></div>
 
     <div class="section-title">Donor Details</div>
-    <div class="small-text">Name: {{ transaction.sender.full_name }}</div>
-    <div class="small-text" style="margin-bottom: 6mm;">Phone: {{ transaction.sender.phone|default:'N/A' }}</div>
 
-    <div class="line-sep"></div>
-
-    <div class="section-title" style="margin-bottom: 5mm;">Donation Summary</div>
-
-    <div class="item-line">
-        <span class="label">Item:</span>
-        <span>{{ transaction.project.title }}</span>
+    {% with sender=transaction.sender %}
+    <div class="detail-line">
+        <span>{{ sender.full_name }}</span>
     </div>
-
-    <div class="item-line">
-        <span class="label">Qty:</span>
-        <span>{{ num_tiles }}</span>
+    <div class="detail-line">
+        <span>{{ sender.phone|default:'N/A' }}</span>
     </div>
+    {% endwith %}
 
-    <div class="item-line">
-        <span class="label">Value (Unit):</span>
-        <span>{{ formatted_tile_value }}</span>
-    </div>
+    <div style="margin-top: 2mm; margin-bottom: 4mm;"></div>
 
-    <div class="item-line" style="margin-bottom: 6mm;">
-        <span class="label">Amt (Total):</span>
-        <span style="font-weight: 700;">{{ formatted_item_total }}</span>
-    </div>
+    <div class="section-title" style="margin-top: 2mm;">Donation Summary</div>
+    <table class="summary-table">
+        <tr>
+            <td class="label">Quantity (Tiles):</td>
+            <td class="value">{{ num_tiles }}</td>
+        </tr>
+        <tr>
+            <td class="label">Value (Unit):</td>
+            <td class="value">{{ formatted_tile_value }}</td>
+        </tr>
+        <tr class="summary-total-row">
+            <td class="label">Subtotal:</td>
+            <td class="value">{{ formatted_item_total }}</td>
+        </tr>
+    </table>
 
     <div class="thick-sep"></div>
 
-    <div class="item-line">
-        <span class="total-label">TOTAL PAID:</span>
+    <div class="total-block">
+        <span class="total-label">TOTAL AMOUNT:</span>
         <span class="total-amount">{{ formatted_item_total }}</span>
     </div>
-
-    <div style="height: 8mm;"></div>
+    <div style="height: 1mm;"></div>
 
     <div class="dotted-sep"></div>
 
     <div class="center-oblique">Thank you for your contribution</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const dateElement = document.getElementById('current-datetime');
+            if (dateElement) {
+                const now = new Date();
+
+                function pad(num) {
+                    return String(num).padStart(2, '0');
+                }
+
+                // Format: YYYY-MM-DD HH:MM:SS
+                const year = now.getFullYear();
+                const month = pad(now.getMonth() + 1);
+                const day = pad(now.getDate());
+                const hours = pad(now.getHours());
+                const minutes = pad(now.getMinutes());
+                const seconds = pad(now.getSeconds());
+
+                dateElement.textContent = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            }
+        });
+    </script>
 
 </body>
 </html>
