@@ -1,0 +1,289 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Report - {{ project.title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- GLOBAL STYLES & PRINT CONFIG --- */
+        body {
+            font-family: 'Noto Sans Malayalam', sans-serif;
+            margin: 20mm; /* A4 margin matching pdf_options */
+            color: #333;
+            font-size: 8pt;
+            line-height: 1.5;
+        }
+        /* Crucial for forcing page breaks */
+        .page-break {
+            page-break-after: always;
+        }
+
+        /* --- STYLES (MATCHING REPORTLAB PARAGRAPH STYLES) --- */
+        .report-title {
+            font-size: 18pt;
+            font-weight: 700;
+            margin-bottom: 20pt;
+        }
+        .section-heading {
+            font-size: 12pt;
+            font-weight: 700;
+            margin-bottom: 8pt;
+        }
+        .normal-style {
+            font-size: 8pt;
+            font-weight: 400;
+            margin-bottom: 6pt;
+            line-height: 1.25; /* Similar to leading=10 */
+        }
+        .bold-style-left {
+            font-size: 8pt;
+            font-weight: 700;
+            margin-bottom: 6pt;
+        }
+        .key-metric-label {
+            font-size: 11pt;
+            font-weight: 400;
+            color: #666666;
+            text-align: center;
+            padding: 5px 0;
+        }
+        .key-metric-value {
+            font-size: 22pt;
+            font-weight: 700;
+            text-align: center;
+            padding-bottom: 5px;
+        }
+        .table-header-style {
+            font-size: 9pt;
+            font-weight: 700;
+            color: white;
+            padding: 6px;
+            text-align: center;
+        }
+
+        /* --- TABLE STYLES --- */
+        .hr { border-top: 1px solid #000; margin: 15px 0; }
+        .table-base { width: 100%; border-collapse: collapse; }
+        .table-base td, .table-base th { vertical-align: middle; padding: 5px; }
+
+        /* Key Metrics Table */
+        .funding-metrics-table {
+            margin-bottom: 20px;
+        }
+        .funding-metrics-table td {
+            border: 0.7px solid #585858;
+            padding: 0;
+        }
+        /* Summary Table */
+        .summary-table td {
+            border: 0.25px solid #585858;
+            padding: 3px 10px;
+        }
+        .summary-table {
+            border: 0.5px solid #D2C6C6;
+            margin-bottom: 20px;
+        }
+        .summary-table .label { font-weight: 700; }
+
+        /* Associated Details Table */
+        .details-table {
+            border: 0.5px solid #585858;
+            margin-bottom: 20px;
+        }
+        .details-table tr:first-child {
+            background-color: #D2C6C6;
+        }
+        .details-table td {
+            border: 0.25px solid #000;
+            vertical-align: top;
+            padding: 5px;
+            width: 50%;
+        }
+
+        /* Transaction Table */
+        .txn-table th {
+            background-color: #D2C6C6;
+        }
+        .txn-table td {
+            border: 0.5px solid #585858;
+            padding: 6px;
+        }
+        .txn-table tbody tr:nth-child(even) {
+            background-color: #F2F2F2; /* Alternating rows */
+        }
+        .text-center { text-align: center !important; }
+        .text-left { text-align: left !important; }
+
+    </style>
+</head>
+<body>
+
+    <div class="page-one">
+        <div class="report-title">{{ project.created_by.institution_name }}</div>
+        <div class="section-heading">{{ project.title }}</div>
+        <div class="hr"></div>
+
+        <div class="section-heading">Project Description</div>
+        <div class="normal-style">{{ project.description|linebreaksbr }}</div>
+        <div style="height: 15px;"></div>
+
+        <table class="table-base funding-metrics-table">
+            <colgroup>
+                <col style="width: 50%;">
+                <col style="width: 50%;">
+            </colgroup>
+            <tr>
+                <td><div class="key-metric-label">Funding Goal</div></td>
+                <td><div class="key-metric-label">Total Raised</div></td>
+            </tr>
+            <tr>
+                <td><div class="key-metric-value">{{ formatted_funding_goal }}</div></td>
+                <td><div class="key-metric-value">{{ formatted_current_amount }}</div></td>
+            </tr>
+        </table>
+        <div style="height: 20px;"></div>
+
+        <div class="section-heading">Project Timeline & Funding Summary</div>
+        <table class="table-base summary-table">
+            <colgroup>
+                <col style="width: 50%;">
+                <col style="width: 50%;">
+            </colgroup>
+            <tr>
+                <td class="normal-style label">Funding Started:</td>
+                <td class="normal-style">{{ project.started_at|date:"Y-m-d" }}</td>
+            </tr>
+            <tr>
+                <td class="normal-style label">Funding Closed:</td>
+                <td class="normal-style">{{ project.closed_by|date:"Y-m-d"|default:"N/A" }}</td>
+            </tr>
+            <tr>
+                <td class="normal-style label">Tile Value:</td>
+                <td class="normal-style">{{ formatted_tile_value }}</td>
+            </tr>
+            <tr>
+                <td class="normal-style label">Required Tiles to Goal:</td>
+                <td class="normal-style">{{ total_required_tiles }} tiles</td>
+            </tr>
+            <tr>
+                <td class="normal-style label">Funding Status:</td>
+                <td class="normal-style">{{ funding_status_text }}</td>
+            </tr>
+        </table>
+        <div style="height: 20px;"></div>
+
+        <div class="section-heading">Associated Details</div>
+        <table class="table-base details-table">
+            <tr>
+                <td class="bold-style-left"><b>Beneficiary Details:</b></td>
+                <td class="bold-style-left"><b>Institution Bank Details:</b></td>
+            </tr>
+            {% with inst_bank=project.created_by.default_bank beneficiary=project.beneficiary %}
+            <tr>
+                <td class="normal-style">
+                    Name: {{ beneficiary.first_name }} {{ beneficiary.last_name }}<br/>
+                    Age: {{ beneficiary.age }}<br/>
+                    Phone: {{ beneficiary.phone_number|default:"N/A" }}<br/>
+                    Address: {{ beneficiary.address }}
+                </td>
+                <td class="normal-style">
+                    Acc Holder: {{ inst_bank.account_holder_first_name }} {{ inst_bank.account_holder_last_name }}<br/>
+                    Bank Name: {{ inst_bank.bank_name }}<br/>
+                    IFSC: {{ inst_bank.ifsc_code|default:"N/A" }}<br/>
+                    Acc No: {{ inst_bank.account_no }}
+                </td>
+            </tr>
+            {% endwith %}
+        </table>
+        <div style="height: 20px;"></div>
+
+        <div class="normal-style"><b>Report Approved by:</b> {{ request_user.first_name }} {{ request_user.last_name }}</div>
+        <div class="normal-style"><b>Report Generated:</b> {{ report_date }}</div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <div class="page-two">
+        <div class="report-title">Project Image Documentation</div>
+        <div class="section-heading">Visual Documentation for: {{ project.title }}</div>
+        <div class="hr"></div>
+
+        {% if project_images_list %}
+        <table class="table-base" style="margin-top: 20px;">
+            <colgroup>
+                <col style="width: 50%;">
+                <col style="width: 50%;">
+            </colgroup>
+            {% for item in project_images_list %}
+                {% if forloop.counter0|divisibleby:2 %}
+                <tr>
+                {% endif %}
+
+                    {% comment %}
+                        The next item logic requires logic that is difficult
+                        without custom filters or views context.
+                        We will rely on simple list access for the primary item.
+                    {% endcomment %}
+                    <td class="text-center" style="padding-bottom: 15px;">
+                        <img src="{{ item.url }}" alt="{{ item.caption }}" style="width: 90%; height: auto; max-height: 200px; border: 1px solid #ccc;">
+                        <div class="normal-style">{{ item.caption|default:"Project Image" }}</div>
+                    </td>
+
+                {% if not forloop.counter0|divisibleby:2 or forloop.last %}
+                </tr>
+                {% endif %}
+            {% endfor %}
+
+            {% comment %}
+                This simplified approach correctly handles the two-column layout
+                by manually opening and closing <tr> tags every two items.
+                We must ensure the <tr> is closed if the list ends on an odd number.
+            {% endcomment %}
+
+        </table>
+        {% else %}
+        <div class="normal-style text-center" style="margin-top: 50px;"><b>**No Project Images Available.**</b></div>
+        {% endif %}
+    </div>
+
+    <div class="page-break"></div>
+
+    <div class="page-three">
+        <div class="report-title">Detailed Transaction Log</div>
+        <div class="section-heading">Verified Transactions for: {{ project.title }}</div>
+        <div class="hr"></div>
+
+        {% if transactions_list %}
+        <table class="table-base txn-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;" class="table-header-style">Sl.No</th>
+                    <th style="width: 28%;" class="table-header-style text-left">Donor Name</th>
+                    <th style="width: 17%;" class="table-header-style text-left">Tracking ID</th>
+                    <th style="width: 15%;" class="table-header-style">Date/Time</th>
+                    <th style="width: 10%;" class="table-header-style">Tiles Qty</th>
+                    <th style="width: 15%;" class="table-header-style">Amount ({{ rupee }})</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for txn in transactions_list %}
+                <tr>
+                    <td class="normal-style text-center">{{ txn.sl_no }}</td>
+                    <td class="normal-style text-left">{{ txn.donor_name }}</td>
+                    <td class="normal-style text-left">{{ txn.tracking_id }}</td>
+                    <td class="normal-style text-center">{{ txn.time|date:"Y-m-d H:i" }}</td>
+                    <td class="normal-style text-center">{{ txn.num_tiles }}</td>
+                    <td class="normal-style text-center">{{ txn.formatted_amount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="normal-style text-center" style="margin-top: 50px;"><b>**No Transactions Found for this Project.**</b></div>
+        {% endif %}
+    </div>
+
+</body>
+</html>
+

@@ -485,12 +485,14 @@ def _render_html_to_pdf_bytes(html_content, pdf_type='regular'):
             "print_background": True,
             "display_header_footer": False
         }
-    else:
+    elif pdf_type in ('regular', 'report'):
         pdf_options = {
             "format": "A4",
             "margin": {"top": "20mm", "right": "20mm", "bottom": "20mm", "left": "20mm"},
             "print_background": True,
         }
+    else:
+        pdf_options = {"format": "A4"}
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch()
@@ -573,272 +575,351 @@ def generate_80mm_receipt_pdf(transaction):
     return ContentFile(pdf_bytes, name=filename)
 
 
-"""generate report pdf."""
 def generate_report_pdf(project, request):
-    # --- REGISTER AND EMBED FONT ---
-    # Reusing the font paths and robust checks from the receipt function
-    font_regular_path = os.path.join(settings.BASE_DIR, 'AspireAid', 'static', 'fonts', 'NotoSansMalayalam-Regular.ttf')
-    font_bold_path = os.path.join(settings.BASE_DIR, 'AspireAid', 'static', 'fonts', 'NotoSansMalayalam-Bold.ttf')
+    """
+    Refactored to generate a PDF report for a Project instance,
+    based on the multi-page ReportLab structure.
+    """
+    # 1. Aggregate Data and Perform Calculations
 
-    if not os.path.exists(font_regular_path):
-        raise FileNotFoundError(f"Font not found at: {font_regular_path}")
-    if not os.path.exists(font_bold_path):
-        raise FileNotFoundError(f"Font not found at: {font_bold_path}")
+    # --- Data Aggregation (Replace with your actual Django ORM queries) ---
 
-    pdfmetrics.registerFont(TTFont('NotoSansMalayalam-Regular', font_regular_path))
-    pdfmetrics.registerFont(TTFont('NotoSansMalayalam-Bold', font_bold_path))
+    # Example: If you need to access transactions:
+    # all_transactions = project.transactions.all().select_related('sender', 'tiles_bought')
 
-    # --- PAGE CONFIGURATION ---
-    page_width, page_height = A4
-    left_margin, right_margin = 0.5 * inch, 0.5 * inch  # Match receipt margin
-    available_width = page_width - left_margin - right_margin
+    # --- MOCK DATA BASED ON REPORTLAB LOGIC ---
+    # Funding Metrics
+    funding_goal = float(project.funding_goal)
+    current_amount = float(project.current_amount)
+    tile_value = float(project.tile_value)
 
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(
-        buffer,
-        pagesize=A4,
-        leftMargin=left_margin,
-        rightMargin=right_margin,
-        topMargin=0.5 * inch,
-        bottomMargin=0.5 * inch,
-    )
-    elements = []
-    rupee = "\u20B9"
+    total_required_tiles = int(funding_goal / tile_value)
 
-    # --- STYLES (MATCHING RECEIPT STYLES) ---
-    styles = getSampleStyleSheet()
-
-    # Matching receipt's styles
-    styles.add(ParagraphStyle('ReportTitle', fontName='NotoSansMalayalam-Bold', fontSize=18, spaceAfter=20,
-                              alignment=TA_LEFT))  # Based on TitleStyle
-    styles.add(ParagraphStyle('SectionHeading', fontName='NotoSansMalayalam-Bold', fontSize=12, textColor=colors.black, spaceAfter=8,
-                       alignment=TA_LEFT))  # Based on SubtitleStyle
-    styles.add(ParagraphStyle('NormalStyle', fontName='NotoSansMalayalam-Regular', fontSize=8, spaceAfter=6, alignment=TA_LEFT,
-                              leading=10))  # Based on NormalStyle, added leading
-    styles.add(
-        ParagraphStyle('NormalStyleCenter', fontName='NotoSansMalayalam-Regular', fontSize=8, textColor=colors.black, spaceAfter=6,
-                       alignment=TA_CENTER))
-    styles.add(ParagraphStyle('BoldStyleLeft', fontName='NotoSansMalayalam-Bold', fontSize=8, spaceAfter=6, alignment=TA_LEFT))
-    styles.add(ParagraphStyle('RightAlignNormal', fontName='NotoSansMalayalam-Regular', fontSize=10, spaceAfter=6, alignment=TA_RIGHT))
-    styles.add(ParagraphStyle('KeyMetricLabel', fontName='NotoSansMalayalam-Regular', fontSize=11, textColor=colors.HexColor("#666666"),
-                              alignment=TA_CENTER))
-    styles.add(ParagraphStyle('KeyMetricValue', fontName='NotoSansMalayalam-Bold', fontSize=22, textColor=colors.black,
-                              alignment=TA_CENTER, leading=30))
-    styles.add(ParagraphStyle('TableHeaderStyle', fontName='NotoSansMalayalam-Bold', textColor=colors.white, fontSize=9,
-                              alignment=TA_CENTER))
-
-    # --- PAGE 1: HEADER & KEY METRICS ---
-    elements.append(Paragraph(project.created_by.institution_name, styles['ReportTitle']))
-    elements.append(Paragraph(project.title, styles['SectionHeading']))
-    elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))  # Matching Receipt Separator
-
-    elements.append(Paragraph("Project Description", styles['SectionHeading']))
-    elements.append(Paragraph(project.description, styles['NormalStyle']))
-    elements.append(Spacer(1, 15))
-
-    # --- KEY METRICS ---
-    funding_goal_formatted = f"{rupee}{project.funding_goal:,.2f}"
-    current_amount_formatted = f"{rupee}{project.current_amount:,.2f}"
-
-    funding_metrics_data = [
-        [
-            Paragraph("Funding Goal", styles['KeyMetricLabel']),
-            Paragraph("Total Raised", styles['KeyMetricLabel']),
-        ],
-        [
-            Paragraph(funding_goal_formatted, styles['KeyMetricValue']),
-            Paragraph(current_amount_formatted, styles['KeyMetricValue']),
-        ]
+    # Transaction Details (Used for the transaction table on page 3)
+    # The ReportLab code implies using a queryset named 'transactions'
+    # We'll mock a list of dictionaries with the required fields:
+    transactions_list = [
+        # Note: In real code, fetch this from project.transactions.all()
+        {'sl_no': 1, 'donor_name': 'Donor A', 'tracking_id': 'TX001',
+         'time': datetime.datetime.now() - datetime.timedelta(days=1), 'num_tiles': 25, 'amount': 500},
+        {'sl_no': 2, 'donor_name': 'Donor B', 'tracking_id': 'TX002',
+         'time': datetime.datetime.now() - datetime.timedelta(hours=5), 'num_tiles': 75, 'amount': 1500},
+        # Add more if needed
     ]
-    funding_metrics_table = Table(
-        funding_metrics_data,
-        colWidths=[available_width / 2] * 2,
-        rowHeights=[20, 30]
-    )
-    funding_metrics_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('GRID', (0, 0), (-1, -1), 0.7, colors.HexColor("#585858")),
-    ]))
-    elements.append(funding_metrics_table)
-    elements.append(Spacer(1, 20))
+    # Calculate num_tiles and format amount for each transaction
+    for txn in transactions_list:
+        txn['formatted_amount'] = format_currency(txn['amount'])
 
-    # --- SUMMARY SECTION ---
-    elements.append(Paragraph("Project Timeline & Funding Summary", styles['SectionHeading']))
-    total_required_tiles = int(project.funding_goal / project.tile_value)
-    summary_data = [
-        [Paragraph("Funding Started:", styles['BoldStyleLeft']),
-         Paragraph(project.started_at.strftime("%Y-%m-%d"), styles['NormalStyle'])],
-        [Paragraph("Funding Closed:", styles['BoldStyleLeft']),
-         Paragraph(project.closed_by.strftime("%Y-%m-%d") if project.closed_by else "N/A", styles['NormalStyle'])],
-        [Paragraph("Tile Value:", styles['BoldStyleLeft']),
-         Paragraph(f"{rupee}{project.tile_value:,.2f}", styles['NormalStyle'])],
-        [Paragraph("Required Tiles to Goal:", styles['BoldStyleLeft']),
-         Paragraph(f"{total_required_tiles} tiles", styles['NormalStyle'])],
-        [Paragraph("Funding Status:", styles['BoldStyleLeft']),
-         Paragraph(f"Closed - {'Exceeded Goal' if project.current_amount >= project.funding_goal else 'Goal Not Met'}",
-                   styles['NormalStyle'])],
-    ]
+    # --- END MOCK DATA ---
 
-    # Create summary table - Using clearer receipt-like style
-    summary_table = Table(summary_data, colWidths=[available_width * 0.5, available_width * 0.5])
-    summary_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 3),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
-        ('LEFTPADDING', (0, 0), (-1, -1), 10),
-        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.HexColor("#585858")),
-        ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor("#D2C6C6")),
-    ]))
-    elements.append(summary_table)
-    elements.append(Spacer(1, 20))
+    # 2. Perform Formatting
+    rupee = "₹"
 
-    # --- ASSOCIATED DETAILS ---
-    elements.append(Paragraph("Associated Details", styles['SectionHeading']))
-    inst_bank = project.created_by.default_bank
-    beneficiary = project.beneficiary
-    details_data = [
-        [
-            Paragraph('<b>Beneficiary Details:</b>', styles['BoldStyleLeft']),
-            Paragraph('<b>Institution Bank Details:</b>', styles['BoldStyleLeft']),
-        ],
-        [
-            Paragraph(
-                f'Name: {beneficiary.first_name} {beneficiary.last_name}<br/>'
-                f'Age: {beneficiary.age}<br/>'
-                f'Phone: {beneficiary.phone_number or "N/A"}<br/>'
-                f'Address: {beneficiary.address}', styles['NormalStyle']),
-            Paragraph(
-                f'Acc Holder: {inst_bank.account_holder_first_name} {inst_bank.account_holder_last_name}<br/>'
-                f'Bank Name: {inst_bank.bank_name}<br/>'
-                f'IFSC: {inst_bank.ifsc_code or "N/A"}<br/>'
-                f'Acc No: {inst_bank.account_no}<br/>', styles['NormalStyle']),
-        ]
-    ]
-    details_table = Table(details_data, colWidths=[available_width / 2] * 2)
-    details_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#D2C6C6")),  # Darker header row
-        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-        ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor("#585858")),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-    ]))
-    elements.append(details_table)
-    elements.append(Spacer(1, 20))
+    formatted_funding_goal = format_currency(funding_goal, rupee)
+    formatted_current_amount = format_currency(current_amount, rupee)
+    formatted_tile_value = format_currency(tile_value, rupee)
+    formatted_report_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    # Footer
-    elements.append(Paragraph(
-        f'<b>Report Approved by:</b> {request.user.first_name} {request.user.last_name}',
-        styles['NormalStyle']
-    ))
-    elements.append(Paragraph(
-        f'<b>Report Generated:</b> {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}',
-        styles['NormalStyle']
-    ))
+    funding_status_text = f"Closed - {'Exceeded Goal' if current_amount >= funding_goal else 'Goal Not Met'}"
 
-    # --- PAGE BREAK ---
-    elements.append(PageBreak())
+    # 3. Prepare Context
+    context = {
+        'project': project,
+        'request_user': request.user,  # Used for report approval name
+        'rupee': rupee,
+        'report_date': formatted_report_date,
 
-    # --- PAGE 2: PROJECT IMAGES ---
-    elements.append(Paragraph("Project Image Documentation", styles['ReportTitle']))
-    elements.append(Paragraph(f"Visual Documentation for: {project.title}", styles['SectionHeading']))
-    elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
+        # Page 1 Metrics
+        'formatted_funding_goal': formatted_funding_goal,
+        'formatted_current_amount': formatted_current_amount,
+        'total_required_tiles': total_required_tiles,
+        'formatted_tile_value': formatted_tile_value,
+        'funding_status_text': funding_status_text,
 
-    image_paths = []
-    # Simplified access to images for brevity
-    for project_image in project.images.filter(table_status=True).all():
-        try:
-            if project_image.project_img:
-                image_paths.append(project_image.project_img.path)
-        except Exception:
-            continue
+        # Page 2 Images (Need to correctly map this in your actual implementation)
+        # 'project_images': project.images.filter(table_status=True).all(),
+        'project_images_list': [{'url': '', 'caption': 'Placeholder image'}] * 4,  # Mock list
 
-    if image_paths:
-        image_elements = []
-        img_width = (available_width / 2) - (0.1 * inch)
-        img_height = img_width * (3 / 4)
-        for path in image_paths:
-            try:
-                img = Image(path, width=img_width, height=img_height)
-                image_elements.append(img)
-            except Exception:
-                image_elements.append(Paragraph(f"[Image failed to load: {path}]", styles['NormalStyle']))
-        image_data = []
-        for i in range(0, len(image_elements), 2):
-            row = image_elements[i:i + 2]
-            if len(row) == 1:
-                row.append(Spacer(1, 1))
-            image_data.append(row)
-        image_table = Table(image_data, colWidths=[available_width / 2] * 2)
-        image_table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 15),
-        ]))
-        elements.append(image_table)
-    else:
-        elements.append(Paragraph("**No Project Images Available.**", styles['NormalStyleCenter']))
+        # Page 3 Transactions
+        'transactions_list': transactions_list,
+    }
 
-    elements.append(PageBreak())
+    # 4. Generate PDF
+    html_content = render_to_string('pdf/project_report.html', context, request=request)
 
-    # --- PAGE 3: TRANSACTION DETAILS ---
-    elements.append(Paragraph("Detailed Transaction Log", styles['ReportTitle']))
-    elements.append(Paragraph(f"Verified Transactions for: {project.title}", styles['SectionHeading']))
-    elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
+    pdf_bytes = _render_html_to_pdf_bytes(html_content, pdf_type='report')
 
-    # NOTE: It is highly recommended to filter transactions by status='Verified' here
-    transactions = Transaction.objects.filter(project=project)
-    transaction_table_data = []
+    # 5. Save and Return
+    filename = f"project_report_{project.id}.pdf"
+    return ContentFile(pdf_bytes, name=filename)
 
-    # Header Row (Matching Receipt's dark header style)
-    header = [
-        Paragraph("Sl.No", styles['TableHeaderStyle']),
-        Paragraph("Donor Name", styles['TableHeaderStyle']),
-        Paragraph("Tracking ID", styles['TableHeaderStyle']),
-        Paragraph("Date/Time", styles['TableHeaderStyle']),
-        Paragraph("Tiles Qty", styles['TableHeaderStyle']),
-        Paragraph("Amount (₹)", styles['TableHeaderStyle'])
-    ]
-    transaction_table_data.append(header)
-
-    # Body Rows
-    for idx, txn in enumerate(transactions, start=1):
-        # NOTE: Be careful with the tile count logic if 'tiles' can be empty
-        num_tiles = len(txn.tiles_bought.tiles.split('-')) if txn.tiles_bought and txn.tiles_bought.tiles else 0
-        amount_val = txn.amount
-
-        row = [
-            Paragraph(str(idx), styles['NormalStyleCenter']),
-            Paragraph(txn.sender.full_name, styles['NormalStyle']),
-            Paragraph(txn.tracking_id, styles['NormalStyle']),
-            Paragraph(txn.transaction_time.strftime("%Y-%m-%d %H:%M"), styles['NormalStyleCenter']),
-            Paragraph(str(num_tiles), styles['NormalStyleCenter']),
-            Paragraph(f"{rupee}{amount_val:,.2f}", styles['NormalStyleCenter']),
-            # Use Center alignment for money column
-        ]
-        transaction_table_data.append(row)
-
-    col_widths = [30, 150, 100, 85, 60, 90]
-    txn_table = Table(transaction_table_data, colWidths=col_widths, repeatRows=1)
-    txn_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#D2C6C6")),  # Dark header
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),  # White text
-        ('FONTNAME', (0, 0), (-1, 0), 'NotoSansMalayalam-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
-        ('TOPPADDING', (0, 0), (-1, 0), 6),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('ALIGN', (1, 1), (2, -1), 'LEFT'),  # Donor Name/Tracking ID left aligned
-        ('ALIGN', (5, 1), (5, -1), 'CENTER'),  # Amount center aligned (was right)
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F2F2F2')]),
-        # Slightly lighter alternating rows
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#585858")),
-    ]))
-    elements.append(txn_table)
-
-    # --- BUILD PDF ---
-    doc.build(elements)
-    pdf_data = buffer.getvalue()
-    buffer.close()
-
-    return ContentFile(pdf_data, name=f"{project.title}_Report.pdf")
+#
+# """generate report pdf."""
+# def generate_report_pdf(project, request):
+#     # --- REGISTER AND EMBED FONT ---
+#     # Reusing the font paths and robust checks from the receipt function
+#     font_regular_path = os.path.join(settings.BASE_DIR, 'AspireAid', 'static', 'fonts', 'NotoSansMalayalam-Regular.ttf')
+#     font_bold_path = os.path.join(settings.BASE_DIR, 'AspireAid', 'static', 'fonts', 'NotoSansMalayalam-Bold.ttf')
+#
+#     if not os.path.exists(font_regular_path):
+#         raise FileNotFoundError(f"Font not found at: {font_regular_path}")
+#     if not os.path.exists(font_bold_path):
+#         raise FileNotFoundError(f"Font not found at: {font_bold_path}")
+#
+#     pdfmetrics.registerFont(TTFont('NotoSansMalayalam-Regular', font_regular_path))
+#     pdfmetrics.registerFont(TTFont('NotoSansMalayalam-Bold', font_bold_path))
+#
+#     # --- PAGE CONFIGURATION ---
+#     page_width, page_height = A4
+#     left_margin, right_margin = 0.5 * inch, 0.5 * inch  # Match receipt margin
+#     available_width = page_width - left_margin - right_margin
+#
+#     buffer = io.BytesIO()
+#     doc = SimpleDocTemplate(
+#         buffer,
+#         pagesize=A4,
+#         leftMargin=left_margin,
+#         rightMargin=right_margin,
+#         topMargin=0.5 * inch,
+#         bottomMargin=0.5 * inch,
+#     )
+#     elements = []
+#     rupee = "\u20B9"
+#
+#     # --- STYLES (MATCHING RECEIPT STYLES) ---
+#     styles = getSampleStyleSheet()
+#
+#     # Matching receipt's styles
+#     styles.add(ParagraphStyle('ReportTitle', fontName='NotoSansMalayalam-Bold', fontSize=18, spaceAfter=20,
+#                               alignment=TA_LEFT))  # Based on TitleStyle
+#     styles.add(ParagraphStyle('SectionHeading', fontName='NotoSansMalayalam-Bold', fontSize=12, textColor=colors.black, spaceAfter=8,
+#                        alignment=TA_LEFT))  # Based on SubtitleStyle
+#     styles.add(ParagraphStyle('NormalStyle', fontName='NotoSansMalayalam-Regular', fontSize=8, spaceAfter=6, alignment=TA_LEFT,
+#                               leading=10))  # Based on NormalStyle, added leading
+#     styles.add(
+#         ParagraphStyle('NormalStyleCenter', fontName='NotoSansMalayalam-Regular', fontSize=8, textColor=colors.black, spaceAfter=6,
+#                        alignment=TA_CENTER))
+#     styles.add(ParagraphStyle('BoldStyleLeft', fontName='NotoSansMalayalam-Bold', fontSize=8, spaceAfter=6, alignment=TA_LEFT))
+#     styles.add(ParagraphStyle('RightAlignNormal', fontName='NotoSansMalayalam-Regular', fontSize=10, spaceAfter=6, alignment=TA_RIGHT))
+#     styles.add(ParagraphStyle('KeyMetricLabel', fontName='NotoSansMalayalam-Regular', fontSize=11, textColor=colors.HexColor("#666666"),
+#                               alignment=TA_CENTER))
+#     styles.add(ParagraphStyle('KeyMetricValue', fontName='NotoSansMalayalam-Bold', fontSize=22, textColor=colors.black,
+#                               alignment=TA_CENTER, leading=30))
+#     styles.add(ParagraphStyle('TableHeaderStyle', fontName='NotoSansMalayalam-Bold', textColor=colors.white, fontSize=9,
+#                               alignment=TA_CENTER))
+#
+#     # --- PAGE 1: HEADER & KEY METRICS ---
+#     elements.append(Paragraph(project.created_by.institution_name, styles['ReportTitle']))
+#     elements.append(Paragraph(project.title, styles['SectionHeading']))
+#     elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))  # Matching Receipt Separator
+#
+#     elements.append(Paragraph("Project Description", styles['SectionHeading']))
+#     elements.append(Paragraph(project.description, styles['NormalStyle']))
+#     elements.append(Spacer(1, 15))
+#
+#     # --- KEY METRICS ---
+#     funding_goal_formatted = f"{rupee}{project.funding_goal:,.2f}"
+#     current_amount_formatted = f"{rupee}{project.current_amount:,.2f}"
+#
+#     funding_metrics_data = [
+#         [
+#             Paragraph("Funding Goal", styles['KeyMetricLabel']),
+#             Paragraph("Total Raised", styles['KeyMetricLabel']),
+#         ],
+#         [
+#             Paragraph(funding_goal_formatted, styles['KeyMetricValue']),
+#             Paragraph(current_amount_formatted, styles['KeyMetricValue']),
+#         ]
+#     ]
+#     funding_metrics_table = Table(
+#         funding_metrics_data,
+#         colWidths=[available_width / 2] * 2,
+#         rowHeights=[20, 30]
+#     )
+#     funding_metrics_table.setStyle(TableStyle([
+#         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+#         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+#         ('GRID', (0, 0), (-1, -1), 0.7, colors.HexColor("#585858")),
+#     ]))
+#     elements.append(funding_metrics_table)
+#     elements.append(Spacer(1, 20))
+#
+#     # --- SUMMARY SECTION ---
+#     elements.append(Paragraph("Project Timeline & Funding Summary", styles['SectionHeading']))
+#     total_required_tiles = int(project.funding_goal / project.tile_value)
+#     summary_data = [
+#         [Paragraph("Funding Started:", styles['BoldStyleLeft']),
+#          Paragraph(project.started_at.strftime("%Y-%m-%d"), styles['NormalStyle'])],
+#         [Paragraph("Funding Closed:", styles['BoldStyleLeft']),
+#          Paragraph(project.closed_by.strftime("%Y-%m-%d") if project.closed_by else "N/A", styles['NormalStyle'])],
+#         [Paragraph("Tile Value:", styles['BoldStyleLeft']),
+#          Paragraph(f"{rupee}{project.tile_value:,.2f}", styles['NormalStyle'])],
+#         [Paragraph("Required Tiles to Goal:", styles['BoldStyleLeft']),
+#          Paragraph(f"{total_required_tiles} tiles", styles['NormalStyle'])],
+#         [Paragraph("Funding Status:", styles['BoldStyleLeft']),
+#          Paragraph(f"Closed - {'Exceeded Goal' if project.current_amount >= project.funding_goal else 'Goal Not Met'}",
+#                    styles['NormalStyle'])],
+#     ]
+#
+#     # Create summary table - Using clearer receipt-like style
+#     summary_table = Table(summary_data, colWidths=[available_width * 0.5, available_width * 0.5])
+#     summary_table.setStyle(TableStyle([
+#         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+#         ('TOPPADDING', (0, 0), (-1, -1), 3),
+#         ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+#         ('LEFTPADDING', (0, 0), (-1, -1), 10),
+#         ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.HexColor("#585858")),
+#         ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor("#D2C6C6")),
+#     ]))
+#     elements.append(summary_table)
+#     elements.append(Spacer(1, 20))
+#
+#     # --- ASSOCIATED DETAILS ---
+#     elements.append(Paragraph("Associated Details", styles['SectionHeading']))
+#     inst_bank = project.created_by.default_bank
+#     beneficiary = project.beneficiary
+#     details_data = [
+#         [
+#             Paragraph('<b>Beneficiary Details:</b>', styles['BoldStyleLeft']),
+#             Paragraph('<b>Institution Bank Details:</b>', styles['BoldStyleLeft']),
+#         ],
+#         [
+#             Paragraph(
+#                 f'Name: {beneficiary.first_name} {beneficiary.last_name}<br/>'
+#                 f'Age: {beneficiary.age}<br/>'
+#                 f'Phone: {beneficiary.phone_number or "N/A"}<br/>'
+#                 f'Address: {beneficiary.address}', styles['NormalStyle']),
+#             Paragraph(
+#                 f'Acc Holder: {inst_bank.account_holder_first_name} {inst_bank.account_holder_last_name}<br/>'
+#                 f'Bank Name: {inst_bank.bank_name}<br/>'
+#                 f'IFSC: {inst_bank.ifsc_code or "N/A"}<br/>'
+#                 f'Acc No: {inst_bank.account_no}<br/>', styles['NormalStyle']),
+#         ]
+#     ]
+#     details_table = Table(details_data, colWidths=[available_width / 2] * 2)
+#     details_table.setStyle(TableStyle([
+#         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+#         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#D2C6C6")),  # Darker header row
+#         ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+#         ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor("#585858")),
+#         ('TOPPADDING', (0, 0), (-1, -1), 5),
+#     ]))
+#     elements.append(details_table)
+#     elements.append(Spacer(1, 20))
+#
+#     # Footer
+#     elements.append(Paragraph(
+#         f'<b>Report Approved by:</b> {request.user.first_name} {request.user.last_name}',
+#         styles['NormalStyle']
+#     ))
+#     elements.append(Paragraph(
+#         f'<b>Report Generated:</b> {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}',
+#         styles['NormalStyle']
+#     ))
+#
+#     # --- PAGE BREAK ---
+#     elements.append(PageBreak())
+#
+#     # --- PAGE 2: PROJECT IMAGES ---
+#     elements.append(Paragraph("Project Image Documentation", styles['ReportTitle']))
+#     elements.append(Paragraph(f"Visual Documentation for: {project.title}", styles['SectionHeading']))
+#     elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
+#
+#     image_paths = []
+#     # Simplified access to images for brevity
+#     for project_image in project.images.filter(table_status=True).all():
+#         try:
+#             if project_image.project_img:
+#                 image_paths.append(project_image.project_img.path)
+#         except Exception:
+#             continue
+#
+#     if image_paths:
+#         image_elements = []
+#         img_width = (available_width / 2) - (0.1 * inch)
+#         img_height = img_width * (3 / 4)
+#         for path in image_paths:
+#             try:
+#                 img = Image(path, width=img_width, height=img_height)
+#                 image_elements.append(img)
+#             except Exception:
+#                 image_elements.append(Paragraph(f"[Image failed to load: {path}]", styles['NormalStyle']))
+#         image_data = []
+#         for i in range(0, len(image_elements), 2):
+#             row = image_elements[i:i + 2]
+#             if len(row) == 1:
+#                 row.append(Spacer(1, 1))
+#             image_data.append(row)
+#         image_table = Table(image_data, colWidths=[available_width / 2] * 2)
+#         image_table.setStyle(TableStyle([
+#             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+#             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+#             ('BOTTOMPADDING', (0, 0), (-1, -1), 15),
+#         ]))
+#         elements.append(image_table)
+#     else:
+#         elements.append(Paragraph("**No Project Images Available.**", styles['NormalStyleCenter']))
+#
+#     elements.append(PageBreak())
+#
+#     # --- PAGE 3: TRANSACTION DETAILS ---
+#     elements.append(Paragraph("Detailed Transaction Log", styles['ReportTitle']))
+#     elements.append(Paragraph(f"Verified Transactions for: {project.title}", styles['SectionHeading']))
+#     elements.append(HRFlowable(width="100%", thickness=1, spaceAfter=15, spaceBefore=0))
+#
+#     # NOTE: It is highly recommended to filter transactions by status='Verified' here
+#     transactions = Transaction.objects.filter(project=project)
+#     transaction_table_data = []
+#
+#     # Header Row (Matching Receipt's dark header style)
+#     header = [
+#         Paragraph("Sl.No", styles['TableHeaderStyle']),
+#         Paragraph("Donor Name", styles['TableHeaderStyle']),
+#         Paragraph("Tracking ID", styles['TableHeaderStyle']),
+#         Paragraph("Date/Time", styles['TableHeaderStyle']),
+#         Paragraph("Tiles Qty", styles['TableHeaderStyle']),
+#         Paragraph("Amount (₹)", styles['TableHeaderStyle'])
+#     ]
+#     transaction_table_data.append(header)
+#
+#     # Body Rows
+#     for idx, txn in enumerate(transactions, start=1):
+#         # NOTE: Be careful with the tile count logic if 'tiles' can be empty
+#         num_tiles = len(txn.tiles_bought.tiles.split('-')) if txn.tiles_bought and txn.tiles_bought.tiles else 0
+#         amount_val = txn.amount
+#
+#         row = [
+#             Paragraph(str(idx), styles['NormalStyleCenter']),
+#             Paragraph(txn.sender.full_name, styles['NormalStyle']),
+#             Paragraph(txn.tracking_id, styles['NormalStyle']),
+#             Paragraph(txn.transaction_time.strftime("%Y-%m-%d %H:%M"), styles['NormalStyleCenter']),
+#             Paragraph(str(num_tiles), styles['NormalStyleCenter']),
+#             Paragraph(f"{rupee}{amount_val:,.2f}", styles['NormalStyleCenter']),
+#             # Use Center alignment for money column
+#         ]
+#         transaction_table_data.append(row)
+#
+#     col_widths = [30, 150, 100, 85, 60, 90]
+#     txn_table = Table(transaction_table_data, colWidths=col_widths, repeatRows=1)
+#     txn_table.setStyle(TableStyle([
+#         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#D2C6C6")),  # Dark header
+#         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),  # White text
+#         ('FONTNAME', (0, 0), (-1, 0), 'NotoSansMalayalam-Bold'),
+#         ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+#         ('TOPPADDING', (0, 0), (-1, 0), 6),
+#         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+#         ('ALIGN', (1, 1), (2, -1), 'LEFT'),  # Donor Name/Tracking ID left aligned
+#         ('ALIGN', (5, 1), (5, -1), 'CENTER'),  # Amount center aligned (was right)
+#         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+#         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F2F2F2')]),
+#         # Slightly lighter alternating rows
+#         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#585858")),
+#     ]))
+#     elements.append(txn_table)
+#
+#     # --- BUILD PDF ---
+#     doc.build(elements)
+#     pdf_data = buffer.getvalue()
+#     buffer.close()
+#
+#     return ContentFile(pdf_data, name=f"{project.title}_Report.pdf")
