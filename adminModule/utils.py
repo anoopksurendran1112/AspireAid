@@ -481,6 +481,7 @@ def _render_html_to_pdf_bytes(html_content, pdf_type='regular'):
     if pdf_type == '80mm':
         pdf_options = {
             "width": "80mm",
+            "height": "180mm",
             "margin": {"top": "1mm", "right": "1mm", "bottom": "1mm", "left": "1mm"},
             "print_background": True,
             "display_header_footer": False

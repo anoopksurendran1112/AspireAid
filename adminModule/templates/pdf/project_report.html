@@ -6,211 +6,268 @@
     <title>Project Report - {{ project.title }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* --- GLOBAL STYLES & PRINT CONFIG --- */
+        /* --- GLOBAL STYLES & PRINT CONFIG (Based on A4 Receipt) --- */
         body {
             font-family: 'Noto Sans Malayalam', sans-serif;
-            margin: 20mm; /* A4 margin matching pdf_options */
+            margin: 1mm; /* Standard A4 margin */
             color: #333;
-            font-size: 8pt;
-            line-height: 1.5;
+            font-size: 9pt;
+            line-height: 1.4;
         }
-        /* Crucial for forcing page breaks */
         .page-break {
             page-break-after: always;
         }
+        .clearfix::after { content: ""; clear: both; display: table; }
 
-        /* --- STYLES (MATCHING REPORTLAB PARAGRAPH STYLES) --- */
-        .report-title {
-            font-size: 18pt;
+        /* --- HEADER & SECTION STYLES (From A4 Receipt) --- */
+        .header-title {
+            font-size: 20pt;
             font-weight: 700;
-            margin-bottom: 20pt;
+            text-align: center;
+            margin-bottom: 8mm;
+            color: #000;
         }
-        .section-heading {
-            font-size: 12pt;
+        .section-title {
+            font-size: 11pt;
             font-weight: 700;
-            margin-bottom: 8pt;
+            margin-top: 6mm;
+            margin-bottom: 3mm;
+            border-bottom: 1px solid #000;
+            padding-bottom: 1mm;
+            color: #000;
         }
         .normal-style {
-            font-size: 8pt;
-            font-weight: 400;
-            margin-bottom: 6pt;
-            line-height: 1.25; /* Similar to leading=10 */
-        }
-        .bold-style-left {
-            font-size: 8pt;
-            font-weight: 700;
-            margin-bottom: 6pt;
-        }
-        .key-metric-label {
-            font-size: 11pt;
-            font-weight: 400;
-            color: #666666;
-            text-align: center;
-            padding: 5px 0;
-        }
-        .key-metric-value {
-            font-size: 22pt;
-            font-weight: 700;
-            text-align: center;
-            padding-bottom: 5px;
-        }
-        .table-header-style {
             font-size: 9pt;
+            margin-bottom: 5pt;
+            line-height: 1.5;
+        }
+
+        /* --- Detail Lines (From A4 Receipt) --- */
+        .detail-group {
+            width: 48%;
+            float: left;
+        }
+        .detail-line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9pt;
+            margin-bottom: 3mm;
+            min-height: 1.2em;
+        }
+        .detail-line .label {
             font-weight: 700;
+            white-space: nowrap;
+            padding-right: 10px;
+            color: #374151;
+            flex-shrink: 0;
+            width: 40%; /* Wider labels for report context */
+            text-align: left;
+        }
+        .detail-line .value {
+            text-align: right;
+            flex-grow: 1;
+        }
+
+        /* --- Highlight/Metric Styles (Custom for Report) --- */
+        .project-emphasis {
+            font-size: 18pt;
+            font-weight: 700;
+            color: #047857;
+            text-align: center;
+            margin-bottom: 8mm;
+            padding-top: 5mm;
+            border-top: 3px solid #047857;
+        }
+        .metric-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 10px;
+            height: 60px; /* Uniform height */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .metric-label {
+            font-size: 10pt;
+            font-weight: 400;
+            color: #666;
+        }
+        .metric-value {
+            font-size: 18pt;
+            font-weight: 700;
+            color: #000;
+        }
+
+        /* --- Transaction Table (Based on A4 Receipt Summary Table) --- */
+        .report-txn-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9pt;
+            margin-top: 3mm;
+        }
+        .report-txn-table th, .report-txn-table td {
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            vertical-align: middle;
+        }
+        .report-txn-table thead th {
+            background-color: #374151; /* Dark header background */
             color: white;
-            padding: 6px;
+            font-weight: 700;
             text-align: center;
         }
-
-        /* --- TABLE STYLES --- */
-        .hr { border-top: 1px solid #000; margin: 15px 0; }
-        .table-base { width: 100%; border-collapse: collapse; }
-        .table-base td, .table-base th { vertical-align: middle; padding: 5px; }
-
-        /* Key Metrics Table */
-        .funding-metrics-table {
-            margin-bottom: 20px;
-        }
-        .funding-metrics-table td {
-            border: 0.7px solid #585858;
-            padding: 0;
-        }
-        /* Summary Table */
-        .summary-table td {
-            border: 0.25px solid #585858;
-            padding: 3px 10px;
-        }
-        .summary-table {
-            border: 0.5px solid #D2C6C6;
-            margin-bottom: 20px;
-        }
-        .summary-table .label { font-weight: 700; }
-
-        /* Associated Details Table */
-        .details-table {
-            border: 0.5px solid #585858;
-            margin-bottom: 20px;
-        }
-        .details-table tr:first-child {
-            background-color: #D2C6C6;
-        }
-        .details-table td {
-            border: 0.25px solid #000;
-            vertical-align: top;
-            padding: 5px;
-            width: 50%;
-        }
-
-        /* Transaction Table */
-        .txn-table th {
-            background-color: #D2C6C6;
-        }
-        .txn-table td {
-            border: 0.5px solid #585858;
-            padding: 6px;
-        }
-        .txn-table tbody tr:nth-child(even) {
+        .report-txn-table tbody tr:nth-child(even) {
             background-color: #F2F2F2; /* Alternating rows */
         }
         .text-center { text-align: center !important; }
         .text-left { text-align: left !important; }
 
+        .hr { border: none; border-top: 1px solid #000; height: 0; margin: 15px 0; }
+        .dotted-sep {
+            border: none;
+            border-top: 1px dashed #A3A3A3;
+            height: 0;
+            margin: 3mm 0;
+        }
     </style>
 </head>
 <body>
 
     <div class="page-one">
-        <div class="report-title">{{ project.created_by.institution_name }}</div>
-        <div class="section-heading">{{ project.title }}</div>
+        <div class="header-title">{{ project.created_by.institution_name }}</div>
+
+        <div class="project-emphasis">{{ project.title }}</div>
+
         <div class="hr"></div>
 
-        <div class="section-heading">Project Description</div>
+        <div class="section-title">Project Description</div>
         <div class="normal-style">{{ project.description|linebreaksbr }}</div>
         <div style="height: 15px;"></div>
 
-        <table class="table-base funding-metrics-table">
-            <colgroup>
-                <col style="width: 50%;">
-                <col style="width: 50%;">
-            </colgroup>
-            <tr>
-                <td><div class="key-metric-label">Funding Goal</div></td>
-                <td><div class="key-metric-label">Total Raised</div></td>
-            </tr>
-            <tr>
-                <td><div class="key-metric-value">{{ formatted_funding_goal }}</div></td>
-                <td><div class="key-metric-value">{{ formatted_current_amount }}</div></td>
-            </tr>
-        </table>
-        <div style="height: 20px;"></div>
+        <div class="section-title">Key Funding Metrics</div>
+        <div class="clearfix">
+            <div class="detail-group" style="margin-right: 4%;">
+                <div class="metric-box">
+                    <div class="metric-label">Funding Goal</div>
+                    <div class="metric-value">{{ formatted_funding_goal }}</div>
+                </div>
+            </div>
+            <div class="detail-group">
+                <div class="metric-box" style="background-color: #f0fdf4;">
+                    <div class="metric-label">Total Raised</div>
+                    <div class="metric-value" style="color: #047857;">{{ formatted_current_amount }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix">
+            <div class="detail-group" style="margin-right: 4%;">
+                <div class="metric-box">
+                    <div class="metric-label">Tiles Required to Goal</div>
+                    <div class="metric-value" >{{ total_required_tiles }}</div>
+                </div>
+            </div>
+            <div class="detail-group">
+                <div class="metric-box">
+                    <div class="metric-label">Funding Status</div>
+                    <div class="metric-value" style="color: #047857;">Success</div>
+                </div>
+            </div>
+        </div>
 
-        <div class="section-heading">Project Timeline & Funding Summary</div>
-        <table class="table-base summary-table">
-            <colgroup>
-                <col style="width: 50%;">
-                <col style="width: 50%;">
-            </colgroup>
-            <tr>
-                <td class="normal-style label">Funding Started:</td>
-                <td class="normal-style">{{ project.started_at|date:"Y-m-d" }}</td>
-            </tr>
-            <tr>
-                <td class="normal-style label">Funding Closed:</td>
-                <td class="normal-style">{{ project.closed_by|date:"Y-m-d"|default:"N/A" }}</td>
-            </tr>
-            <tr>
-                <td class="normal-style label">Tile Value:</td>
-                <td class="normal-style">{{ formatted_tile_value }}</td>
-            </tr>
-            <tr>
-                <td class="normal-style label">Required Tiles to Goal:</td>
-                <td class="normal-style">{{ total_required_tiles }} tiles</td>
-            </tr>
-            <tr>
-                <td class="normal-style label">Funding Status:</td>
-                <td class="normal-style">{{ funding_status_text }}</td>
-            </tr>
-        </table>
-        <div style="height: 20px;"></div>
+        <div class="section-title">Project Summary</div>
+        <div class="clearfix">
+            <div class="detail-group" style="margin-right: 4%;">
+                <div class="detail-line">
+                    <span class="label">Funding Started:</span>
+                    <span class="value">{{ project.started_at|date:"Y-m-d H:i:s" }}</span>
+                </div>
+                <div class="detail-line">
+                    <span class="label">Funding Closed:</span>
+                    <span class="value">{{ project.closed_by|date:"Y-m-d"|default:"N/A" }}</span>
+                </div>
+            </div>
+            <div class="detail-group">
+                <div class="detail-line">
+                    <span class="label">Unit Tile Value:</span>
+                    <span class="value">{{ formatted_tile_value }}</span>
+                </div>
+            </div>
+        </div>
 
-        <div class="section-heading">Associated Details</div>
-        <table class="table-base details-table">
-            <tr>
-                <td class="bold-style-left"><b>Beneficiary Details:</b></td>
-                <td class="bold-style-left"><b>Institution Bank Details:</b></td>
-            </tr>
-            {% with inst_bank=project.created_by.default_bank beneficiary=project.beneficiary %}
-            <tr>
-                <td class="normal-style">
-                    Name: {{ beneficiary.first_name }} {{ beneficiary.last_name }}<br/>
-                    Age: {{ beneficiary.age }}<br/>
-                    Phone: {{ beneficiary.phone_number|default:"N/A" }}<br/>
-                    Address: {{ beneficiary.address }}
-                </td>
-                <td class="normal-style">
-                    Acc Holder: {{ inst_bank.account_holder_first_name }} {{ inst_bank.account_holder_last_name }}<br/>
-                    Bank Name: {{ inst_bank.bank_name }}<br/>
-                    IFSC: {{ inst_bank.ifsc_code|default:"N/A" }}<br/>
-                    Acc No: {{ inst_bank.account_no }}
-                </td>
-            </tr>
-            {% endwith %}
-        </table>
-        <div style="height: 20px;"></div>
+        <div class="section-title">Associated Details</div>
+        <div class="clearfix">
+            <div class="detail-group" style="margin-right: 4%;">
+                <div class="section-title" style="margin-top: 0; padding-top: 0; border-bottom: 1px solid #ccc;">Beneficiary Details</div>
+                <div class="detail-line">
+                    <span class="label">Name:</span>
+                    <span class="value">{{ project.beneficiary.first_name }} {{ project.beneficiary.last_name }}</span>
+                </div>
+                <div class="detail-line">
+                    <span class="label">Age:</span>
+                    <span class="value">{{ project.beneficiary.age|default:'N/A' }}</span>
+                </div>
+                <div class="detail-line">
+                    <span class="label">Phone:</span>
+                    <span class="value">{{ project.beneficiary.phone_number|default:"N/A" }}</span>
+                </div>
+                <div class="detail-line">
+                    <span class="label">Address:</span>
+                    <span class="value">{{ project.beneficiary.address }}</span>
+                </div>
+            </div>
 
-        <div class="normal-style"><b>Report Approved by:</b> {{ request_user.first_name }} {{ request_user.last_name }}</div>
-        <div class="normal-style"><b>Report Generated:</b> {{ report_date }}</div>
+            <div class="detail-group">
+                <div class="section-title" style="margin-top: 0; padding-top: 0; border-bottom: 1px solid #ccc;">Institution Bank Details</div>
+                {% with inst_bank=project.created_by.default_bank %}
+                <div class="detail-line">
+                    <span class="label">Acc Holder:</span>
+                    <span class="value">{{ inst_bank.account_holder_first_name }} {{ inst_bank.account_holder_last_name }}</span>
+                </div>
+                <div class="detail-line">
+                    <span class="label">Bank Name:</span>
+                    <span class="value">{{ inst_bank.bank_name }}</span>
+                </div>
+                <div class="detail-line">
+                    <span class="label">IFSC Code:</span>
+                    <span class="value">{{ inst_bank.ifsc_code|default:"N/A" }}</span>
+                </div>
+                <div class="detail-line">
+                    <span class="label">Account No:</span>
+                    <span class="value">{{ inst_bank.account_no }}</span>
+                </div>
+                {% endwith %}
+            </div>
+        </div>
+
+        <div style="height: 20px;"></div>
+        <div class="dotted-sep"></div>
+
+        <div class="clearfix">
+            <div class="detail-group" style="margin-right: 4%;">
+                <div class="detail-line">
+                    <span class="label">Report Approved by:</span>
+                    <span class="value">{{ request_user.first_name }} {{ request_user.last_name }}</span>
+                </div>
+            </div>
+            <div class="detail-group">
+                <div class="detail-line">
+                    <span class="label">Report Generated:</span>
+                    <span class="value" id="report-generated-date">Loading...</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="page-break"></div>
 
     <div class="page-two">
-        <div class="report-title">Project Image Documentation</div>
-        <div class="section-heading">Visual Documentation for: {{ project.title }}</div>
+        <div class="header-title">Project Image Documentation</div>
+        <div class="section-title">Visual Documentation for: {{ project.title }}</div>
         <div class="hr"></div>
 
         {% if project_images_list %}
-        <table class="table-base" style="margin-top: 20px;">
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
             <colgroup>
                 <col style="width: 50%;">
                 <col style="width: 50%;">
@@ -219,28 +276,14 @@
                 {% if forloop.counter0|divisibleby:2 %}
                 <tr>
                 {% endif %}
-
-                    {% comment %}
-                        The next item logic requires logic that is difficult
-                        without custom filters or views context.
-                        We will rely on simple list access for the primary item.
-                    {% endcomment %}
-                    <td class="text-center" style="padding-bottom: 15px;">
+                    <td class="text-center" style="padding-bottom: 15px; border: none;">
                         <img src="{{ item.url }}" alt="{{ item.caption }}" style="width: 90%; height: auto; max-height: 200px; border: 1px solid #ccc;">
-                        <div class="normal-style">{{ item.caption|default:"Project Image" }}</div>
+                        <div class="normal-style" style="margin-top: 5px;">{{ item.caption|default:"Project Image" }}</div>
                     </td>
-
                 {% if not forloop.counter0|divisibleby:2 or forloop.last %}
                 </tr>
                 {% endif %}
             {% endfor %}
-
-            {% comment %}
-                This simplified approach correctly handles the two-column layout
-                by manually opening and closing <tr> tags every two items.
-                We must ensure the <tr> is closed if the list ends on an odd number.
-            {% endcomment %}
-
         </table>
         {% else %}
         <div class="normal-style text-center" style="margin-top: 50px;"><b>**No Project Images Available.**</b></div>
@@ -250,31 +293,31 @@
     <div class="page-break"></div>
 
     <div class="page-three">
-        <div class="report-title">Detailed Transaction Log</div>
-        <div class="section-heading">Verified Transactions for: {{ project.title }}</div>
+        <div class="header-title">Detailed Transaction Log</div>
+        <div class="section-title">Verified Transactions for: {{ project.title }}</div>
         <div class="hr"></div>
 
         {% if transactions_list %}
-        <table class="table-base txn-table">
+        <table class="report-txn-table">
             <thead>
                 <tr>
-                    <th style="width: 5%;" class="table-header-style">Sl.No</th>
-                    <th style="width: 28%;" class="table-header-style text-left">Donor Name</th>
-                    <th style="width: 17%;" class="table-header-style text-left">Tracking ID</th>
-                    <th style="width: 15%;" class="table-header-style">Date/Time</th>
-                    <th style="width: 10%;" class="table-header-style">Tiles Qty</th>
-                    <th style="width: 15%;" class="table-header-style">Amount ({{ rupee }})</th>
+                    <th style="width: 5%;" class="text-center">Sl.No</th>
+                    <th style="width: 25%;" class="text-left">Donor Name</th>
+                    <th style="width: 15%;" class="text-left">Tracking ID</th>
+                    <th style="width: 15%;">Date/Time</th>
+                    <th style="width: 10%;">Tiles Qty</th>
+                    <th style="width: 15%;">Amount ({{ rupee }})</th>
                 </tr>
             </thead>
             <tbody>
                 {% for txn in transactions_list %}
                 <tr>
-                    <td class="normal-style text-center">{{ txn.sl_no }}</td>
-                    <td class="normal-style text-left">{{ txn.donor_name }}</td>
-                    <td class="normal-style text-left">{{ txn.tracking_id }}</td>
-                    <td class="normal-style text-center">{{ txn.time|date:"Y-m-d H:i" }}</td>
-                    <td class="normal-style text-center">{{ txn.num_tiles }}</td>
-                    <td class="normal-style text-center">{{ txn.formatted_amount }}</td>
+                    <td class="text-center">{{ txn.sl_no }}</td>
+                    <td class="text-left">{{ txn.donor_name }}</td>
+                    <td class="text-left">{{ txn.tracking_id }}</td>
+                    <td class="text-center">{{ txn.time|date:"Y-m-d H:i" }}</td>
+                    <td class="text-center">{{ txn.num_tiles }}</td>
+                    <td class="text-center">{{ txn.formatted_amount }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -284,6 +327,27 @@
         {% endif %}
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const dateElement = document.getElementById('report-generated-date');
+            if (dateElement) {
+                const now = new Date();
+
+                function pad(num) {
+                    return String(num).padStart(2, '0');
+                }
+
+                // Format: YYYY-MM-DD HH:MM:SS
+                const year = now.getFullYear();
+                const month = pad(now.getMonth() + 1);
+                const day = pad(now.getDate());
+                const hours = pad(now.getHours());
+                const minutes = pad(now.getMinutes());
+                const seconds = pad(now.getSeconds());
+
+                dateElement.textContent = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            }
+        });
+    </script>
 </body>
 </html>
-
